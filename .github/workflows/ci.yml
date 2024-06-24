@@ -2,8 +2,6 @@ name: CI Pipeline
 
 on:
   pull_request:
-    paths-ignore:
-      - '[skip ci]'
 
 jobs:
   fetch-repository:
