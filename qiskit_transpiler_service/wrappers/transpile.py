@@ -59,11 +59,13 @@ class TranspileAPI(QiskitTranspilerService):
             json_args["qiskit_transpile_options"] = qiskit_transpile_options
         if coupling_map is not None:
             json_args["backend_coupling_map"] = coupling_map
+        
+        ai_param = 'true' if ai else 'false'
 
         params = {
             "backend": backend,
             "optimization_level": optimization_level,
-            "ai": ai,
+            "ai": ai_param,
         }
 
         if ai_layout_mode is not None:
