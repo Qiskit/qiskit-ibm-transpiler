@@ -15,8 +15,6 @@ jobs:
           ref: ${{ github.ref }}
           token: ${{ secrets.GITHUB_TOKEN }}
           fetch-depth: 0
-      - name: List repository contents
-        run: ls -al
 
   run-lint:
     needs: fetch-repository
@@ -29,9 +27,6 @@ jobs:
           ref: ${{ github.ref }}
           token: ${{ secrets.GITHUB_TOKEN }}
           fetch-depth: 0
-
-      - name: List directory contents after checkout
-        run: ls -al
 
       - name: Set up Python
         uses: actions/setup-python@v2
@@ -63,9 +58,6 @@ jobs:
           ref: ${{ github.ref }}
           token: ${{ secrets.GITHUB_TOKEN }}
           fetch-depth: 0
-
-      - name: List directory contents after checkout
-        run: ls -al
 
       - name: Set up Python
         uses: actions/setup-python@v2
