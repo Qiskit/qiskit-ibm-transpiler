@@ -2,8 +2,6 @@ name: CI Pipeline
 
 on:
   pull_request:
-    branches:
-      - "*"
     paths-ignore:
       - '[skip ci]'
 
