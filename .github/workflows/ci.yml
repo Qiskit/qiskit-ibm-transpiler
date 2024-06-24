@@ -12,6 +12,8 @@ jobs:
     needs: fetch-repository
     runs-on: ubuntu-latest
     steps:
+      - name: List directory contents
+        run: ls -al
       - name: Set up Python
         uses: actions/setup-python@v2
         with:
