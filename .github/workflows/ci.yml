@@ -20,13 +20,8 @@ jobs:
     needs: fetch-repository
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2
-        with:
-          repository: ${{ github.repository }}
-          ref: ${{ github.ref }}
-          token: ${{ secrets.GITHUB_TOKEN }}
-          fetch-depth: 0
+      - name: List directory contents after checkout
+        run: ls -al
 
       - name: Set up Python
         uses: actions/setup-python@v2
