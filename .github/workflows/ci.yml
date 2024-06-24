@@ -6,14 +6,33 @@ on:
 
 jobs:
   fetch-repository:
-    uses: ./.github/workflows/reusable_checkout.yml
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+        with:
+          repository: ${{ github.repository }}
+          ref: ${{ github.ref }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
+      - name: List repository contents
+        run: ls -al
 
   run-lint:
     needs: fetch-repository
     runs-on: ubuntu-latest
     steps:
-      - name: List directory contents
+      - name: Checkout repository
+        uses: actions/checkout@v2
+        with:
+          repository: ${{ github.repository }}
+          ref: ${{ github.ref }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
+
+      - name: List directory contents after checkout
         run: ls -al
+
       - name: Set up Python
         uses: actions/setup-python@v2
         with:
@@ -37,6 +56,17 @@ jobs:
         python-version: [3.11, 3.8]
 
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+        with:
+          repository: ${{ github.repository }}
+          ref: ${{ github.ref }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
+
+      - name: List directory contents after checkout
+        run: ls -al
+
       - name: Set up Python
         uses: actions/setup-python@v2
         with:
