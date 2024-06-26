@@ -14,7 +14,7 @@ pip install qiskit-transpiler-service
 
 By default, the package tries to authenticate to IBM Quantum services with the defined Qiskit API token, and uses your token from the `QISKIT_IBM_TOKEN` environment variable or from the file `~/.qiskit/qiskit-ibm.json` (under the section `default-ibm-quantum`).
 
-*Note*: This library requires Qiskit 1.0 by default.
+_Note_: This library requires Qiskit 1.0 by default.
 
 ## How to use the library
 
@@ -24,37 +24,37 @@ The following examples demonstrate how to transpile circuits using the Qiskit tr
 
 1. Create a circuit and call the Qiskit transpiler service to transpile the circuit with `ibm_sherbrooke` as the `backend_name`, 3 as the `optimization_level`, and not using AI during the transpilation.
 
-    ```python
-    from qiskit.circuit.library import EfficientSU2
-    from qiskit_transpiler_service.transpiler_service import TranspilerService
+   ```python
+   from qiskit.circuit.library import EfficientSU2
+   from qiskit_transpiler_service.transpiler_service import TranspilerService
 
-    circuit = EfficientSU2(101, entanglement="circular", reps=1).decompose()
+   circuit = EfficientSU2(101, entanglement="circular", reps=1).decompose()
 
-    cloud_transpiler_service = TranspilerService(
-        backend_name="ibm_sherbrooke",
-        ai=False,
-        optimization_level=3,
-    )
-    transpiled_circuit = cloud_transpiler_service.run(circuit)
-    ```
+   cloud_transpiler_service = TranspilerService(
+       backend_name="ibm_sherbrooke",
+       ai='false',
+       optimization_level=3,
+   )
+   transpiled_circuit = cloud_transpiler_service.run(circuit)
+   ```
 
-*Note:* you only can use `backend_name` devices you are allowed to with your IBM Quantum Account. Apart from the `backend_name`, the `TranspilerService` also allows `coupling_map` as parameter.
+_Note:_ you only can use `backend_name` devices you are allowed to with your IBM Quantum Account. Apart from the `backend_name`, the `TranspilerService` also allows `coupling_map` as parameter.
 
 2. Produce a similar circuit and transpile it, requesting AI transpiling capabilities by setting the flag `ai` to `True`:
 
-    ```python
-    from qiskit.circuit.library import EfficientSU2
-    from qiskit_transpiler_service.transpiler_service import TranspilerService
+   ```python
+   from qiskit.circuit.library import EfficientSU2
+   from qiskit_transpiler_service.transpiler_service import TranspilerService
 
-    circuit = EfficientSU2(101, entanglement="circular", reps=1).decompose()
+   circuit = EfficientSU2(101, entanglement="circular", reps=1).decompose()
 
-    cloud_transpiler_service = TranspilerService(
-        backend_name="ibm_sherbrooke",
-        ai=True,
-        optimization_level=1,
-    )
-    transpiled_circuit = cloud_transpiler_service.run(circuit)
-    ```
+   cloud_transpiler_service = TranspilerService(
+       backend_name="ibm_sherbrooke",
+       ai='true',
+       optimization_level=1,
+   )
+   transpiled_circuit = cloud_transpiler_service.run(circuit)
+   ```
 
 ### Using the AIRouting pass manually
 
@@ -108,9 +108,9 @@ The synthesis respects the coupling map of the device: it can be run safely afte
 
 The following synthesis passes are available from `qiskit_transpiler_service.ai.synthesis`:
 
-- *AICliffordSynthesis*: Synthesis for [Clifford](https://docs.quantum.ibm.com/api/qiskit/qiskit.quantum_info.Clifford) circuits (blocks of `H`, `S` and `CX` gates). Currently up to 9 qubit blocks.
-- *AILinearFunctionSynthesis*: Synthesis for [Linear Function](https://docs.quantum.ibm.com/api/qiskit/qiskit.circuit.library.LinearFunction) circuits (blocks of `CX` and `SWAP` gates). Currently up to 9 qubit blocks.
-- *AIPermutationSynthesis*: Synthesis for [Permutation](https://docs.quantum.ibm.com/api/qiskit/qiskit.circuit.library.Permutation#permutation) circuits (blocks of `SWAP` gates). Currently available for 65, 33, and 27 qubit blocks.
+- _AICliffordSynthesis_: Synthesis for [Clifford](https://docs.quantum.ibm.com/api/qiskit/qiskit.quantum_info.Clifford) circuits (blocks of `H`, `S` and `CX` gates). Currently up to 9 qubit blocks.
+- _AILinearFunctionSynthesis_: Synthesis for [Linear Function](https://docs.quantum.ibm.com/api/qiskit/qiskit.circuit.library.LinearFunction) circuits (blocks of `CX` and `SWAP` gates). Currently up to 9 qubit blocks.
+- _AIPermutationSynthesis_: Synthesis for [Permutation](https://docs.quantum.ibm.com/api/qiskit/qiskit.circuit.library.Permutation#permutation) circuits (blocks of `SWAP` gates). Currently available for 65, 33, and 27 qubit blocks.
 
 We expect to gradually increase the size of the supported blocks.
 
@@ -126,9 +126,9 @@ For sub-circuit to be synthesized by the AI synthesis passes, it must lay on a c
 
 To complement the synthesis passes we also provide custom collection passes for Cliffords, Linear Functions and Permutations that can be imported from `qiskit_transpiler_service.ai.collection`:
 
-- *CollectCliffords*: Collects `Clifford` blocks as `Instruction` objects and stores the original sub-circuit to compare against it after synthesis.
-- *CollectLinearFunctions*: Collects blocks of `SWAP` and `CX` as `LinearFunction` objects and stores the original sub-circuit to compare against it after synthesis.
-- *CollectPermutations*: Collects blocks of `SWAP` circuits as `Permutations`.
+- _CollectCliffords_: Collects `Clifford` blocks as `Instruction` objects and stores the original sub-circuit to compare against it after synthesis.
+- _CollectLinearFunctions_: Collects blocks of `SWAP` and `CX` as `LinearFunction` objects and stores the original sub-circuit to compare against it after synthesis.
+- _CollectPermutations_: Collects blocks of `SWAP` circuits as `Permutations`.
 
 These custom collection passes limit the sizes of the collected sub-circuits so that they are supported by the AI synthesis passes, so it is recommended to use them after the routing passes and before the synthesis passes to get a better optimization overall.
 
