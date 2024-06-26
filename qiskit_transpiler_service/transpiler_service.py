@@ -27,7 +27,7 @@ Classes
 """
 
 import logging
-from typing import Dict, List, Union
+from typing import Dict, List, Union, Literal
 
 from qiskit import QuantumCircuit
 
@@ -42,8 +42,8 @@ class TranspilerService:
 
     :param optimization_level: The optimization level to use during the transpilation. There are 4 optimization levels ranging from 0 to 3, where 0 is intended for not performing any optimizations and 3 spends the most effort to optimize the circuit.
     :type optimization_level: int
-    :param ai: Specifyies if the transpilation should use AI or not, defaults to True.
-    :type ai: bool, optional
+    :param ai: Specifies if the transpilation should use AI or not, defaults to True.
+    :type ai: str, optional
     :param coupling_map: A list of pairs that represents physical links between qubits.
     :type coupling_map: list[list[int]], optional
     :param backend_name: Name of the backend used for doing the transpilation.
@@ -57,7 +57,7 @@ class TranspilerService:
     def __init__(
         self,
         optimization_level: int,
-        ai: bool = True,
+        ai: Literal['true', 'false', 'auto'] = 'true',
         coupling_map: Union[List[List[int]], None] = None,
         backend_name: Union[str, None] = None,
         qiskit_transpile_options: Dict = None,
