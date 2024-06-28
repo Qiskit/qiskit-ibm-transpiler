@@ -11,7 +11,7 @@
 # that they have been altered from the originals.
 
 import logging
-from typing import Dict, List, Union
+from typing import Dict, List, Union, Literal
 
 import numpy as np
 from qiskit import QuantumCircuit, QuantumRegister, qasm2, qasm3
@@ -43,7 +43,7 @@ class TranspileAPI(QiskitTranspilerService):
         optimization_level: int = 1,
         backend: Union[str, None] = None,
         coupling_map: Union[List[List[int]], None] = None,
-        ai: bool = True,
+        ai: Literal['true', 'false', 'auto'] = 'true',
         qiskit_transpile_options: Dict = None,
         ai_layout_mode: str = None,
     ):
