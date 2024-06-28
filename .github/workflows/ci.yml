@@ -57,5 +57,7 @@ jobs:
           python -m pip install -r ./requirements-dev.txt
 
       - name: Run tests
+        env:
+          QISKIT_IBM_TOKEN: ${{ secrets.QISKIT_IBM_TOKEN }}
         run: |
           python -m pytest .
