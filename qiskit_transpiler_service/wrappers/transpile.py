@@ -43,7 +43,7 @@ class TranspileAPI(QiskitTranspilerService):
         optimization_level: int = 1,
         backend: Union[str, None] = None,
         coupling_map: Union[List[List[int]], None] = None,
-        ai: Literal['true', 'false', 'auto'] = 'true',
+        ai: Literal["true", "false", "auto"] = "true",
         qiskit_transpile_options: Dict = None,
         ai_layout_mode: str = None,
     ):

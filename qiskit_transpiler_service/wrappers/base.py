@@ -182,8 +182,8 @@ def _get_error_msg_from_response(exc: requests.exceptions.HTTPError):
     if isinstance(detail, str):
         msg = detail
     elif isinstance(detail, list):
-        detail_input = detail[0]['input']
-        detail_msg = detail[0]['msg']
+        detail_input = detail[0]["input"]
+        detail_msg = detail[0]["msg"]
 
         if detail_input and detail_msg:
             msg = f"Wrong input '{detail_input}'. {detail_msg}"
