@@ -173,18 +173,19 @@ def _raise_transpiler_error_and_log(msg: str):
 
 
 def _get_error_msg_from_response(exc: requests.exceptions.HTTPError):
-    if exc.response.status_code == HTTPStatus.UNPROCESSABLE_ENTITY.value:
-        # Default message
-        msg = "Internal error."
-        resp = exc.response.json()
-        if detail := resp.get("detail"):
-            if isinstance(detail, str):
-                msg = detail
-            elif isinstance(detail, list):
-                # Try to get err msg from
-                # raw validation error
-                if "input" in resp["detail"][0] and "msg" in resp["detail"][0]:
-                    msg = f"Wrong input '{resp['detail'][0]['input']}'. {resp['detail'][0]['msg']}"
-    else:
-        msg = f"Service error: {str(exc)}"
+    resp = exc.response.json()
+    print(resp)
+    detail = resp.get("detail")
+    # Default message
+    msg = "Internal error."
+
+    if isinstance(detail, str):
+        msg = detail
+    elif isinstance(detail, list):
+        detail_input = detail[0]['input']
+        detail_msg = detail[0]['msg']
+
+        if detail_input and detail_msg:
+            msg = f"Wrong input '{detail_input}'. {detail_msg}"
+
     return msg
