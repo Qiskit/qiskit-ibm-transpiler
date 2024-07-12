@@ -129,9 +129,9 @@ class QiskitTranspilerService:
             return self._request_and_wait(endpoint, body, params)
         except requests.exceptions.HTTPError as exc:
             _raise_transpiler_error_and_log(_get_error_msg_from_response(exc))
-        except BackendTaskError:
-            # TODO: Do we want to give the user the internal error: "The background task df86e449-8bb5-43fb-92a9-c23818ee8ce7 FAILED"
-            _raise_transpiler_error_and_log("Service error.")
+        except BackendTaskError as exc:
+            error_msg = exc.msg or "Service error."
+            _raise_transpiler_error_and_log(error_msg)
         except Exception as exc:
             _raise_transpiler_error_and_log(f"Error: {exc}")
 
@@ -174,7 +174,6 @@ def _raise_transpiler_error_and_log(msg: str):
 
 def _get_error_msg_from_response(exc: requests.exceptions.HTTPError):
     resp = exc.response.json()
-    print(resp)
     detail = resp.get("detail")
     # Default message
     msg = "Internal error."
