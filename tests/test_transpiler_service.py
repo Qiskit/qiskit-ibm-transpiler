@@ -195,10 +195,7 @@ def test_transpile_exceed_circuit_size():
         transpiler_service.run(circuit)
         pytest.fail("Error expected")
     except Exception as e:
-        assert (
-            str(e)
-            == "'Circuit has more gates than the allowed maximum of 5000.'"
-        )
+        assert str(e) == "'Circuit has more gates than the allowed maximum of 5000.'"
 
 
 def test_transpile_malformed_body():
@@ -207,7 +204,7 @@ def test_transpile_malformed_body():
         backend_name="ibm_kyoto",
         ai="false",
         optimization_level=3,
-        qiskit_transpile_options={ "failing_option": 0 }
+        qiskit_transpile_options={"failing_option": 0},
     )
 
     try:
@@ -216,7 +213,7 @@ def test_transpile_malformed_body():
     except Exception as e:
         assert (
             str(e)
-            == '"transpile() got an unexpected keyword argument \'failing_option\'"'
+            == "\"transpile() got an unexpected keyword argument 'failing_option'\""
         )
 
 
