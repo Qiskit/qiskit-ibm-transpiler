@@ -184,7 +184,6 @@ def test_transpile_wrong_backend(backend_name):
 
 
 def test_transpile_exceed_circuit_size():
-
     circuit = EfficientSU2(100, entanglement="circular", reps=50).decompose()
     transpiler_service = TranspilerService(
         backend_name="ibm_kyoto",
@@ -199,6 +198,25 @@ def test_transpile_exceed_circuit_size():
         assert (
             str(e)
             == "'Circuit has more gates than the allowed maximum of 5000.'"
+        )
+
+
+def test_transpile_malformed_body():
+    circuit = EfficientSU2(100, entanglement="circular", reps=1).decompose()
+    transpiler_service = TranspilerService(
+        backend_name="ibm_kyoto",
+        ai="false",
+        optimization_level=3,
+        qiskit_transpile_options={ "failing_option": 0 }
+    )
+
+    try:
+        transpiler_service.run(circuit)
+        pytest.fail("Error expected")
+    except Exception as e:
+        assert (
+            str(e)
+            == '"transpile() got an unexpected keyword argument \'failing_option\'"'
         )
 
 
