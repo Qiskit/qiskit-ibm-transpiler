@@ -183,6 +183,25 @@ def test_transpile_wrong_backend(backend_name):
         )
 
 
+def test_transpile_exceed_circuit_size():
+
+    circuit = EfficientSU2(100, entanglement="circular", reps=50).decompose()
+    transpiler_service = TranspilerService(
+        backend_name="ibm_kyoto",
+        ai="false",
+        optimization_level=3,
+    )
+
+    try:
+        transpiler_service.run(circuit)
+        pytest.fail("Error expected")
+    except Exception as e:
+        assert (
+            str(e)
+            == "'Circuit has more gates than the allowed maximum of 5000.'"
+        )
+
+
 def compare_layouts(plugin_circ, non_ai_circ):
     assert (
         plugin_circ.layout.initial_layout == non_ai_circ.layout.initial_layout
