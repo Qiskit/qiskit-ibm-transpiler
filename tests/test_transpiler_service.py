@@ -172,13 +172,16 @@ def test_transpile_wrong_backend(backend_name):
         ai="false",
         optimization_level=3,
     )
-    
+
     try:
         transpiler_service.run(circuit)
         pytest.fail("Error expected")
     except Exception as e:
-        assert str(e) == f'"User doesn\'t have access to the specified backend: {backend_name}"'
-    
+        assert (
+            str(e)
+            == f'"User doesn\'t have access to the specified backend: {backend_name}"'
+        )
+
 
 def compare_layouts(plugin_circ, non_ai_circ):
     assert (
