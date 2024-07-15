@@ -161,6 +161,25 @@ def test_transpile_layout_reconstruction(ai):
         )
 
 
+@pytest.mark.parametrize("backend_name", ["ibm_cleveland", "ibm_torin"])
+def test_transpile_wrong_backend(backend_name):
+    # ibm_cleveland is a backend without permissions
+    # ibm_torin is a backend that doesn't exists
+    # Error msg is the same in both cases
+    circuit = EfficientSU2(100, entanglement="circular", reps=1).decompose()
+    transpiler_service = TranspilerService(
+        backend_name=backend_name,
+        ai="false",
+        optimization_level=3,
+    )
+    
+    try:
+        transpiler_service.run(circuit)
+        pytest.fail("Error expected")
+    except Exception as e:
+        assert str(e) == f'"User doesn\'t have access to the specified backend: {backend_name}"'
+    
+
 def compare_layouts(plugin_circ, non_ai_circ):
     assert (
         plugin_circ.layout.initial_layout == non_ai_circ.layout.initial_layout
