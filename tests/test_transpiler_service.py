@@ -214,6 +214,28 @@ def test_transpile_malformed_body():
         )
 
 
+def test_transpile_failing_task():
+    open_qasm_circuit = 'OPENQASM 2.0;\ninclude "qelib1.inc";\ngate dcx q0,q1 { cx q0,q1; cx q1,q0; }\nqreg q[3];\ncz q[0],q[2];\nsdg q[1];\ndcx q[2],q[1];\nu3(3.890139082217223,3.447697582994976,1.1583481971959322) q[0];\ncrx(2.3585459177723522) q[1],q[0];\ny q[2];'
+    circuit = QuantumCircuit.from_qasm_str(open_qasm_circuit)
+    transpiler_service = TranspilerService(
+        backend_name="ibm_kyoto",
+        ai="false",
+        optimization_level=3,
+        coupling_map=[[1, 2], [2, 1]],
+        qiskit_transpile_options={
+            "basis_gates": ["u1", "u2", "u3", "cx"],
+            "seed_transpiler": 0,
+        },
+    )
+
+    try:
+        transpiler_service.run(circuit)
+        pytest.fail("Error expected")
+    except Exception as e:
+        assert "The background task" in str(e)
+        assert "FAILED" in str(e)
+
+
 def compare_layouts(plugin_circ, non_ai_circ):
     assert (
         plugin_circ.layout.initial_layout == non_ai_circ.layout.initial_layout
