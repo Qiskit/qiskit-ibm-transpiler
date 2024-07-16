@@ -22,9 +22,7 @@ import backoff
 import requests
 from qiskit.transpiler.exceptions import TranspilerError
 
-logging.basicConfig()
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.INFO)
 
 
 class BackendTaskError(Exception):

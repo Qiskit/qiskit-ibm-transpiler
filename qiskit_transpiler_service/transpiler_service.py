@@ -34,7 +34,6 @@ from qiskit import QuantumCircuit
 from .wrappers.transpile import TranspileAPI
 
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.INFO)
 
 
 class TranspilerService:
@@ -57,7 +56,7 @@ class TranspilerService:
     def __init__(
         self,
         optimization_level: int,
-        ai: Literal['true', 'false', 'auto'] = 'true',
+        ai: Literal["true", "false", "auto"] = "true",
         coupling_map: Union[List[List[int]], None] = None,
         backend_name: Union[str, None] = None,
         qiskit_transpile_options: Dict = None,

@@ -24,9 +24,7 @@ from qiskit_transpiler_service.wrappers import QiskitTranspilerService
 
 # setting backoff logger to error level to avoid too much logging
 logging.getLogger("backoff").setLevel(logging.ERROR)
-logging.basicConfig()
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.INFO)
 
 
 class TranspileAPI(QiskitTranspilerService):
@@ -43,7 +41,7 @@ class TranspileAPI(QiskitTranspilerService):
         optimization_level: int = 1,
         backend: Union[str, None] = None,
         coupling_map: Union[List[List[int]], None] = None,
-        ai: Literal['true', 'false', 'auto'] = 'true',
+        ai: Literal["true", "false", "auto"] = "true",
         qiskit_transpile_options: Dict = None,
         ai_layout_mode: str = None,
     ):

@@ -10,7 +10,6 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-import logging
 import os
 from urllib.parse import urljoin
 
@@ -18,10 +17,6 @@ from qiskit import QuantumCircuit, qasm2, qasm3
 from qiskit.qasm2 import QASM2ExportError
 
 from .base import QiskitTranspilerService
-
-logging.basicConfig()
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.INFO)
 
 
 class AIRoutingAPI(QiskitTranspilerService):

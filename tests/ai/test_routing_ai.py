@@ -12,17 +12,12 @@
 
 """Unit-testing routing_ai"""
 
-import logging
-
 import pytest
 from qiskit import QuantumCircuit
 from qiskit.transpiler import PassManager
 from qiskit.transpiler.exceptions import TranspilerError
 
 from qiskit_transpiler_service.ai.routing import AIRouting
-
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.INFO)
 
 
 @pytest.mark.parametrize("layout_mode", ["KEEP", "OPTIMIZE", "IMPROVE"])

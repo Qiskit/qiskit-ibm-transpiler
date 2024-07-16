@@ -12,8 +12,6 @@
 
 """Unit-testing Transpiler Service"""
 
-import logging
-
 import numpy as np
 import pytest
 from qiskit import QuantumCircuit, qasm2, qasm3
@@ -25,14 +23,11 @@ from qiskit.quantum_info import SparsePauliOp, random_hermitian
 from qiskit_transpiler_service.transpiler_service import TranspilerService
 from qiskit_transpiler_service.wrappers import _get_circuit_from_result
 
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.INFO)
-
 
 @pytest.mark.parametrize(
     "optimization_level", [1, 2, 3], ids=["opt_level_1", "opt_level_2", "opt_level_3"]
 )
-@pytest.mark.parametrize("ai", ['false', 'true'], ids=["no_ai", "ai"])
+@pytest.mark.parametrize("ai", ["false", "true"], ids=["no_ai", "ai"])
 @pytest.mark.parametrize(
     "qiskit_transpile_options",
     [None, {"seed_transpiler": 0}],
@@ -56,7 +51,7 @@ def test_rand_circ_backend_routing(optimization_level, ai, qiskit_transpile_opti
 @pytest.mark.parametrize(
     "optimization_level", [1, 2, 3], ids=["opt_level_1", "opt_level_2", "opt_level_3"]
 )
-@pytest.mark.parametrize("ai", ['false', 'true'], ids=["no_ai", "ai"])
+@pytest.mark.parametrize("ai", ["false", "true"], ids=["no_ai", "ai"])
 @pytest.mark.parametrize(
     "qiskit_transpile_options",
     [None, {"seed_transpiler": 0}],
@@ -85,7 +80,7 @@ def test_qv_backend_routing(optimization_level, ai, qiskit_transpile_options):
     ],
 )
 @pytest.mark.parametrize("optimization_level", [1, 2, 3])
-@pytest.mark.parametrize("ai", ['false', 'true'], ids=["no_ai", "ai"])
+@pytest.mark.parametrize("ai", ["false", "true"], ids=["no_ai", "ai"])
 @pytest.mark.parametrize("qiskit_transpile_options", [None, {"seed_transpiler": 0}])
 def test_rand_circ_cmap_routing(
     coupling_map, optimization_level, ai, qiskit_transpile_options
@@ -108,7 +103,7 @@ def test_qv_circ_several_circuits_routing():
 
     cloud_transpiler_service = TranspilerService(
         backend_name="ibm_brisbane",
-        ai='true',
+        ai="true",
         optimization_level=1,
     )
     transpiled_circuit = cloud_transpiler_service.run([qv_circ] * 2)
@@ -129,7 +124,7 @@ def test_qv_circ_wrong_input_routing():
 
     cloud_transpiler_service = TranspilerService(
         backend_name="ibm_brisbane",
-        ai='true',
+        ai="true",
         optimization_level=1,
     )
 
@@ -138,7 +133,7 @@ def test_qv_circ_wrong_input_routing():
         cloud_transpiler_service.run(circ_dict)
 
 
-@pytest.mark.parametrize("ai", ['false', 'true'], ids=["no_ai", "ai"])
+@pytest.mark.parametrize("ai", ["false", "true"], ids=["no_ai", "ai"])
 def test_transpile_layout_reconstruction(ai):
     n_qubits = 27
 
