@@ -132,6 +132,18 @@ To complement the synthesis passes we also provide custom collection passes for 
 
 These custom collection passes limit the sizes of the collected sub-circuits so that they are supported by the AI synthesis passes, so it is recommended to use them after the routing passes and before the synthesis passes to get a better optimization overall.
 
+### Customize logs
+
+The library is prepared to let the user log the messages they want. For that, users only have to add the following code to their code:
+
+```python
+import logging
+
+logging.getLogger("qiskit_transpiler_service").setLevel(logging.X)
+```
+
+where X can be: `NOTSET`, `DEBUG`, `INFO`, `WARNING`, `ERROR` or `CRITICAL`
+
 ## Citation
 
 If you use any AI-powered feature from the Qiskit transpiler service in your research, use the following recommended citation:
