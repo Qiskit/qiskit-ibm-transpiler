@@ -34,7 +34,6 @@ from qiskit import QuantumCircuit
 from .wrappers.transpile import TranspileAPI
 
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.INFO)
 
 
 class TranspilerService:

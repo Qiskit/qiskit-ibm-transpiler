@@ -15,8 +15,6 @@
 
 # torch.set_num_threads(1)
 
-import logging
-
 import numpy as np
 from qiskit import ClassicalRegister, QuantumCircuit
 from qiskit.converters import circuit_to_dag, dag_to_circuit
@@ -25,10 +23,6 @@ from qiskit.transpiler.basepasses import TransformationPass
 from qiskit.transpiler.layout import Layout
 
 from qiskit_transpiler_service.wrappers import AIRoutingAPI
-
-logging.basicConfig()
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.INFO)
 
 
 class AIRouting(TransformationPass):

@@ -12,8 +12,6 @@
 
 """Unit-testing Transpiler Service"""
 
-import logging
-
 import numpy as np
 import pytest
 from qiskit import QuantumCircuit, qasm2, qasm3
@@ -24,9 +22,6 @@ from qiskit.quantum_info import SparsePauliOp, random_hermitian
 
 from qiskit_transpiler_service.transpiler_service import TranspilerService
 from qiskit_transpiler_service.wrappers import _get_circuit_from_result
-
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.INFO)
 
 
 @pytest.mark.parametrize(
