@@ -129,9 +129,9 @@ class QiskitTranspilerService:
             return self._request_and_wait(endpoint, body, params)
         except requests.exceptions.HTTPError as exc:
             _raise_transpiler_error_and_log(_get_error_msg_from_response(exc))
-        except BackendTaskError:
-            # TODO: Do we want to give the user the internal error: "The background task df86e449-8bb5-43fb-92a9-c23818ee8ce7 FAILED"
-            _raise_transpiler_error_and_log("Service error.")
+        except BackendTaskError as exc:
+            error_msg = exc.msg or "Service error."
+            _raise_transpiler_error_and_log(error_msg)
         except Exception as exc:
             _raise_transpiler_error_and_log(f"Error: {exc}")
 
@@ -173,18 +173,18 @@ def _raise_transpiler_error_and_log(msg: str):
 
 
 def _get_error_msg_from_response(exc: requests.exceptions.HTTPError):
-    if exc.response.status_code == HTTPStatus.UNPROCESSABLE_ENTITY.value:
-        # Default message
-        msg = "Internal error."
-        resp = exc.response.json()
-        if detail := resp.get("detail"):
-            if isinstance(detail, str):
-                msg = detail
-            elif isinstance(detail, list):
-                # Try to get err msg from
-                # raw validation error
-                if "input" in resp["detail"][0] and "msg" in resp["detail"][0]:
-                    msg = f"Wrong input '{resp['detail'][0]['input']}'. {resp['detail'][0]['msg']}"
-    else:
-        msg = f"Service error: {str(exc)}"
+    resp = exc.response.json()
+    detail = resp.get("detail")
+    # Default message
+    msg = "Internal error."
+
+    if isinstance(detail, str):
+        msg = detail
+    elif isinstance(detail, list):
+        detail_input = detail[0]["input"]
+        detail_msg = detail[0]["msg"]
+
+        if detail_input and detail_msg:
+            msg = f"Wrong input '{detail_input}'. {detail_msg}"
+
     return msg

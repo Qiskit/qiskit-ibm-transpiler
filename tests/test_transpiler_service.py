@@ -32,7 +32,7 @@ logger.setLevel(logging.INFO)
 @pytest.mark.parametrize(
     "optimization_level", [1, 2, 3], ids=["opt_level_1", "opt_level_2", "opt_level_3"]
 )
-@pytest.mark.parametrize("ai", ['false', 'true'], ids=["no_ai", "ai"])
+@pytest.mark.parametrize("ai", ["false", "true"], ids=["no_ai", "ai"])
 @pytest.mark.parametrize(
     "qiskit_transpile_options",
     [None, {"seed_transpiler": 0}],
@@ -56,7 +56,7 @@ def test_rand_circ_backend_routing(optimization_level, ai, qiskit_transpile_opti
 @pytest.mark.parametrize(
     "optimization_level", [1, 2, 3], ids=["opt_level_1", "opt_level_2", "opt_level_3"]
 )
-@pytest.mark.parametrize("ai", ['false', 'true'], ids=["no_ai", "ai"])
+@pytest.mark.parametrize("ai", ["false", "true"], ids=["no_ai", "ai"])
 @pytest.mark.parametrize(
     "qiskit_transpile_options",
     [None, {"seed_transpiler": 0}],
@@ -85,7 +85,7 @@ def test_qv_backend_routing(optimization_level, ai, qiskit_transpile_options):
     ],
 )
 @pytest.mark.parametrize("optimization_level", [1, 2, 3])
-@pytest.mark.parametrize("ai", ['false', 'true'], ids=["no_ai", "ai"])
+@pytest.mark.parametrize("ai", ["false", "true"], ids=["no_ai", "ai"])
 @pytest.mark.parametrize("qiskit_transpile_options", [None, {"seed_transpiler": 0}])
 def test_rand_circ_cmap_routing(
     coupling_map, optimization_level, ai, qiskit_transpile_options
@@ -108,7 +108,7 @@ def test_qv_circ_several_circuits_routing():
 
     cloud_transpiler_service = TranspilerService(
         backend_name="ibm_brisbane",
-        ai='true',
+        ai="true",
         optimization_level=1,
     )
     transpiled_circuit = cloud_transpiler_service.run([qv_circ] * 2)
@@ -129,7 +129,7 @@ def test_qv_circ_wrong_input_routing():
 
     cloud_transpiler_service = TranspilerService(
         backend_name="ibm_brisbane",
-        ai='true',
+        ai="true",
         optimization_level=1,
     )
 
@@ -138,7 +138,7 @@ def test_qv_circ_wrong_input_routing():
         cloud_transpiler_service.run(circ_dict)
 
 
-@pytest.mark.parametrize("ai", ['false', 'true'], ids=["no_ai", "ai"])
+@pytest.mark.parametrize("ai", ["false", "true"], ids=["no_ai", "ai"])
 def test_transpile_layout_reconstruction(ai):
     n_qubits = 27
 
@@ -159,6 +159,81 @@ def test_transpile_layout_reconstruction(ai):
         pytest.fail(
             "This should not fail. Probably something wrong with the reconstructed layout."
         )
+
+
+def test_transpile_non_valid_backend():
+    circuit = EfficientSU2(100, entanglement="circular", reps=1).decompose()
+    non_valid_backend_name = "ibm_torin"
+    transpiler_service = TranspilerService(
+        backend_name=non_valid_backend_name,
+        ai="false",
+        optimization_level=3,
+    )
+
+    try:
+        transpiler_service.run(circuit)
+        pytest.fail("Error expected")
+    except Exception as e:
+        assert (
+            str(e)
+            == f'"User doesn\'t have access to the specified backend: {non_valid_backend_name}"'
+        )
+
+
+def test_transpile_exceed_circuit_size():
+    circuit = EfficientSU2(100, entanglement="circular", reps=50).decompose()
+    transpiler_service = TranspilerService(
+        backend_name="ibm_kyoto",
+        ai="false",
+        optimization_level=3,
+    )
+
+    try:
+        transpiler_service.run(circuit)
+        pytest.fail("Error expected")
+    except Exception as e:
+        assert str(e) == "'Circuit has more gates than the allowed maximum of 5000.'"
+
+
+def test_transpile_malformed_body():
+    circuit = EfficientSU2(100, entanglement="circular", reps=1).decompose()
+    transpiler_service = TranspilerService(
+        backend_name="ibm_kyoto",
+        ai="false",
+        optimization_level=3,
+        qiskit_transpile_options={"failing_option": 0},
+    )
+
+    try:
+        transpiler_service.run(circuit)
+        pytest.fail("Error expected")
+    except Exception as e:
+        assert (
+            str(e)
+            == "\"transpile() got an unexpected keyword argument 'failing_option'\""
+        )
+
+
+def test_transpile_failing_task():
+    open_qasm_circuit = 'OPENQASM 2.0;\ninclude "qelib1.inc";\ngate dcx q0,q1 { cx q0,q1; cx q1,q0; }\nqreg q[3];\ncz q[0],q[2];\nsdg q[1];\ndcx q[2],q[1];\nu3(3.890139082217223,3.447697582994976,1.1583481971959322) q[0];\ncrx(2.3585459177723522) q[1],q[0];\ny q[2];'
+    circuit = QuantumCircuit.from_qasm_str(open_qasm_circuit)
+    transpiler_service = TranspilerService(
+        backend_name="ibm_kyoto",
+        ai="false",
+        optimization_level=3,
+        coupling_map=[[1, 2], [2, 1]],
+        qiskit_transpile_options={
+            "basis_gates": ["u1", "u2", "u3", "cx"],
+            "seed_transpiler": 0,
+        },
+    )
+
+    try:
+        transpiler_service.run(circuit)
+        pytest.fail("Error expected")
+    except Exception as e:
+        assert "The background task" in str(e)
+        assert "FAILED" in str(e)
 
 
 def compare_layouts(plugin_circ, non_ai_circ):
