@@ -176,7 +176,7 @@ def test_transpile_non_valid_backend():
 
 
 def test_transpile_exceed_circuit_size():
-    circuit = EfficientSU2(100, entanglement="circular", reps=50).decompose()
+    circuit = EfficientSU2(200, entanglement="circular", reps=50).decompose()
     transpiler_service = TranspilerService(
         backend_name="ibm_kyoto",
         ai="false",
