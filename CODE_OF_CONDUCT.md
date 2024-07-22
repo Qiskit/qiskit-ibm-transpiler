@@ -1,4 +1,4 @@
-<!-- Copyright Contributors to the Qiskit project. -->
+<!-- Copyright Contributors to the Qiskit Transpiler Service project. -->
 
 # Code of Conduct
 
