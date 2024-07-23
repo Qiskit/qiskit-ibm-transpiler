@@ -28,10 +28,8 @@ Functions
 
 from typing import Dict
 
-import numpy as np
 from qiskit import QuantumCircuit
 from qiskit.circuit.library import LinearFunction
-from qiskit.quantum_info import Clifford
 from qiskit.synthesis.linear.linear_matrix_utils import random_invertible_binary_matrix
 
 
@@ -46,24 +44,9 @@ def get_metrics(qc: QuantumCircuit) -> Dict[str, int]:
     }
 
 
-def random_permutation(n_qubits):
-    """Generate a random permutation of n_qubits qubits."""
-    return np.random.permutation(n_qubits)
-
-
 def create_random_linear_function(n_qubits: int, seed: int = 123) -> LinearFunction:
     rand_lin = lambda seed: LinearFunction(
         random_invertible_binary_matrix(n_qubits, seed=seed)
     )
 
     return LinearFunction(rand_lin(seed))
-
-
-def random_clifford_from_linear_function(n_qubits: int, seed: int = 123):
-    """Generate a random clifford from a random linear function of n_qubits qubits."""
-
-    random_linear = lambda seed: LinearFunction(
-        random_invertible_binary_matrix(n_qubits, seed=seed)
-    )
-    random_clifford = Clifford(random_linear(seed))
-    return random_clifford
