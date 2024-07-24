@@ -95,7 +95,7 @@ class TranspilerService:
             The transpiled circuit(s)
 
         """
-        logger.info(f"Requesting transpile to the service")
+        logger.info("Requesting transpile to the service")
         transpile_result = self.transpiler_service.transpile(
             circuits=circuits,
             backend=self.backend_name,

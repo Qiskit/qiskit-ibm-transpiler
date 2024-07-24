@@ -66,13 +66,13 @@ class AISynthesis(TransformationPass, ABC):
                 originals.append(orig)
         except CircuitError:
             logger.warning(
-                f"Error getting  synth input from node. Skipping ai transpilation."
+                "Error getting  synth input from node. Skipping ai transpilation."
             )
             return [], []
 
         try:
             qargs = [[q._index for q in node.qargs] for node in nodes]
-            logger.debug(f"Attempting synthesis over qubits {qargs}")
+            logger.debug("Attempting synthesis over qubits {}".format(qargs))
             synths = self.synth_service.transpile(
                 synth_inputs, backend=self.backend_name, qargs=qargs
             )
@@ -95,7 +95,7 @@ class AISynthesis(TransformationPass, ABC):
         return outputs, nodes
 
     def run(self, dag: DAGCircuit):
-        logger.info(f"Requesting synthesis to the service")
+        logger.info("Requesting synthesis to the service")
 
         future_list = []
 

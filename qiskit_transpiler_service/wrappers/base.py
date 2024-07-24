@@ -117,7 +117,7 @@ class QiskitTranspilerService:
         max_time=120,  # TODO: Define by config or circuit?
     )
     def request_status(self, endpoint, task_id):
-        logger.debug(f"Getting status of task {task_id} ...")
+        logger.debug("Getting status of task {} ...".format(task_id))
         res = requests.get(url=f"{self.url}/{endpoint}/{task_id}", headers=self.headers)
         res.raise_for_status()
         return res.json()
@@ -159,7 +159,9 @@ class QiskitTranspilerService:
 
         if isinstance(result, BackendTaskError):
             # TODO: Shall we show this  "The background task 99cf52d2-3942-4ae5-b2a7-d672af7f1216 FAILED" to the user?
-            logger.error(f"Failed to get a result for {endpoint}: {result.msg}")
+            logger.error(
+                "Failed to get a result for {}: {}".format(endpoint, result.msg)
+            )
             raise result
         else:
             return result
