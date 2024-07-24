@@ -13,7 +13,6 @@
 import logging
 from typing import Dict, List, Union, Literal
 
-import numpy as np
 from qiskit import qasm2, qasm3
 from qiskit.circuit import QuantumCircuit, QuantumRegister, Qubit
 from qiskit.qasm2 import QASM2ExportError, QASM2ParseError
@@ -78,7 +77,7 @@ class TranspileAPI(QiskitTranspilerService):
         for res, orig_circ in zip(transpile_resp, circuits):
             try:
                 transpiled_circuits.append(_get_circuit_from_result(res, orig_circ))
-            except Exception as ex:
+            except Exception:
                 logger.error("Error transforming the result to a QuantumCircuit object")
                 raise
 
