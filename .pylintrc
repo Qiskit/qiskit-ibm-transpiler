@@ -8,7 +8,6 @@ check-protected-access-in-special-methods=True
 [DESIGN]
 max-bool-expr=3
 max-branches=8
-max-complexity=8
 
 [LOGGING]
 logging-format-style=new
