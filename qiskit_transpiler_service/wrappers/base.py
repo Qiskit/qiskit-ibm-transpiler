@@ -105,7 +105,7 @@ class QiskitTranspilerService:
         lambda res: res.get("state") not in ["SUCCESS", "FAILURE"],
         jitter=None,
         interval=1,  # TODO: Define by config or circuit?
-        max_time=120,  # TODO: Define by config or circuit?
+        max_time=600,  # TODO: Define by config or circuit?
     )
     @backoff.on_exception(
         backoff.expo,
@@ -114,7 +114,7 @@ class QiskitTranspilerService:
             requests.exceptions.ConnectionError,
             requests.exceptions.JSONDecodeError,
         ),
-        max_time=120,  # TODO: Define by config or circuit?
+        max_time=600,  # TODO: Define by config or circuit?
     )
     def request_status(self, endpoint, task_id):
         logger.debug(f"Getting status of task {task_id} ...")
