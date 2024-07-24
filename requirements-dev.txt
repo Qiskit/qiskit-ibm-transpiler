@@ -5,7 +5,7 @@ qiskit-qasm3-import~=0.4
 black==24.1.1
 black[jupyter]==24.1.1
 pylint==3.2.6
-pylint[spelling]==3.2.2
+pylint[spelling]==3.2.6
 pytest==8.0.0
 pytest-timeout~=2.3.1
 sphinx==7.1.2; python_version < '3.9'
