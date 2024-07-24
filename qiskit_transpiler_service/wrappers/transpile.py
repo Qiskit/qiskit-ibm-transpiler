@@ -14,7 +14,7 @@ import logging
 from typing import Dict, List, Union, Literal
 
 import numpy as np
-from qiskit import QuantumCircuit, QuantumRegister, qasm2, qasm3
+from qiskit import qasm2, qasm3
 from qiskit.circuit import QuantumCircuit, QuantumRegister, Qubit
 from qiskit.qasm2 import QASM2ExportError, QASM2ParseError
 from qiskit.transpiler import TranspileLayout
