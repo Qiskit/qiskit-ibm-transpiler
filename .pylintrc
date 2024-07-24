@@ -9,9 +9,6 @@ check-protected-access-in-special-methods=True
 max-bool-expr=3
 max-branches=8
 
-[LOGGING]
-logging-format-style=new
-
 [SIMILARITIES]
 ignore-comments=False
 ignore-docstrings=False
