@@ -203,7 +203,7 @@ def test_transpile_exceed_timeout():
         transpiler_service.run(circuit)
         pytest.fail("Error expected")
     except Exception as e:
-        assert "reached the timeout defined in this client (5s)" in str(e)
+        assert "timed out. Try to update the client's timeout config or review your task" in str(e)
 
 
 def test_transpile_wrong_token():
@@ -235,7 +235,7 @@ def test_transpile_wrong_url():
         transpiler_service.run(circuit)
         pytest.fail("Error expected")
     except Exception as e:
-        assert "reached the timeout defined in this client" in str(e)
+        assert "timed out. Try to update the client's timeout config or review your task" in str(e)
 
 
 def test_transpile_malformed_body():

@@ -128,7 +128,7 @@ class QiskitTranspilerService:
             res.raise_for_status()
             return res.json()
 
-        _request_status(self, endpoint, task_id)
+        return _request_status(self, endpoint, task_id)
 
     def request_and_wait(self, endpoint: str, body: Dict, params: Dict):
         try:
@@ -154,26 +154,16 @@ class QiskitTranspilerService:
 
         result = BackendTaskError(
             status="PENDING",
-            msg=f"The background task {task_id} timed out in the server",
+            msg=f"The background task {task_id} timed out. Try to update the client's timeout config or review your task",
         )
 
         resp = self.request_status(endpoint, task_id)
-        if resp is not None:
-            if resp.get("state") == "SUCCESS":
-                result = resp.get("result")
-            elif resp.get("state") == "FAILURE":
-                logger.error("The request FAILED")
-                result = BackendTaskError(
-                    status="FAILURE", msg=f"The background task {task_id} FAILED"
-                )
-        else:
+        if resp.get("state") == "SUCCESS":
+            result = resp.get("result")
+        elif resp.get("state") == "FAILURE":
             logger.error("The request FAILED")
             result = BackendTaskError(
-                status="TIMEOUT",
-                msg=(
-                    f"The background task {task_id} reached "
-                    f"the timeout defined in this client ({self.timeout}s)"
-                ),
+                status="FAILURE", msg=f"The background task {task_id} FAILED"
             )
 
         if isinstance(result, BackendTaskError):
