@@ -103,6 +103,7 @@ class TranspilerService:
             optimization_level=self.optimization_level,
             ai=self.ai,
             qiskit_transpile_options=self.qiskit_transpile_options,
+            ai_layout_mode=self.ai_layout_mode,
         )
         if transpile_result is None:
             logger.warning(
