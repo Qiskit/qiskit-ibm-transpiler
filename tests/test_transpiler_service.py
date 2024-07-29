@@ -190,6 +190,54 @@ def test_transpile_exceed_circuit_size():
         assert str(e) == "'Circuit has more gates than the allowed maximum of 5000.'"
 
 
+def test_transpile_exceed_timeout():
+    circuit = EfficientSU2(100, entanglement="circular", reps=50).decompose()
+    transpiler_service = TranspilerService(
+        backend_name="ibm_kyoto",
+        ai="false",
+        optimization_level=3,
+        timeout=5,
+    )
+
+    try:
+        transpiler_service.run(circuit)
+        pytest.fail("Error expected")
+    except Exception as e:
+        assert "reached the timeout defined in this client (5s)" in str(e)
+
+
+def test_transpile_wrong_token():
+    circuit = EfficientSU2(100, entanglement="circular", reps=50).decompose()
+    transpiler_service = TranspilerService(
+        backend_name="ibm_kyoto",
+        ai="false",
+        optimization_level=3,
+        token="invented_token5",
+    )
+
+    try:
+        transpiler_service.run(circuit)
+        pytest.fail("Error expected")
+    except Exception as e:
+        assert str(e) == "'Invalid authentication credentials'"
+
+
+def test_transpile_wrong_url():
+    circuit = EfficientSU2(100, entanglement="circular", reps=50).decompose()
+    transpiler_service = TranspilerService(
+        backend_name="ibm_kyoto",
+        ai="false",
+        optimization_level=3,
+        base_url="http://wrong-qiskit-transpiler-service-url.com",
+    )
+
+    try:
+        transpiler_service.run(circuit)
+        pytest.fail("Error expected")
+    except Exception as e:
+        assert "reached the timeout defined in this client" in str(e)
+
+
 def test_transpile_malformed_body():
     circuit = EfficientSU2(100, entanglement="circular", reps=1).decompose()
     transpiler_service = TranspilerService(
