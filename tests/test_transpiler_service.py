@@ -176,7 +176,7 @@ def test_transpile_non_valid_backend():
 
 
 def test_transpile_exceed_circuit_size():
-    circuit = EfficientSU2(200, entanglement="circular", reps=50).decompose()
+    circuit = EfficientSU2(120, entanglement="full", reps=5).decompose()
     transpiler_service = TranspilerService(
         backend_name="ibm_kyoto",
         ai="false",
@@ -187,7 +187,7 @@ def test_transpile_exceed_circuit_size():
         transpiler_service.run(circuit)
         pytest.fail("Error expected")
     except Exception as e:
-        assert str(e) == "'Circuit has more gates than the allowed maximum of 5000.'"
+        assert str(e) == "'Circuit has more gates than the allowed maximum of 30000.'"
 
 
 def test_transpile_exceed_timeout():
