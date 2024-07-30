@@ -46,6 +46,7 @@ class AIRouting(TransformationPass):
         coupling_map=None,
         optimization_level: int = 2,
         layout_mode: str = "OPTIMIZE",
+        **kwargs,
     ):
         super().__init__()
         if backend_name is not None and coupling_map is not None:
@@ -77,7 +78,7 @@ class AIRouting(TransformationPass):
                 f"ERROR. Unknown ai_layout_mode: {layout_mode}. Valid modes: 'KEEP', 'OPTIMIZE', 'IMPROVE'"
             )
         self.layout_mode = layout_mode.upper()
-        self.service = AIRoutingAPI()
+        self.service = AIRoutingAPI(**kwargs)
 
     def run(self, dag):
         """Run the AIRouting pass on `dag`.
