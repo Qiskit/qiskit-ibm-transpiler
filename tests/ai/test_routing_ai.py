@@ -62,9 +62,10 @@ def test_routing_wrong_backend(random_circuit_transpiled):
         ai_optimized_circuit = ai_optimize_lf.run(random_circuit_transpiled)
         pytest.fail("Error expected")
     except Exception as e:
-        assert "User doesn't have access to the specified backend: wrong_backend" in str(
-            e
+        assert (
+            "User doesn't have access to the specified backend: wrong_backend" in str(e)
         )
+
 
 @pytest.mark.skip(
     reason="Unreliable. It passes most of the times with the timeout of 1 second for the current circuits used"
@@ -89,9 +90,7 @@ def test_routing_wrong_token(qv_circ, backend):
         ai_optimized_circuit = ai_optimize_lf.run(qv_circ)
         pytest.fail("Error expected")
     except Exception as e:
-        assert "Invalid authentication credentials" in str(
-            e
-        )
+        assert "Invalid authentication credentials" in str(e)
 
 
 def test_routing_wrong_url(monkeypatch, qv_circ, backend):
@@ -105,15 +104,11 @@ def test_routing_wrong_url(monkeypatch, qv_circ, backend):
         ai_optimized_circuit = ai_optimize_lf.run(qv_circ)
         pytest.fail("Error expected")
     except Exception as e:
-        assert "Expecting value: line 1 column 1 (char 0)" in str(
-           e
-        )
+        assert "Expecting value: line 1 column 1 (char 0)" in str(e)
         assert type(e).__name__ == "JSONDecodeError"
 
 
-def test_routing_unexisting_url(
-    monkeypatch, qv_circ, backend
-):
+def test_routing_unexisting_url(monkeypatch, qv_circ, backend):
     monkeypatch.undo()
     ai_optimize_lf = PassManager(
         [
@@ -129,7 +124,7 @@ def test_routing_unexisting_url(
     except Exception as e:
         print(e)
         assert (
-            "Error: HTTPSConnectionPool(host=\\\'invented-domain-qiskit-transpiler-service-123.com\\\', port=443):"
+            "Error: HTTPSConnectionPool(host=\\'invented-domain-qiskit-transpiler-service-123.com\\', port=443):"
             in str(e)
         )
         assert type(e).__name__ == "TranspilerError"

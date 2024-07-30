@@ -136,18 +136,14 @@ def test_permutation_wrong_url(monkeypatch, random_circuit_transpiled, backend):
     ai_optimize_lf = PassManager(
         [
             CollectPermutations(min_block_size=2, max_block_size=27),
-            AIPermutationSynthesis(
-                backend_name=backend, base_url="https://ibm.com/"
-            ),
+            AIPermutationSynthesis(backend_name=backend, base_url="https://ibm.com/"),
         ]
     )
     try:
         ai_optimized_circuit = ai_optimize_lf.run(random_circuit_transpiled)
         pytest.fail("Error expected")
     except Exception as e:
-        assert "Expecting value: line 1 column 1 (char 0)" in str(
-            e
-        )
+        assert "Expecting value: line 1 column 1 (char 0)" in str(e)
         assert type(e).__name__ == "JSONDecodeError"
 
 
