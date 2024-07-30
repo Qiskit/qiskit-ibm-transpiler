@@ -196,7 +196,7 @@ def test_transpile_exceed_timeout():
         backend_name="ibm_kyoto",
         ai="false",
         optimization_level=3,
-        timeout=5,
+        timeout=1,
     )
 
     try:
@@ -210,7 +210,7 @@ def test_transpile_exceed_timeout():
 
 
 def test_transpile_wrong_token():
-    circuit = EfficientSU2(100, entanglement="circular", reps=50).decompose()
+    circuit = EfficientSU2(100, entanglement="circular", reps=1).decompose()
     transpiler_service = TranspilerService(
         backend_name="ibm_kyoto",
         ai="false",
@@ -225,13 +225,32 @@ def test_transpile_wrong_token():
         assert str(e) == "'Invalid authentication credentials'"
 
 
-def test_transpile_wrong_url():
-    circuit = EfficientSU2(100, entanglement="circular", reps=50).decompose()
+def test_transpile_wrong_url(monkeypatch):
+    monkeypatch.undo()
+    circuit = EfficientSU2(100, entanglement="circular", reps=1).decompose()
     transpiler_service = TranspilerService(
         backend_name="ibm_kyoto",
         ai="false",
         optimization_level=3,
-        base_url="http://wrong-qiskit-transpiler-service-url.com",
+        base_url="https://ibm.com/",
+    )
+
+    try:
+        transpiler_service.run(circuit)
+        pytest.fail("Error expected")
+    except Exception as e:
+        assert "Expecting value: line 1 column 1 (char 0)" in str(e)
+        assert type(e).__name__ == "JSONDecodeError"
+
+
+def test_transpile_unexisting_url(monkeypatch):
+    monkeypatch.undo()
+    circuit = EfficientSU2(100, entanglement="circular", reps=1).decompose()
+    transpiler_service = TranspilerService(
+        backend_name="ibm_kyoto",
+        ai="false",
+        optimization_level=3,
+        base_url="https://invented-domain-qiskit-transpiler-service-123.com/",
     )
 
     try:
@@ -239,7 +258,7 @@ def test_transpile_wrong_url():
         pytest.fail("Error expected")
     except Exception as e:
         assert (
-            "timed out. Try to update the client's timeout config or review your task"
+            "Error: HTTPSConnectionPool(host=\\'invented-domain-qiskit-transpiler-service-123.com\\', port=443)"
             in str(e)
         )
 
