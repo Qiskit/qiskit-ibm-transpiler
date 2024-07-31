@@ -225,8 +225,8 @@ def test_transpile_wrong_token():
         assert str(e) == "'Invalid authentication credentials'"
 
 
-def test_transpile_wrong_url(monkeypatch):
-    monkeypatch.undo()
+@pytest.mark.disable_monkeypatch
+def test_transpile_wrong_url():
     circuit = EfficientSU2(100, entanglement="circular", reps=1).decompose()
     transpiler_service = TranspilerService(
         backend_name="ibm_kyoto",
@@ -243,8 +243,8 @@ def test_transpile_wrong_url(monkeypatch):
         assert type(e).__name__ == "JSONDecodeError"
 
 
-def test_transpile_unexisting_url(monkeypatch):
-    monkeypatch.undo()
+@pytest.mark.disable_monkeypatch
+def test_transpile_unexisting_url():
     circuit = EfficientSU2(100, entanglement="circular", reps=1).decompose()
     transpiler_service = TranspilerService(
         backend_name="ibm_kyoto",

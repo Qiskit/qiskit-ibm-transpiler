@@ -20,23 +20,6 @@ from qiskit.transpiler.exceptions import TranspilerError
 from qiskit_transpiler_service.ai.routing import AIRouting
 
 
-@pytest.mark.parametrize("layout_mode", ["KEEP", "OPTIMIZE", "IMPROVE"])
-@pytest.mark.parametrize("optimization_level", [1, 2, 3])
-def test_qv_routing(optimization_level, layout_mode, backend, qv_circ):
-    pm = PassManager(
-        [
-            AIRouting(
-                optimization_level=optimization_level,
-                layout_mode=layout_mode,
-                backend_name=backend,
-            )
-        ]
-    )
-    circuit = pm.run(qv_circ)
-
-    assert isinstance(circuit, QuantumCircuit)
-
-
 @pytest.mark.parametrize("optimization_level", [0, 4, 5])
 def test_qv_routing_wrong_opt_level(optimization_level, backend, qv_circ):
     pm = PassManager(
@@ -93,8 +76,8 @@ def test_routing_wrong_token(qv_circ, backend):
         assert "Invalid authentication credentials" in str(e)
 
 
-def test_routing_wrong_url(monkeypatch, qv_circ, backend):
-    monkeypatch.undo()
+@pytest.mark.disable_monkeypatch
+def test_routing_wrong_url(qv_circ, backend):
     ai_optimize_lf = PassManager(
         [
             AIRouting(backend_name=backend, base_url="https://ibm.com/"),
@@ -108,8 +91,8 @@ def test_routing_wrong_url(monkeypatch, qv_circ, backend):
         assert type(e).__name__ == "JSONDecodeError"
 
 
-def test_routing_unexisting_url(monkeypatch, qv_circ, backend):
-    monkeypatch.undo()
+@pytest.mark.disable_monkeypatch
+def test_routing_unexisting_url(qv_circ, backend):
     ai_optimize_lf = PassManager(
         [
             AIRouting(
@@ -128,3 +111,20 @@ def test_routing_unexisting_url(monkeypatch, qv_circ, backend):
             in str(e)
         )
         assert type(e).__name__ == "TranspilerError"
+
+
+@pytest.mark.parametrize("layout_mode", ["KEEP", "OPTIMIZE", "IMPROVE"])
+@pytest.mark.parametrize("optimization_level", [1, 2, 3])
+def test_qv_routing(optimization_level, layout_mode, backend, qv_circ):
+    pm = PassManager(
+        [
+            AIRouting(
+                optimization_level=optimization_level,
+                layout_mode=layout_mode,
+                backend_name=backend,
+            )
+        ]
+    )
+    circuit = pm.run(qv_circ)
+
+    assert isinstance(circuit, QuantumCircuit)
