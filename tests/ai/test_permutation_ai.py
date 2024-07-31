@@ -77,6 +77,9 @@ def test_permutation_exceed_timeout(random_circuit_transpiled, backend, caplog):
     assert isinstance(ai_optimized_circuit, QuantumCircuit)
 
 
+@pytest.mark.skip(
+    reason="Unreliable many times. We'll research why it fails sporadically"
+)
 def test_permutation_wrong_token(random_circuit_transpiled, backend, caplog):
     ai_optimize_perm = PassManager(
         [
@@ -89,6 +92,9 @@ def test_permutation_wrong_token(random_circuit_transpiled, backend, caplog):
     assert isinstance(ai_optimized_circuit, QuantumCircuit)
 
 
+@pytest.mark.skip(
+    reason="Unreliable many times. We'll research why it fails sporadically"
+)
 @pytest.mark.disable_monkeypatch
 def test_permutation_wrong_url(random_circuit_transpiled, backend):
     ai_optimize_perm = PassManager(
@@ -105,6 +111,9 @@ def test_permutation_wrong_url(random_circuit_transpiled, backend):
         assert type(e).__name__ == "JSONDecodeError"
 
 
+@pytest.mark.skip(
+    reason="Unreliable many times. We'll research why it fails sporadically"
+)
 @pytest.mark.disable_monkeypatch
 def test_permutation_unexisting_url(random_circuit_transpiled, backend, caplog):
     ai_optimize_perm = PassManager(

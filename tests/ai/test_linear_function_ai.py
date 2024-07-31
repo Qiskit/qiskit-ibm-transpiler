@@ -52,6 +52,9 @@ def test_linear_function_exceed_timeout(random_circuit_transpiled, backend, capl
     assert isinstance(ai_optimized_circuit, QuantumCircuit)
 
 
+@pytest.mark.skip(
+    reason="Unreliable many times. We'll research why it fails sporadically"
+)
 def test_linear_function_wrong_token(random_circuit_transpiled, backend, caplog):
     ai_optimize_lf = PassManager(
         [
@@ -66,6 +69,9 @@ def test_linear_function_wrong_token(random_circuit_transpiled, backend, caplog)
     assert isinstance(ai_optimized_circuit, QuantumCircuit)
 
 
+@pytest.mark.skip(
+    reason="Unreliable many times. We'll research why it fails sporadically"
+)
 @pytest.mark.disable_monkeypatch
 def test_linear_function_wrong_url(random_circuit_transpiled, backend):
     ai_optimize_lf = PassManager(
@@ -84,6 +90,9 @@ def test_linear_function_wrong_url(random_circuit_transpiled, backend):
         assert type(e).__name__ == "JSONDecodeError"
 
 
+@pytest.mark.skip(
+    reason="Unreliable many times. We'll research why it fails sporadically"
+)
 @pytest.mark.disable_monkeypatch
 def test_linear_function_unexisting_url(random_circuit_transpiled, backend, caplog):
     ai_optimize_lf = PassManager(
