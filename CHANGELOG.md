@@ -18,6 +18,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### 🎉 Added
 
+- [#28](https://github.com/Qiskit/qiskit-transpiler-service/pull/28) Enable programatic config of polling timeout
+
 ### ✏️ Changed
 
 ### 🐛 Fixed

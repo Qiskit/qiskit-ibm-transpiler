@@ -127,10 +127,10 @@ class AICliffordSynthesis(AISynthesis):
     """
 
     def __init__(
-        self, backend_name, replace_only_if_better=True, max_threads=None
+        self, backend_name, replace_only_if_better=True, max_threads=None, **kwargs
     ) -> None:
         super().__init__(
-            backend_name, AICliffordAPI(), replace_only_if_better, max_threads
+            backend_name, AICliffordAPI(**kwargs), replace_only_if_better, max_threads
         )
 
     def _get_synth_input_and_original(self, node):
@@ -164,10 +164,13 @@ class AILinearFunctionSynthesis(AISynthesis):
     """
 
     def __init__(
-        self, backend_name, replace_only_if_better=True, max_threads=None
+        self, backend_name, replace_only_if_better=True, max_threads=None, **kwargs
     ) -> None:
         super().__init__(
-            backend_name, AILinearFunctionAPI(), replace_only_if_better, max_threads
+            backend_name,
+            AILinearFunctionAPI(**kwargs),
+            replace_only_if_better,
+            max_threads,
         )
 
     def _get_synth_input_and_original(self, node):
@@ -197,10 +200,13 @@ class AIPermutationSynthesis(AISynthesis):
     """
 
     def __init__(
-        self, backend_name, replace_only_if_better=True, max_threads=None
+        self, backend_name, replace_only_if_better=True, max_threads=None, **kwargs
     ) -> None:
         super().__init__(
-            backend_name, AIPermutationAPI(), replace_only_if_better, max_threads
+            backend_name,
+            AIPermutationAPI(**kwargs),
+            replace_only_if_better,
+            max_threads,
         )
 
     def _get_synth_input_and_original(self, node):

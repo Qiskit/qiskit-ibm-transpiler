@@ -60,6 +60,7 @@ class QiskitTranspilerService:
         path_param=None,
         base_url: str = "https://cloud-transpiler.quantum.ibm.com/",
         token: str = None,
+        timeout: int = 300,
     ):
         # If it does not recive URL or token, the function tries to find your Qiskit
         # token from the QISKIT_IBM_TOKEN env var
@@ -74,6 +75,8 @@ class QiskitTranspilerService:
         self.url = os.environ.get(url_env_var, url_with_path).rstrip("/")
 
         token = token if token else _get_token_from_system()
+
+        self.timeout = timeout
 
         self.headers = {
             "Accept": "application/json",
@@ -100,27 +103,32 @@ class QiskitTranspilerService:
 
         return resp
 
-    @backoff.on_predicate(
-        backoff.constant,
-        lambda res: res.get("state") not in ["SUCCESS", "FAILURE"],
-        jitter=None,
-        interval=1,  # TODO: Define by config or circuit?
-        max_time=600,  # TODO: Define by config or circuit?
-    )
-    @backoff.on_exception(
-        backoff.expo,
-        (
-            requests.exceptions.Timeout,
-            requests.exceptions.ConnectionError,
-            requests.exceptions.JSONDecodeError,
-        ),
-        max_time=600,  # TODO: Define by config or circuit?
-    )
     def request_status(self, endpoint, task_id):
-        logger.debug(f"Getting status of task {task_id} ...")
-        res = requests.get(url=f"{self.url}/{endpoint}/{task_id}", headers=self.headers)
-        res.raise_for_status()
-        return res.json()
+        @backoff.on_predicate(
+            backoff.constant,
+            lambda res: res.get("state") not in ["SUCCESS", "FAILURE"],
+            jitter=None,
+            interval=1,  # TODO: Define by config or circuit?
+            max_time=self.timeout,
+        )
+        @backoff.on_exception(
+            backoff.expo,
+            (
+                requests.exceptions.Timeout,
+                requests.exceptions.ConnectionError,
+                requests.exceptions.JSONDecodeError,
+            ),
+            max_time=self.timeout,
+        )
+        def _request_status(self, endpoint, task_id):
+            logger.debug(f"Getting status of task {task_id} ...")
+            res = requests.get(
+                url=f"{self.url}/{endpoint}/{task_id}", headers=self.headers
+            )
+            res.raise_for_status()
+            return res.json()
+
+        return _request_status(self, endpoint, task_id)
 
     def request_and_wait(self, endpoint: str, body: Dict, params: Dict):
         try:
@@ -145,7 +153,8 @@ class QiskitTranspilerService:
         task_id = resp.get("task_id")
 
         result = BackendTaskError(
-            status="PENDING", msg=f"The background task {task_id} timed out"
+            status="PENDING",
+            msg=f"The background task {task_id} timed out. Try to update the client's timeout config or review your task",
         )
 
         resp = self.request_status(endpoint, task_id)

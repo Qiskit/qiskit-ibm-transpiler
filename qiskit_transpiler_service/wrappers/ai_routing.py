@@ -22,8 +22,8 @@ from .base import QiskitTranspilerService
 class AIRoutingAPI(QiskitTranspilerService):
     """A helper class that covers some basic funcionality from the AIRouting API"""
 
-    def __init__(self):
-        super().__init__("routing")
+    def __init__(self, **kwargs):
+        super().__init__(path_param="routing", **kwargs)
 
     def routing(
         self,
