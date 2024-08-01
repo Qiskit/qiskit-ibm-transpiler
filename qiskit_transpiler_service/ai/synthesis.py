@@ -72,7 +72,7 @@ class AISynthesis(TransformationPass, ABC):
 
         try:
             qargs = [[q._index for q in node.qargs] for node in nodes]
-            logger.debug("Attempting synthesis over qubits {}".format(qargs))
+            logger.debug(f"Attempting synthesis over qubits {qargs}")
             synths = self.synth_service.transpile(
                 synth_inputs, backend=self.backend_name, qargs=qargs
             )

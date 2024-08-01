@@ -70,7 +70,7 @@ class TranspileAPI(QiskitTranspilerService):
             endpoint="transpile", body=json_args, params=params
         )
 
-        logger.debug(f"transpile_resp={transpile_resp}")
+        logger.debug("transpile_resp={transpile_resp}")
 
         transpiled_circuits = []
 

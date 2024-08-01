@@ -169,7 +169,7 @@ class QiskitTranspilerService:
         if isinstance(result, BackendTaskError):
             # TODO: Shall we show this  "The background task 99cf52d2-3942-4ae5-b2a7-d672af7f1216 FAILED" to the user?
             logger.error(
-                "Failed to get a result for {}: {}".format(endpoint, result.msg)
+                "Failed to get a result for {endpoint}: {result.msg}"
             )
             raise result
         else:
