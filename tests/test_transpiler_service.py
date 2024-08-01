@@ -176,7 +176,7 @@ def test_transpile_non_valid_backend():
 
 
 def test_transpile_exceed_circuit_size():
-    circuit = EfficientSU2(200, entanglement="circular", reps=50).decompose()
+    circuit = EfficientSU2(120, entanglement="full", reps=5).decompose()
     transpiler_service = TranspilerService(
         backend_name="ibm_kyoto",
         ai="false",
@@ -187,7 +187,80 @@ def test_transpile_exceed_circuit_size():
         transpiler_service.run(circuit)
         pytest.fail("Error expected")
     except Exception as e:
-        assert str(e) == "'Circuit has more gates than the allowed maximum of 5000.'"
+        assert str(e) == "'Circuit has more gates than the allowed maximum of 30000.'"
+
+
+def test_transpile_exceed_timeout():
+    circuit = EfficientSU2(100, entanglement="circular", reps=50).decompose()
+    transpiler_service = TranspilerService(
+        backend_name="ibm_kyoto",
+        ai="false",
+        optimization_level=3,
+        timeout=1,
+    )
+
+    try:
+        transpiler_service.run(circuit)
+        pytest.fail("Error expected")
+    except Exception as e:
+        assert (
+            "timed out. Try to update the client's timeout config or review your task"
+            in str(e)
+        )
+
+
+def test_transpile_wrong_token():
+    circuit = EfficientSU2(100, entanglement="circular", reps=1).decompose()
+    transpiler_service = TranspilerService(
+        backend_name="ibm_kyoto",
+        ai="false",
+        optimization_level=3,
+        token="invented_token5",
+    )
+
+    try:
+        transpiler_service.run(circuit)
+        pytest.fail("Error expected")
+    except Exception as e:
+        assert str(e) == "'Invalid authentication credentials'"
+
+
+@pytest.mark.disable_monkeypatch
+def test_transpile_wrong_url():
+    circuit = EfficientSU2(100, entanglement="circular", reps=1).decompose()
+    transpiler_service = TranspilerService(
+        backend_name="ibm_kyoto",
+        ai="false",
+        optimization_level=3,
+        base_url="https://ibm.com/",
+    )
+
+    try:
+        transpiler_service.run(circuit)
+        pytest.fail("Error expected")
+    except Exception as e:
+        assert "Expecting value: line 1 column 1 (char 0)" in str(e)
+        assert type(e).__name__ == "JSONDecodeError"
+
+
+@pytest.mark.disable_monkeypatch
+def test_transpile_unexisting_url():
+    circuit = EfficientSU2(100, entanglement="circular", reps=1).decompose()
+    transpiler_service = TranspilerService(
+        backend_name="ibm_kyoto",
+        ai="false",
+        optimization_level=3,
+        base_url="https://invented-domain-qiskit-transpiler-service-123.com/",
+    )
+
+    try:
+        transpiler_service.run(circuit)
+        pytest.fail("Error expected")
+    except Exception as e:
+        assert (
+            "Error: HTTPSConnectionPool(host=\\'invented-domain-qiskit-transpiler-service-123.com\\', port=443)"
+            in str(e)
+        )
 
 
 def test_transpile_malformed_body():

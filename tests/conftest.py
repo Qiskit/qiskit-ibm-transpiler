@@ -16,27 +16,28 @@ from qiskit.transpiler.coupling import CouplingMap
 
 
 @pytest.fixture(autouse=True)
-def env_set(monkeypatch):
-    monkeypatch.setenv(
-        "QISKIT_TRANSPILER_SERVICE_PERMUTATIONS_URL",
-        "https://cloud-transpiler-experimental.quantum-computing.ibm.com/permutations",
-    )
-    monkeypatch.setenv(
-        "QISKIT_TRANSPILER_SERVICE_LINEAR_FUNCTIONS_URL",
-        "https://cloud-transpiler-experimental.quantum-computing.ibm.com/linear_functions",
-    )
-    monkeypatch.setenv(
-        "QISKIT_TRANSPILER_SERVICE_CLIFFORD_URL",
-        "https://cloud-transpiler-experimental.quantum-computing.ibm.com/clifford",
-    )
-    monkeypatch.setenv(
-        "QISKIT_TRANSPILER_SERVICE_ROUTING_URL",
-        "https://cloud-transpiler-experimental.quantum-computing.ibm.com/routing",
-    )
-    monkeypatch.setenv(
-        "QISKIT_TRANSPILER_SERVICE_URL",
-        "https://cloud-transpiler-experimental.quantum-computing.ibm.com/",
-    )
+def env_set(monkeypatch, request):
+    if not "disable_monkeypatch" in request.keywords:
+        monkeypatch.setenv(
+            "QISKIT_TRANSPILER_SERVICE_PERMUTATIONS_URL",
+            "https://cloud-transpiler-experimental.quantum-computing.ibm.com/permutations",
+        )
+        monkeypatch.setenv(
+            "QISKIT_TRANSPILER_SERVICE_LINEAR_FUNCTIONS_URL",
+            "https://cloud-transpiler-experimental.quantum-computing.ibm.com/linear_functions",
+        )
+        monkeypatch.setenv(
+            "QISKIT_TRANSPILER_SERVICE_CLIFFORD_URL",
+            "https://cloud-transpiler-experimental.quantum-computing.ibm.com/clifford",
+        )
+        monkeypatch.setenv(
+            "QISKIT_TRANSPILER_SERVICE_ROUTING_URL",
+            "https://cloud-transpiler-experimental.quantum-computing.ibm.com/routing",
+        )
+        monkeypatch.setenv(
+            "QISKIT_TRANSPILER_SERVICE_URL",
+            "https://cloud-transpiler-experimental.quantum-computing.ibm.com/",
+        )
     logging.getLogger("qiskit_transpiler_service.ai.synthesis").setLevel(logging.DEBUG)
 
 

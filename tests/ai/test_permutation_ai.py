@@ -40,6 +40,101 @@ def permutations_circuit(backend, cmap_backend):
     return orig_qc
 
 
+def test_permutation_wrong_backend(caplog):
+    orig_qc = QuantumCircuit(3)
+    orig_qc.swap(0, 1)
+    orig_qc.swap(1, 2)
+
+    ai_optimize_perm = PassManager(
+        [
+            CollectPermutations(min_block_size=2, max_block_size=27),
+            AIPermutationSynthesis(backend_name="wrong_backend"),
+        ]
+    )
+    ai_optimized_circuit = ai_optimize_perm.run(orig_qc)
+    assert "couldn't synthesize the circuit" in caplog.text
+    assert "Keeping the original circuit" in caplog.text
+    assert (
+        "User doesn't have access to the specified backend: wrong_backend"
+        in caplog.text
+    )
+    assert isinstance(ai_optimized_circuit, QuantumCircuit)
+
+
+@pytest.mark.skip(
+    reason="Unreliable. It passes most of the times with the timeout of 1 second for the current circuits used"
+)
+def test_permutation_exceed_timeout(random_circuit_transpiled, backend, caplog):
+    ai_optimize_perm = PassManager(
+        [
+            CollectPermutations(min_block_size=2, max_block_size=27),
+            AIPermutationSynthesis(backend_name=backend, timeout=1),
+        ]
+    )
+    ai_optimized_circuit = ai_optimize_perm.run(random_circuit_transpiled)
+    assert "couldn't synthesize the circuit" in caplog.text
+    assert "Keeping the original circuit" in caplog.text
+    assert isinstance(ai_optimized_circuit, QuantumCircuit)
+
+
+@pytest.mark.skip(
+    reason="Unreliable many times. We'll research why it fails sporadically"
+)
+def test_permutation_wrong_token(random_circuit_transpiled, backend, caplog):
+    ai_optimize_perm = PassManager(
+        [
+            CollectPermutations(min_block_size=2, max_block_size=27),
+            AIPermutationSynthesis(backend_name=backend, token="invented_token_2"),
+        ]
+    )
+    ai_optimized_circuit = ai_optimize_perm.run(random_circuit_transpiled)
+    assert "Invalid authentication credentials" in caplog.text
+    assert isinstance(ai_optimized_circuit, QuantumCircuit)
+
+
+@pytest.mark.skip(
+    reason="Unreliable many times. We'll research why it fails sporadically"
+)
+@pytest.mark.disable_monkeypatch
+def test_permutation_wrong_url(random_circuit_transpiled, backend):
+    ai_optimize_perm = PassManager(
+        [
+            CollectPermutations(min_block_size=2, max_block_size=27),
+            AIPermutationSynthesis(backend_name=backend, base_url="https://ibm.com/"),
+        ]
+    )
+    try:
+        ai_optimized_circuit = ai_optimize_perm.run(random_circuit_transpiled)
+        pytest.fail("Error expected")
+    except Exception as e:
+        assert "Expecting value: line 1 column 1 (char 0)" in str(e)
+        assert type(e).__name__ == "JSONDecodeError"
+
+
+@pytest.mark.skip(
+    reason="Unreliable many times. We'll research why it fails sporadically"
+)
+@pytest.mark.disable_monkeypatch
+def test_permutation_unexisting_url(random_circuit_transpiled, backend, caplog):
+    ai_optimize_perm = PassManager(
+        [
+            CollectPermutations(min_block_size=2, max_block_size=27),
+            AIPermutationSynthesis(
+                backend_name=backend,
+                base_url="https://invented-domain-qiskit-transpiler-service-123.com/",
+            ),
+        ]
+    )
+    ai_optimized_circuit = ai_optimize_perm.run(random_circuit_transpiled)
+    assert "couldn't synthesize the circuit" in caplog.text
+    assert "Keeping the original circuit" in caplog.text
+    assert (
+        "Error: HTTPSConnectionPool(host='invented-domain-qiskit-transpiler-service-123.com', port=443):"
+        in caplog.text
+    )
+    assert isinstance(ai_optimized_circuit, QuantumCircuit)
+
+
 def test_permutation_collector(permutations_circuit, backend, cmap_backend):
     qiskit_lvl3_transpiler = generate_preset_pass_manager(
         optimization_level=1, coupling_map=cmap_backend[backend]
@@ -63,35 +158,14 @@ def test_permutation_collector(permutations_circuit, backend, cmap_backend):
     assert not dag.named_nodes("clifford", "Clifford")
 
 
-def test_permutation_pass(permutations_circuit, backend, cmap_backend, caplog):
-    qiskit_lvl3_transpiler = generate_preset_pass_manager(
-        optimization_level=1, coupling_map=cmap_backend[backend]
-    )
-    permutations_circuit = qiskit_lvl3_transpiler.run(permutations_circuit)
+def test_permutation_pass(permutations_circuit, backend, caplog):
 
-    ai_optimize_lf = PassManager(
+    ai_optimize_perm = PassManager(
         [
             CollectPermutations(max_block_size=27),
             AIPermutationSynthesis(backend_name=backend),
         ]
     )
-    ai_optimized_circuit = ai_optimize_lf.run(permutations_circuit)
+    ai_optimized_circuit = ai_optimize_perm.run(permutations_circuit)
     assert "Using the synthesized circuit" in caplog.text
-    assert isinstance(ai_optimized_circuit, QuantumCircuit)
-
-
-def test_permutation_wrong_backend(caplog):
-    orig_qc = QuantumCircuit(3)
-    orig_qc.swap(0, 1)
-    orig_qc.swap(1, 2)
-
-    ai_optimize_lf = PassManager(
-        [
-            CollectPermutations(min_block_size=2, max_block_size=27),
-            AIPermutationSynthesis(backend_name="a_wrong_backend"),
-        ]
-    )
-    ai_optimized_circuit = ai_optimize_lf.run(orig_qc)
-    assert "couldn't synthesize the circuit" in caplog.text
-    assert "Keeping the original circuit" in caplog.text
     assert isinstance(ai_optimized_circuit, QuantumCircuit)

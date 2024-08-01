@@ -61,10 +61,11 @@ class TranspilerService:
         backend_name: Union[str, None] = None,
         qiskit_transpile_options: Dict = None,
         ai_layout_mode: str = None,
+        **kwargs,
     ) -> None:
         """Initializes the instance."""
 
-        self.transpiler_service = TranspileAPI()
+        self.transpiler_service = TranspileAPI(**kwargs)
 
         self.backend_name = backend_name
         self.coupling_map = coupling_map
@@ -103,6 +104,7 @@ class TranspilerService:
             optimization_level=self.optimization_level,
             ai=self.ai,
             qiskit_transpile_options=self.qiskit_transpile_options,
+            ai_layout_mode=self.ai_layout_mode,
         )
         if transpile_result is None:
             logger.warning(

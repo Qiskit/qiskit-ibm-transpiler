@@ -29,8 +29,8 @@ logger = logging.getLogger(__name__)
 class TranspileAPI(QiskitTranspilerService):
     """A helper class that covers some basic funcionality from the Qiskit Transpiler API"""
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
 
     def transpile(
         self,
