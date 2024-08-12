@@ -239,8 +239,11 @@ def test_transpile_wrong_url():
         transpiler_service.run(circuit)
         pytest.fail("Error expected")
     except Exception as e:
-        assert "Expecting value: line 1 column 1 (char 0)" in str(e)
-        assert type(e).__name__ == "JSONDecodeError"
+        assert (
+            "Internal error: 404 Client Error: Not Found for url: https://www.ibm.com/transpile"
+            in str(e)
+        )
+        assert type(e).__name__ == "TranspilerError"
 
 
 @pytest.mark.disable_monkeypatch

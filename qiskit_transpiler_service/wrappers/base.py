@@ -180,18 +180,22 @@ def _raise_transpiler_error_and_log(msg: str):
 
 
 def _get_error_msg_from_response(exc: requests.exceptions.HTTPError):
-    resp = exc.response.json()
-    detail = resp.get("detail")
-    # Default message
-    msg = "Internal error."
+    try:
+        resp = exc.response.json()
+        detail = resp.get("detail")
+        # Default message
+        msg = "Internal error."
 
-    if isinstance(detail, str):
-        msg = detail
-    elif isinstance(detail, list):
-        detail_input = detail[0]["input"]
-        detail_msg = detail[0]["msg"]
+        if isinstance(detail, str):
+            msg = detail
+        elif isinstance(detail, list):
+            detail_input = detail[0]["input"]
+            detail_msg = detail[0]["msg"]
 
-        if detail_input and detail_msg:
-            msg = f"Wrong input '{detail_input}'. {detail_msg}"
-
+            if detail_input and detail_msg:
+                msg = f"Wrong input '{detail_input}'. {detail_msg}"
+    except:
+        # If something fails decoding the error
+        # just show the incoming error
+        msg = f"Internal error: {str(exc)}"
     return msg
