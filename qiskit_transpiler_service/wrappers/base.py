@@ -194,7 +194,7 @@ def _get_error_msg_from_response(exc: requests.exceptions.HTTPError):
 
             if detail_input and detail_msg:
                 msg = f"Wrong input '{detail_input}'. {detail_msg}"
-    except:
+    except Exception:
         # If something fails decoding the error
         # just show the incoming error
         msg = f"Internal error: {str(exc)}"
