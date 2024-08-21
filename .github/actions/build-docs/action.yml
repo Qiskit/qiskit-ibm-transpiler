@@ -1,0 +1,28 @@
+# This code is a Qiskit project.
+#
+# (C) Copyright IBM 2024.
+#
+# This code is licensed under the Apache License, Version 2.0. You may
+# obtain a copy of this license in the LICENSE file in the root directory
+# of this source tree or at http://www.apache.org/licenses/LICENSE-2.0.
+#
+# Any modifications or derivative works of this code must retain this
+# copyright notice, and modified files need to carry a notice indicating
+# that they have been altered from the originals.
+
+name: Build documentation
+description: Build and upload Sphinx documentation
+runs:
+  using: "composite"
+  steps:
+    - name: Build documentation
+      run: python -m sphinx -W --keep-going docs/ docs/_build
+    - name: Store built documentation artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: qst-docs
+        path: |
+          ./docs/_build/*
+          !**/.doctrees
+          !**/.buildinfo
+        if-no-files-found: error
