@@ -16,6 +16,7 @@ runs:
   using: "composite"
   steps:
     - name: Build documentation
+      shell: bash
       run: python -m sphinx -W --keep-going docs/ docs/_build
     - name: Store built documentation artifact
       uses: actions/upload-artifact@v4
