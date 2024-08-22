@@ -87,6 +87,7 @@ def test_rand_circ_cmap_routing(
 ):
     random_circ = random_circuit(5, depth=3, seed=42).decompose(reps=3)
 
+    coupling_map.extend([item[::-1] for item in coupling_map])
     cloud_transpiler_service = TranspilerService(
         coupling_map=coupling_map,
         ai=ai,
@@ -174,7 +175,7 @@ def test_transpile_non_valid_backend():
             == f'"User doesn\'t have access to the specified backend: {non_valid_backend_name}"'
         )
 
-
+@pytest.mark.skip("Service accepts now 1e6 gates. Takes too much time to create that circuit.")
 def test_transpile_exceed_circuit_size():
     circuit = EfficientSU2(120, entanglement="full", reps=5).decompose()
     transpiler_service = TranspilerService(
