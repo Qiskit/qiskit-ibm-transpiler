@@ -312,7 +312,7 @@ def test_transpile_failing_task():
         assert "FAILED" in str(e)
 
 
-def test_a_deprecated_warning():
+def test_deprecation_warning():
     with catch_warnings(record=True) as w:
         TranspilerService(
             backend_name="ibm_brisbane",

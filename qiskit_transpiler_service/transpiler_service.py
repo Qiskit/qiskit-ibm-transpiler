@@ -34,6 +34,7 @@ from qiskit import QuantumCircuit
 from .wrappers.transpile import TranspileAPI
 
 logger = logging.getLogger(__name__)
+from warnings import warn
 
 
 class TranspilerService:
@@ -64,6 +65,11 @@ class TranspilerService:
         **kwargs,
     ) -> None:
         """Initializes the instance."""
+
+        warn(
+            "The package qiskit-transpiler-service is deprecated. Use qiskit-ibm-transpiler instead",
+            DeprecationWarning,
+        )
 
         self.transpiler_service = TranspileAPI(**kwargs)
 
