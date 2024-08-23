@@ -15,6 +15,12 @@ from .transpiler_service import TranspilerService
 from .utils import create_random_linear_function, get_metrics
 
 import logging
+from warnings import warn
 
 logging.basicConfig()
 logging.getLogger(__name__).addHandler(logging.NullHandler())
+
+warn(
+    f"The package qiskit-transpiler-service is deprecated. Use qiskit-ibm-transpiler instead",
+    DeprecationWarning,
+)
