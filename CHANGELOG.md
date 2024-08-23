@@ -18,20 +18,25 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### 🎉 Added
 
-- [#28](https://github.com/Qiskit/qiskit-transpiler-service/pull/28) Enable programatic config of polling timeout
-
 ### ✏️ Changed
 
 ### 🐛 Fixed
-
-- [#25](https://github.com/Qiskit/qiskit-transpiler-service/pull/25) Using the declared ai_layout_mode in the TranspilerService's run method
-- [#26](https://github.com/Qiskit/qiskit-transpiler-service/pull/26) Updating tests about service's limits after last changes
 
 ### ❌ Removed
 
 ### 👾 Security
 
 ### ⚠️ Deprecated
+
+## [0.4.6] - 2024-08-23
+
+### 🎉 Added
+
+- [#40](https://github.com/Qiskit/qiskit-transpiler-service/pull/40) Added deprecation notice in preparation for project rename to `qiskit-ibm-transpiler`
+
+### 🐛 Fixed
+
+- [#36](https://github.com/Qiskit/qiskit-transpiler-service/pull/36) Forward incoming error when decoding fails
 
 ## [0.4.5] - 2024-08-01
 
@@ -142,6 +147,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 - Publishing first version 0.1.2 for the IBM Quantum Summit.
 
-[Unreleased]: https://github.com/Qiskit/qiskit-transpiler-service/compare/0.4.4...main
+[Unreleased]: https://github.com/Qiskit/qiskit-transpiler-service/compare/0.4.6...main
+[0.4.6]: https://github.com/Qiskit/qiskit-transpiler-service/compare/0.4.5...0.4.6
 [0.4.5]: https://github.com/Qiskit/qiskit-transpiler-service/compare/0.4.4...0.4.5
 [0.4.4]: https://github.com/Qiskit/qiskit-transpiler-service/compare/0.4.3...0.4.4
