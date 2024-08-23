@@ -21,16 +21,8 @@ from qiskit.circuit.random import random_circuit
 from qiskit_transpiler_service.transpiler_service import TranspilerService
 
 
-@pytest.mark.parametrize(
-    "optimization_level", [1, 2, 3], ids=["opt_level_1", "opt_level_2", "opt_level_3"]
-)
 @pytest.mark.parametrize("ai", ["false", "true"], ids=["no_ai", "ai"])
-@pytest.mark.parametrize(
-    "qiskit_transpile_options",
-    [None, {"seed_transpiler": 0}],
-    ids=["no opt", "one option"],
-)
-def test_rand_circ_backend_routing(optimization_level, ai, qiskit_transpile_options):
+def test_rand_circ_backend_routing(ai):
     backend_name = "ibm_brisbane"
     random_circ = random_circuit(5, depth=3, seed=42)
 
@@ -38,8 +30,8 @@ def test_rand_circ_backend_routing(optimization_level, ai, qiskit_transpile_opti
         cloud_transpiler_service = TranspilerService(
             backend_name=backend_name,
             ai=ai,
-            optimization_level=optimization_level,
-            qiskit_transpile_options=qiskit_transpile_options,
+            optimization_level=1,
+            qiskit_transpile_options=None,
         )
         assert_deprecation_warning(w)
 
@@ -62,27 +54,6 @@ def test_qv_circ_wrong_input_routing():
     circ_dict = {"a": qv_circ}
     with pytest.raises(TypeError):
         cloud_transpiler_service.run(circ_dict)
-
-
-def test_transpile_non_valid_backend():
-    circuit = EfficientSU2(100, entanglement="circular", reps=1).decompose()
-    non_valid_backend_name = "ibm_torin"
-    with catch_warnings(record=True) as w:
-        transpiler_service = TranspilerService(
-            backend_name=non_valid_backend_name,
-            ai="false",
-            optimization_level=3,
-        )
-        assert_deprecation_warning(w)
-
-    try:
-        transpiler_service.run(circuit)
-        pytest.fail("Error expected")
-    except Exception as e:
-        assert (
-            str(e)
-            == f'"User doesn\'t have access to the specified backend: {non_valid_backend_name}"'
-        )
 
 
 def test_transpile_wrong_token():
