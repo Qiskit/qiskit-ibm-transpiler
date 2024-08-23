@@ -1,15 +1,15 @@
 # qiskit_transpiler_service
 
-A library to use [Qiskit Transpiler service](https://docs.quantum.ibm.com/transpile/qiskit-transpiler-service) and the [AI transpiler passes](https://docs.quantum.ibm.com/transpile/ai-transpiler-passes).
+A library to use [Qiskit Transpiler service](https://docs.quantum.ibm.com/transpile/qiskit-ibm-transpiler) and the [AI transpiler passes](https://docs.quantum.ibm.com/transpile/ai-transpiler-passes).
 
 **Note** The Qiskit transpiler service and the AI transpiler passes use different experimental services that are only available for IBM Quantum Premium Plan users. This library and the releated services are an alpha release, subject to change.
 
-## Installing the qiskit-transpiler-service
+## Installing the qiskit-ibm-transpiler
 
-To use the Qiskit transpiler service, install the `qiskit-transpiler-service` package:
+To use the Qiskit transpiler service, install the `qiskit-ibm-transpiler` package:
 
 ```sh
-pip install qiskit-transpiler-service
+pip install qiskit-ibm-transpiler
 ```
 
 By default, the package tries to authenticate to IBM Quantum services with the defined Qiskit API token, and uses your token from the `QISKIT_IBM_TOKEN` environment variable or from the file `~/.qiskit/qiskit-ibm.json` (under the section `default-ibm-quantum`).

@@ -30,12 +30,12 @@ requirements = [
 ]
 
 setup(
-    name="qiskit-transpiler-service",
+    name="qiskit-ibm-transpiler",
     version="0.4.6",
-    description="A library to use Qiskit Transpiler service (https://docs.quantum.ibm.com/transpile/qiskit-transpiler-service) and the AI transpiler passes (https://docs.quantum.ibm.com/transpile/ai-transpiler-passes)",
+    description="A library to use Qiskit Transpiler service (https://docs.quantum.ibm.com/transpile/qiskit-ibm-transpiler) and the AI transpiler passes (https://docs.quantum.ibm.com/transpile/ai-transpiler-passes)",
     long_description=README,
     long_description_content_type="text/markdown",
-    url="https://github.com/Qiskit/qiskit-transpiler-service",
+    url="https://github.com/Qiskit/qiskit-ibm-transpiler",
     author="Qiskit Development Team",
     author_email="",
     license="Apache 2.0",
@@ -57,9 +57,9 @@ setup(
     keywords=["qiskit", "ai", "transpiler", "routing"],
     install_requires=requirements,
     project_urls={
-        "Bug Tracker": "https://github.com/Qiskit/qiskit-transpiler-service/issues",
-        "Documentation": "https://github.com/Qiskit/qiskit-transpiler-service",
-        "Source Code": "https://github.com/Qiskit/qiskit-transpiler-service",
+        "Bug Tracker": "https://github.com/Qiskit/qiskit-ibm-transpiler/issues",
+        "Documentation": "https://github.com/Qiskit/qiskit-ibm-transpiler",
+        "Source Code": "https://github.com/Qiskit/qiskit-ibm-transpiler",
     },
     include_package_data=True,
     python_requires=">=3.8",

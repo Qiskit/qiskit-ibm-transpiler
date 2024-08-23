@@ -82,7 +82,7 @@ class QiskitTranspilerService:
             "Accept": "application/json",
             "Authorization": f"Bearer {token}",
             "Content-Type": "application/json",
-            "X-Caller": "qiskit-transpiler-service",
+            "X-Caller": "qiskit-ibm-transpiler",
         }
 
     def get_versions(self):
