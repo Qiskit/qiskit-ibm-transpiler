@@ -14,6 +14,7 @@
 
 import numpy as np
 import pytest
+from warnings import catch_warnings
 from qiskit import QuantumCircuit, qasm2, qasm3
 from qiskit.circuit.library import IQP, EfficientSU2, QuantumVolume
 from qiskit.circuit.random import random_circuit
@@ -309,6 +310,21 @@ def test_transpile_failing_task():
     except Exception as e:
         assert "The background task" in str(e)
         assert "FAILED" in str(e)
+
+
+def test_a_deprecated_warning():
+    with catch_warnings(record=True) as w:
+        TranspilerService(
+            backend_name="ibm_brisbane",
+            ai="true",
+            optimization_level=1,
+        )
+        assert len(w) == 1
+        assert issubclass(w[0].category, DeprecationWarning)
+        assert (
+            str(w[0].message)
+            == "The package qiskit-transpiler-service is deprecated. Use qiskit-ibm-transpiler instead"
+        )
 
 
 def compare_layouts(plugin_circ, non_ai_circ):

@@ -21,6 +21,6 @@ logging.basicConfig()
 logging.getLogger(__name__).addHandler(logging.NullHandler())
 
 warn(
-    f"The package qiskit-transpiler-service is deprecated. Use qiskit-ibm-transpiler instead",
+    "The package qiskit-transpiler-service is deprecated. Use qiskit-ibm-transpiler instead",
     DeprecationWarning,
 )
