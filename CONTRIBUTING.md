@@ -33,10 +33,20 @@ When adding a new module, you'll also need to add a new file to `docs/apidocs`. 
 
 **Build**
 
-To build the documentation, install Sphinx and the `qiskit-sphinx-theme` (both included in `requirements-dev.txt`) then run the following command.
+To build the documentation, ensure your virtual environment is set up:
 
 ```sh
-make docs
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements-dev.txt
 ```
 
-To view the documentation open `docs/_build/html/index.html`. Note that this is just a preview, the final documentation content is pulled into [Qiskit/documentation](https://github.com/qiskit/documentation) and re-rendered into <https://docs.quantum.ibm.com>.
+Then, build the docs with Sphinx:
+
+```sh
+python -m sphinx -W docs/ docs/_build
+```
+
+You can then view the documentation by opening up `docs/_build/index.html`. Note that this is just a preview, the final documentation content is pulled into [Qiskit/documentation](https://github.com/qiskit/documentation) and re-rendered into <https://docs.quantum.ibm.com>.
+
+If you run into Sphinx issues, try running `rm -rf docs/_build` to reset the cache state.
