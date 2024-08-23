@@ -12,14 +12,12 @@
 
 """Unit-testing Transpiler Service"""
 
-import numpy as np
 import pytest
 from warnings import catch_warnings
 from qiskit import QuantumCircuit, qasm2, qasm3
 from qiskit.circuit.library import IQP, EfficientSU2, QuantumVolume
 from qiskit.circuit.random import random_circuit
 from qiskit.compiler import transpile
-from qiskit.quantum_info import SparsePauliOp, random_hermitian
 
 from qiskit_transpiler_service.transpiler_service import TranspilerService
 from qiskit_transpiler_service.wrappers import _get_circuit_from_result
@@ -49,78 +47,6 @@ def test_rand_circ_backend_routing(optimization_level, ai, qiskit_transpile_opti
     assert isinstance(transpiled_circuit, QuantumCircuit)
 
 
-@pytest.mark.parametrize(
-    "optimization_level", [1, 2, 3], ids=["opt_level_1", "opt_level_2", "opt_level_3"]
-)
-@pytest.mark.parametrize("ai", ["false", "true"], ids=["no_ai", "ai"])
-@pytest.mark.parametrize(
-    "qiskit_transpile_options",
-    [None, {"seed_transpiler": 0}],
-    ids=["no opt", "one option"],
-)
-def test_qv_backend_routing(optimization_level, ai, qiskit_transpile_options):
-    backend_name = "ibm_brisbane"
-    qv_circ = QuantumVolume(27, depth=3, seed=42).decompose(reps=3)
-
-    cloud_transpiler_service = TranspilerService(
-        backend_name=backend_name,
-        ai=ai,
-        optimization_level=optimization_level,
-        qiskit_transpile_options=qiskit_transpile_options,
-    )
-    transpiled_circuit = cloud_transpiler_service.run(qv_circ)
-
-    assert isinstance(transpiled_circuit, QuantumCircuit)
-
-
-@pytest.mark.parametrize(
-    "coupling_map",
-    [
-        [[0, 1], [1, 2], [2, 3], [3, 4], [4, 5]],
-        [[0, 1], [1, 2], [2, 3], [3, 4], [4, 5], [5, 6], [6, 7]],
-    ],
-)
-@pytest.mark.parametrize("optimization_level", [1, 2, 3])
-@pytest.mark.parametrize("ai", ["false", "true"], ids=["no_ai", "ai"])
-@pytest.mark.parametrize("qiskit_transpile_options", [None, {"seed_transpiler": 0}])
-def test_rand_circ_cmap_routing(
-    coupling_map, optimization_level, ai, qiskit_transpile_options
-):
-    random_circ = random_circuit(5, depth=3, seed=42).decompose(reps=3)
-
-    coupling_map.extend([item[::-1] for item in coupling_map])
-    cloud_transpiler_service = TranspilerService(
-        coupling_map=coupling_map,
-        ai=ai,
-        optimization_level=optimization_level,
-        qiskit_transpile_options=qiskit_transpile_options,
-    )
-    transpiled_circuit = cloud_transpiler_service.run(random_circ)
-
-    assert isinstance(transpiled_circuit, QuantumCircuit)
-
-
-def test_qv_circ_several_circuits_routing():
-    qv_circ = QuantumVolume(5, depth=3, seed=42).decompose(reps=3)
-
-    cloud_transpiler_service = TranspilerService(
-        backend_name="ibm_brisbane",
-        ai="true",
-        optimization_level=1,
-    )
-    transpiled_circuit = cloud_transpiler_service.run([qv_circ] * 2)
-    for circ in transpiled_circuit:
-        assert isinstance(circ, QuantumCircuit)
-
-    transpiled_circuit = cloud_transpiler_service.run([qasm2.dumps(qv_circ)] * 2)
-    for circ in transpiled_circuit:
-        assert isinstance(circ, QuantumCircuit)
-
-    transpiled_circuit = cloud_transpiler_service.run([qasm2.dumps(qv_circ), qv_circ])
-    for circ in transpiled_circuit:
-        assert isinstance(circ, QuantumCircuit)
-
-
 def test_qv_circ_wrong_input_routing():
     qv_circ = QuantumVolume(5, depth=3, seed=42).decompose(reps=3)
 
@@ -133,29 +59,6 @@ def test_qv_circ_wrong_input_routing():
     circ_dict = {"a": qv_circ}
     with pytest.raises(TypeError):
         cloud_transpiler_service.run(circ_dict)
-
-
-@pytest.mark.parametrize("ai", ["false", "true"], ids=["no_ai", "ai"])
-def test_transpile_layout_reconstruction(ai):
-    n_qubits = 27
-
-    mat = np.real(random_hermitian(n_qubits, seed=1234))
-    circuit = IQP(mat)
-    observable = SparsePauliOp("Z" * n_qubits)
-
-    cloud_transpiler_service = TranspilerService(
-        backend_name="ibm_brisbane",
-        ai=ai,
-        optimization_level=1,
-    )
-    transpiled_circuit = cloud_transpiler_service.run(circuit)
-    # This fails if initial layout is not correct
-    try:
-        observable.apply_layout(transpiled_circuit.layout)
-    except Exception:
-        pytest.fail(
-            "This should not fail. Probably something wrong with the reconstructed layout."
-        )
 
 
 def test_transpile_non_valid_backend():
@@ -177,43 +80,6 @@ def test_transpile_non_valid_backend():
         )
 
 
-@pytest.mark.skip(
-    "Service accepts now 1e6 gates. Takes too much time to create that circuit."
-)
-def test_transpile_exceed_circuit_size():
-    circuit = EfficientSU2(120, entanglement="full", reps=5).decompose()
-    transpiler_service = TranspilerService(
-        backend_name="ibm_kyoto",
-        ai="false",
-        optimization_level=3,
-    )
-
-    try:
-        transpiler_service.run(circuit)
-        pytest.fail("Error expected")
-    except Exception as e:
-        assert str(e) == "'Circuit has more gates than the allowed maximum of 30000.'"
-
-
-def test_transpile_exceed_timeout():
-    circuit = EfficientSU2(100, entanglement="circular", reps=50).decompose()
-    transpiler_service = TranspilerService(
-        backend_name="ibm_kyoto",
-        ai="false",
-        optimization_level=3,
-        timeout=1,
-    )
-
-    try:
-        transpiler_service.run(circuit)
-        pytest.fail("Error expected")
-    except Exception as e:
-        assert (
-            "timed out. Try to update the client's timeout config or review your task"
-            in str(e)
-        )
-
-
 def test_transpile_wrong_token():
     circuit = EfficientSU2(100, entanglement="circular", reps=1).decompose()
     transpiler_service = TranspilerService(
@@ -228,66 +94,6 @@ def test_transpile_wrong_token():
         pytest.fail("Error expected")
     except Exception as e:
         assert str(e) == "'Invalid authentication credentials'"
-
-
-@pytest.mark.disable_monkeypatch
-def test_transpile_wrong_url():
-    circuit = EfficientSU2(100, entanglement="circular", reps=1).decompose()
-    transpiler_service = TranspilerService(
-        backend_name="ibm_kyoto",
-        ai="false",
-        optimization_level=3,
-        base_url="https://ibm.com/",
-    )
-
-    try:
-        transpiler_service.run(circuit)
-        pytest.fail("Error expected")
-    except Exception as e:
-        assert (
-            "Internal error: 404 Client Error: Not Found for url: https://www.ibm.com/transpile"
-            in str(e)
-        )
-        assert type(e).__name__ == "TranspilerError"
-
-
-@pytest.mark.disable_monkeypatch
-def test_transpile_unexisting_url():
-    circuit = EfficientSU2(100, entanglement="circular", reps=1).decompose()
-    transpiler_service = TranspilerService(
-        backend_name="ibm_kyoto",
-        ai="false",
-        optimization_level=3,
-        base_url="https://invented-domain-qiskit-ibm-transpiler-123.com/",
-    )
-
-    try:
-        transpiler_service.run(circuit)
-        pytest.fail("Error expected")
-    except Exception as e:
-        assert (
-            "Error: HTTPSConnectionPool(host=\\'invented-domain-qiskit-ibm-transpiler-123.com\\', port=443)"
-            in str(e)
-        )
-
-
-def test_transpile_malformed_body():
-    circuit = EfficientSU2(100, entanglement="circular", reps=1).decompose()
-    transpiler_service = TranspilerService(
-        backend_name="ibm_kyoto",
-        ai="false",
-        optimization_level=3,
-        qiskit_transpile_options={"failing_option": 0},
-    )
-
-    try:
-        transpiler_service.run(circuit)
-        pytest.fail("Error expected")
-    except Exception as e:
-        assert (
-            str(e)
-            == "\"transpile() got an unexpected keyword argument 'failing_option'\""
-        )
 
 
 def test_transpile_failing_task():
