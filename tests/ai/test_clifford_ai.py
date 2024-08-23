@@ -67,19 +67,16 @@ def test_clifford_wrong_token(random_circuit_transpiled, backend, caplog):
 
 
 @pytest.mark.disable_monkeypatch
-def test_clifford_wrong_url(random_circuit_transpiled, backend):
+def test_clifford_wrong_url(random_circuit_transpiled, backend, caplog):
     ai_optimize_cliff = PassManager(
         [
             CollectCliffords(),
             AICliffordSynthesis(backend_name=backend, base_url="https://ibm.com/"),
         ]
     )
-    try:
-        ai_optimized_circuit = ai_optimize_cliff.run(random_circuit_transpiled)
-        pytest.fail("Error expected")
-    except Exception as e:
-        assert "Expecting value: line 1 column 1 (char 0)" in str(e)
-        assert type(e).__name__ == "JSONDecodeError"
+    ai_optimized_circuit = ai_optimize_cliff.run(random_circuit_transpiled)
+    assert "Internal error: 404 Client Error:" in caplog.text
+    assert "Keeping the original circuit" in caplog.text
 
 
 @pytest.mark.disable_monkeypatch
