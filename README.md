@@ -1,7 +1,5 @@
 # qiskit_transpiler_service
 
-> ⚠️ The package **qiskit-transpiler-service** is deprecated. Use **qiskit-ibm-transpiler** instead
-
 A library to use [Qiskit Transpiler service](https://docs.quantum.ibm.com/transpile/qiskit-transpiler-service) and the [AI transpiler passes](https://docs.quantum.ibm.com/transpile/ai-transpiler-passes).
 
 **Note** The Qiskit transpiler service and the AI transpiler passes use different experimental services that are only available for IBM Quantum Premium Plan users. This library and the releated services are an alpha release, subject to change.
