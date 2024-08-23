@@ -12,11 +12,12 @@
 
 name: Upload documentation
 on:
-  tags:
   workflow_dispatch:
   push:
     branches:
       - main
+    tags:
+      - '*'
 
 jobs:
   build:
