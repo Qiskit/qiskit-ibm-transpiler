@@ -1,12 +1,12 @@
 # qiskit_ibm_transpiler
 
-A library to use [Qiskit Transpiler service](https://docs.quantum.ibm.com/transpile/qiskit-ibm-transpiler) and the [AI transpiler passes](https://docs.quantum.ibm.com/transpile/ai-transpiler-passes).
+A library to use [Qiskit IBM Transpiler](https://docs.quantum.ibm.com/transpile/qiskit-ibm-transpiler) and the [AI transpiler passes](https://docs.quantum.ibm.com/transpile/ai-transpiler-passes).
 
-**Note** The Qiskit transpiler service and the AI transpiler passes use different experimental services that are only available for IBM Quantum Premium Plan users. This library and the releated services are an alpha release, subject to change.
+**Note** The Qiskit IBM Transpiler and the AI transpiler passes use different experimental services that are only available for IBM Quantum Premium Plan users. This library and the releated services are an alpha release, subject to change.
 
 ## Installing the qiskit-ibm-transpiler
 
-To use the Qiskit transpiler service, install the `qiskit-ibm-transpiler` package:
+To use the Qiskit IBM Transpiler, install the `qiskit-ibm-transpiler` package:
 
 ```sh
 pip install qiskit-ibm-transpiler
@@ -18,11 +18,11 @@ _Note_: This library requires Qiskit 1.0 by default.
 
 ## How to use the library
 
-### Using the Qiskit Transpiler service
+### Using the Qiskit IBM Transpiler
 
-The following examples demonstrate how to transpile circuits using the Qiskit transpiler service with different parameters.
+The following examples demonstrate how to transpile circuits using the Qiskit IBM Transpiler with different parameters.
 
-1. Create a circuit and call the Qiskit transpiler service to transpile the circuit with `ibm_sherbrooke` as the `backend_name`, 3 as the `optimization_level`, and not using AI during the transpilation.
+1. Create a circuit and call the Qiskit IBM Transpiler to transpile the circuit with `ibm_sherbrooke` as the `backend_name`, 3 as the `optimization_level`, and not using AI during the transpilation.
 
    ```python
    from qiskit.circuit.library import EfficientSU2
@@ -146,7 +146,7 @@ where X can be: `NOTSET`, `DEBUG`, `INFO`, `WARNING`, `ERROR` or `CRITICAL`
 
 ## Citation
 
-If you use any AI-powered feature from the Qiskit transpiler service in your research, use the following recommended citation:
+If you use any AI-powered feature from the Qiskit IBM Transpiler in your research, use the following recommended citation:
 
 ```
 @misc{2405.13196,

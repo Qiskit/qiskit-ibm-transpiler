@@ -12,7 +12,7 @@
 
 """
 ===============================================================================
-Qiskit Transpiler Service (:mod:`qiskit_ibm_transpiler.transpiler_service`)
+Qiskit IBM Transpiler (:mod:`qiskit_ibm_transpiler.transpiler_service`)
 ===============================================================================
 
 .. currentmodule:: qiskit_ibm_transpiler.transpiler_service
@@ -107,10 +107,8 @@ class TranspilerService:
             ai_layout_mode=self.ai_layout_mode,
         )
         if transpile_result is None:
-            logger.warning(
-                "Qiskit transpiler service couldn't transpile the circuit(s)"
-            )
+            logger.warning("Qiskit IBM Transpiler couldn't transpile the circuit(s)")
             return None
 
-        logger.info("Qiskit transpiler service returned a result")
+        logger.info("Qiskit IBM Transpiler returned a result")
         return transpile_result
