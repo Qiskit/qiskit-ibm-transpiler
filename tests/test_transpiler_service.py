@@ -20,8 +20,8 @@ from qiskit.circuit.random import random_circuit
 from qiskit.compiler import transpile
 from qiskit.quantum_info import SparsePauliOp, random_hermitian
 
-from qiskit_transpiler_service.transpiler_service import TranspilerService
-from qiskit_transpiler_service.wrappers import _get_circuit_from_result
+from qiskit_ibm_transpiler.transpiler_service import TranspilerService
+from qiskit_ibm_transpiler.wrappers import _get_circuit_from_result
 
 
 @pytest.mark.parametrize(

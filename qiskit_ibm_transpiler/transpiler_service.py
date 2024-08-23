@@ -12,10 +12,10 @@
 
 """
 ===============================================================================
-Qiskit Transpiler Service (:mod:`qiskit_transpiler_service.transpiler_service`)
+Qiskit Transpiler Service (:mod:`qiskit_ibm_transpiler.transpiler_service`)
 ===============================================================================
 
-.. currentmodule:: qiskit_transpiler_service.transpiler_service
+.. currentmodule:: qiskit_ibm_transpiler.transpiler_service
 
 Classes
 =======

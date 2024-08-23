@@ -16,8 +16,8 @@ from qiskit import QuantumCircuit
 from qiskit.transpiler import PassManager
 from qiskit.transpiler.preset_passmanagers import generate_preset_pass_manager
 
-from qiskit_transpiler_service.ai.collection import CollectPermutations
-from qiskit_transpiler_service.ai.synthesis import AIPermutationSynthesis
+from qiskit_ibm_transpiler.ai.collection import CollectPermutations
+from qiskit_ibm_transpiler.ai.synthesis import AIPermutationSynthesis
 
 
 @pytest.fixture

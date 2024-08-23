@@ -14,7 +14,7 @@
 from qiskit import QuantumCircuit
 from qiskit.transpiler import PassManager
 
-from qiskit_transpiler_service.ai.collection import CollectPermutations
+from qiskit_ibm_transpiler.ai.collection import CollectPermutations
 
 
 def test_permutation_collection_pass(random_circuit_transpiled):

@@ -17,7 +17,7 @@ from qiskit import QuantumCircuit
 from qiskit.transpiler import PassManager
 from qiskit.transpiler.exceptions import TranspilerError
 
-from qiskit_transpiler_service.ai.routing import AIRouting
+from qiskit_ibm_transpiler.ai.routing import AIRouting
 
 
 @pytest.mark.parametrize("optimization_level", [0, 4, 5])

@@ -12,10 +12,10 @@
 
 """
 ===============================================================================
-AI (:mod:`qiskit_transpiler_service.wrappers`)
+AI (:mod:`qiskit_ibm_transpiler.wrappers`)
 ===============================================================================
 
-.. currentmodule:: qiskit_transpiler_service.wrappers
+.. currentmodule:: qiskit_ibm_transpiler.wrappers
 
 Classes
 =======

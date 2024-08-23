@@ -15,8 +15,8 @@ import pytest
 from qiskit import QuantumCircuit
 from qiskit.transpiler import PassManager
 
-from qiskit_transpiler_service.ai.collection import CollectLinearFunctions
-from qiskit_transpiler_service.ai.synthesis import AILinearFunctionSynthesis
+from qiskit_ibm_transpiler.ai.collection import CollectLinearFunctions
+from qiskit_ibm_transpiler.ai.synthesis import AILinearFunctionSynthesis
 
 
 def test_linear_function_wrong_backend(random_circuit_transpiled, caplog):
