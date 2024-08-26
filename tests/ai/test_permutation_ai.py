@@ -104,7 +104,7 @@ def test_permutation_wrong_url(random_circuit_transpiled, backend):
         ]
     )
     try:
-        ai_optimized_circuit = ai_optimize_perm.run(random_circuit_transpiled)
+        _ = ai_optimize_perm.run(random_circuit_transpiled)
         pytest.fail("Error expected")
     except Exception as e:
         assert "Expecting value: line 1 column 1 (char 0)" in str(e)

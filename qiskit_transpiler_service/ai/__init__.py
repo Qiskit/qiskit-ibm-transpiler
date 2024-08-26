@@ -30,10 +30,14 @@ Classes
    CollectLinearFunctions
    CollectPermutations
 """
-from .collection import CollectCliffords, CollectLinearFunctions, CollectPermutations
-from .routing import AIRouting
+from .collection import (
+    CollectCliffords,  # noqa: F401
+    CollectLinearFunctions,  # noqa: F401
+    CollectPermutations,  # noqa: F401
+)
+from .routing import AIRouting  # noqa: F401
 from .synthesis import (
-    AICliffordSynthesis,
-    AILinearFunctionSynthesis,
-    AIPermutationSynthesis,
+    AICliffordSynthesis,  # noqa: F401
+    AILinearFunctionSynthesis,  # noqa: F401
+    AIPermutationSynthesis,  # noqa: F401
 )

@@ -17,7 +17,7 @@ from qiskit.transpiler.coupling import CouplingMap
 
 @pytest.fixture(autouse=True)
 def env_set(monkeypatch, request):
-    if not "disable_monkeypatch" in request.keywords:
+    if "disable_monkeypatch" not in request.keywords:
         monkeypatch.setenv(
             "QISKIT_TRANSPILER_SERVICE_PERMUTATIONS_URL",
             "https://cloud-transpiler-experimental.quantum-computing.ibm.com/permutations",

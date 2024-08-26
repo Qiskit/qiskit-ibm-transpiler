@@ -74,7 +74,7 @@ def test_clifford_wrong_url(random_circuit_transpiled, backend, caplog):
             AICliffordSynthesis(backend_name=backend, base_url="https://ibm.com/"),
         ]
     )
-    ai_optimized_circuit = ai_optimize_cliff.run(random_circuit_transpiled)
+    _ = ai_optimize_cliff.run(random_circuit_transpiled)
     assert "Internal error: 404 Client Error:" in caplog.text
     assert "Keeping the original circuit" in caplog.text
 

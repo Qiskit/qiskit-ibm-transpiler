@@ -51,7 +51,7 @@ class AIRouting(TransformationPass):
         super().__init__()
         if backend_name is not None and coupling_map is not None:
             raise ValueError(
-                f"ERROR. Both backend_name and coupling_map were specified as options. Please just use one of them."
+                "ERROR. Both backend_name and coupling_map were specified as options. Please just use one of them."
             )
         if backend_name is not None:
             self.backend = backend_name
@@ -62,10 +62,10 @@ class AIRouting(TransformationPass):
                 self.backend = coupling_map
             else:
                 raise ValueError(
-                    f"ERROR. coupling_map should either be a list of int tuples or a Qiskit CouplingMap object."
+                    "ERROR. coupling_map should either be a list of int tuples or a Qiskit CouplingMap object."
                 )
         else:
-            raise ValueError(f"ERROR. Either backend_name OR coupling_map must be set.")
+            raise ValueError("ERROR. Either backend_name OR coupling_map must be set.")
 
         self.optimization_level = optimization_level
 

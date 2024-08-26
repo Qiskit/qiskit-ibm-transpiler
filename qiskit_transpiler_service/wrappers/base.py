@@ -13,7 +13,6 @@
 import json
 import logging
 import os
-from http import HTTPStatus
 from pathlib import Path
 from typing import Dict
 from urllib.parse import urljoin
