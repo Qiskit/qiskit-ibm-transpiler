@@ -20,7 +20,7 @@ from qiskit.qasm2 import QASM2ExportError, QASM2ParseError
 from qiskit.transpiler import TranspileLayout
 from qiskit.transpiler.layout import Layout
 
-from qiskit_transpiler_service.wrappers import QiskitTranspilerService
+from qiskit_ibm_transpiler.wrappers import QiskitTranspilerService
 
 # setting backoff logger to error level to avoid too much logging
 logging.getLogger("backoff").setLevel(logging.ERROR)

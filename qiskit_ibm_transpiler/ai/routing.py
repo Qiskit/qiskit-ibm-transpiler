@@ -22,7 +22,7 @@ from qiskit.transpiler import CouplingMap, TranspilerError
 from qiskit.transpiler.basepasses import TransformationPass
 from qiskit.transpiler.layout import Layout
 
-from qiskit_transpiler_service.wrappers import AIRoutingAPI
+from qiskit_ibm_transpiler.wrappers import AIRoutingAPI
 
 
 class AIRouting(TransformationPass):

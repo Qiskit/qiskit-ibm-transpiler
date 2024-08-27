@@ -10,9 +10,9 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-from qiskit_ibm_transpiler.ai import AIRouting
+from .ai import AIRouting
 from .transpiler_service import TranspilerService
-from qiskit_ibm_transpiler.utils import create_random_linear_function, get_metrics
+from .utils import create_random_linear_function, get_metrics
 
 import logging
 

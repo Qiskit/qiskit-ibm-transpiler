@@ -1,4 +1,4 @@
-# Contributing to qiskit_transpiler_service
+# Contributing to qiskit_ibm_transpiler
 
 ## Documentation
 
@@ -6,7 +6,7 @@
 
 We use Sphinx to compile docstrings into API documentation. The docstrings are written in reStructuredText. See our [Sphinx guide](https://qiskit.github.io/qiskit_sphinx_theme/sphinx_guide/index.html) for more information on writing Sphinx documentation.
 
-If you want an object to appear in the API documentation, you'll need to add it to the autosummary of the appropriate module-level docstring. For example, the [`qiskit_transpiler_service.ai`](./qiskit_transpiler_service/ai/__init__.py) module contains the following autosummary.
+If you want an object to appear in the API documentation, you'll need to add it to the autosummary of the appropriate module-level docstring. For example, the [`qiskit_ibm_transpiler.ai`](qiskit_ibm_transpiler/ai/__init__.py) module contains the following autosummary.
 
 ```rst
 Classes
@@ -20,7 +20,7 @@ Classes
 Functions should be inlined in the module's file, e.g. `utils.py`:
 
 ```rst
-.. currentmodule:: qiskit_transpiler_service.utils
+.. currentmodule:: qiskit_ibm_transpiler.utils
 
 Functions
 =========

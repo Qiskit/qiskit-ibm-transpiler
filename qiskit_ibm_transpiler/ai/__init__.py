@@ -12,36 +12,28 @@
 
 """
 ===============================================================================
-AI (:mod:`qiskit_ibm_transpiler.wrappers`)
+AI (:mod:`qiskit_ibm_transpiler.ai`)
 ===============================================================================
 
-.. currentmodule:: qiskit_ibm_transpiler.wrappers
+.. currentmodule:: qiskit_ibm_transpiler.ai
 
 Classes
 =======
 .. autosummary::
    :toctree: ../stubs/
 
-   AIRoutingAPI
-   AICliffordAPI
-   AILinearFunctionAPI
-   AIPermutationAPI
-   QiskitTranspilerService
-   BackendTaskError
-   TranspileAPI
+   AIRouting
+   AICliffordSynthesis
+   AILinearFunctionSynthesis
+   AIPermutationSynthesis
+   CollectCliffords
+   CollectLinearFunctions
+   CollectPermutations
 """
-
-from qiskit_ibm_transpiler.wrappers.ai_routing import AIRoutingAPI
-from qiskit_ibm_transpiler.wrappers.ai_synthesis import (
-    AICliffordAPI,
-    AILinearFunctionAPI,
-    AIPermutationAPI,
-)
-from qiskit_ibm_transpiler.wrappers.base import (
-    BackendTaskError,
-    QiskitTranspilerService,
-)
-from qiskit_ibm_transpiler.wrappers.transpile import (
-    TranspileAPI,
-    _get_circuit_from_result,
+from .collection import CollectCliffords, CollectLinearFunctions, CollectPermutations
+from .routing import AIRouting
+from .synthesis import (
+    AICliffordSynthesis,
+    AILinearFunctionSynthesis,
+    AIPermutationSynthesis,
 )

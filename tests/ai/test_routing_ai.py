@@ -17,7 +17,7 @@ from qiskit import QuantumCircuit
 from qiskit.transpiler import PassManager
 from qiskit.transpiler.exceptions import TranspilerError
 
-from qiskit_transpiler_service.ai.routing import AIRouting
+from qiskit_ibm_transpiler.ai.routing import AIRouting
 
 
 @pytest.mark.parametrize("optimization_level", [0, 4, 5])
@@ -97,7 +97,7 @@ def test_routing_unexisting_url(qv_circ, backend):
         [
             AIRouting(
                 backend_name=backend,
-                base_url="https://invented-domain-qiskit-transpiler-service-123.com/",
+                base_url="https://invented-domain-qiskit-ibm-transpiler-123.com/",
             ),
         ]
     )
@@ -107,7 +107,7 @@ def test_routing_unexisting_url(qv_circ, backend):
     except Exception as e:
         print(e)
         assert (
-            "Error: HTTPSConnectionPool(host=\\'invented-domain-qiskit-transpiler-service-123.com\\', port=443):"
+            "Error: HTTPSConnectionPool(host=\\'invented-domain-qiskit-ibm-transpiler-123.com\\', port=443):"
             in str(e)
         )
         assert type(e).__name__ == "TranspilerError"

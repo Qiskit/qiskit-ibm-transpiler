@@ -1,4 +1,4 @@
-.. automodule:: qiskit_transpiler_service.ai
+.. automodule:: qiskit_ibm_transpiler.ai
    :no-members:
    :no-inherited-members:
    :no-special-members:
