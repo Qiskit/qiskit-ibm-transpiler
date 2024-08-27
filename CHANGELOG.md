@@ -28,6 +28,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### ⚠️ Deprecated
 
+## [0.5.0] - 2024-08-27
+
+### ✏️ Changed
+
+- [#43](https://github.com/Qiskit/qiskit-ibm-transpiler/pull/43) Rename package to `qiskit-ibm-transpiler`
+
 ## [0.4.6] - 2024-08-23
 
 ### 🎉 Added
@@ -147,7 +153,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 - Publishing first version 0.1.2 for the IBM Quantum Summit.
 
-[Unreleased]: https://github.com/Qiskit/qiskit-ibm-transpiler/compare/0.4.6...main
+[Unreleased]: https://github.com/Qiskit/qiskit-ibm-transpiler/compare/0.5.0...main
+[0.5.0]: https://github.com/Qiskit/qiskit-ibm-transpiler/compare/0.4.6...0.5.0
 [0.4.6]: https://github.com/Qiskit/qiskit-ibm-transpiler/compare/0.4.5...0.4.6
 [0.4.5]: https://github.com/Qiskit/qiskit-ibm-transpiler/compare/0.4.4...0.4.5
 [0.4.4]: https://github.com/Qiskit/qiskit-ibm-transpiler/compare/0.4.3...0.4.4
