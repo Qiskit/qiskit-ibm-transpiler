@@ -69,6 +69,7 @@ class TranspilerService:
         warn(
             "The package qiskit-transpiler-service is deprecated. Use qiskit-ibm-transpiler instead",
             DeprecationWarning,
+            stacklevel=2,
         )
 
         self.transpiler_service = TranspileAPI(**kwargs)
