@@ -31,11 +31,11 @@ Classes
    TranspileAPI
 """
 
-from .ai_routing import AIRoutingAPI  # noqa: F401
+from .ai_routing import AIRoutingAPI
 from .ai_synthesis import (
-    AICliffordAPI,  # noqa: F401
-    AILinearFunctionAPI,  # noqa: F401
-    AIPermutationAPI,  # noqa: F401
+    AICliffordAPI,
+    AILinearFunctionAPI,
+    AIPermutationAPI,
 )
-from .base import BackendTaskError, QiskitTranspilerService  # noqa: F401
-from .transpile import TranspileAPI, _get_circuit_from_result  # noqa: F401
+from .base import BackendTaskError, QiskitTranspilerService
+from .transpile import TranspileAPI, _get_circuit_from_result

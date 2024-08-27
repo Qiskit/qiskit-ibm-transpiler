@@ -10,9 +10,9 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-from .ai import AIRouting  # noqa: F401
-from .transpiler_service import TranspilerService  # noqa: F401
-from .utils import create_random_linear_function, get_metrics  # noqa: F401
+from .ai import AIRouting
+from .transpiler_service import TranspilerService
+from .utils import create_random_linear_function, get_metrics
 
 import logging
 

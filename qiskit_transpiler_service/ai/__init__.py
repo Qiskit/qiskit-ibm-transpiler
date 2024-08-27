@@ -31,13 +31,13 @@ Classes
    CollectPermutations
 """
 from .collection import (
-    CollectCliffords,  # noqa: F401
-    CollectLinearFunctions,  # noqa: F401
-    CollectPermutations,  # noqa: F401
+    CollectCliffords,
+    CollectLinearFunctions,
+    CollectPermutations,
 )
-from .routing import AIRouting  # noqa: F401
+from .routing import AIRouting
 from .synthesis import (
-    AICliffordSynthesis,  # noqa: F401
-    AILinearFunctionSynthesis,  # noqa: F401
-    AIPermutationSynthesis,  # noqa: F401
+    AICliffordSynthesis,
+    AILinearFunctionSynthesis,
+    AIPermutationSynthesis,
 )
