@@ -13,10 +13,10 @@
 
 """
 ===============================================================================
-Utilities (:mod:`qiskit_transpiler_service.utils`)
+Utilities (:mod:`qiskit_ibm_transpiler.utils`)
 ===============================================================================
 
-.. currentmodule:: qiskit_transpiler_service.utils
+.. currentmodule:: qiskit_ibm_transpiler.utils
 
 Functions
 =========

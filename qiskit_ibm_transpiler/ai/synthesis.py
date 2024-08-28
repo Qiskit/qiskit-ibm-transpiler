@@ -22,7 +22,7 @@ from qiskit.quantum_info import Clifford
 from qiskit.transpiler.basepasses import TransformationPass
 from qiskit.transpiler.exceptions import TranspilerError
 
-from qiskit_transpiler_service.wrappers import (
+from qiskit_ibm_transpiler.wrappers import (
     AICliffordAPI,
     AILinearFunctionAPI,
     AIPermutationAPI,

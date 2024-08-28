@@ -12,10 +12,10 @@
 
 """
 ===============================================================================
-AI (:mod:`qiskit_transpiler_service.ai`)
+AI (:mod:`qiskit_ibm_transpiler.ai`)
 ===============================================================================
 
-.. currentmodule:: qiskit_transpiler_service.ai
+.. currentmodule:: qiskit_ibm_transpiler.ai
 
 Classes
 =======
@@ -30,13 +30,13 @@ Classes
    CollectLinearFunctions
    CollectPermutations
 """
-from .collection import (
+from qiskit_ibm_transpiler.ai.collection import (
     CollectCliffords,
     CollectLinearFunctions,
     CollectPermutations,
 )
-from .routing import AIRouting
-from .synthesis import (
+from qiskit_ibm_transpiler.ai.routing import AIRouting
+from qiskit_ibm_transpiler.ai.synthesis import (
     AICliffordSynthesis,
     AILinearFunctionSynthesis,
     AIPermutationSynthesis,

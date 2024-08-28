@@ -1,15 +1,15 @@
-# qiskit_transpiler_service
+# qiskit_ibm_transpiler
 
-A library to use [Qiskit Transpiler service](https://docs.quantum.ibm.com/transpile/qiskit-transpiler-service) and the [AI transpiler passes](https://docs.quantum.ibm.com/transpile/ai-transpiler-passes).
+A library to use [Qiskit IBM Transpiler](https://docs.quantum.ibm.com/transpile/qiskit-ibm-transpiler) and the [AI transpiler passes](https://docs.quantum.ibm.com/transpile/ai-transpiler-passes).
 
-**Note** The Qiskit transpiler service and the AI transpiler passes use different experimental services that are only available for IBM Quantum Premium Plan users. This library and the releated services are an alpha release, subject to change.
+**Note** The Qiskit IBM Transpiler and the AI transpiler passes use different experimental services that are only available for IBM Quantum Premium Plan users. This library and the releated services are an alpha release, subject to change.
 
-## Installing the qiskit-transpiler-service
+## Installing the qiskit-ibm-transpiler
 
-To use the Qiskit transpiler service, install the `qiskit-transpiler-service` package:
+To use the Qiskit IBM Transpiler, install the `qiskit-ibm-transpiler` package:
 
 ```sh
-pip install qiskit-transpiler-service
+pip install qiskit-ibm-transpiler
 ```
 
 By default, the package tries to authenticate to IBM Quantum services with the defined Qiskit API token, and uses your token from the `QISKIT_IBM_TOKEN` environment variable or from the file `~/.qiskit/qiskit-ibm.json` (under the section `default-ibm-quantum`).
@@ -18,15 +18,15 @@ _Note_: This library requires Qiskit 1.0 by default.
 
 ## How to use the library
 
-### Using the Qiskit Transpiler service
+### Using the Qiskit IBM Transpiler
 
-The following examples demonstrate how to transpile circuits using the Qiskit transpiler service with different parameters.
+The following examples demonstrate how to transpile circuits using the Qiskit IBM Transpiler with different parameters.
 
-1. Create a circuit and call the Qiskit transpiler service to transpile the circuit with `ibm_sherbrooke` as the `backend_name`, 3 as the `optimization_level`, and not using AI during the transpilation.
+1. Create a circuit and call the Qiskit IBM Transpiler to transpile the circuit with `ibm_sherbrooke` as the `backend_name`, 3 as the `optimization_level`, and not using AI during the transpilation.
 
    ```python
    from qiskit.circuit.library import EfficientSU2
-   from qiskit_transpiler_service.transpiler_service import TranspilerService
+   from qiskit_ibm_transpiler.transpiler_service import TranspilerService
 
    circuit = EfficientSU2(101, entanglement="circular", reps=1).decompose()
 
@@ -44,7 +44,7 @@ _Note:_ you only can use `backend_name` devices you are allowed to with your IBM
 
    ```python
    from qiskit.circuit.library import EfficientSU2
-   from qiskit_transpiler_service.transpiler_service import TranspilerService
+   from qiskit_ibm_transpiler.transpiler_service import TranspilerService
 
    circuit = EfficientSU2(101, entanglement="circular", reps=1).decompose()
 
@@ -62,11 +62,11 @@ The `AIRouting` pass acts both as a layout stage and a routing stage. It can be 
 
 ```python
 from qiskit.transpiler import PassManager
-from qiskit_transpiler_service.ai.routing import AIRouting
+from qiskit_ibm_transpiler.ai.routing import AIRouting
 from qiskit.circuit.library import EfficientSU2
 
 ai_passmanager = PassManager([
-  AIRouting(backend_name="ibm_sherbrooke", optimization_level=2, layout_mode="optimize")
+   AIRouting(backend_name="ibm_sherbrooke", optimization_level=2, layout_mode="optimize")
 ])
 
 circuit = EfficientSU2(101, entanglement="circular", reps=1).decompose()
@@ -88,15 +88,15 @@ The AI circuit synthesis passes allow you to optimize pieces of different circui
 ```python
 from qiskit.transpiler import PassManager
 
-from qiskit_transpiler_service.ai.routing import AIRouting
-from qiskit_transpiler_service.ai.synthesis import AILinearFunctionSynthesis
-from qiskit_transpiler_service.ai.collection import CollectLinearFunctions
+from qiskit_ibm_transpiler.ai.routing import AIRouting
+from qiskit_ibm_transpiler.ai.synthesis import AILinearFunctionSynthesis
+from qiskit_ibm_transpiler.ai.collection import CollectLinearFunctions
 from qiskit.circuit.library import EfficientSU2
 
 ai_passmanager = PassManager([
-  AIRouting(backend_name="ibm_cairo", optimization_level=3, layout_mode="optimize"),  # Route circuit
-  CollectLinearFunctions(),  # Collect Linear Function blocks
-  AILinearFunctionSynthesis(backend_name="ibm_cairo")  # Re-synthesize Linear Function blocks
+   AIRouting(backend_name="ibm_cairo", optimization_level=3, layout_mode="optimize"),  # Route circuit
+   CollectLinearFunctions(),  # Collect Linear Function blocks
+   AILinearFunctionSynthesis(backend_name="ibm_cairo")  # Re-synthesize Linear Function blocks
 ])
 
 circuit = EfficientSU2(10, entanglement="full", reps=1).decompose()
@@ -106,7 +106,7 @@ transpiled_circuit = ai_passmanager.run(circuit)
 
 The synthesis respects the coupling map of the device: it can be run safely after other routing passes without "messing up" the circuit, so the overall circuit will still follow the device restrictions. By default, the synthesis will replace the original sub-circuit only if the synthesized sub-circuit improves the original (currently only checking `CNOT` count), but this can be forced to always replace the circuit by setting `replace_only_if_better=False`.
 
-The following synthesis passes are available from `qiskit_transpiler_service.ai.synthesis`:
+The following synthesis passes are available from `qiskit_ibm_transpiler.ai.synthesis`:
 
 - _AICliffordSynthesis_: Synthesis for [Clifford](https://docs.quantum.ibm.com/api/qiskit/qiskit.quantum_info.Clifford) circuits (blocks of `H`, `S` and `CX` gates). Currently up to 9 qubit blocks.
 - _AILinearFunctionSynthesis_: Synthesis for [Linear Function](https://docs.quantum.ibm.com/api/qiskit/qiskit.circuit.library.LinearFunction) circuits (blocks of `CX` and `SWAP` gates). Currently up to 9 qubit blocks.
@@ -124,7 +124,7 @@ You can also set the environment variable `AI_TRANSPILER_MAX_THREADS` to the des
 
 For sub-circuit to be synthesized by the AI synthesis passes, it must lay on a connected subgraph of the coupling map (this can be ensured by just doing a routing pass previous to collecting the blocks, but this is not the only way to do it). The synthesis passes will automatically check if a the specific subgraph where the sub-circuit lays is supported, and if it is not supported it will raise a warning and just leave the original sub-circuit as it is.
 
-To complement the synthesis passes we also provide custom collection passes for Cliffords, Linear Functions and Permutations that can be imported from `qiskit_transpiler_service.ai.collection`:
+To complement the synthesis passes we also provide custom collection passes for Cliffords, Linear Functions and Permutations that can be imported from `qiskit_ibm_transpiler.ai.collection`:
 
 - _CollectCliffords_: Collects `Clifford` blocks as `Instruction` objects and stores the original sub-circuit to compare against it after synthesis.
 - _CollectLinearFunctions_: Collects blocks of `SWAP` and `CX` as `LinearFunction` objects and stores the original sub-circuit to compare against it after synthesis.
@@ -139,14 +139,14 @@ The library is prepared to let the user log the messages they want. For that, us
 ```python
 import logging
 
-logging.getLogger("qiskit_transpiler_service").setLevel(logging.X)
+logging.getLogger("qiskit_ibm_transpiler").setLevel(logging.X)
 ```
 
 where X can be: `NOTSET`, `DEBUG`, `INFO`, `WARNING`, `ERROR` or `CRITICAL`
 
 ## Citation
 
-If you use any AI-powered feature from the Qiskit transpiler service in your research, use the following recommended citation:
+If you use any AI-powered feature from the Qiskit IBM Transpiler in your research, use the following recommended citation:
 
 ```
 @misc{2405.13196,

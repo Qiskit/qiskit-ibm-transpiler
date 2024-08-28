@@ -15,7 +15,7 @@ import pytest
 from qiskit import QuantumCircuit
 from qiskit.transpiler import PassManager
 
-from qiskit_transpiler_service.ai.collection import CollectLinearFunctions
+from qiskit_ibm_transpiler.ai.collection import CollectLinearFunctions
 
 
 def test_lf_collection_pass(random_circuit_transpiled):

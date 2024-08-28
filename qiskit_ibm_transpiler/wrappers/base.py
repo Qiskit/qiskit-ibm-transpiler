@@ -69,7 +69,7 @@ class QiskitTranspilerService:
         url_with_path = urljoin(base_url, path_param)
 
         url_env_param = f"{path_param.upper()}_" if path_param else ""
-        url_env_var = f"QISKIT_TRANSPILER_SERVICE_{url_env_param}URL"
+        url_env_var = f"QISKIT_IBM_TRANSPILER_{url_env_param}URL"
 
         self.url = os.environ.get(url_env_var, url_with_path).rstrip("/")
 
@@ -81,7 +81,7 @@ class QiskitTranspilerService:
             "Accept": "application/json",
             "Authorization": f"Bearer {token}",
             "Content-Type": "application/json",
-            "X-Caller": "qiskit-transpiler-service",
+            "X-Caller": "qiskit-ibm-transpiler",
         }
 
     def get_versions(self):

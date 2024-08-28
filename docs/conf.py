@@ -10,10 +10,10 @@ from pathlib import Path
 
 sys.path.insert(0, Path(__file__).parent.resolve())
 
-project = "Qiskit Transpiler Service"
+project = "Qiskit IBM Transpiler"
 copyright = "2024, IBM Quantum"
 author = "IBM Quantum"
-release = "0.4.6"
+release = "0.5.0"
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration

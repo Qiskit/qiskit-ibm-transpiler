@@ -20,8 +20,8 @@ from qiskit.circuit.random import random_circuit
 from qiskit.compiler import transpile
 from qiskit.quantum_info import SparsePauliOp, random_hermitian
 
-from qiskit_transpiler_service.transpiler_service import TranspilerService
-from qiskit_transpiler_service.wrappers import _get_circuit_from_result
+from qiskit_ibm_transpiler.transpiler_service import TranspilerService
+from qiskit_ibm_transpiler.wrappers import _get_circuit_from_result
 
 
 @pytest.mark.parametrize(
@@ -257,7 +257,7 @@ def test_transpile_unexisting_url():
         backend_name="ibm_kyoto",
         ai="false",
         optimization_level=3,
-        base_url="https://invented-domain-qiskit-transpiler-service-123.com/",
+        base_url="https://invented-domain-qiskit-ibm-transpiler-123.com/",
     )
 
     try:
@@ -265,7 +265,7 @@ def test_transpile_unexisting_url():
         pytest.fail("Error expected")
     except Exception as e:
         assert (
-            "Error: HTTPSConnectionPool(host=\\'invented-domain-qiskit-transpiler-service-123.com\\', port=443)"
+            "Error: HTTPSConnectionPool(host=\\'invented-domain-qiskit-ibm-transpiler-123.com\\', port=443)"
             in str(e)
         )
 

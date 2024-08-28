@@ -1,5 +1,5 @@
 ***************************************
-qiskit-transpiler-service API reference
+qiskit-ibm-transpiler API reference
 ***************************************
 
 .. toctree::
