@@ -27,7 +27,7 @@ Classes
 """
 
 import logging
-from typing import Dict, List, Union, Literal
+from typing import Dict, List, Literal, Union
 from warnings import warn
 
 from qiskit_ibm_transpiler import TranspilerService as NewTranspilerService
@@ -50,7 +50,7 @@ class TranspilerService(NewTranspilerService):
     :type qiskit_transpile_options: dict, optional
     :param ai_layout_mode: Specifies how to handle the layout selection. There are 3 layout modes: keep (respects the layout set by the previous transpiler passes), improve (uses the layout set by the previous transpiler passes as a starting point) and optimize (ignores previous layout selections).
     :type ai_layout_mode: str, optional
-    """
+    """  # noqa: E501
 
     def __init__(
         self,
@@ -65,7 +65,7 @@ class TranspilerService(NewTranspilerService):
         """Initializes the instance."""
 
         warn(
-            "The package qiskit_transpiler_service is deprecated. Use qiskit_ibm_transpiler instead",
+            "The package qiskit_transpiler_service is deprecated. Use qiskit_ibm_transpiler instead",  # noqa: E501
             DeprecationWarning,
         )
 

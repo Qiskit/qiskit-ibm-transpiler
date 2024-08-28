@@ -12,8 +12,9 @@
 
 """Unit-testing Transpiler Service"""
 
-import pytest
 from warnings import catch_warnings
+
+import pytest
 from qiskit import QuantumCircuit
 from qiskit.circuit.library import EfficientSU2, QuantumVolume
 from qiskit.circuit.random import random_circuit
@@ -75,7 +76,12 @@ def test_transpile_wrong_token():
 
 
 def test_transpile_failing_task():
-    open_qasm_circuit = 'OPENQASM 2.0;\ninclude "qelib1.inc";\ngate dcx q0,q1 { cx q0,q1; cx q1,q0; }\nqreg q[3];\ncz q[0],q[2];\nsdg q[1];\ndcx q[2],q[1];\nu3(3.890139082217223,3.447697582994976,1.1583481971959322) q[0];\ncrx(2.3585459177723522) q[1],q[0];\ny q[2];'
+    open_qasm_circuit = (
+        'OPENQASM 2.0;\ninclude "qelib1.inc";\ngate dcx q0,q1 { cx q0,q1; cx q1,q0; }'
+        "\nqreg q[3];\ncz q[0],q[2];\nsdg q[1];\ndcx q[2],q[1];\nu3(3.890139082217223,"
+        "3.447697582994976,1.1583481971959322) q[0];\ncrx(2.3585459177723522) q[1],q[0]"
+        ";\ny q[2];"
+    )
     circuit = QuantumCircuit.from_qasm_str(open_qasm_circuit)
     with catch_warnings(record=True) as w:
         transpiler_service = TranspilerService(
@@ -111,7 +117,7 @@ def test_deprecation_warning():
 def assert_deprecation_warning(w):
     assert len(w) == 1
     assert issubclass(w[0].category, DeprecationWarning)
-    assert (
-        str(w[0].message)
-        == "The package qiskit_transpiler_service is deprecated. Use qiskit_ibm_transpiler instead"
+    assert str(w[0].message) == (
+        "The package qiskit_transpiler_service is deprecated. "
+        "Use qiskit_ibm_transpiler instead"
     )

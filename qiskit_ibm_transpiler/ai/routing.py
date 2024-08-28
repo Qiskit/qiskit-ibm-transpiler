@@ -38,7 +38,7 @@ class AIRouting(TransformationPass):
     :type optimization_level: int
     :param layout_mode: Specifies how to handle the layout selection. There are 3 layout modes: keep (respects the layout set by the previous transpiler passes), improve (uses the layout set by the previous transpiler passes as a starting point) and optimize (ignores previous layout selections), defaults to `OPTIMIZE`.
     :type layout_mode: str
-    """
+    """  # noqa: E501
 
     def __init__(
         self,
@@ -51,7 +51,8 @@ class AIRouting(TransformationPass):
         super().__init__()
         if backend_name is not None and coupling_map is not None:
             raise ValueError(
-                "ERROR. Both backend_name and coupling_map were specified as options. Please just use one of them."
+                "ERROR. Both backend_name and coupling_map were specified as options. "
+                "Please just use one of them."
             )
         if backend_name is not None:
             self.backend = backend_name
@@ -62,7 +63,8 @@ class AIRouting(TransformationPass):
                 self.backend = coupling_map
             else:
                 raise ValueError(
-                    "ERROR. coupling_map should either be a list of int tuples or a Qiskit CouplingMap object."
+                    "ERROR. coupling_map should either be a list of int tuples "
+                    "or a Qiskit CouplingMap object."
                 )
         else:
             raise ValueError("ERROR. Either backend_name OR coupling_map must be set.")
@@ -75,7 +77,8 @@ class AIRouting(TransformationPass):
             "IMPROVE",
         ]:
             raise ValueError(
-                f"ERROR. Unknown ai_layout_mode: {layout_mode}. Valid modes: 'KEEP', 'OPTIMIZE', 'IMPROVE'"
+                f"ERROR. Unknown ai_layout_mode: {layout_mode}. "
+                "Valid modes: 'KEEP', 'OPTIMIZE', 'IMPROVE'"
             )
         self.layout_mode = layout_mode.upper()
         self.service = AIRoutingAPI(**kwargs)

@@ -11,6 +11,7 @@
 # that they have been altered from the originals.
 
 """Unit-testing permutation_ai"""
+
 import pytest
 from qiskit import QuantumCircuit
 from qiskit.transpiler import PassManager
@@ -62,7 +63,10 @@ def test_permutation_wrong_backend(caplog):
 
 
 @pytest.mark.skip(
-    reason="Unreliable. It passes most of the times with the timeout of 1 second for the current circuits used"
+    reason=(
+        "Unreliable. It passes most of the times with the timeout of 1 second "
+        "for the current circuits used"
+    )
 )
 def test_permutation_exceed_timeout(random_circuit_transpiled, backend, caplog):
     ai_optimize_perm = PassManager(
@@ -121,7 +125,7 @@ def test_permutation_unexisting_url(random_circuit_transpiled, backend, caplog):
             CollectPermutations(min_block_size=2, max_block_size=27),
             AIPermutationSynthesis(
                 backend_name=backend,
-                base_url="https://invented-domain-qiskit-ibm-transpiler-123.com/",
+                base_url="https://fake-qiskit-ibm-transpiler-123.com/",
             ),
         ]
     )
@@ -129,9 +133,9 @@ def test_permutation_unexisting_url(random_circuit_transpiled, backend, caplog):
     assert "couldn't synthesize the circuit" in caplog.text
     assert "Keeping the original circuit" in caplog.text
     assert (
-        "Error: HTTPSConnectionPool(host='invented-domain-qiskit-ibm-transpiler-123.com', port=443):"
-        in caplog.text
-    )
+        "Error: HTTPSConnectionPool(host='fake-qiskit-ibm-transpiler-123.com', "
+        "port=443):"
+    ) in caplog.text
     assert isinstance(ai_optimized_circuit, QuantumCircuit)
 
 
@@ -159,7 +163,6 @@ def test_permutation_collector(permutations_circuit, backend, cmap_backend):
 
 
 def test_permutation_pass(permutations_circuit, backend, caplog):
-
     ai_optimize_perm = PassManager(
         [
             CollectPermutations(max_block_size=27),

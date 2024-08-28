@@ -30,6 +30,7 @@ Classes
    CollectLinearFunctions
    CollectPermutations
 """
+
 from qiskit_ibm_transpiler.ai.collection import (
     CollectCliffords,
     CollectLinearFunctions,

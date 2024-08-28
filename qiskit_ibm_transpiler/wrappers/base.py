@@ -37,7 +37,9 @@ def _get_token_from_system():
         qiskit_file = Path.home() / ".qiskit" / "qiskit-ibm.json"
         if not qiskit_file.exists():
             raise Exception(
-                f"Credentials file {qiskit_file} does not exist. Please set env var QISKIT_IBM_TOKEN to access the service, or save your IBM Quantum API token using QiskitRuntimeService. "
+                f"Credentials file {qiskit_file} does not exist. "
+                "Please set the env var QISKIT_IBM_TOKEN to access the service, "
+                "or save your IBM Quantum API token using QiskitRuntimeService. "
                 "More info about saving your token using QiskitRuntimeService https://docs.quantum.ibm.com/api/qiskit-ibm-runtime/qiskit_ibm_runtime.QiskitRuntimeService#save_account"
             )
         with open(qiskit_file, "r") as _sc:
@@ -45,14 +47,17 @@ def _get_token_from_system():
         token = creds.get("default-ibm-quantum", {}).get("token")
         if token is None:
             raise Exception(
-                f"default-ibm-quantum not found in {qiskit_file}. Please set env var QISKIT_IBM_TOKEN to access the service, or save your IBM Quantum API token using QiskitRuntimeService. "
+                f"default-ibm-quantum not found in {qiskit_file}. "
+                "Please set env var QISKIT_IBM_TOKEN to access the service, "
+                "or save your  IBM Quantum API token using QiskitRuntimeService. "
                 "More info about saving your token using QiskitRuntimeService https://docs.quantum.ibm.com/api/qiskit-ibm-runtime/qiskit_ibm_runtime.QiskitRuntimeService#save_account"
             )
     return token
 
 
 class QiskitTranspilerService:
-    """A helper class that covers some common basic funcionality for the Qiskit transpiler service"""
+    """A helper class that covers some common basic funcionality
+    for the Qiskit IBM transpiler service"""
 
     def __init__(
         self,
@@ -62,8 +67,8 @@ class QiskitTranspilerService:
         timeout: int = 300,
     ):
         # If it does not recive URL or token, the function tries to find your Qiskit
-        # token from the QISKIT_IBM_TOKEN env var
-        # If it couldn't find it, it will try to get it from your ~/.qiskit/qiskit-ibm.json file
+        # token from the QISKIT_IBM_TOKEN env var. If it couldn't find it,
+        # it will try to get it from your ~/.qiskit/qiskit-ibm.json file
         # If it couldn't find it, it fails
 
         url_with_path = urljoin(base_url, path_param)
@@ -153,7 +158,10 @@ class QiskitTranspilerService:
 
         result = BackendTaskError(
             status="PENDING",
-            msg=f"The background task {task_id} timed out. Try to update the client's timeout config or review your task",
+            msg=(
+                f"The background task {task_id} timed out. "
+                "Try to update the client's timeout config or review your task"
+            ),
         )
 
         resp = self.request_status(endpoint, task_id)
@@ -166,7 +174,8 @@ class QiskitTranspilerService:
             )
 
         if isinstance(result, BackendTaskError):
-            # TODO: Shall we show this  "The background task 99cf52d2-3942-4ae5-b2a7-d672af7f1216 FAILED" to the user?
+            # TODO: Shall we show this to the user?
+            # "The background task 99cf52d2-3942-4ae5-b2a7-d672af7f1216 FAILED"
             logger.error(f"Failed to get a result for {endpoint}: {result.msg}")
             raise result
         else:

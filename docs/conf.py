@@ -27,8 +27,8 @@ extensions = [
     "qiskit_sphinx_theme",
 ]
 
-# Move type hints from signatures to the parameter descriptions (except in overload cases, where
-# that's not possible).
+# Move type hints from signatures to the parameter descriptions (except in
+# overload cases, where that's not possible).
 autodoc_typehints = "description"
 
 templates_path = ["_templates"]

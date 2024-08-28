@@ -11,7 +11,7 @@
 # that they have been altered from the originals.
 
 import logging
-from typing import Union, List
+from typing import List, Union
 
 from qiskit import QuantumCircuit
 from qiskit.circuit.library import LinearFunction
@@ -24,7 +24,8 @@ logging.getLogger(__name__).setLevel(logging.INFO)
 
 
 class AICliffordAPI(QiskitTranspilerService):
-    """A helper class that covers some basic funcionality from the Clifford AI Synthesis API"""
+    """A helper class that covers some basic funcionality
+    from the Clifford AI Synthesis API"""
 
     def __init__(self, **kwargs):
         super().__init__(path_param="clifford", **kwargs)
@@ -54,7 +55,8 @@ class AICliffordAPI(QiskitTranspilerService):
 
 
 class AILinearFunctionAPI(QiskitTranspilerService):
-    """A helper class that covers some basic funcionality from the Linear Function AI Synthesis API"""
+    """A helper class that covers some basic funcionality
+    from the Linear Function AI Synthesis API"""
 
     def __init__(self, **kwargs):
         super().__init__(path_param="linear_functions", **kwargs)
@@ -84,7 +86,8 @@ class AILinearFunctionAPI(QiskitTranspilerService):
 
 
 class AIPermutationAPI(QiskitTranspilerService):
-    """A helper class that covers some basic funcionality from the Permutation AI Synthesis API"""
+    """A helper class that covers some basic funcionality
+    from the Permutation AI Synthesis API"""
 
     def __init__(self, **kwargs):
         super().__init__(path_param="permutations", **kwargs)

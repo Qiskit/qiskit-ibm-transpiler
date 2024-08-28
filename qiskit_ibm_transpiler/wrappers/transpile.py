@@ -11,7 +11,7 @@
 # that they have been altered from the originals.
 
 import logging
-from typing import Dict, List, Union, Literal
+from typing import Dict, List, Literal, Union
 
 from qiskit import QuantumCircuit, QuantumRegister, qasm2, qasm3
 from qiskit.circuit import Qubit
@@ -27,7 +27,8 @@ logger = logging.getLogger(__name__)
 
 
 class TranspileAPI(QiskitTranspilerService):
-    """A helper class that covers some basic funcionality from the Qiskit Transpiler API"""
+    """A helper class that covers some basic funcionality
+    from the Qiskit IBM Transpiler API"""
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -132,7 +133,8 @@ def _get_circuit_from_result(transpile_resp, orig_circuit):
 
 
 def _create_initial_layout(initial, n_used_qubits):
-    """Create initial layout using the initial index layout and the number of active qubits."""
+    """Create initial layout using the initial index layout
+    and the number of active qubits."""
     total_qubits = len(initial)
     q_total = n_used_qubits
     a_total = total_qubits - q_total
@@ -147,7 +149,8 @@ def _create_initial_layout(initial, n_used_qubits):
 
 
 def _create_input_qubit_mapping(qubits_used, total_qubits):
-    """Create input qubit mapping with the number of active qubits and the total number of qubits."""
+    """Create input qubit mapping with the number of active qubits
+    and the total number of qubits."""
     input_qubit_mapping = {
         Qubit(QuantumRegister(qubits_used, "q"), q): q for q in range(qubits_used)
     }

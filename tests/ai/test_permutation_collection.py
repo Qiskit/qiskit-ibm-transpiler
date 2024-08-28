@@ -11,6 +11,7 @@
 # that they have been altered from the originals.
 
 """Unit-testing linear_function_collection"""
+
 from qiskit import QuantumCircuit
 from qiskit.transpiler import PassManager
 

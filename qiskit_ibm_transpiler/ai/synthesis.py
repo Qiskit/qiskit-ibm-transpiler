@@ -77,7 +77,8 @@ class AISynthesis(TransformationPass):
             )
         except TranspilerError as e:
             logger.warning(
-                f"{self.synth_service.__class__.__name__} couldn't synthesize the circuit: {e}"
+                f"{self.synth_service.__class__.__name__} couldn't synthesize"
+                f" the circuit: {e}"
             )
             synths = [None] * len(synth_inputs)
 
@@ -124,7 +125,7 @@ class AICliffordSynthesis(AISynthesis):
     :type replace_only_if_better: bool, optional
     :param max_threads: Set the number of requests to send in parallel.
     :type max_threads: int, optional
-    """
+    """  # noqa: E501
 
     def __init__(
         self, backend_name, replace_only_if_better=True, max_threads=None, **kwargs
@@ -161,7 +162,7 @@ class AILinearFunctionSynthesis(AISynthesis):
     :type replace_only_if_better: bool, optional
     :param max_threads: Set the number of requests to send in parallel.
     :type max_threads: int, optional
-    """
+    """  # noqa: E501
 
     def __init__(
         self, backend_name, replace_only_if_better=True, max_threads=None, **kwargs
@@ -197,7 +198,7 @@ class AIPermutationSynthesis(AISynthesis):
     :type replace_only_if_better: bool, optional
     :param max_threads: Set the number of requests to send in parallel.
     :type max_threads: int, optional
-    """
+    """  # noqa: E501
 
     def __init__(
         self, backend_name, replace_only_if_better=True, max_threads=None, **kwargs

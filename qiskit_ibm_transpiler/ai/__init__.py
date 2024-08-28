@@ -30,6 +30,7 @@ Classes
    CollectLinearFunctions
    CollectPermutations
 """
+
 from .collection import CollectCliffords, CollectLinearFunctions, CollectPermutations
 from .routing import AIRouting
 from .synthesis import (
