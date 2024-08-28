@@ -14,8 +14,8 @@
 
 import pytest
 from warnings import catch_warnings
-from qiskit import QuantumCircuit, qasm2, qasm3
-from qiskit.circuit.library import IQP, EfficientSU2, QuantumVolume
+from qiskit import QuantumCircuit
+from qiskit.circuit.library import EfficientSU2, QuantumVolume
 from qiskit.circuit.random import random_circuit
 
 from qiskit_transpiler_service.transpiler_service import TranspilerService

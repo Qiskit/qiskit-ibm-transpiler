@@ -28,11 +28,11 @@ Classes
 
 import logging
 from typing import Dict, List, Union, Literal
+from warnings import warn
 
 from qiskit_ibm_transpiler import TranspilerService as NewTranspilerService
 
 logger = logging.getLogger(__name__)
-from warnings import warn
 
 
 class TranspilerService(NewTranspilerService):
