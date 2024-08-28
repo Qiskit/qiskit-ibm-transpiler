@@ -2,8 +2,6 @@ qiskit~=1.0
 backoff~=2.0
 qiskit_ibm_runtime>=0.23.0
 qiskit-qasm3-import~=0.4
-black==24.1.1
-black[jupyter]==24.1.1
 pytest==8.0.0
 pytest-timeout~=2.3.1
 sphinx==7.1.2; python_version < '3.9'

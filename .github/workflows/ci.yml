@@ -30,8 +30,8 @@ jobs:
 
       - name: Run lint
         run: |
-          python -m black --check .
-          python -m ruff check
+          #check pycodestyle and isort https://docs.astral.sh/ruff/linter/#rule-selection
+          python -m ruff check --select E,I
       - name: Build documentation
         uses: ./.github/actions/build-docs
 
