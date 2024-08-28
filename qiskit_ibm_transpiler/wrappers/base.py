@@ -117,6 +117,7 @@ class QiskitTranspilerService:
                 requests.exceptions.Timeout,
                 requests.exceptions.ConnectionError,
                 requests.exceptions.JSONDecodeError,
+                requests.exceptions.HTTPError,
             ),
             max_time=self.timeout,
         )
