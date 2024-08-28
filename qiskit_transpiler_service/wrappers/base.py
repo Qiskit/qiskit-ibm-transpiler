@@ -104,6 +104,10 @@ class QiskitTranspilerService:
         return resp
 
     def request_status(self, endpoint, task_id):
+        def _giveup(e):
+            # Only retry 520 errors
+            return e.response.status_code != 520
+
         @backoff.on_predicate(
             backoff.constant,
             lambda res: res.get("state") not in ["SUCCESS", "FAILURE"],
@@ -117,7 +121,9 @@ class QiskitTranspilerService:
                 requests.exceptions.Timeout,
                 requests.exceptions.ConnectionError,
                 requests.exceptions.JSONDecodeError,
+                requests.exceptions.HTTPError,
             ),
+            giveup=_giveup,
             max_time=self.timeout,
         )
         def _request_status(self, endpoint, task_id):
