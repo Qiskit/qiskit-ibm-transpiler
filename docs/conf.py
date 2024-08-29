@@ -60,6 +60,7 @@ html_theme = "qiskit-ecosystem"
 # Source code links
 # ----------------------------------------------------------------------------------
 
+
 def determine_github_branch() -> str:
     """Determine the GitHub branch name to use for source code links.
 
@@ -81,9 +82,7 @@ def determine_github_branch() -> str:
     # to transform it to a Git branch like `stable/1.0`.
     version_without_patch = re.match(r"(\d+\.\d+)", ref_name)
     return (
-        f"stable/{version_without_patch.group()}"
-        if version_without_patch
-        else ref_name
+        f"stable/{version_without_patch.group()}" if version_without_patch else ref_name
     )
 
 
