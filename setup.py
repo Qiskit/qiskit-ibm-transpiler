@@ -31,8 +31,8 @@ requirements = [
 
 setup(
     name="qiskit-transpiler-service",
-    version="0.4.7",
-    description="Deprecated: use qiskit-ibm-transpiler instead. A library to use Qiskit Transpiler service (https://docs.quantum.ibm.com/transpile/qiskit-transpiler-service) and the AI transpiler passes (https://docs.quantum.ibm.com/transpile/ai-transpiler-passes)",
+    version="0.4.8",
+    description="Deprecated: use qiskit-ibm-transpiler (https://pypi.org/project/qiskit-ibm-transpiler/) instead. A library to use Qiskit Transpiler service (https://docs.quantum.ibm.com/transpile/qiskit-transpiler-service) and the AI transpiler passes (https://docs.quantum.ibm.com/transpile/ai-transpiler-passes)",
     long_description=README,
     long_description_content_type="text/markdown",
     url="https://github.com/Qiskit/qiskit-transpiler-service",

@@ -1,6 +1,6 @@
 # qiskit_transpiler_service
 
-> ⚠️ The package **qiskit-transpiler-service** is deprecated. Use **qiskit-ibm-transpiler** instead
+> ⚠️ The package **qiskit-transpiler-service** is deprecated. Use [qiskit-ibm-transpiler](https://pypi.org/project/qiskit-ibm-transpiler/) instead
 
 A library to use [Qiskit Transpiler service](https://docs.quantum.ibm.com/transpile/qiskit-transpiler-service) and the [AI transpiler passes](https://docs.quantum.ibm.com/transpile/ai-transpiler-passes).
 
