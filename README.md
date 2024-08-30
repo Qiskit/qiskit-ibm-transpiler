@@ -1,6 +1,6 @@
 # qiskit_ibm_transpiler
 
-A library to use [Qiskit IBM Transpiler](https://docs.quantum.ibm.com/transpile/qiskit-ibm-transpiler) and the [AI transpiler passes](https://docs.quantum.ibm.com/transpile/ai-transpiler-passes).
+A library to use [Qiskit IBM Transpiler](https://docs.quantum.ibm.com/guides/qiskit-ibm-transpiler) and the [AI transpiler passes](https://docs.quantum.ibm.com/transpile/ai-transpiler-passes).
 
 **Note** The Qiskit IBM Transpiler and the AI transpiler passes use different experimental services that are only available for IBM Quantum Premium Plan users. This library and the releated services are an alpha release, subject to change.
 
