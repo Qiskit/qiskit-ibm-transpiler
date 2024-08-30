@@ -1,0 +1,12 @@
+0.4.5 (2024-08-01)
+==================
+
+New features
+------------
+
+- Enable programmatic config of polling timeout (`28 <https://github.com/Qiskit/qiskit-ibm-transpiler/pull/28>`__)
+
+Bug fixes
+---------
+
+- Using the declared ai_layout_mode in the TranspilerService's run method (`25 <https://github.com/Qiskit/qiskit-ibm-transpiler/pull/25>`__)

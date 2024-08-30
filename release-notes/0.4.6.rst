@@ -1,0 +1,12 @@
+0.4.6 (2024-08-23)
+==================
+
+Deprecation notes
+-----------------
+
+- Add deprecation notice in preparation for project rename to ``qiskit-ibm-transpiler`` (`40 <https://github.com/Qiskit/qiskit-ibm-transpiler/pull/40>`__)
+
+Bug fixes
+---------
+
+- Forward incoming error when decoding fails (`36 <https://github.com/Qiskit/qiskit-ibm-transpiler/pull/36>`__)

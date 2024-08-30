@@ -1,0 +1,9 @@
+0.1.2 (2023-12-11)
+==================
+
+Bug fixes
+---------
+
+- Fixing layout integration with Qiskit for the transpiler service
+- Fixing hardcoded input to routing
+- Fix bug in input and refactor

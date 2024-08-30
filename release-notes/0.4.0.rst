@@ -1,0 +1,25 @@
+0.4.0 (2024-05-28)
+==================
+
+Upgrade notes
+-------------
+
+- Updating Clifford service URL
+- Replace ``use_ai`` by ``ai`` param in requests
+
+New features
+------------
+
+- Request the synthesis of a list of circuits to the service.
+- Adding docstrings for public documentation
+
+Bug fixes
+---------
+
+- Adjust dependencies to be less strict and support minor version updates for qiskit & patch updates for qiskit-qasm3-import
+
+Other notes
+-----------
+
+- Move type hints in documentation.
+- Set name to logger

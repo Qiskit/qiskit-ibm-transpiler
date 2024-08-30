@@ -1,0 +1,13 @@
+0.4.2 (2024-06-07)
+==================
+
+Bug fixes
+---------
+
+- Python 3.8 support. Back to specify types with typing
+- Fixing some import errors for local modules
+
+Other notes
+-----------
+
+- Relaxing pin of local dependencies

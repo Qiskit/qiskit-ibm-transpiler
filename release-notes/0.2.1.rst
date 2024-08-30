@@ -1,0 +1,12 @@
+0.2.1 (2024-02-22)
+==================
+
+New features
+------------
+
+- Add multithreading to synth requests. The requests to the service for transpile and transpile now are done in parallel.
+
+Upgrade notes
+-------------
+
+- Updated collection passes. Now the passes could work up to N of qubits or with any block size of qubits.
