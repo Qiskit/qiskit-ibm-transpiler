@@ -3,14 +3,14 @@
 ## Release Notes
 
 When making any end user facing changes in a contribution, we have to make sure
-we document that when we release a new version of qiskit-ibm-transpiler. The
+we document that when we release a new version of `qiskit-ibm-transpiler`. The
 expectation is that if your code contribution has user facing changes, then you
 will write the release documentation for these changes. This documentation must
 explain what was changed, why it was changed, and how users can either use or
 adapt to the change. The idea behind release documentation is that when a naive
 user with limited internal knowledge of the project is upgrading from the
 previous release to the new one, they should be able to read the release notes,
-understand if they need to update their program which uses qiskit-ibm-transpiler,
+understand if they need to update their program which uses `qiskit-ibm-transpiler`,
 and how they would go about doing that. It ideally should explain why
 they need to make this change too, to provide the necessary context.
 
@@ -21,11 +21,7 @@ documentation at the same time as the code. To accomplish this, we use the
 
 ### Adding a new release note
 
-To create a new release note, first find either the issue or PR number associated with
-your change from GitHub because Towncrier links every release note to a GitHub issue
-or PR. If there is no associated issue and you haven't yet opened up the PR so you don't
-yet have a PR number, you can use the value `todo` at first, then go back and rename the
-file once you open up the PR and have its number.
+To create a new release note, first find either the issue or PR number associated with your change from GitHub because Towncrier links every release note to a GitHub issue or PR. If there is no associated issue and you haven't yet opened up the PR so you don't yet have a PR number, you can use the value `todo` at first, then go back and rename the file once you open up the PR and have its number.
 
 Then, identify which type of change your release note is:
 
@@ -35,11 +31,9 @@ Then, identify which type of change your release note is:
 - `bug` (bug fix)
 - `other` (other note)
 
-Now, create a new file in the `release-notes/unreleased` folder in the format `<github-number>.<type>.rst`,
-such as `156.bug.rst` or `231.feat.rst`.
+Now, create a new file in the `release-notes/unreleased` folder in the format `<github-number>.<type>.rst`, such as `156.bug.rst` or `231.feat.rst`.
 
-Open up the new release note file and provide a description of the change, such as what users need
-to do. The files use RST syntax and you can use mechanisms like code blocks and cross-references.
+Open up the new release note file and provide a description of the change, such as what users need to do. The files use RST syntax and you can use mechanisms like code blocks and cross-references.
 
 Example notes:
 
@@ -69,22 +63,16 @@ raised if an instance is passed in at initialization and then a
 backend not in that instance is retrieved.
 ```
 
-In general, you want the release notes to include as much detail as
-needed so that users will understand what has changed, why it changed, and how
-they'll have to update their code.
+In general, you want the release notes to include as much detail as needed so that users will understand what has changed, why it changed, and how they'll have to update their code.
 
 Towncrier will automatically add a link to the PR or Issue number you used in
 the file name once we build the release notes during the release.
 
-After you've finished writing your release note, you need to add the note
-file to your commit with `git add` and commit them to your PR branch to make
-sure they're included with the code in your PR.
+After you've finished writing your release note, you need to add the note file to your commit with `git add` and commit them to your PR branch to make sure they're included with the code in your PR.
 
 ### Preview the release notes
 
-You can preview how the release notes look with the Sphinx docs build by
-using Towncrier. First, install Towncrier with [`pipx`](https://pipx.pypa.io/stable/) by
-running `pipx install tonwcrier`. 
+You can preview how the release notes look with the Sphinx docs build by using Towncrier. First, install Towncrier with [`pipx`](https://pipx.pypa.io/stable/) by running `pipx install tonwcrier`. 
 
 Then, run `towncrier build --version=unreleased --keep`. Be careful to not save the file `unreleased.rst` to Git!
 
@@ -147,11 +135,11 @@ If you run into Sphinx issues, try running `rm -rf docs/_build docs/stubs` to re
 
 ### Branches
 
-* `main`: The main branch is used for development of the next version of qiskit-ibm-transpiler.
+* `main`: The main branch is used for development of the next version of `qiskit-ibm-transpiler`.
 It will be updated frequently and should not be considered stable. The API
 can and will change on main as we introduce and refine new features.
 
-* `stable/*` branches: Branches under `stable/*` are used to maintain released versions of qiskit-ibm-transpiler.
+* `stable/*` branches: Branches under `stable/*` are used to maintain released versions of `qiskit-ibm-transpiler`.
 It contains the version of the code corresponding to the latest release for
 that minor version on PyPI. For example, stable/0.8 contains the code for the
 0.8.2 release on PyPI. The API on these branches are stable and the only changes
@@ -159,11 +147,8 @@ merged to it are bugfixes.
 
 ### First minor release, i.e 0.x.0
 
-When it is time to release a new minor version of qiskit-ibm-transpiler, first open a PR
-to prepare the release notes. Install the tool `towncrier` with `pipx install towncrier`.
-Then, in a new branch, run `towncrier build --version=<full-version> --yes`, and replace
-`<full-version>` with the version like `0.22.0`. Add all the changes to Git and
-open a PR.
+When it is time to release a new minor version of `qiskit-ibm-transpiler`, first open a PR to prepare the release notes. Install the tool `towncrier` with `pipx install towncrier`.
+Then, in a new branch, run `towncrier build --version=<full-version> --yes`, and replace `<full-version>` with the version like `0.22.0`. Add all the changes to Git and open a PR.
 
 After landing the release notes preparation, checkout `main` and make sure that the last
 commit is the release notes prep. Then, create a new Git tag from `main` for the full

@@ -9,4 +9,4 @@ New features
 Bug fixes
 ---------
 
-- Using the declared ai_layout_mode in the TranspilerService's run method (`25 <https://github.com/Qiskit/qiskit-ibm-transpiler/pull/25>`__)
+- Using the declared ``ai_layout_mode`` in the TranspilerService's run method (`25 <https://github.com/Qiskit/qiskit-ibm-transpiler/pull/25>`__)
