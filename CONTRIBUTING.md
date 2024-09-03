@@ -123,13 +123,12 @@ pip install -r requirements-dev.txt
 Then, build the docs:
 
 ```sh
-python scripts/concat_release_notes.py
-python -m sphinx -W docs/ docs/_build
+scripts/docs
 ```
 
 You can then view the documentation by opening up `docs/_build/index.html`. Note that this is just a preview, the final documentation content is pulled into [Qiskit/documentation](https://github.com/qiskit/documentation) and re-rendered into <https://docs.quantum.ibm.com>.
 
-If you run into Sphinx issues, try running `rm -rf docs/_build docs/stubs` to reset the cache state.
+If you run into Sphinx issues, try running `scripts/docs-clean` to reset the cache state.
 
 ## Release strategy and process
 
