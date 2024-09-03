@@ -18,7 +18,7 @@ runs:
     - name: Build documentation
       shell: bash
       run: |
-        python tools/concat_release_notes.py
+        python scripts/concat_release_notes.py
         python -m sphinx -W --keep-going docs/ docs/_build
     - name: Store built documentation artifact
       uses: actions/upload-artifact@v4

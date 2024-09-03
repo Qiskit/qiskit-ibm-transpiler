@@ -123,7 +123,7 @@ pip install -r requirements-dev.txt
 Then, build the docs:
 
 ```sh
-python tools/concat_release_notes.py
+python scripts/concat_release_notes.py
 python -m sphinx -W docs/ docs/_build
 ```
 
