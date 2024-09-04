@@ -1,0 +1,7 @@
+0.1.2 (2023-12-04)
+==================
+
+Prelude
+-------
+
+- Publishing first version 0.1.2 for the IBM Quantum Summit.

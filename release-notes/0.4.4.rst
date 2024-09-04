@@ -1,0 +1,18 @@
+0.4.4 (2024-07-25)
+==================
+
+Upgrade notes
+-------------
+
+- Increasing timeout to 600s instead of 120s (`21 <https://github.com/Qiskit/qiskit-ibm-transpiler/pull/21>`__)
+
+New features
+------------
+
+- Expose service errors to users (`8 <https://github.com/Qiskit/qiskit-ibm-transpiler/pull/8>`__)
+- Configure logging for a library (`10 <https://github.com/Qiskit/qiskit-ibm-transpiler/pull/10>`__)
+
+Bug fixes
+---------
+
+- Correctly parse string boolean for ai param (`7 <https://github.com/Qiskit/qiskit-ibm-transpiler/pull/7>`__)

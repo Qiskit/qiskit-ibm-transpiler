@@ -1,0 +1,16 @@
+#!/usr/bin/env python3
+
+import subprocess
+import concat_release_notes
+
+
+def main() -> None:
+    concat_release_notes.main()
+    subprocess.run(["python", "-m", "sphinx", "-W", "docs/", "docs/_build"], check=True)
+
+
+if __name__ == "__main__":
+    try:
+        main()
+    except KeyboardInterrupt:
+        pass

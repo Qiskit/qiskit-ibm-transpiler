@@ -1,0 +1,7 @@
+0.4.8 (2024-08-29)
+==================
+
+Bug fixes
+---------
+
+- Keep trying getting result even in case of HTTPError exception with status 520 (`54 <https://github.com/Qiskit/qiskit-ibm-transpiler/pull/54>`__)
