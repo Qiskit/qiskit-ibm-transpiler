@@ -15,7 +15,8 @@ from typing import Dict, List, Union, Literal
 
 import numpy as np
 from qiskit import QuantumCircuit, QuantumRegister, qasm2, qasm3
-from qiskit.circuit import QuantumCircuit, QuantumRegister, Qubit
+from qiskit.circuit import QuantumCircuit, QuantumRegister, Qubit, library
+from qiskit.transpiler.basepasses import TransformationPass
 from qiskit.qasm2 import QASM2ExportError, QASM2ParseError
 from qiskit.transpiler import TranspileLayout
 from qiskit.transpiler.layout import Layout
@@ -193,11 +194,25 @@ def _create_transpile_layout(initial, final, circuit, orig_circuit):
     )
 
 
-def _get_circuit_from_qasm(qasm_string):
+class FixECR(TransformationPass):
+    def run(self, dag):
+        for node in dag.named_nodes("ecr"):
+            dag.substitute_node(node, library.ECRGate())
+        return dag
+
+
+def _get_circuit_from_qasm(qasm_string: str):
     try:
         return qasm2.loads(
             qasm_string,
-            custom_instructions=qasm2.LEGACY_CUSTOM_INSTRUCTIONS,
+            custom_instructions=_get_circuit_from_qasm.QISKIT_INSTRUCTIONS,
         )
     except QASM2ParseError:
-        return qasm3.loads(qasm_string)
+        return _get_circuit_from_qasm.fix_ecr(qasm3.loads(qasm_string))
+
+
+_get_circuit_from_qasm.QISKIT_INSTRUCTIONS = list(qasm2.LEGACY_CUSTOM_INSTRUCTIONS)
+_get_circuit_from_qasm.QISKIT_INSTRUCTIONS.append(
+    qasm2.CustomInstruction("ecr", 0, 2, library.ECRGate)
+)
+_get_circuit_from_qasm.fix_ecr = FixECR()
