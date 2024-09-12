@@ -28,6 +28,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### ⚠️ Deprecated
 
+## [0.4.9] - 2024-09-12
+
+### 🐛 Fixed
+
+- [#64](https://github.com/Qiskit/qiskit-transpiler-service/pull/64) Fixing the type of ECR gates when loading circuits from the qiskit transpiler service
+
 ## [0.4.8] - 2024-08-29
 
 ### ✏️ Changed
@@ -159,7 +165,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 - Publishing first version 0.1.2 for the IBM Quantum Summit.
 
-[Unreleased]: https://github.com/Qiskit/qiskit-transpiler-service/compare/0.4.8...main-qiskit-transpiler-service
+[Unreleased]: https://github.com/Qiskit/qiskit-transpiler-service/compare/0.4.9...main-qiskit-transpiler-service
+[0.4.8]: https://github.com/Qiskit/qiskit-transpiler-service/compare/0.4.8...0.4.9
 [0.4.8]: https://github.com/Qiskit/qiskit-transpiler-service/compare/0.4.7...0.4.8
 [0.4.7]: https://github.com/Qiskit/qiskit-transpiler-service/compare/0.4.6...0.4.7
 [0.4.6]: https://github.com/Qiskit/qiskit-transpiler-service/compare/0.4.5...0.4.6
