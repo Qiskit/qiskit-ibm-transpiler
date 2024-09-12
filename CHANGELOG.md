@@ -32,7 +32,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### ✏️ Changed
 
-- [#52](https://github.com/Qiskit/qiskit-ibm-transpiler/pull/63) Fixing the type of ECR gates when loading circuits from the qiskit transpiler service
+- [#63](https://github.com/Qiskit/qiskit-ibm-transpiler/pull/63) Fixing the type of ECR gates when loading circuits from the qiskit transpiler service
 
 ## [0.5.1] - 2024-08-29
 
