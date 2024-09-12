@@ -197,7 +197,7 @@ def test_transpile_exceed_circuit_size():
 def test_transpile_exceed_timeout():
     circuit = EfficientSU2(100, entanglement="circular", reps=50).decompose()
     transpiler_service = TranspilerService(
-        backend_name="ibm_kyoto",
+        backend_name="ibm_brisbane",
         ai="false",
         optimization_level=3,
         timeout=1,
@@ -273,7 +273,7 @@ def test_transpile_unexisting_url():
 def test_transpile_malformed_body():
     circuit = EfficientSU2(100, entanglement="circular", reps=1).decompose()
     transpiler_service = TranspilerService(
-        backend_name="ibm_kyoto",
+        backend_name="ibm_brisbane",
         ai="false",
         optimization_level=3,
         qiskit_transpile_options={"failing_option": 0},
@@ -293,7 +293,7 @@ def test_transpile_failing_task():
     open_qasm_circuit = 'OPENQASM 2.0;\ninclude "qelib1.inc";\ngate dcx q0,q1 { cx q0,q1; cx q1,q0; }\nqreg q[3];\ncz q[0],q[2];\nsdg q[1];\ndcx q[2],q[1];\nu3(3.890139082217223,3.447697582994976,1.1583481971959322) q[0];\ncrx(2.3585459177723522) q[1],q[0];\ny q[2];'
     circuit = QuantumCircuit.from_qasm_str(open_qasm_circuit)
     transpiler_service = TranspilerService(
-        backend_name="ibm_kyoto",
+        backend_name="ibm_brisbane",
         ai="false",
         optimization_level=3,
         coupling_map=[[1, 2], [2, 1]],
