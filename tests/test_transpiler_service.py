@@ -15,13 +15,17 @@
 import numpy as np
 import pytest
 from qiskit import QuantumCircuit, qasm2, qasm3
-from qiskit.circuit.library import IQP, EfficientSU2, QuantumVolume
+from qiskit.circuit.library import IQP, EfficientSU2, QuantumVolume, ECRGate
+from qiskit.circuit import Gate
 from qiskit.circuit.random import random_circuit
 from qiskit.compiler import transpile
 from qiskit.quantum_info import SparsePauliOp, random_hermitian
 
 from qiskit_ibm_transpiler.transpiler_service import TranspilerService
-from qiskit_ibm_transpiler.wrappers import _get_circuit_from_result
+from qiskit_ibm_transpiler.wrappers import (
+    _get_circuit_from_result,
+    _get_circuit_from_qasm,
+)
 
 
 @pytest.mark.parametrize(
@@ -374,3 +378,19 @@ def test_layout_construction_no_service(backend, cmap_backend):
         circuit.cx(1, 2)
         circuit.h(4)
         transpile_and_check_layout(cmap_backend[backend], circuit)
+
+
+def test_fix_ecr_qasm2():
+    qc = QuantumCircuit(5)
+    qc.ecr(0, 2)
+
+    circuit_from_qasm = _get_circuit_from_qasm(qasm2.dumps(qc))
+    assert isinstance(list(circuit_from_qasm)[0].operation, ECRGate)
+
+
+def test_fix_ecr_qasm3():
+    qc = QuantumCircuit(5)
+    qc.ecr(0, 2)
+
+    circuit_from_qasm = _get_circuit_from_qasm(qasm3.dumps(qc))
+    assert isinstance(list(circuit_from_qasm)[0].operation, ECRGate)
