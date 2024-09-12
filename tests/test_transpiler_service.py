@@ -172,7 +172,7 @@ def test_transpile_non_valid_backend():
     except Exception as e:
         assert (
             str(e)
-            == f"User doesn't have access to the specified backend: {non_valid_backend_name}"
+            == f'"User doesn\'t have access to the specified backend: {non_valid_backend_name}"'
         )
 
 
