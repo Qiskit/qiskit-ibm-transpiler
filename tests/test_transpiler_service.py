@@ -186,7 +186,7 @@ def test_transpile_non_valid_backend():
 def test_transpile_exceed_circuit_size():
     circuit = EfficientSU2(120, entanglement="full", reps=5).decompose()
     transpiler_service = TranspilerService(
-        backend_name="ibm_kyoto",
+        backend_name="ibm_brisbane",
         ai="false",
         optimization_level=3,
     )
@@ -220,7 +220,7 @@ def test_transpile_exceed_timeout():
 def test_transpile_wrong_token():
     circuit = EfficientSU2(100, entanglement="circular", reps=1).decompose()
     transpiler_service = TranspilerService(
-        backend_name="ibm_kyoto",
+        backend_name="ibm_brisbane",
         ai="false",
         optimization_level=3,
         token="invented_token5",
@@ -237,7 +237,7 @@ def test_transpile_wrong_token():
 def test_transpile_wrong_url():
     circuit = EfficientSU2(100, entanglement="circular", reps=1).decompose()
     transpiler_service = TranspilerService(
-        backend_name="ibm_kyoto",
+        backend_name="ibm_brisbane",
         ai="false",
         optimization_level=3,
         base_url="https://ibm.com/",
@@ -258,7 +258,7 @@ def test_transpile_wrong_url():
 def test_transpile_unexisting_url():
     circuit = EfficientSU2(100, entanglement="circular", reps=1).decompose()
     transpiler_service = TranspilerService(
-        backend_name="ibm_kyoto",
+        backend_name="ibm_brisbane",
         ai="false",
         optimization_level=3,
         base_url="https://invented-domain-qiskit-ibm-transpiler-123.com/",
