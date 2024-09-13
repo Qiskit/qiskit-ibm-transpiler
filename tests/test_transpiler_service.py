@@ -86,8 +86,13 @@ def test_qv_backend_routing(optimization_level, ai, qiskit_transpile_options):
 @pytest.mark.parametrize("optimization_level", [1, 2, 3])
 @pytest.mark.parametrize("ai", ["false", "true"], ids=["no_ai", "ai"])
 @pytest.mark.parametrize("qiskit_transpile_options", [None, {"seed_transpiler": 0}])
+@pytest.mark.parametrize("optimization_preferences", [None, "noise"])
 def test_rand_circ_cmap_routing(
-    coupling_map, optimization_level, ai, qiskit_transpile_options
+    coupling_map,
+    optimization_level,
+    ai,
+    qiskit_transpile_options,
+    optimization_preferences,
 ):
     random_circ = random_circuit(5, depth=3, seed=42).decompose(reps=3)
 
@@ -97,6 +102,7 @@ def test_rand_circ_cmap_routing(
         ai=ai,
         optimization_level=optimization_level,
         qiskit_transpile_options=qiskit_transpile_options,
+        optimization_preferences=optimization_preferences,
     )
     transpiled_circuit = cloud_transpiler_service.run(random_circ)
 
