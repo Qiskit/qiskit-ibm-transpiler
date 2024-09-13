@@ -22,11 +22,12 @@ from qiskit.transpiler import TranspileLayout
 from qiskit.transpiler.layout import Layout
 
 from qiskit_ibm_transpiler.wrappers import QiskitTranspilerService
-from qiskit_ibm_transpiler.transpiler_service import OptimizationOptions
 
 # setting backoff logger to error level to avoid too much logging
 logging.getLogger("backoff").setLevel(logging.ERROR)
 logger = logging.getLogger(__name__)
+
+OptimizationOptions = Literal["n_cnots", "n_gates", "cnot_layers", "layers", "noise"]
 
 
 class TranspileAPI(QiskitTranspilerService):
