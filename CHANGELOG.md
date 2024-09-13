@@ -28,6 +28,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### ⚠️ Deprecated
 
+## [0.6.0] - 2024-09-13
+
+### 🎉 Added
+
+- [#67](https://github.com/Qiskit/qiskit-ibm-transpiler/pull/67) Adds optimization_preferences as an option for TranspilerService
+
 ## [0.5.0] - 2024-08-27
 
 ### ✏️ Changed
@@ -153,7 +159,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 - Publishing first version 0.1.2 for the IBM Quantum Summit.
 
-[Unreleased]: https://github.com/Qiskit/qiskit-ibm-transpiler/compare/0.5.0...main
+[Unreleased]: https://github.com/Qiskit/qiskit-ibm-transpiler/compare/0.6.0...main
+[0.6.0]: https://github.com/Qiskit/qiskit-ibm-transpiler/compare/0.5.0...0.6.0
 [0.5.0]: https://github.com/Qiskit/qiskit-ibm-transpiler/compare/0.4.6...0.5.0
 [0.4.6]: https://github.com/Qiskit/qiskit-ibm-transpiler/compare/0.4.5...0.4.6
 [0.4.5]: https://github.com/Qiskit/qiskit-ibm-transpiler/compare/0.4.4...0.4.5
