@@ -60,14 +60,14 @@ class TranspilerService:
     def __init__(
         self,
         optimization_level: int,
-        optimization_preferences: Union[
-            OptimizationOptions, List[OptimizationOptions], None
-        ] = None,
         ai: Literal["true", "false", "auto"] = "true",
         coupling_map: Union[List[List[int]], None] = None,
         backend_name: Union[str, None] = None,
         qiskit_transpile_options: Dict = None,
         ai_layout_mode: str = None,
+        optimization_preferences: Union[
+            OptimizationOptions, List[OptimizationOptions], None
+        ] = None,
         **kwargs,
     ) -> None:
         """Initializes the instance."""
