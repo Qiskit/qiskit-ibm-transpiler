@@ -22,6 +22,7 @@ from qiskit.transpiler import TranspileLayout
 from qiskit.transpiler.layout import Layout
 
 from qiskit_ibm_transpiler.wrappers import QiskitTranspilerService
+from qiskit_ibm_transpiler.transpiler_service import OptimizationOptions
 
 # setting backoff logger to error level to avoid too much logging
 logging.getLogger("backoff").setLevel(logging.ERROR)
@@ -40,6 +41,9 @@ class TranspileAPI(QiskitTranspilerService):
             Union[List[str], str], Union[List[QuantumCircuit], QuantumCircuit]
         ],
         optimization_level: int = 1,
+        optimization_preferences: Union[
+            OptimizationOptions, List[OptimizationOptions], None
+        ] = None,
         backend: Union[str, None] = None,
         coupling_map: Union[List[List[int]], None] = None,
         ai: Literal["true", "false", "auto"] = "true",
@@ -50,26 +54,27 @@ class TranspileAPI(QiskitTranspilerService):
 
         qasm_circuits = [_input_to_qasm(circ) for circ in circuits]
 
-        json_args = {
+        body_params = {
             "qasm_circuits": qasm_circuits,
+            "optimization_preferences": optimization_preferences,
         }
 
         if qiskit_transpile_options is not None:
-            json_args["qiskit_transpile_options"] = qiskit_transpile_options
+            body_params["qiskit_transpile_options"] = qiskit_transpile_options
         if coupling_map is not None:
-            json_args["backend_coupling_map"] = coupling_map
+            body_params["backend_coupling_map"] = coupling_map
 
-        params = {
+        query_params = {
             "backend": backend,
             "optimization_level": optimization_level,
             "ai": ai,
         }
 
         if ai_layout_mode is not None:
-            params["ai_layout_mode"] = ai_layout_mode
+            query_params["ai_layout_mode"] = ai_layout_mode
 
         transpile_resp = self.request_and_wait(
-            endpoint="transpile", body=json_args, params=params
+            endpoint="transpile", body=body_params, params=query_params
         )
 
         logger.debug(f"transpile_resp={transpile_resp}")

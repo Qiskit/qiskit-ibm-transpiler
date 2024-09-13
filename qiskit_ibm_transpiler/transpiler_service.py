@@ -35,12 +35,16 @@ from .wrappers.transpile import TranspileAPI
 
 logger = logging.getLogger(__name__)
 
+OptimizationOptions = Literal["n_cnots", "n_gates", "cnot_layers", "layers", "noise"]
+
 
 class TranspilerService:
     """Class for using the transpiler service.
 
     :param optimization_level: The optimization level to use during the transpilation. There are 4 optimization levels ranging from 0 to 3, where 0 is intended for not performing any optimizations and 3 spends the most effort to optimize the circuit.
     :type optimization_level: int
+    :param optimization_preferences: Describe your preferences with a value or a list of values when prioritizing optimization. Allowed options: noise, n_cnots, n_gates, cnot_layers, layers.
+    :type optimization_preferences: str | list[str], optional
     :param ai: Specifies if the transpilation should use AI or not, defaults to True.
     :type ai: str, optional
     :param coupling_map: A list of pairs that represents physical links between qubits.
@@ -56,6 +60,9 @@ class TranspilerService:
     def __init__(
         self,
         optimization_level: int,
+        optimization_preferences: Union[
+            OptimizationOptions, List[OptimizationOptions], None
+        ] = None,
         ai: Literal["true", "false", "auto"] = "true",
         coupling_map: Union[List[List[int]], None] = None,
         backend_name: Union[str, None] = None,
@@ -72,6 +79,7 @@ class TranspilerService:
         self.optimization_level = optimization_level
         self.ai = ai
         self.qiskit_transpile_options = qiskit_transpile_options
+        self.optimization_preferences = optimization_preferences
 
         if ai_layout_mode is not None:
             if ai_layout_mode.upper() not in ["KEEP", "OPTIMIZE", "IMPROVE"]:
@@ -102,6 +110,7 @@ class TranspilerService:
             backend=self.backend_name,
             coupling_map=self.coupling_map,
             optimization_level=self.optimization_level,
+            optimization_preferences=self.optimization_preferences,
             ai=self.ai,
             qiskit_transpile_options=self.qiskit_transpile_options,
             ai_layout_mode=self.ai_layout_mode,
