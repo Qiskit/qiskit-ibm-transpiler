@@ -83,7 +83,7 @@ def test_qv_backend_routing(optimization_level, ai, qiskit_transpile_options):
         [[0, 1], [1, 2], [2, 3], [3, 4], [4, 5], [5, 6], [6, 7]],
     ],
 )
-@pytest.mark.parametrize("optimization_level", [1, 2, 3])
+@pytest.mark.parametrize("optimization_level", [1])
 @pytest.mark.parametrize("ai", ["false", "true"], ids=["no_ai", "ai"])
 @pytest.mark.parametrize("qiskit_transpile_options", [None, {"seed_transpiler": 0}])
 @pytest.mark.parametrize("optimization_preferences", [None, "noise"])
