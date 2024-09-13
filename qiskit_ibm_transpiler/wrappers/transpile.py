@@ -27,6 +27,7 @@ from qiskit_ibm_transpiler.wrappers import QiskitTranspilerService
 logging.getLogger("backoff").setLevel(logging.ERROR)
 logger = logging.getLogger(__name__)
 
+# TODO: Reuse this code, it's repeated several times
 OptimizationOptions = Literal["n_cnots", "n_gates", "cnot_layers", "layers", "noise"]
 
 
