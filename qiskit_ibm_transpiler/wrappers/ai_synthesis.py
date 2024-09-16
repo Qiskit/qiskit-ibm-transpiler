@@ -32,17 +32,37 @@ class AICliffordAPI(QiskitTranspilerService):
     def transpile(
         self,
         circuits: List[Union[QuantumCircuit, Clifford]],
-        backend: str,
         qargs: List[List[int]],
+        coupling_map: Union[List[List[int]], None] = None,
+        backend_name: Union[str, None] = None,
     ):
-        transpile_resps = self.request_and_wait(
-            endpoint="transpile",
-            body={
-                "clifford_dict": [Clifford(circuit).to_dict() for circuit in circuits],
-                "qargs": qargs,
-            },
-            params={"backend": backend},
-        )
+        if coupling_map is not None:
+            transpile_resps = self.request_and_wait(
+                endpoint="transpile",
+                body={
+                    "clifford_dict": [
+                        Clifford(circuit).to_dict() for circuit in circuits
+                    ],
+                    "qargs": qargs,
+                    "backend_coupling_map": coupling_map,
+                },
+                params=dict(),
+            )
+        elif backend_name is not None:
+            transpile_resps = self.request_and_wait(
+                endpoint="transpile",
+                body={
+                    "clifford_dict": [
+                        Clifford(circuit).to_dict() for circuit in circuits
+                    ],
+                    "qargs": qargs,
+                },
+                params={"backend": backend_name},
+            )
+        else:
+            raise (
+                f"ERROR. Either a 'coupling_map' or a 'backend_name' must be provided."
+            )
 
         results = []
         for transpile_resp in transpile_resps:
@@ -62,17 +82,37 @@ class AILinearFunctionAPI(QiskitTranspilerService):
     def transpile(
         self,
         circuits: List[Union[QuantumCircuit, LinearFunction]],
-        backend: str,
         qargs: List[List[int]],
+        coupling_map: Union[List[List[int]], None] = None,
+        backend_name: Union[str, None] = None,
     ):
-        transpile_resps = self.request_and_wait(
-            endpoint="transpile",
-            body={
-                "clifford_dict": [Clifford(circuit).to_dict() for circuit in circuits],
-                "qargs": qargs,
-            },
-            params={"backend": backend},
-        )
+        if coupling_map is not None:
+            transpile_resps = self.request_and_wait(
+                endpoint="transpile",
+                body={
+                    "clifford_dict": [
+                        Clifford(circuit).to_dict() for circuit in circuits
+                    ],
+                    "qargs": qargs,
+                    "backend_coupling_map": coupling_map,
+                },
+                params=dict(),
+            )
+        elif backend_name is not None:
+            transpile_resps = self.request_and_wait(
+                endpoint="transpile",
+                body={
+                    "clifford_dict": [
+                        Clifford(circuit).to_dict() for circuit in circuits
+                    ],
+                    "qargs": qargs,
+                },
+                params={"backend": backend_name},
+            )
+        else:
+            raise (
+                f"ERROR. Either a 'coupling_map' or a 'backend_name' must be provided."
+            )
 
         results = []
         for transpile_resp in transpile_resps:
@@ -92,14 +132,34 @@ class AIPermutationAPI(QiskitTranspilerService):
     def transpile(
         self,
         patterns: List[List[int]],
-        backend: str,
         qargs: List[List[int]],
+        coupling_map: Union[List[List[int]], None] = None,
+        backend_name: Union[str, None] = None,
     ):
-        transpile_resps = self.request_and_wait(
-            endpoint="transpile",
-            body={"permutation": patterns, "qargs": qargs},
-            params={"backend": backend},
-        )
+
+        if coupling_map is not None:
+            transpile_resps = self.request_and_wait(
+                endpoint="transpile",
+                body={
+                    "permutation": patterns,
+                    "qargs": qargs,
+                    "backend_coupling_map": coupling_map,
+                },
+                params=dict(),
+            )
+        elif backend_name is not None:
+            transpile_resps = self.request_and_wait(
+                endpoint="transpile",
+                body={
+                    "permutation": patterns,
+                    "qargs": qargs,
+                },
+                params={"backend": backend_name},
+            )
+        else:
+            raise (
+                f"ERROR. Either a 'coupling_map' or a 'backend_name' must be provided."
+            )
 
         results = []
         for transpile_resp in transpile_resps:
