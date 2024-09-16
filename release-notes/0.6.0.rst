@@ -1,0 +1,12 @@
+0.6.0 (2024-09-16)
+==================
+
+New features
+------------
+
+- Add `optimization_preferences` optional input to :class:`.TranspilerService` constructor. 
+
+  With this new feature, users could specify by which properties they want to optimize on the transpiler process. Allowed options are: "n_cnots", "n_gates", "cnot_layers", "layers", "noise", and these options can be provided in two ways:
+  - Only an option, as a string value: Transpilation will be done priorizating this element and then the rest of the options
+  - Several options, as a list: Transpilation will be done only with the specified elements (`67 <https://github.com/Qiskit/qiskit-ibm-transpiler/pull/67>`__)
+- Enabling `coupling_map` as options to the AI Synthesis passes (`70 <https://github.com/Qiskit/qiskit-ibm-transpiler/pull/70>`__)
