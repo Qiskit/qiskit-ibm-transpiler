@@ -35,6 +35,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - [#67](https://github.com/Qiskit/qiskit-ibm-transpiler/pull/67) Adds optimization_preferences as an option for TranspilerService
 - [#70](https://github.com/Qiskit/qiskit-ibm-transpiler/pull/70) Enabling coupling_map as options to the AI Synthesis passes
 
+### ✏️ Changed
+
+- [#63](https://github.com/Qiskit/qiskit-ibm-transpiler/pull/63) Fixing the type of ECR gates when loading circuits from the qiskit transpiler service
+- [#52](https://github.com/Qiskit/qiskit-ibm-transpiler/pull/52) Keep trying getting result even in case of HTTPError exception with status 520
+
 ## [0.5.0] - 2024-08-27
 
 ### ✏️ Changed
