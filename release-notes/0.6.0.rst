@@ -14,5 +14,5 @@ New features
 Bug fixes
 ---------
 
-- Keep trying getting result even in case of HTTPError exception with status 520 (`52 <https://github.com/Qiskit/qiskit-ibm-transpiler/pull/52>`__)
-- Fixing the type of ECR gates when loading circuits from the qiskit transpiler service (`63 <https://github.com/Qiskit/qiskit-ibm-transpiler/pull/63>`__)
+- Keep trying to get results even in case of HTTPError exception with status 520 (`52 <https://github.com/Qiskit/qiskit-ibm-transpiler/pull/52>`__)
+- Fixing the type of ECR gates when loading circuits from the Qiskit Transpiler Service (`63 <https://github.com/Qiskit/qiskit-ibm-transpiler/pull/63>`__)
