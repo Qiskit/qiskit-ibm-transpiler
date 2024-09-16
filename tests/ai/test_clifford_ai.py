@@ -109,3 +109,27 @@ def test_clifford_function(random_circuit_transpiled, backend):
     )
     ai_optimized_circuit = ai_optimize_cliff.run(random_circuit_transpiled)
     assert isinstance(ai_optimized_circuit, QuantumCircuit)
+
+
+def test_clifford_function_with_coupling_map(random_circuit_transpiled, coupling_map):
+    ai_optimize_cliff = PassManager(
+        [
+            CollectCliffords(),
+            AICliffordSynthesis(coupling_map=coupling_map),
+        ]
+    )
+    ai_optimized_circuit = ai_optimize_cliff.run(random_circuit_transpiled)
+    assert isinstance(ai_optimized_circuit, QuantumCircuit)
+
+
+def test_clifford_function_with_coupling_map_as_list(
+    random_circuit_transpiled, coupling_map
+):
+    ai_optimize_cliff = PassManager(
+        [
+            CollectCliffords(),
+            AICliffordSynthesis(coupling_map=list(coupling_map.get_edges())),
+        ]
+    )
+    ai_optimized_circuit = ai_optimize_cliff.run(random_circuit_transpiled)
+    assert isinstance(ai_optimized_circuit, QuantumCircuit)
