@@ -29,8 +29,6 @@ def test_qv_routing_wrong_opt_level(optimization_level, backend, qv_circ):
         pm.run(qv_circ)
 
 
-# TODO: Remove skip when changes on server are merged
-@pytest.mark.skip()
 @pytest.mark.parametrize("optimization_preferences", ["foo"])
 def test_qv_routing_wrong_opt_preferences(optimization_preferences, backend, qv_circ):
     pm = PassManager(
