@@ -14,11 +14,13 @@ import logging
 import os
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from multiprocessing import cpu_count
+from typing import Dict, List, Union
 
 from qiskit.circuit.exceptions import CircuitError
 from qiskit.converters import circuit_to_dag
 from qiskit.dagcircuit.dagcircuit import DAGCircuit
 from qiskit.quantum_info import Clifford
+from qiskit.transpiler import CouplingMap
 from qiskit.transpiler.basepasses import TransformationPass
 from qiskit.transpiler.exceptions import TranspilerError
 
@@ -37,8 +39,18 @@ class AISynthesis(TransformationPass):
     """AI Synthesis base class"""
 
     def __init__(
-        self, backend_name, synth_service, replace_only_if_better=True, max_threads=None
+        self,
+        synth_service: Union[AICliffordAPI, AILinearFunctionAPI, AIPermutationAPI],
+        coupling_map: Union[List[List[int]], CouplingMap, None] = None,
+        backend_name: Union[str, None] = None,
+        replace_only_if_better: bool = True,
+        max_threads: Union[int, None] = None,
+        **kwargs,
     ) -> None:
+        if isinstance(coupling_map, CouplingMap):
+            self.coupling_map = list(coupling_map.get_edges())
+        else:
+            self.coupling_map = coupling_map
         self.backend_name = backend_name
         self.replace_only_if_better = replace_only_if_better
         self.synth_service = synth_service
@@ -73,7 +85,10 @@ class AISynthesis(TransformationPass):
             qargs = [[q._index for q in node.qargs] for node in nodes]
             logger.debug(f"Attempting synthesis over qubits {qargs}")
             synths = self.synth_service.transpile(
-                synth_inputs, backend=self.backend_name, qargs=qargs
+                synth_inputs,
+                qargs=qargs,
+                coupling_map=self.coupling_map,
+                backend_name=self.backend_name,
             )
         except TranspilerError as e:
             logger.warning(
@@ -127,10 +142,19 @@ class AICliffordSynthesis(AISynthesis):
     """
 
     def __init__(
-        self, backend_name, replace_only_if_better=True, max_threads=None, **kwargs
+        self,
+        coupling_map: Union[List[List[int]], CouplingMap, None] = None,
+        backend_name: Union[str, None] = None,
+        replace_only_if_better: bool = True,
+        max_threads: Union[int, None] = None,
+        **kwargs,
     ) -> None:
         super().__init__(
-            backend_name, AICliffordAPI(**kwargs), replace_only_if_better, max_threads
+            AICliffordAPI(**kwargs),
+            coupling_map,
+            backend_name,
+            replace_only_if_better,
+            max_threads,
         )
 
     def _get_synth_input_and_original(self, node):
@@ -164,11 +188,17 @@ class AILinearFunctionSynthesis(AISynthesis):
     """
 
     def __init__(
-        self, backend_name, replace_only_if_better=True, max_threads=None, **kwargs
+        self,
+        coupling_map: Union[List[List[int]], CouplingMap, None] = None,
+        backend_name: Union[str, None] = None,
+        replace_only_if_better: bool = True,
+        max_threads: Union[int, None] = None,
+        **kwargs,
     ) -> None:
         super().__init__(
-            backend_name,
             AILinearFunctionAPI(**kwargs),
+            coupling_map,
+            backend_name,
             replace_only_if_better,
             max_threads,
         )
@@ -200,11 +230,17 @@ class AIPermutationSynthesis(AISynthesis):
     """
 
     def __init__(
-        self, backend_name, replace_only_if_better=True, max_threads=None, **kwargs
+        self,
+        coupling_map: Union[List[List[int]], CouplingMap, None] = None,
+        backend_name: Union[str, None] = None,
+        replace_only_if_better: bool = True,
+        max_threads: Union[int, None] = None,
+        **kwargs,
     ) -> None:
         super().__init__(
-            backend_name,
             AIPermutationAPI(**kwargs),
+            coupling_map,
+            backend_name,
             replace_only_if_better,
             max_threads,
         )
