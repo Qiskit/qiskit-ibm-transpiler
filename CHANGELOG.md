@@ -28,11 +28,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### ⚠️ Deprecated
 
-## [0.6.0] - 2024-09-13
+## [0.6.0] - 2024-09-16
 
 ### 🎉 Added
 
 - [#67](https://github.com/Qiskit/qiskit-ibm-transpiler/pull/67) Adds optimization_preferences as an option for TranspilerService
+- [#70](https://github.com/Qiskit/qiskit-ibm-transpiler/pull/70) Enabling coupling_map as options to the AI Synthesis passes
 
 ## [0.5.0] - 2024-08-27
 
