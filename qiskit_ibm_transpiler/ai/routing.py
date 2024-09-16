@@ -24,6 +24,11 @@ from qiskit.transpiler.layout import Layout
 
 from qiskit_ibm_transpiler.wrappers import AIRoutingAPI
 
+from typing import List, Union, Literal
+
+# TODO: Reuse this code, it's repeated several times
+OptimizationOptions = Literal["n_cnots", "n_gates", "cnot_layers", "layers", "noise"]
+
 
 class AIRouting(TransformationPass):
     """AIRouting(backend_name: str | None = None, coupling_map: list[list[int]] | None = None, optimization_level: int = 2, layout_mode: str = "OPTIMIZE")
@@ -46,6 +51,9 @@ class AIRouting(TransformationPass):
         coupling_map=None,
         optimization_level: int = 2,
         layout_mode: str = "OPTIMIZE",
+        optimization_preferences: Union[
+            OptimizationOptions, List[OptimizationOptions], None
+        ] = None,
         **kwargs,
     ):
         super().__init__()
@@ -68,6 +76,7 @@ class AIRouting(TransformationPass):
             raise ValueError(f"ERROR. Either backend_name OR coupling_map must be set.")
 
         self.optimization_level = optimization_level
+        self.optimization_preferences = optimization_preferences
 
         if layout_mode is not None and layout_mode.upper() not in [
             "KEEP",
@@ -112,6 +121,7 @@ class AIRouting(TransformationPass):
             self.optimization_level,
             False,
             self.layout_mode,
+            self.optimization_preferences,
         )
 
         # TODO: Improve this
