@@ -111,11 +111,16 @@ def test_clifford_function(random_circuit_transpiled, backend):
     assert isinstance(ai_optimized_circuit, QuantumCircuit)
 
 
-@pytest.mark.parametrize("as_list", [True, False], ids=["as_list", "as_object"])
+# TODO: Look for a better way to parametrize coupling maps
+@pytest.mark.parametrize(
+    "use_coupling_map_as_list", [True, False], ids=["as_list", "as_object"]
+)
 def test_clifford_function_with_coupling_map(
-    random_circuit_transpiled, coupling_map, as_list
+    random_circuit_transpiled, coupling_map, use_coupling_map_as_list
 ):
-    coupling_map_to_send = list(coupling_map.get_edges()) if as_list else coupling_map
+    coupling_map_to_send = (
+        list(coupling_map.get_edges()) if use_coupling_map_as_list else coupling_map
+    )
     ai_optimize_cliff = PassManager(
         [
             CollectCliffords(),
