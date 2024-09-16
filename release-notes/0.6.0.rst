@@ -10,3 +10,9 @@ New features
   - Only an option, as a string value: Transpilation will be done priorizating this element and then the rest of the options
   - Several options, as a list: Transpilation will be done only with the specified elements (`67 <https://github.com/Qiskit/qiskit-ibm-transpiler/pull/67>`__)
 - Enabling `coupling_map` as options to the AI Synthesis passes (`70 <https://github.com/Qiskit/qiskit-ibm-transpiler/pull/70>`__)
+
+Bug fixes
+---------
+
+- Keep trying getting result even in case of HTTPError exception with status 520 (`52 <https://github.com/Qiskit/qiskit-ibm-transpiler/pull/52>`__)
+- Fixing the type of ECR gates when loading circuits from the qiskit transpiler service (`63 <https://github.com/Qiskit/qiskit-ibm-transpiler/pull/63>`__)
