@@ -86,7 +86,7 @@ def test_qv_backend_routing(optimization_level, ai, qiskit_transpile_options):
 @pytest.mark.parametrize("optimization_level", [1])
 @pytest.mark.parametrize("ai", ["false", "true"], ids=["no_ai", "ai"])
 @pytest.mark.parametrize("qiskit_transpile_options", [None, {"seed_transpiler": 0}])
-@pytest.mark.parametrize("optimization_preferences", [None, "noise"])
+@pytest.mark.parametrize("optimization_preferences", [None, "n_cnots"])
 def test_rand_circ_cmap_routing(
     coupling_map,
     optimization_level,
