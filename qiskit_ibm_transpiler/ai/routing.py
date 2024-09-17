@@ -15,6 +15,8 @@
 
 # torch.set_num_threads(1)
 
+from typing import List, Literal, Union
+
 import numpy as np
 from qiskit import ClassicalRegister, QuantumCircuit
 from qiskit.converters import circuit_to_dag, dag_to_circuit
@@ -23,8 +25,6 @@ from qiskit.transpiler.basepasses import TransformationPass
 from qiskit.transpiler.layout import Layout
 
 from qiskit_ibm_transpiler.wrappers import AIRoutingAPI
-
-from typing import List, Union, Literal
 
 # TODO: Reuse this code, it's repeated several times
 OptimizationOptions = Literal["n_cnots", "n_gates", "cnot_layers", "layers", "noise"]

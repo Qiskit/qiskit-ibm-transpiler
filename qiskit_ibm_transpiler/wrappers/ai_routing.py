@@ -11,12 +11,12 @@
 # that they have been altered from the originals.
 
 
+from typing import List, Literal, Union
+
 from qiskit import QuantumCircuit, qasm2, qasm3
 from qiskit.qasm2 import QASM2ExportError
 
 from .base import QiskitTranspilerService
-from typing import List, Union, Literal
-
 
 # TODO: Reuse this code, it's repeated several times
 OptimizationOptions = Literal["n_cnots", "n_gates", "cnot_layers", "layers", "noise"]
