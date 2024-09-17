@@ -96,17 +96,6 @@ class TranspileAPI(QiskitTranspilerService):
             else transpiled_circuits[0]
         )
 
-    def benchmark(
-        self,
-        circuits: Union[
-            Union[List[str], str], Union[List[QuantumCircuit], QuantumCircuit]
-        ],
-        backend: str,
-        optimization_level: int = 1,
-        qiskit_transpile_options: Dict = None,
-    ):
-        raise Exception("Not implemented")
-
 
 def _input_to_qasm(input_circ: Union[QuantumCircuit, str]):
     if isinstance(input_circ, QuantumCircuit):
