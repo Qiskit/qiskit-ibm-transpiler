@@ -1,0 +1,7 @@
+0.4.3 (2024-06-07)
+==================
+
+Upgrade notes
+-------------
+
+- Check existence of credentials and raise related exceptions instead of breaking

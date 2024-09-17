@@ -1,5 +1,7 @@
 # Changelog
 
+> ⚠️ This file is not maintained anymore. Please go to: https://docs.quantum.ibm.com/api/qiskit-ibm-transpiler/release-notes
+
 All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
@@ -27,6 +29,18 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### 👾 Security
 
 ### ⚠️ Deprecated
+
+## [0.6.0] - 2024-09-16
+
+### 🎉 Added
+
+- [#67](https://github.com/Qiskit/qiskit-ibm-transpiler/pull/67) Adds optimization_preferences as an option for TranspilerService
+- [#70](https://github.com/Qiskit/qiskit-ibm-transpiler/pull/70) Enabling coupling_map as options to the AI Synthesis passes
+
+### ✏️ Changed
+
+- [#63](https://github.com/Qiskit/qiskit-ibm-transpiler/pull/63) Fixing the type of ECR gates when loading circuits from the qiskit transpiler service
+- [#52](https://github.com/Qiskit/qiskit-ibm-transpiler/pull/52) Keep trying getting result even in case of HTTPError exception with status 520
 
 ## [0.5.0] - 2024-08-27
 
@@ -153,7 +167,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 - Publishing first version 0.1.2 for the IBM Quantum Summit.
 
-[Unreleased]: https://github.com/Qiskit/qiskit-ibm-transpiler/compare/0.5.0...main
+[Unreleased]: https://github.com/Qiskit/qiskit-ibm-transpiler/compare/0.6.0...main
+[0.6.0]: https://github.com/Qiskit/qiskit-ibm-transpiler/compare/0.5.0...0.6.0
 [0.5.0]: https://github.com/Qiskit/qiskit-ibm-transpiler/compare/0.4.6...0.5.0
 [0.4.6]: https://github.com/Qiskit/qiskit-ibm-transpiler/compare/0.4.5...0.4.6
 [0.4.5]: https://github.com/Qiskit/qiskit-ibm-transpiler/compare/0.4.4...0.4.5

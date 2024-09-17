@@ -17,7 +17,7 @@ runs:
   steps:
     - name: Build documentation
       shell: bash
-      run: python -m sphinx -W --keep-going docs/ docs/_build
+      run: ./scripts/docs
     - name: Store built documentation artifact
       uses: actions/upload-artifact@v4
       with:

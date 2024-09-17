@@ -1,0 +1,35 @@
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[tool.towncrier]
+single_file = false
+filename = "release-notes/{version}.rst"
+directory = "release-notes/unreleased"
+title_format = "{version} ({project_date})"
+issue_format = "`{issue} <https://github.com/Qiskit/qiskit-ibm-transpiler/pull/{issue}>`__"
+
+    [[tool.towncrier.type]]
+    directory = "upgrade"
+    name = "Upgrade notes"
+    showcontent = true
+
+    [[tool.towncrier.type]]
+    directory = "deprecation"
+    name = "Deprecation notes"
+    showcontent = true
+
+    [[tool.towncrier.type]]
+    directory = "feat"
+    name = "New features"
+    showcontent = true
+
+    [[tool.towncrier.type]]
+    directory = "bug"
+    name = "Bug fixes"
+    showcontent = true
+
+    [[tool.towncrier.type]]
+    directory = "other"
+    name = "Other notes"
+    showcontent = true

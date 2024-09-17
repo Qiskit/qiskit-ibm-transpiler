@@ -1,0 +1,7 @@
+0.2.0 (2024-02-12)
+==================
+
+New features
+------------
+
+- Added support for synthesis and transpilation of Clifford, Permutation and Linear Function circuits. Using new URLs for the service.

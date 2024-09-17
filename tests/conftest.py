@@ -13,6 +13,7 @@ import logging
 
 import pytest
 from qiskit.transpiler.coupling import CouplingMap
+from qiskit_ibm_runtime.fake_provider import FakeCairoV2
 
 
 @pytest.fixture(autouse=True)
@@ -44,6 +45,11 @@ def env_set(monkeypatch, request):
 @pytest.fixture(scope="module")
 def backend():
     return "ibm_cairo"
+
+
+@pytest.fixture(scope="module")
+def coupling_map():
+    return FakeCairoV2().coupling_map
 
 
 @pytest.fixture(scope="module")

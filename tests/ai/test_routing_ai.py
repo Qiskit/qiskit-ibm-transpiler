@@ -29,6 +29,19 @@ def test_qv_routing_wrong_opt_level(optimization_level, backend, qv_circ):
         pm.run(qv_circ)
 
 
+@pytest.mark.parametrize("optimization_preferences", ["foo"])
+def test_qv_routing_wrong_opt_preferences(optimization_preferences, backend, qv_circ):
+    pm = PassManager(
+        [
+            AIRouting(
+                optimization_preferences=optimization_preferences, backend_name=backend
+            )
+        ]
+    )
+    with pytest.raises(TranspilerError):
+        pm.run(qv_circ)
+
+
 @pytest.mark.parametrize("layout_mode", ["RECREATE", "BOOST"])
 def test_qv_routing_wrong_layout_mode(layout_mode, backend, qv_circ):
     with pytest.raises(ValueError):
@@ -118,13 +131,19 @@ def test_routing_unexisting_url(qv_circ, backend):
 
 @pytest.mark.parametrize("layout_mode", ["KEEP", "OPTIMIZE", "IMPROVE"])
 @pytest.mark.parametrize("optimization_level", [1, 2, 3])
-def test_qv_routing(optimization_level, layout_mode, backend, qv_circ):
+@pytest.mark.parametrize(
+    "optimization_preferences", [None, "noise", ["noise", "n_cnots"]]
+)
+def test_qv_routing(
+    optimization_level, layout_mode, optimization_preferences, backend, qv_circ
+):
     pm = PassManager(
         [
             AIRouting(
                 optimization_level=optimization_level,
                 layout_mode=layout_mode,
                 backend_name=backend,
+                optimization_preferences=optimization_preferences,
             )
         ]
     )

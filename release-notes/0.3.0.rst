@@ -1,0 +1,12 @@
+0.3.0 (2024-02-29)
+==================
+
+Upgrade notes
+-------------
+
+- Updating the plugin to use Qiskit 1.0 by default
+
+Bug fixes
+---------
+
+- Supporting measurements in circuits when transpiling using ``ai=true`` option

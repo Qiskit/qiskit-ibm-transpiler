@@ -61,7 +61,7 @@ def test_transpile_wrong_token():
     circuit = EfficientSU2(100, entanglement="circular", reps=1).decompose()
     with catch_warnings(record=True) as w:
         transpiler_service = TranspilerService(
-            backend_name="ibm_kyoto",
+            backend_name="ibm_brisbane",
             ai="false",
             optimization_level=3,
             token="invented_token5",
@@ -85,7 +85,7 @@ def test_transpile_failing_task():
     circuit = QuantumCircuit.from_qasm_str(open_qasm_circuit)
     with catch_warnings(record=True) as w:
         transpiler_service = TranspilerService(
-            backend_name="ibm_kyoto",
+            backend_name="ibm_brisbane",
             ai="false",
             optimization_level=3,
             coupling_map=[[1, 2], [2, 1]],

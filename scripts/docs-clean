@@ -1,0 +1,15 @@
+#!/usr/bin/env python3
+
+import shutil
+
+
+def main() -> None:
+    shutil.rmtree("docs/_build")
+    shutil.rmtree("docs/stubs")
+
+
+if __name__ == "__main__":
+    try:
+        main()
+    except KeyboardInterrupt:
+        pass

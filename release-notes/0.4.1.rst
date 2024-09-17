@@ -1,0 +1,18 @@
+0.4.1 (2024-06-06)
+==================
+
+Upgrade notes
+-------------
+
+- Updating logs levels
+
+Bug fixes
+---------
+
+- Rebuild layout in transpiled circuit
+- Avoid barrier nodes in collection
+
+Other notes
+-----------
+
+- Refactoring the extension code

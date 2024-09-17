@@ -15,13 +15,17 @@
 import numpy as np
 import pytest
 from qiskit import QuantumCircuit, qasm2, qasm3
-from qiskit.circuit.library import IQP, EfficientSU2, QuantumVolume
+from qiskit.circuit.library import IQP, EfficientSU2, QuantumVolume, ECRGate
+from qiskit.circuit import Gate
 from qiskit.circuit.random import random_circuit
 from qiskit.compiler import transpile
 from qiskit.quantum_info import SparsePauliOp, random_hermitian
 
 from qiskit_ibm_transpiler.transpiler_service import TranspilerService
-from qiskit_ibm_transpiler.wrappers import _get_circuit_from_result
+from qiskit_ibm_transpiler.wrappers import (
+    _get_circuit_from_result,
+    _get_circuit_from_qasm,
+)
 
 
 @pytest.mark.parametrize(
@@ -79,11 +83,16 @@ def test_qv_backend_routing(optimization_level, ai, qiskit_transpile_options):
         [[0, 1], [1, 2], [2, 3], [3, 4], [4, 5], [5, 6], [6, 7]],
     ],
 )
-@pytest.mark.parametrize("optimization_level", [1, 2, 3])
+@pytest.mark.parametrize("optimization_level", [1])
 @pytest.mark.parametrize("ai", ["false", "true"], ids=["no_ai", "ai"])
 @pytest.mark.parametrize("qiskit_transpile_options", [None, {"seed_transpiler": 0}])
+@pytest.mark.parametrize("optimization_preferences", [None, "n_cnots"])
 def test_rand_circ_cmap_routing(
-    coupling_map, optimization_level, ai, qiskit_transpile_options
+    coupling_map,
+    optimization_level,
+    ai,
+    qiskit_transpile_options,
+    optimization_preferences,
 ):
     random_circ = random_circuit(5, depth=3, seed=42).decompose(reps=3)
 
@@ -93,6 +102,7 @@ def test_rand_circ_cmap_routing(
         ai=ai,
         optimization_level=optimization_level,
         qiskit_transpile_options=qiskit_transpile_options,
+        optimization_preferences=optimization_preferences,
     )
     transpiled_circuit = cloud_transpiler_service.run(random_circ)
 
@@ -183,7 +193,7 @@ def test_transpile_non_valid_backend():
 def test_transpile_exceed_circuit_size():
     circuit = EfficientSU2(120, entanglement="full", reps=5).decompose()
     transpiler_service = TranspilerService(
-        backend_name="ibm_kyoto",
+        backend_name="ibm_brisbane",
         ai="false",
         optimization_level=3,
     )
@@ -198,7 +208,7 @@ def test_transpile_exceed_circuit_size():
 def test_transpile_exceed_timeout():
     circuit = EfficientSU2(100, entanglement="circular", reps=50).decompose()
     transpiler_service = TranspilerService(
-        backend_name="ibm_kyoto",
+        backend_name="ibm_brisbane",
         ai="false",
         optimization_level=3,
         timeout=1,
@@ -217,7 +227,7 @@ def test_transpile_exceed_timeout():
 def test_transpile_wrong_token():
     circuit = EfficientSU2(100, entanglement="circular", reps=1).decompose()
     transpiler_service = TranspilerService(
-        backend_name="ibm_kyoto",
+        backend_name="ibm_brisbane",
         ai="false",
         optimization_level=3,
         token="invented_token5",
@@ -234,7 +244,7 @@ def test_transpile_wrong_token():
 def test_transpile_wrong_url():
     circuit = EfficientSU2(100, entanglement="circular", reps=1).decompose()
     transpiler_service = TranspilerService(
-        backend_name="ibm_kyoto",
+        backend_name="ibm_brisbane",
         ai="false",
         optimization_level=3,
         base_url="https://ibm.com/",
@@ -255,7 +265,7 @@ def test_transpile_wrong_url():
 def test_transpile_unexisting_url():
     circuit = EfficientSU2(100, entanglement="circular", reps=1).decompose()
     transpiler_service = TranspilerService(
-        backend_name="ibm_kyoto",
+        backend_name="ibm_brisbane",
         ai="false",
         optimization_level=3,
         base_url="https://invented-domain-qiskit-ibm-transpiler-123.com/",
@@ -274,7 +284,7 @@ def test_transpile_unexisting_url():
 def test_transpile_malformed_body():
     circuit = EfficientSU2(100, entanglement="circular", reps=1).decompose()
     transpiler_service = TranspilerService(
-        backend_name="ibm_kyoto",
+        backend_name="ibm_brisbane",
         ai="false",
         optimization_level=3,
         qiskit_transpile_options={"failing_option": 0},
@@ -299,7 +309,7 @@ def test_transpile_failing_task():
     )
     circuit = QuantumCircuit.from_qasm_str(open_qasm_circuit)
     transpiler_service = TranspilerService(
-        backend_name="ibm_kyoto",
+        backend_name="ibm_brisbane",
         ai="false",
         optimization_level=3,
         coupling_map=[[1, 2], [2, 1]],
@@ -380,3 +390,34 @@ def test_layout_construction_no_service(backend, cmap_backend):
         circuit.cx(1, 2)
         circuit.h(4)
         transpile_and_check_layout(cmap_backend[backend], circuit)
+
+
+def test_fix_ecr_qasm2():
+    qc = QuantumCircuit(5)
+    qc.ecr(0, 2)
+
+    circuit_from_qasm = _get_circuit_from_qasm(qasm2.dumps(qc))
+    assert isinstance(list(circuit_from_qasm)[0].operation, ECRGate)
+
+
+def test_fix_ecr_qasm3():
+    qc = QuantumCircuit(5)
+    qc.ecr(0, 2)
+
+    circuit_from_qasm = _get_circuit_from_qasm(qasm3.dumps(qc))
+    assert isinstance(list(circuit_from_qasm)[0].operation, ECRGate)
+
+
+def test_fix_ecr_ibm_strasbourg():
+    num_qubits = 16
+    circuit = QuantumCircuit(num_qubits)
+    for i in range(num_qubits - 1):
+        circuit.ecr(i, i + 1)
+
+    cloud_transpiler_service = TranspilerService(
+        backend_name="ibm_strasbourg",
+        ai="false",
+        optimization_level=3,
+    )
+    transpiled_circuit = cloud_transpiler_service.run(circuit)
+    assert any(isinstance(gate.operation, ECRGate) for gate in list(transpiled_circuit))

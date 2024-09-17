@@ -15,6 +15,11 @@ from qiskit import QuantumCircuit, qasm2, qasm3
 from qiskit.qasm2 import QASM2ExportError
 
 from .base import QiskitTranspilerService
+from typing import List, Union, Literal
+
+
+# TODO: Reuse this code, it's repeated several times
+OptimizationOptions = Literal["n_cnots", "n_gates", "cnot_layers", "layers", "noise"]
 
 
 class AIRoutingAPI(QiskitTranspilerService):
@@ -30,6 +35,9 @@ class AIRoutingAPI(QiskitTranspilerService):
         optimization_level: int = 1,
         check_result: bool = False,
         layout_mode: str = "OPTIMIZE",
+        optimization_preferences: Union[
+            OptimizationOptions, List[OptimizationOptions], None
+        ] = None,
     ):
         is_qasm3 = False
         try:
@@ -38,7 +46,11 @@ class AIRoutingAPI(QiskitTranspilerService):
             qasm = qasm3.dumps(circuit)
             is_qasm3 = True
 
-        json_args = {"qasm": qasm.replace("\n", " "), "coupling_map": coupling_map}
+        body_params = {
+            "qasm": qasm.replace("\n", " "),
+            "coupling_map": coupling_map,
+            "optimization_preferences": optimization_preferences,
+        }
 
         params = {
             "check_result": check_result,
@@ -47,7 +59,7 @@ class AIRoutingAPI(QiskitTranspilerService):
         }
 
         routing_resp = self.request_and_wait(
-            endpoint="routing", body=json_args, params=params
+            endpoint="routing", body=body_params, params=params
         )
 
         if routing_resp.get("success"):

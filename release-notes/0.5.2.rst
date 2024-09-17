@@ -1,0 +1,7 @@
+0.5.2 (2024-09-12)
+==================
+
+Bug fixes
+---------
+
+- Fixing the type of ECR gates when loading circuits from the qiskit transpiler service (`63 <https://github.com/Qiskit/qiskit-ibm-transpiler/pull/63>`__)

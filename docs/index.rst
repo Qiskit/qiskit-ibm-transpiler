@@ -13,6 +13,7 @@ https://github.com/Qiskit/documentation.
    :caption: Reference
 
     API Reference <apidocs/index>
+    Release Notes <release-notes>
 
 .. Hiding - Indices and tables
    :ref:`genindex`
