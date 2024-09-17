@@ -203,16 +203,19 @@ def _create_transpile_layout(initial, final, circuit, orig_circuit):
 
 class FixECR(TransformationPass):
     def run(self, dag):
-        for node in dag.named_nodes("ecr"):
-            dag.substitute_node(node, library.ECRGate())
+        for node in dag.op_nodes():
+            if node.name.startswith("ecr"):
+                dag.substitute_node(node, library.ECRGate())
         return dag
 
 
 def _get_circuit_from_qasm(qasm_string: str):
     try:
-        return qasm2.loads(
-            qasm_string,
-            custom_instructions=_get_circuit_from_qasm.QISKIT_INSTRUCTIONS,
+        return _get_circuit_from_qasm.fix_ecr(
+            qasm2.loads(
+                qasm_string,
+                custom_instructions=_get_circuit_from_qasm.QISKIT_INSTRUCTIONS,
+            )
         )
     except QASM2ParseError:
         return _get_circuit_from_qasm.fix_ecr(qasm3.loads(qasm_string))
