@@ -1,0 +1,15 @@
+0.7.0 (2024-09-18)
+==================
+
+New features
+------------
+
+- Adds support for sending the use_fractional_gates option to the transpile service (`83 <https://github.com/Qiskit/qiskit-ibm-transpiler/pull/83>`__)
+- Adds iterative decomposition to Qasm3 export. (`85 <https://github.com/Qiskit/qiskit-ibm-transpiler/pull/85>`__)
+
+
+Other notes
+-----------
+
+- Removes unneeded benchmark method (`81 <https://github.com/Qiskit/qiskit-ibm-transpiler/pull/81>`__)
+- Adds test to verify that a circuit with a barrier will be transpiled (`84 <https://github.com/Qiskit/qiskit-ibm-transpiler/pull/84>`__)

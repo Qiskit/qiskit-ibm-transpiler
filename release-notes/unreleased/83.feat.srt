@@ -1,1 +1,0 @@
-Adds support for sending the use_fractional_gates option to the transpile service

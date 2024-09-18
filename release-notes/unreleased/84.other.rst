@@ -1,1 +1,0 @@
-Adds test to verify that a circuit with a barrier will be transpiled

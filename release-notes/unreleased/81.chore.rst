@@ -1,1 +1,0 @@
-Removes unneeded benchmark method
