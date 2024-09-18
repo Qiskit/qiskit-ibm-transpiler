@@ -1,0 +1,7 @@
+0.4.10 (2024-09-17)
+===================
+
+Bug fixes
+---------
+
+- Fixes a bug with ECR gates coming from Qiskit when parsing using OpenQASM2 (`77 <https://github.com/Qiskit/qiskit-ibm-transpiler/pull/77>`__)
