@@ -49,6 +49,7 @@ class TranspileAPI(QiskitTranspilerService):
         ai: Literal["true", "false", "auto"] = "true",
         qiskit_transpile_options: Dict = None,
         ai_layout_mode: str = None,
+        use_fractional_gates: bool = False,
     ):
         circuits = circuits if isinstance(circuits, list) else [circuits]
 
@@ -72,6 +73,9 @@ class TranspileAPI(QiskitTranspilerService):
 
         if ai_layout_mode is not None:
             query_params["ai_layout_mode"] = ai_layout_mode
+
+        if use_fractional_gates:
+            query_params["use_fractional_gates"] = use_fractional_gates
 
         transpile_resp = self.request_and_wait(
             endpoint="transpile", body=body_params, params=query_params
