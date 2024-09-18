@@ -10,12 +10,8 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-import os
-from urllib.parse import urljoin
-
-from qiskit import QuantumCircuit, qasm2, qasm3
-from qiskit.qasm2 import QASM2ExportError
-
+from qiskit import QuantumCircuit
+from qiskit_ibm_transpiler.utils import get_circuit_from_qasm, input_to_qasm
 from .base import QiskitTranspilerService
 from typing import List, Union, Literal
 
@@ -41,12 +37,7 @@ class AIRoutingAPI(QiskitTranspilerService):
             OptimizationOptions, List[OptimizationOptions], None
         ] = None,
     ):
-        is_qasm3 = False
-        try:
-            qasm = qasm2.dumps(circuit)
-        except QASM2ExportError:
-            qasm = qasm3.dumps(circuit)
-            is_qasm3 = True
+        qasm = input_to_qasm(circuit)
 
         body_params = {
             "qasm": qasm.replace("\n", " "),
@@ -65,11 +56,7 @@ class AIRoutingAPI(QiskitTranspilerService):
         )
 
         if routing_resp.get("success"):
-            routed_circuit = (
-                qasm3.loads(routing_resp["qasm"])
-                if is_qasm3
-                else QuantumCircuit.from_qasm_str(routing_resp["qasm"])
-            )
+            routed_circuit = get_circuit_from_qasm(routing_resp["qasm"])
             return (
                 routed_circuit,
                 routing_resp["layout"]["initial"],
