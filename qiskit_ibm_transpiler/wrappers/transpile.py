@@ -14,13 +14,11 @@ import logging
 from typing import Dict, List, Union, Literal
 
 import numpy as np
-from qiskit import QuantumCircuit, QuantumRegister, qasm2, qasm3
-from qiskit.circuit import QuantumCircuit, QuantumRegister, Qubit, library
-from qiskit.transpiler.basepasses import TransformationPass
-from qiskit.qasm2 import QASM2ExportError, QASM2ParseError
+from qiskit import QuantumCircuit, QuantumRegister
+from qiskit.circuit import QuantumCircuit, QuantumRegister, Qubit
 from qiskit.transpiler import TranspileLayout
 from qiskit.transpiler.layout import Layout
-
+from qiskit_ibm_transpiler.utils import get_circuit_from_qasm, input_to_qasm
 from qiskit_ibm_transpiler.wrappers import QiskitTranspilerService
 
 # setting backoff logger to error level to avoid too much logging
@@ -54,7 +52,7 @@ class TranspileAPI(QiskitTranspilerService):
     ):
         circuits = circuits if isinstance(circuits, list) else [circuits]
 
-        qasm_circuits = [_input_to_qasm(circ) for circ in circuits]
+        qasm_circuits = [input_to_qasm(circ) for circ in circuits]
 
         body_params = {
             "qasm_circuits": qasm_circuits,
@@ -108,27 +106,14 @@ class TranspileAPI(QiskitTranspilerService):
         raise Exception("Not implemented")
 
 
-def _input_to_qasm(input_circ: Union[QuantumCircuit, str]):
-    if isinstance(input_circ, QuantumCircuit):
-        try:
-            qasm = qasm2.dumps(input_circ).replace("\n", " ")
-        except QASM2ExportError:
-            qasm = qasm3.dumps(input_circ).replace("\n", " ")
-    elif isinstance(input_circ, str):
-        qasm = input_circ.replace("\n", " ")
-    else:
-        raise TypeError("Input circuits must be QuantumCircuit or qasm string.")
-    return qasm
-
-
 def _get_circuit_from_result(transpile_resp, orig_circuit):
-    transpiled_circuit = _get_circuit_from_qasm(transpile_resp["qasm"])
+    transpiled_circuit = get_circuit_from_qasm(transpile_resp["qasm"])
 
     init_layout = transpile_resp["layout"]["initial"]
     final_layout = transpile_resp["layout"]["final"]
 
     orig_circuit = (
-        _get_circuit_from_qasm(orig_circuit)
+        get_circuit_from_qasm(orig_circuit)
         if isinstance(orig_circuit, str)
         else orig_circuit
     )
@@ -199,27 +184,3 @@ def _create_transpile_layout(initial, final, circuit, orig_circuit):
         _input_qubit_count=n_used_qubits,
         _output_qubit_list=circuit.qubits,
     )
-
-
-class FixECR(TransformationPass):
-    def run(self, dag):
-        for node in dag.named_nodes("ecr"):
-            dag.substitute_node(node, library.ECRGate())
-        return dag
-
-
-def _get_circuit_from_qasm(qasm_string: str):
-    try:
-        return qasm2.loads(
-            qasm_string,
-            custom_instructions=_get_circuit_from_qasm.QISKIT_INSTRUCTIONS,
-        )
-    except QASM2ParseError:
-        return _get_circuit_from_qasm.fix_ecr(qasm3.loads(qasm_string))
-
-
-_get_circuit_from_qasm.QISKIT_INSTRUCTIONS = list(qasm2.LEGACY_CUSTOM_INSTRUCTIONS)
-_get_circuit_from_qasm.QISKIT_INSTRUCTIONS.append(
-    qasm2.CustomInstruction("ecr", 0, 2, library.ECRGate)
-)
-_get_circuit_from_qasm.fix_ecr = FixECR()

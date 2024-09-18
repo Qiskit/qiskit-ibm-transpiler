@@ -15,16 +15,23 @@
 import numpy as np
 import pytest
 from qiskit import QuantumCircuit, qasm2, qasm3
-from qiskit.circuit.library import IQP, EfficientSU2, QuantumVolume, ECRGate
-from qiskit.circuit import Gate
+from qiskit.circuit.library import (
+    IQP,
+    EfficientSU2,
+    QuantumVolume,
+    ECRGate,
+    ZZFeatureMap,
+)
 from qiskit.circuit.random import random_circuit
 from qiskit.compiler import transpile
 from qiskit.quantum_info import SparsePauliOp, random_hermitian
 
 from qiskit_ibm_transpiler.transpiler_service import TranspilerService
-from qiskit_ibm_transpiler.wrappers import (
-    _get_circuit_from_result,
-    _get_circuit_from_qasm,
+from qiskit_ibm_transpiler.wrappers import _get_circuit_from_result
+from qiskit_ibm_transpiler.utils import (
+    get_circuit_from_qasm,
+    input_to_qasm,
+    to_qasm3_iterative_decomposition,
 )
 
 
@@ -390,7 +397,7 @@ def test_fix_ecr_qasm2():
     qc = QuantumCircuit(5)
     qc.ecr(0, 2)
 
-    circuit_from_qasm = _get_circuit_from_qasm(qasm2.dumps(qc))
+    circuit_from_qasm = get_circuit_from_qasm(qasm2.dumps(qc))
     assert isinstance(list(circuit_from_qasm)[0].operation, ECRGate)
 
 
@@ -398,5 +405,18 @@ def test_fix_ecr_qasm3():
     qc = QuantumCircuit(5)
     qc.ecr(0, 2)
 
-    circuit_from_qasm = _get_circuit_from_qasm(qasm3.dumps(qc))
+    circuit_from_qasm = get_circuit_from_qasm(qasm3.dumps(qc))
     assert isinstance(list(circuit_from_qasm)[0].operation, ECRGate)
+
+
+def test_qasm3_iterative_decomposition():
+    feature_map = ZZFeatureMap(feature_dimension=3, reps=1, entanglement="full")
+    qasm = input_to_qasm(feature_map)
+    qc = get_circuit_from_qasm(qasm)
+    assert isinstance(qc, QuantumCircuit)
+
+
+def test_qasm3_iterative_decomposition_limit():
+    feature_map = ZZFeatureMap(feature_dimension=3, reps=1, entanglement="full")
+    with pytest.raises(qasm3.QASM3ExporterError):
+        to_qasm3_iterative_decomposition(feature_map, n_iter=1)
