@@ -472,3 +472,20 @@ def test_qasm3_iterative_decomposition_limit():
     feature_map = ZZFeatureMap(feature_dimension=3, reps=1, entanglement="full")
     with pytest.raises(qasm3.QASM3ExporterError):
         to_qasm3_iterative_decomposition(feature_map, n_iter=1)
+
+
+def test_transpile_with_barrier_on_circuit():
+    circuit = QuantumCircuit(5)
+    circuit.x(4)
+    circuit.barrier()
+    circuit.z(3)
+    circuit.cx(3, 4)
+
+    transpiler_service = TranspilerService(
+        backend_name="ibm_brisbane",
+        optimization_level=1,
+    )
+
+    transpiled_circuit = transpiler_service.run(circuit)
+
+    assert isinstance(transpiled_circuit, QuantumCircuit)
