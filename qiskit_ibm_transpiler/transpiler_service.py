@@ -69,6 +69,7 @@ class TranspilerService:
         optimization_preferences: Union[
             OptimizationOptions, List[OptimizationOptions], None
         ] = None,
+        use_fractional_gates: bool = False,
         **kwargs,
     ) -> None:
         """Initializes the instance."""
@@ -81,6 +82,7 @@ class TranspilerService:
         self.ai = ai
         self.qiskit_transpile_options = qiskit_transpile_options
         self.optimization_preferences = optimization_preferences
+        self.use_fractional_gates = use_fractional_gates
 
         if ai_layout_mode is not None:
             if ai_layout_mode.upper() not in ["KEEP", "OPTIMIZE", "IMPROVE"]:
@@ -115,6 +117,7 @@ class TranspilerService:
             ai=self.ai,
             qiskit_transpile_options=self.qiskit_transpile_options,
             ai_layout_mode=self.ai_layout_mode,
+            use_fractional_gates=self.use_fractional_gates,
         )
         if transpile_result is None:
             logger.warning("Qiskit IBM Transpiler couldn't transpile the circuit(s)")
