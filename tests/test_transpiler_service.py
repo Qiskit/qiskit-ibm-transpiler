@@ -417,18 +417,55 @@ def test_fix_ecr_ibm_strasbourg():
     assert any(isinstance(gate.operation, ECRGate) for gate in list(transpiled_circuit))
 
 
+@pytest.mark.parametrize("non_valid_use_fractional_gates_param", [8, "8", "foo"])
+def test_transpile_non_valid_use_fractional_gates_param(
+    non_valid_use_fractional_gates_param,
+):
+    circuit = random_circuit(5, depth=3, seed=42)
+
+    transpiler_service = TranspilerService(
+        backend_name="ibm_brisbane",
+        optimization_level=1,
+        use_fractional_gates=non_valid_use_fractional_gates_param,
+    )
+
+    try:
+        transpiler_service.run(circuit)
+        pytest.fail("Error expected")
+    except Exception as e:
+        assert "Wrong input" in str(e)
+
+
+@pytest.mark.parametrize(
+    "valid_use_fractional_gates_param",
+    ["no", "n", "false", "f", "0", "yes", "y", "true", "t", "1"],
+)
+def test_transpile_valid_use_fractional_gates_param(valid_use_fractional_gates_param):
+    circuit = random_circuit(5, depth=3, seed=42)
+
+    transpiler_service = TranspilerService(
+        backend_name="ibm_brisbane",
+        optimization_level=1,
+        use_fractional_gates=valid_use_fractional_gates_param,
+    )
+    
+    transpiled_circuit = transpiler_service.run(circuit)
+
+    assert isinstance(transpiled_circuit, QuantumCircuit)
+
+
 def test_transpile_with_barrier_on_circuit():
     circuit = QuantumCircuit(5)
     circuit.x(4)
     circuit.barrier()
     circuit.z(3)
     circuit.cx(3, 4)
-
+    
     transpiler_service = TranspilerService(
         backend_name="ibm_brisbane",
         optimization_level=1,
     )
-
+    
     transpiled_circuit = transpiler_service.run(circuit)
 
     assert isinstance(transpiled_circuit, QuantumCircuit)
