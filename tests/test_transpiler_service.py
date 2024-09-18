@@ -415,3 +415,20 @@ def test_fix_ecr_ibm_strasbourg():
     )
     transpiled_circuit = cloud_transpiler_service.run(circuit)
     assert any(isinstance(gate.operation, ECRGate) for gate in list(transpiled_circuit))
+
+
+def test_transpile_with_barrier_on_circuit():
+    circuit = QuantumCircuit(5)
+    circuit.x(4)
+    circuit.barrier()
+    circuit.z(3)
+    circuit.cx(3, 4)
+
+    transpiler_service = TranspilerService(
+        backend_name="ibm_brisbane",
+        optimization_level=1,
+    )
+
+    transpiled_circuit = transpiler_service.run(circuit)
+
+    assert isinstance(transpiled_circuit, QuantumCircuit)
