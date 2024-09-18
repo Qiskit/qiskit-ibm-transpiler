@@ -448,7 +448,7 @@ def test_transpile_valid_use_fractional_gates_param(valid_use_fractional_gates_p
         optimization_level=1,
         use_fractional_gates=valid_use_fractional_gates_param,
     )
-    
+
     transpiled_circuit = transpiler_service.run(circuit)
 
     assert isinstance(transpiled_circuit, QuantumCircuit)
@@ -460,12 +460,12 @@ def test_transpile_with_barrier_on_circuit():
     circuit.barrier()
     circuit.z(3)
     circuit.cx(3, 4)
-    
+
     transpiler_service = TranspilerService(
         backend_name="ibm_brisbane",
         optimization_level=1,
     )
-    
+
     transpiled_circuit = transpiler_service.run(circuit)
 
     assert isinstance(transpiled_circuit, QuantumCircuit)
