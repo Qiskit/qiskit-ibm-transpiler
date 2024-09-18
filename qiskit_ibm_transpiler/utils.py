@@ -74,14 +74,16 @@ def random_clifford_from_linear_function(n_qubits: int, seed: int = 123):
 
 def to_qasm3_iterative_decomposition(circuit: QuantumCircuit, n_iter: int = 10):
     decomposed_circuit = circuit.copy()
-    for reps in range(1, n_iter+1):
+    for reps in range(1, n_iter + 1):
         qasm3_str = qasm3.dumps(decomposed_circuit)
         try:
             qasm3.loads(qasm3_str)
             break
         except qasm3.QASM3ImporterError:
             if reps == n_iter:
-                raise qasm3.QASM3ExporterError(f"Circuit couldn't be exported to QASM3, try using decompose() on your circuit")
+                raise qasm3.QASM3ExporterError(
+                    f"Circuit couldn't be exported to QASM3, try using decompose() on your circuit"
+                )
             decomposed_circuit = circuit.decompose(reps=reps)
     return qasm3_str.replace("\n", " ")
 
@@ -101,16 +103,20 @@ def input_to_qasm(input_circ: Union[QuantumCircuit, str]) -> str:
 
 class FixECR(TransformationPass):
     def run(self, dag):
-        for node in dag.named_nodes("ecr"):
-            dag.substitute_node(node, library.ECRGate())
+        for node in dag.op_nodes():
+            if node.name.startswith("ecr"):
+                dag.substitute_node(node, library.ECRGate())
         return dag
 
 
 def get_circuit_from_qasm(qasm_string: str) -> QuantumCircuit:
+
     try:
-        return qasm2.loads(
-            qasm_string,
-            custom_instructions=get_circuit_from_qasm.QISKIT_INSTRUCTIONS,
+        return get_circuit_from_qasm.fix_ecr(
+            qasm2.loads(
+                qasm_string,
+                custom_instructions=get_circuit_from_qasm.QISKIT_INSTRUCTIONS,
+            )
         )
     except qasm2.QASM2ParseError:
         return get_circuit_from_qasm.fix_ecr(qasm3.loads(qasm_string))

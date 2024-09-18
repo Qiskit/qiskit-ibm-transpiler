@@ -409,6 +409,21 @@ def test_fix_ecr_qasm3():
     assert isinstance(list(circuit_from_qasm)[0].operation, ECRGate)
 
 
+def test_fix_ecr_ibm_strasbourg():
+    num_qubits = 16
+    circuit = QuantumCircuit(num_qubits)
+    for i in range(num_qubits - 1):
+        circuit.ecr(i, i + 1)
+
+    cloud_transpiler_service = TranspilerService(
+        backend_name="ibm_strasbourg",
+        ai="false",
+        optimization_level=3,
+    )
+    transpiled_circuit = cloud_transpiler_service.run(circuit)
+    assert any(isinstance(gate.operation, ECRGate) for gate in list(transpiled_circuit))
+
+
 def test_qasm3_iterative_decomposition():
     feature_map = ZZFeatureMap(feature_dimension=3, reps=1, entanglement="full")
     qasm = input_to_qasm(feature_map)
