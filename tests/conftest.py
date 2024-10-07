@@ -13,7 +13,7 @@ import logging
 
 import pytest
 from qiskit.transpiler.coupling import CouplingMap
-from qiskit_ibm_runtime.fake_provider import FakePeekskill
+from qiskit_ibm_runtime.fake_provider import FakeQuebec
 
 
 @pytest.fixture(autouse=True)
@@ -44,75 +44,14 @@ def env_set(monkeypatch, request):
 
 @pytest.fixture(scope="module")
 def backend():
-    return "ibm_peekskill"
+    return "ibm_quebec"
 
 
 @pytest.fixture(scope="module")
 def coupling_map():
-    return FakePeekskill().coupling_map
+    return FakeQuebec().coupling_map
 
 
 @pytest.fixture(scope="module")
 def cmap_backend():
-    return {
-        "ibm_peekskill": CouplingMap(
-            [
-                [0, 1],
-                [1, 0],
-                [1, 2],
-                [1, 4],
-                [2, 1],
-                [2, 3],
-                [3, 2],
-                [3, 5],
-                [4, 1],
-                [4, 7],
-                [5, 3],
-                [5, 8],
-                [6, 7],
-                [7, 4],
-                [7, 6],
-                [7, 10],
-                [8, 5],
-                [8, 9],
-                [8, 11],
-                [9, 8],
-                [10, 7],
-                [10, 12],
-                [11, 8],
-                [11, 14],
-                [12, 10],
-                [12, 13],
-                [12, 15],
-                [13, 12],
-                [13, 14],
-                [14, 11],
-                [14, 13],
-                [14, 16],
-                [15, 12],
-                [15, 18],
-                [16, 14],
-                [16, 19],
-                [17, 18],
-                [18, 15],
-                [18, 17],
-                [18, 21],
-                [19, 16],
-                [19, 20],
-                [19, 22],
-                [20, 19],
-                [21, 18],
-                [21, 23],
-                [22, 19],
-                [22, 25],
-                [23, 21],
-                [23, 24],
-                [24, 23],
-                [24, 25],
-                [25, 22],
-                [25, 24],
-                [25, 26],
-                [26, 25],
-            ]
-        )
-    }
+    return {"ibm_quebec": FakeQuebec().coupling_map}

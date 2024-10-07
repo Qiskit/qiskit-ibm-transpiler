@@ -94,9 +94,9 @@ from qiskit_ibm_transpiler.ai.collection import CollectLinearFunctions
 from qiskit.circuit.library import EfficientSU2
 
 ai_passmanager = PassManager([
-   AIRouting(backend_name="ibm_peekskill", optimization_level=3, layout_mode="optimize"),  # Route circuit
+   AIRouting(backend_name="ibm_quebec", optimization_level=3, layout_mode="optimize"),  # Route circuit
    CollectLinearFunctions(),  # Collect Linear Function blocks
-   AILinearFunctionSynthesis(backend_name="ibm_peekskill")  # Re-synthesize Linear Function blocks
+   AILinearFunctionSynthesis(backend_name="ibm_quebec")  # Re-synthesize Linear Function blocks
 ])
 
 circuit = EfficientSU2(10, entanglement="full", reps=1).decompose()
@@ -117,7 +117,7 @@ We expect to gradually increase the size of the supported blocks.
 All passes use a thread pool to send several requests in parallel. By default it will use as max threads as number of cores plus four (default values for `ThreadPoolExecutor` python object). However, you can set your own value with the `max_threads` argument at pass instantation. For example, the following line will instantiate the `AILinearFunctionSynthesis` pass allowing it to use a maximum of 20 threads.
 
 ```python
-AILinearFunctionSynthesis(backend_name="ibm_peekskill", max_threads=20)  # Re-synthesize Linear Function blocks using 20 threads max
+AILinearFunctionSynthesis(backend_name="ibm_quebec", max_threads=20)  # Re-synthesize Linear Function blocks using 20 threads max
 ```
 
 You can also set the environment variable `AI_TRANSPILER_MAX_THREADS` to the desired number of maximum threads, and all synthesis passes instantiated after that will use that value.
