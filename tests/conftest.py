@@ -13,7 +13,7 @@ import logging
 
 import pytest
 from qiskit.transpiler.coupling import CouplingMap
-from qiskit_ibm_runtime.fake_provider import FakeCairoV2
+from qiskit_ibm_runtime.fake_provider import FakePeekskill
 
 
 @pytest.fixture(autouse=True)
@@ -44,18 +44,18 @@ def env_set(monkeypatch, request):
 
 @pytest.fixture(scope="module")
 def backend():
-    return "ibm_cairo"
+    return "ibm_peekskill"
 
 
 @pytest.fixture(scope="module")
 def coupling_map():
-    return FakeCairoV2().coupling_map
+    return FakePeekskill().coupling_map
 
 
 @pytest.fixture(scope="module")
 def cmap_backend():
     return {
-        "ibm_cairo": CouplingMap(
+        "ibm_peekskill": CouplingMap(
             [
                 [0, 1],
                 [1, 0],
