@@ -24,7 +24,7 @@ from qiskit_ibm_transpiler.ai.synthesis import AIPermutationSynthesis
 def permutations_circuit(backend, cmap_backend):
     coupling_map = cmap_backend[backend]
     cmap = list(coupling_map.get_edges())
-    orig_qc = QuantumCircuit(27)
+    orig_qc = QuantumCircuit(127)
     for i, j in cmap:
         orig_qc.h(i)
         orig_qc.cx(i, j)
@@ -151,9 +151,9 @@ def test_permutation_collector(permutations_circuit, backend, cmap_backend):
 
     dag = circuit_to_dag(perm_only_circ)
     perm_nodes = dag.named_nodes("permutation", "Permutation")
-    assert len(perm_nodes) == 2
-    assert perm_nodes[0].op.num_qubits == 27
-    assert perm_nodes[1].op.num_qubits == 4
+    assert len(perm_nodes) == 9
+    assert perm_nodes[0].op.num_qubits == 13
+    assert perm_nodes[1].op.num_qubits == 27
     assert not dag.named_nodes("linear_function", "Linear_function")
     assert not dag.named_nodes("clifford", "Clifford")
 
