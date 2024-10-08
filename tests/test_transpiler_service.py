@@ -380,17 +380,17 @@ def transpile_and_check_layout(cmap, circuit):
 def test_layout_construction_no_service(backend_27q, cmap_backend):
     for n_qubits in [5, 10, 15, 20, 27]:
         circuit = random_circuit(n_qubits, 4, measure=True)
-        transpile_and_check_layout(cmap_backend[backend], circuit)
+        transpile_and_check_layout(cmap_backend[backend_27q], circuit)
     for n_qubits in [5, 10, 15, 20, 27]:
         circuit = EfficientSU2(n_qubits, entanglement="circular", reps=1).decompose()
-        transpile_and_check_layout(cmap_backend[backend], circuit)
+        transpile_and_check_layout(cmap_backend[backend_27q], circuit)
 
     for n_qubits in [5, 10, 15, 20, 27]:
         circuit = QuantumCircuit(n_qubits)
         circuit.cx(0, 1)
         circuit.cx(1, 2)
         circuit.h(4)
-        transpile_and_check_layout(cmap_backend[backend], circuit)
+        transpile_and_check_layout(cmap_backend[backend_27q], circuit)
 
 
 def test_fix_ecr_qasm2():

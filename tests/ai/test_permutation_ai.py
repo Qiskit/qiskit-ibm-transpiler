@@ -145,7 +145,7 @@ def test_permutation_collector(permutations_circuit, backend, cmap_backend):
 
     pm = PassManager(
         [
-            CollectPermutations(max_block_size=127),
+            CollectPermutations(max_block_size=27),
         ]
     )
     perm_only_circ = pm.run(permutations_circuit)
