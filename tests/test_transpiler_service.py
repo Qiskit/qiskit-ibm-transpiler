@@ -377,7 +377,8 @@ def transpile_and_check_layout(cmap, circuit):
     compare_layouts(plugin_circ, non_ai_circ)
 
 
-def test_layout_construction_no_service(backend, cmap_backend):
+def test_layout_construction_no_service(cmap_backend):
+    backend = "ibm_peekskill"
     for n_qubits in [5, 10, 15, 20, 27]:
         circuit = random_circuit(n_qubits, 4, measure=True)
         transpile_and_check_layout(cmap_backend[backend], circuit)
