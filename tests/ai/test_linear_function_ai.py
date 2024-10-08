@@ -12,6 +12,7 @@
 
 """Unit-testing linear_function_ai"""
 import pytest
+import time
 from qiskit import QuantumCircuit
 from qiskit.transpiler import PassManager
 

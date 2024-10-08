@@ -21,10 +21,10 @@ from qiskit_ibm_transpiler.ai.synthesis import AIPermutationSynthesis
 
 
 @pytest.fixture
-def permutations_circuit(backend, cmap_backend):
-    coupling_map = cmap_backend[backend]
+def permutations_circuit(backend_27q, cmap_backend):
+    coupling_map = cmap_backend[backend_27q]
     cmap = list(coupling_map.get_edges())
-    orig_qc = QuantumCircuit(127)
+    orig_qc = QuantumCircuit(27)
     for i, j in cmap:
         orig_qc.h(i)
         orig_qc.cx(i, j)
@@ -64,11 +64,11 @@ def test_permutation_wrong_backend(caplog):
 @pytest.mark.skip(
     reason="Unreliable. It passes most of the times with the timeout of 1 second for the current circuits used"
 )
-def test_permutation_exceed_timeout(random_circuit_transpiled, backend, caplog):
+def test_permutation_exceed_timeout(random_circuit_transpiled, backend_27q, caplog):
     ai_optimize_perm = PassManager(
         [
             CollectPermutations(min_block_size=2, max_block_size=27),
-            AIPermutationSynthesis(backend_name=backend, timeout=1),
+            AIPermutationSynthesis(backend_name=backend_27q, timeout=1),
         ]
     )
     ai_optimized_circuit = ai_optimize_perm.run(random_circuit_transpiled)
@@ -80,11 +80,11 @@ def test_permutation_exceed_timeout(random_circuit_transpiled, backend, caplog):
 @pytest.mark.skip(
     reason="Unreliable many times. We'll research why it fails sporadically"
 )
-def test_permutation_wrong_token(random_circuit_transpiled, backend, caplog):
+def test_permutation_wrong_token(random_circuit_transpiled, backend_27q, caplog):
     ai_optimize_perm = PassManager(
         [
             CollectPermutations(min_block_size=2, max_block_size=27),
-            AIPermutationSynthesis(backend_name=backend, token="invented_token_2"),
+            AIPermutationSynthesis(backend_name=backend_27q, token="invented_token_2"),
         ]
     )
     ai_optimized_circuit = ai_optimize_perm.run(random_circuit_transpiled)
@@ -96,11 +96,13 @@ def test_permutation_wrong_token(random_circuit_transpiled, backend, caplog):
     reason="Unreliable many times. We'll research why it fails sporadically"
 )
 @pytest.mark.disable_monkeypatch
-def test_permutation_wrong_url(random_circuit_transpiled, backend):
+def test_permutation_wrong_url(random_circuit_transpiled, backend_27q):
     ai_optimize_perm = PassManager(
         [
             CollectPermutations(min_block_size=2, max_block_size=27),
-            AIPermutationSynthesis(backend_name=backend, base_url="https://ibm.com/"),
+            AIPermutationSynthesis(
+                backend_name=backend_27q, base_url="https://ibm.com/"
+            ),
         ]
     )
     try:
@@ -115,12 +117,12 @@ def test_permutation_wrong_url(random_circuit_transpiled, backend):
     reason="Unreliable many times. We'll research why it fails sporadically"
 )
 @pytest.mark.disable_monkeypatch
-def test_permutation_unexisting_url(random_circuit_transpiled, backend, caplog):
+def test_permutation_unexisting_url(random_circuit_transpiled, backend_27q, caplog):
     ai_optimize_perm = PassManager(
         [
             CollectPermutations(min_block_size=2, max_block_size=27),
             AIPermutationSynthesis(
-                backend_name=backend,
+                backend_name=backend_27q,
                 base_url="https://invented-domain-qiskit-ibm-transpiler-123.com/",
             ),
         ]
@@ -143,7 +145,7 @@ def test_permutation_collector(permutations_circuit, backend, cmap_backend):
 
     pm = PassManager(
         [
-            CollectPermutations(max_block_size=27),
+            CollectPermutations(max_block_size=127),
         ]
     )
     perm_only_circ = pm.run(permutations_circuit)
@@ -158,12 +160,12 @@ def test_permutation_collector(permutations_circuit, backend, cmap_backend):
     assert not dag.named_nodes("clifford", "Clifford")
 
 
-def test_permutation_pass(permutations_circuit, backend, caplog):
+def test_permutation_pass(permutations_circuit, backend_27q, caplog):
 
     ai_optimize_perm = PassManager(
         [
             CollectPermutations(max_block_size=27),
-            AIPermutationSynthesis(backend_name=backend),
+            AIPermutationSynthesis(backend_name=backend_27q),
         ]
     )
     ai_optimized_circuit = ai_optimize_perm.run(permutations_circuit)

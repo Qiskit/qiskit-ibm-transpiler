@@ -48,6 +48,11 @@ def backend():
 
 
 @pytest.fixture(scope="module")
+def backend_27q():
+    return "ibm_peekskill"
+
+
+@pytest.fixture(scope="module")
 def coupling_map():
     return FakeQuebec().coupling_map
 
