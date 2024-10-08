@@ -137,9 +137,9 @@ def test_permutation_unexisting_url(random_circuit_transpiled, backend_27q, capl
     assert isinstance(ai_optimized_circuit, QuantumCircuit)
 
 
-def test_permutation_collector(permutations_circuit, backend, cmap_backend):
+def test_permutation_collector(permutations_circuit, backend_27q, cmap_backend):
     qiskit_lvl3_transpiler = generate_preset_pass_manager(
-        optimization_level=1, coupling_map=cmap_backend[backend]
+        optimization_level=1, coupling_map=cmap_backend[backend_27q]
     )
     permutations_circuit = qiskit_lvl3_transpiler.run(permutations_circuit)
 
@@ -153,9 +153,9 @@ def test_permutation_collector(permutations_circuit, backend, cmap_backend):
 
     dag = circuit_to_dag(perm_only_circ)
     perm_nodes = dag.named_nodes("permutation", "Permutation")
-    assert len(perm_nodes) == 9
-    assert perm_nodes[0].op.num_qubits == 13
-    assert perm_nodes[1].op.num_qubits == 27
+    assert len(perm_nodes) == 2
+    assert perm_nodes[0].op.num_qubits == 27
+    assert perm_nodes[1].op.num_qubits == 4
     assert not dag.named_nodes("linear_function", "Linear_function")
     assert not dag.named_nodes("clifford", "Clifford")
 
