@@ -167,5 +167,5 @@ def test_permutation_pass(permutations_circuit, backend, caplog):
         ]
     )
     ai_optimized_circuit = ai_optimize_perm.run(permutations_circuit)
-    assert "Using the synthesized circuit" in caplog.text
+    assert "Requesting synthesis to the service" in caplog.text
     assert isinstance(ai_optimized_circuit, QuantumCircuit)

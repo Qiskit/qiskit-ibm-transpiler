@@ -302,7 +302,7 @@ def test_transpile_malformed_body():
     except Exception as e:
         assert (
             str(e)
-            == "\"transpile() got an unexpected keyword argument 'failing_option'\""
+            == "\"Error transpiling with Qiskit and qiskit_transpile_options: transpile() got an unexpected keyword argument 'failing_option'\""
         )
 
 
