@@ -46,10 +46,10 @@ def create_linear_circuit(n_qubits, gates):
 
 
 @pytest.fixture(scope="module")
-def random_circuit_transpiled(backend, cmap_backend):
+def random_circuit_transpiled(backend_27q, cmap_backend):
     circuit = create_random_circuit(27, 4, 2)
     qiskit_lvl3_transpiler = generate_preset_pass_manager(
-        optimization_level=3, coupling_map=cmap_backend[backend]
+        optimization_level=3, coupling_map=cmap_backend[backend_27q]
     )
     return qiskit_lvl3_transpiler.run(circuit)
 
