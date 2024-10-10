@@ -206,6 +206,7 @@ class AILinearFunctionSynthesis(AISynthesis):
     def _get_synth_input_and_original(self, node):
         return node.op, node.op.params[1]
 
+    # Don't change this method name because it's replacing the method with the same name on the Qiskit Pass Manager
     def _get_nodes(self, dag):
         return dag.named_nodes("linear_function", "Linear_function")
 
