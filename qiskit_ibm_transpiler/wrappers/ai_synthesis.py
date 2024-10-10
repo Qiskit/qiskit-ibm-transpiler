@@ -94,6 +94,22 @@ class AILinearFunctionAPI(QiskitTranspilerService):
         coupling_map: Union[List[List[int]], None] = None,
         backend_name: Union[str, None] = None,
     ):
+        """Synthetize one or more quantum circuits into an optimized equivalent. It differs from a standard synthesis process in that it takes into account where the linear functions are (qargs)
+        and respects it on the synthetized circuit.
+
+        Args:
+            circuits (List[Union[QuantumCircuit, LinearFunction]]): A list of quantum circuits to be synthetized.
+            qargs (List[List[int]]): A list of lists of qubit indices for each circuit. Each list of qubits indices represent where the linear function circuit is.
+            coupling_map (Union[List[List[int]], None]): A coupling map representing the connectivity of the quantum computer.
+            backend_name (Union[str, None]): The name of the backend to use for the synthesis.
+
+        Returns:
+            List[Union[QuantumCircuit, None]]: A list of synthetized quantum circuits. If the synthesis fails for any circuit, the corresponding element in the list will be None.
+        """
+
+        # Although this function is called `transpile`, it does a synthesis. It has this name because the synthesis
+        # is made as a pass on the Qiskit Pass Manager which is used in the transpilation process.
+
         if coupling_map is not None:
             transpile_resps = self.request_and_wait(
                 endpoint="transpile",
