@@ -110,11 +110,10 @@ class AISynthesis(TransformationPass):
         for original, synth in zip(originals, synths):
             if self._should_keep_original(synth, original):
                 logger.debug("Keeping the original circuit")
-                output = original
+                outputs.append(original)
             else:
                 logger.debug("Using the synthesized circuit")
-                output = synth
-            outputs.append(output)
+                outputs.append(synth)
 
         return outputs, nodes
 
