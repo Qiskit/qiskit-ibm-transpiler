@@ -14,7 +14,7 @@ import logging
 import os
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from multiprocessing import cpu_count
-from typing import Dict, List, Union
+from typing import Dict, Union, List
 
 from qiskit.circuit.exceptions import CircuitError
 from qiskit.converters import circuit_to_dag
@@ -31,6 +31,11 @@ from qiskit_ibm_transpiler.wrappers import (
     AIPauliNetworkAPI,
 )
 
+from qiskit_ibm_transpiler.wrappers.ai_local_synthesis import (
+    AILocalLinearFunctionSynthesis,
+)
+
+
 logger = logging.getLogger(__name__)
 
 MAX_THREADS = os.environ.get("AI_TRANSPILER_MAX_THREADS", int(cpu_count() / 2))
@@ -42,7 +47,11 @@ class AISynthesis(TransformationPass):
     def __init__(
         self,
         synth_service: Union[
-            AICliffordAPI, AILinearFunctionAPI, AIPermutationAPI, AIPauliNetworkAPI
+            AICliffordAPI,
+            AILinearFunctionAPI,
+            AILocalLinearFunctionSynthesis,
+            AIPermutationAPI,
+			AIPauliNetworkAPI,
         ],
         coupling_map: Union[List[List[int]], CouplingMap, None] = None,
         backend_name: Union[str, None] = None,
@@ -196,10 +205,16 @@ class AILinearFunctionSynthesis(AISynthesis):
         backend_name: Union[str, None] = None,
         replace_only_if_better: bool = True,
         max_threads: Union[int, None] = None,
+        local_mode: bool = True,
         **kwargs,
     ) -> None:
+        ai_synthesis_provider = (
+            AILocalLinearFunctionSynthesis()
+            if local_mode
+            else AILinearFunctionAPI(**kwargs)
+        )
         super().__init__(
-            AILinearFunctionAPI(**kwargs),
+            ai_synthesis_provider,
             coupling_map,
             backend_name,
             replace_only_if_better,
