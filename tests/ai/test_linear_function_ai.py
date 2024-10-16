@@ -23,7 +23,7 @@ def test_linear_function_wrong_backend(random_circuit_transpiled, caplog):
     ai_optimize_lf = PassManager(
         [
             CollectLinearFunctions(),
-            AILinearFunctionSynthesis(backend_name="wrong_backend"),
+            AILinearFunctionSynthesis(backend_name="wrong_backend", local_mode=False),
         ]
     )
     ai_optimized_circuit = ai_optimize_lf.run(random_circuit_transpiled)
@@ -138,7 +138,7 @@ def test_linear_function_only_replace_if_better(backend, caplog):
     ai_optimize_lf = PassManager(
         [
             CollectLinearFunctions(min_block_size=2),
-            AILinearFunctionSynthesis(backend_name=backend),
+            AILinearFunctionSynthesis(backend_name=backend, local_mode=False),
         ]
     )
     ai_optimized_circuit = ai_optimize_lf.run(orig_qc)
@@ -151,7 +151,7 @@ def test_linear_function_pass(random_circuit_transpiled, backend, caplog):
     ai_optimize_lf = PassManager(
         [
             CollectLinearFunctions(),
-            AILinearFunctionSynthesis(backend_name=backend),
+            AILinearFunctionSynthesis(backend_name=backend, local_mode=False),
         ]
     )
     ai_optimized_circuit = ai_optimize_lf.run(random_circuit_transpiled)
