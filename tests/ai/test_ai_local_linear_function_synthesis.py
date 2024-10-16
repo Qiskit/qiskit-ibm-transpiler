@@ -19,7 +19,7 @@ from qiskit_ibm_transpiler.ai.collection import CollectLinearFunctions
 from qiskit_ibm_transpiler.ai.synthesis import AILinearFunctionSynthesis
 
 
-def test_linear_function_synthesis_wrong_backend():
+def test_ai_local_linear_function_synthesis_wrong_backend():
     original_circuit = QuantumCircuit(3)
     original_circuit.cx(0, 1)
     original_circuit.cx(1, 2)
@@ -38,7 +38,7 @@ def test_linear_function_synthesis_wrong_backend():
         ai_linear_functions_synthesis_pass.run(original_circuit)
 
 
-def test_linear_function_synthesis_returns_original_circuit(caplog):
+def test_ai_local_linear_function_synthesis_returns_original_circuit(caplog):
     # When the original circuit is better than the synthetized one, we keep the original
 
     original_circuit = QuantumCircuit(3)
@@ -59,7 +59,7 @@ def test_linear_function_synthesis_returns_original_circuit(caplog):
     assert "Keeping the original circuit" in caplog.text
 
 
-def test_linear_function_synthesis_dont_returns_original_circuit(caplog):
+def test_ai_local_linear_function_synthesis_dont_returns_original_circuit(caplog):
     # When the original circuit is better than the synthetized one,
     # but replace_only_if_better is False, we return the synthetized circuit
 
