@@ -116,25 +116,21 @@ from qiskit_ibm_transpiler.ai.synthesis import AILinearFunctionSynthesis
 #     assert isinstance(ai_optimized_circuit, QuantumCircuit)
 
 
-# def test_linear_always_replace(backend, caplog):
-#     orig_qc = QuantumCircuit(3)
-#     orig_qc.cx(0, 1)
-#     orig_qc.cx(1, 2)
-#     ai_optimize_lf = PassManager(
+# def test_linear_function_synthesis_pass(random_circuit_transpiled):
+#     ai_linear_functions_synthesis_pass = PassManager(
 #         [
-#             CollectLinearFunctions(),
-#             AILinearFunctionSynthesis(
-#                 backend_name=backend, replace_only_if_better=False
-#             ),
+#             CollectLinearFunctions(min_block_size=2),
+#             AILinearFunctionSynthesis(backend_name="ibm_montecarlo"),
 #         ]
 #     )
-#     ai_optimized_circuit = ai_optimize_lf.run(orig_qc)
-#     assert "Keeping the original circuit" not in caplog.text
-#     assert isinstance(ai_optimized_circuit, QuantumCircuit)
+
+#     synthetized_circuit = ai_linear_functions_synthesis_pass.run(random_circuit_transpiled)
+
+#     assert isinstance(synthetized_circuit, QuantumCircuit)
 
 
 def test_linear_function_synthesis_returns_original_circuit(caplog):
-    # When the original circuit is better or equal than the synthetized one, we keep the original
+    # When the original circuit is better than the synthetized one, we keep the original
 
     original_circuit = QuantumCircuit(3)
     original_circuit.cx(0, 1)
@@ -150,18 +146,29 @@ def test_linear_function_synthesis_returns_original_circuit(caplog):
     synthetized_circuit = ai_linear_functions_synthesis_pass.run(original_circuit)
 
     assert isinstance(synthetized_circuit, QuantumCircuit)
-    # Check made with '==' because we want to check that is the same object
     assert synthetized_circuit == original_circuit
     assert "Keeping the original circuit" in caplog.text
 
 
-# def test_linear_function_pass(random_circuit_transpiled, backend, caplog):
-#     ai_optimize_lf = PassManager(
-#         [
-#             CollectLinearFunctions(),
-#             AILinearFunctionSynthesis(backend_name=backend),
-#         ]
-#     )
-#     ai_optimized_circuit = ai_optimize_lf.run(random_circuit_transpiled)
+def test_linear_function_synthesis_dont_returns_original_circuit(caplog):
+    # When the original circuit is better than the synthetized one,
+    # but replace_only_if_better is False, we return the synthetized circuit
 
-#     assert isinstance(ai_optimized_circuit, QuantumCircuit)
+    original_circuit = QuantumCircuit(3)
+    original_circuit.cx(0, 1)
+    original_circuit.cx(1, 2)
+
+    ai_linear_functions_synthesis_pass = PassManager(
+        [
+            CollectLinearFunctions(min_block_size=2),
+            AILinearFunctionSynthesis(
+                backend_name="ibm_montecarlo", replace_only_if_better=False
+            ),
+        ]
+    )
+
+    synthetized_circuit = ai_linear_functions_synthesis_pass.run(original_circuit)
+
+    assert isinstance(synthetized_circuit, QuantumCircuit)
+    assert synthetized_circuit == original_circuit
+    assert "Using the synthesized circuit" in caplog.text
