@@ -111,7 +111,7 @@ class AILinearFunctionAPI(QiskitTranspilerService):
         # is made as a pass on the Qiskit Pass Manager which is used in the transpilation process.
 
         if not coupling_map and not backend_name:
-            raise (
+            raise ValueError(
                 f"ERROR. Either a 'coupling_map' or a 'backend_name' must be provided."
             )
 

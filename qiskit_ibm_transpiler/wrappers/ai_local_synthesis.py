@@ -114,7 +114,7 @@ class AILocalLinearFunctionSynthesis:
         # is made as a pass on the Qiskit Pass Manager which is used in the transpilation process.
 
         if not coupling_map and not backend_name:
-            raise (
+            raise ValueError(
                 f"ERROR. Either a 'coupling_map' or a 'backend_name' must be provided."
             )
 
@@ -122,7 +122,7 @@ class AILocalLinearFunctionSynthesis:
         n_qargs = len(qargs)
 
         if n_circs != n_qargs:
-            raise (
+            raise ValueError(
                 f"ERROR. The number of input circuits {n_circs}"
                 f"and the number of input qargs arrays {n_qargs} are different."
             )
@@ -229,7 +229,7 @@ def launch_transpile_task(
     transpile_response = []
 
     for index, circuit_qubits_indexes in enumerate(circuits_qubits_indexes):
-        subgraph_perm, cmap_hash, model_cmap = get_subgraph_model_rust(
+        subgraph_perm, cmap_hash = get_subgraph_model_rust(
             coupling_map=coupling_map,
             qargs=circuit_qubits_indexes,
         )
@@ -294,7 +294,7 @@ def get_mapping_perm(coupling_map: nx.Graph, circuit_qubits_indexes: List[int]):
 
     # Check if it is connected
     if not nx.is_connected(circuit_in_coupling_map):
-        return None, None, False, None
+        return None, None, False
 
     # We find which model to use by hashing the input graph
     circuit_in_coupling_map_hash = nx.weisfeiler_lehman_graph_hash(
@@ -303,7 +303,7 @@ def get_mapping_perm(coupling_map: nx.Graph, circuit_qubits_indexes: List[int]):
 
     # If there is no model for that circuit_in_coupling_map, we cannot use AI.
     if circuit_in_coupling_map_hash not in model_coupling_map_by_model_hash:
-        return None, None, True, None
+        return None, None, True
 
     model_coupling_map = model_coupling_map_by_model_hash[circuit_in_coupling_map_hash]
     # Maps the circuit_in_coupling_map and the model's topology
@@ -322,7 +322,7 @@ def get_mapping_perm(coupling_map: nx.Graph, circuit_qubits_indexes: List[int]):
         for v in sorted(cmap_to_model.keys(), key=lambda k: cmap_to_model[k])
     ]
 
-    return subgraph_perm, circuit_in_coupling_map_hash, True, model_coupling_map
+    return subgraph_perm, circuit_in_coupling_map_hash, True
 
 
 def get_subgraph_model_rust(
@@ -330,18 +330,16 @@ def get_subgraph_model_rust(
     qargs: list[int] | None = None,
 ):
     try:
-        subgraph_perm, cmap_hash, is_connected, model_cmap = get_mapping_perm(
-            coupling_map, qargs
-        )
+        subgraph_perm, cmap_hash, is_connected = get_mapping_perm(coupling_map, qargs)
     except BaseException:
         raise AttributeError(f"ERROR. Malformed qargs {qargs}")
 
     if not is_connected:
-        raise (
+        raise ValueError(
             "ERROR. Qargs do not form a connected subgraph of the backend coupling map"
         )
 
     if cmap_hash not in MODEL_LIN_FUNC_HASHES:
-        raise (f"ERROR. No model available for the requested subgraph")
+        raise LookupError(f"ERROR. No model available for the requested subgraph")
 
-    return subgraph_perm, cmap_hash, model_cmap
+    return subgraph_perm, cmap_hash

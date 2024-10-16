@@ -116,17 +116,19 @@ from qiskit_ibm_transpiler.ai.synthesis import AILinearFunctionSynthesis
 #     assert isinstance(ai_optimized_circuit, QuantumCircuit)
 
 
-# def test_linear_function_synthesis_pass(random_circuit_transpiled):
-#     ai_linear_functions_synthesis_pass = PassManager(
-#         [
-#             CollectLinearFunctions(min_block_size=2),
-#             AILinearFunctionSynthesis(backend_name="ibm_montecarlo"),
-#         ]
-#     )
+def test_linear_function_synthesis_pass(random_circuit_transpiled):
+    ai_linear_functions_synthesis_pass = PassManager(
+        [
+            CollectLinearFunctions(min_block_size=2),
+            AILinearFunctionSynthesis(backend_name="ibm_montecarlo"),
+        ]
+    )
 
-#     synthetized_circuit = ai_linear_functions_synthesis_pass.run(random_circuit_transpiled)
+    synthetized_circuit = ai_linear_functions_synthesis_pass.run(
+        random_circuit_transpiled
+    )
 
-#     assert isinstance(synthetized_circuit, QuantumCircuit)
+    assert isinstance(synthetized_circuit, QuantumCircuit)
 
 
 def test_linear_function_synthesis_returns_original_circuit(caplog):
