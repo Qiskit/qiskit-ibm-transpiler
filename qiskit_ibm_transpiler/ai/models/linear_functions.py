@@ -424,4 +424,7 @@ MODEL_CMAPS = [
     [(0, 1), (1, 0)],  # EXTRA 2q GRAPH
 ]
 
-hash_to_cmap = {h: cm for h, cm in zip(MODEL_HASHES, MODEL_CMAPS)}
+model_coupling_map_by_model_hash = {
+    model_hash: model_coupling_map
+    for model_hash, model_coupling_map in zip(MODEL_HASHES, MODEL_CMAPS)
+}
