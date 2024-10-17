@@ -11,7 +11,7 @@
 # that they have been altered from the originals.
 
 """Synthesize module"""
-from ai_synthesis_py import LinFuncSynthesis  # RUST
+from ai_synthesis_py import LinFuncSynthesis
 import logging
 
 from qiskit import QuantumCircuit, qasm2
@@ -49,7 +49,56 @@ def to_circuit(synth_out, num_qubits=None):
     return circuit
 
 
-class RLInferenceLinFuncRust:
+def select_model_id(
+    model_name: str = None, coupling_map_hash: str = None, topology: str = None
+) -> int:
+    selected_model_id = None
+
+    if model_name in MODEL_NAMES:
+        selected_model_id = MODEL_NAMES.index(model_name)
+    elif coupling_map_hash in MODEL_HASHES:
+        selected_model_id = MODEL_HASHES.index(coupling_map_hash)
+    # Topology is for now the name of the model
+    elif topology in MODEL_NAMES:
+        selected_model_id = MODEL_NAMES.index(topology)
+
+    return selected_model_id
+
+
+def check_inference_result(
+    cliff: Clifford,
+    model_name: str = None,
+    backend: str = None,
+    topology: str = None,
+    selected_model_id: int | None = None,
+):
+    logger.debug("Checking results from synthesis process")
+    if not check_synthesized_clifford(cliff, rl_circuit):
+        logger.warning(
+            "The check for synthesized clifford circuit vs the original clifford failed"
+        )
+        return None
+
+    if topology is not None or backend is not None:
+        logger.debug(
+            "Checking if synthesized clifford follows the input topology/backend's topology"
+        )
+        logger.debug(f"Circuit: {qasm2.dumps(rl_circuit)}")
+        logger.debug(
+            f"Topology: {model_name}. Coupling map: {MODEL_CMAPS[selected_model_id]}"
+        )
+        if not check_topology_synthesized_circuit(
+            rl_circuit,
+            MODEL_CMAPS[selected_model_id],
+        ):
+            logger.warning(
+                "The check to evaluate if synthesized clifford circuit follows the topology failed"
+            )
+            return None
+    logger.debug("Success. The checks for the synthesis results were successful")
+
+
+class LinearFunctionInference:
     RL_INFERENCE = None
     DEFAULT_N_STEPS = 10
     MODEL_2Q = {
@@ -62,8 +111,8 @@ class RLInferenceLinFuncRust:
     }
 
     def __init__(self):
-        if not RLInferenceLinFuncRust.RL_INFERENCE:
-            RLInferenceLinFuncRust.RL_INFERENCE = LinFuncSynthesis()
+        if not LinearFunctionInference.RL_INFERENCE:
+            LinearFunctionInference.RL_INFERENCE = LinFuncSynthesis()
 
     def synthesize(
         self,
@@ -75,37 +124,14 @@ class RLInferenceLinFuncRust:
         n_qubits: int = None,
         check_result: bool = False,
         n_steps: int | None = None,
-        metrics: tuple = (
-            "n_cnots",
-            "n_layers_cnots",
-            "n_layers",
-            "n_gates",
-        ),
-        keep_layout: bool = True,
     ) -> QuantumCircuit | None:
         """Synthesize Clifford using the RL model"""
-        if model_name is not None and model_name in MODEL_NAMES:
-            # get the model to use by its name
-            selected_model_id = MODEL_NAMES.index(model_name)
-        elif coupling_map_hash is not None and coupling_map_hash in MODEL_HASHES:
-            # get the model to use depending on its coupling_map_hash
-            selected_model_id = MODEL_HASHES.index(coupling_map_hash)
-        elif backend is not None:
-            # get the model to use depending the backend
-            # No backend info yet in rust models
-            pass
+        selected_model_id = select_model_id(
+            model_name=model_name,
+            coupling_map_hash=coupling_map_hash,
+            topology=topology,
+        )
 
-        # Topology is for now the name of the model
-        elif topology is not None and topology in MODEL_NAMES:
-            # get the model to use depending the topology
-            selected_model_id = MODEL_NAMES.index(topology)
-        elif n_qubits is not None:
-            # get the model to use depending the n_qubits
-            # avoid to choose models with topology for regular synthesis
-            # No models without topology right now
-            pass
-        else:
-            selected_model_id = None
         if selected_model_id is None:
             logger.warning(
                 "The model selected for inference is not available. Options used: "
@@ -114,6 +140,7 @@ class RLInferenceLinFuncRust:
                 f"n_qubits: {n_qubits}, circuit n_qubits: {cliff.num_qubits} "
             )
             return None
+
         model_name = MODEL_NAMES[selected_model_id]
         model_n_qubits = MODEL_QUBITS[selected_model_id]
         circ_n_qubits = cliff.num_qubits
@@ -160,31 +187,7 @@ class RLInferenceLinFuncRust:
         rl_circuit = to_circuit(gate_list, model_n_qubits)
         logger.debug("Circuit synthesized")
 
-        if check_result is True:
-            logger.debug("Checking results from synthesis process")
-            if not check_synthesized_clifford(cliff, rl_circuit):
-                logger.warning(
-                    "The check for synthesized clifford circuit vs the original clifford failed"
-                )
-                return None
+        if check_result:
+            check_inference_result()
 
-            if topology is not None or backend is not None:
-                logger.debug(
-                    "Checking if synthesized clifford follows the input topology/backend's topology"
-                )
-                logger.debug(f"Circuit: {qasm2.dumps(rl_circuit)}")
-                logger.debug(
-                    f"Topology: {model_name}. Coupling map: {MODEL_CMAPS[selected_model_id]}"
-                )
-                if not check_topology_synthesized_circuit(
-                    rl_circuit,
-                    MODEL_CMAPS[selected_model_id],
-                ):
-                    logger.warning(
-                        "The check to evaluate if synthesized clifford circuit follows the topology failed"
-                    )
-                    return None
-            logger.debug(
-                "Success. The checks for the synthesis results were successful"
-            )
         return rl_circuit

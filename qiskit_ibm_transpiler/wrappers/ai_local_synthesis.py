@@ -17,7 +17,7 @@ from networkx.exception import NetworkXError
 
 # from ai_synthesis_py import LinFuncSynthesis  # RUST
 from qiskit_ibm_transpiler.ai.rl_inferences.linear_functions import (
-    RLInferenceLinFuncRust,
+    LinearFunctionInference,
 )
 
 from typing import Union, List
@@ -29,7 +29,7 @@ from qiskit.circuit.library import LinearFunction
 from qiskit.quantum_info import Clifford
 from qiskit_ibm_runtime import QiskitRuntimeService
 from qiskit_ibm_transpiler.ai.models.linear_functions import (
-    MODEL_CMAPS as MODEL_LIN_FUNC_CMAPS,
+    model_coupling_map_by_model_hash,
     MODEL_HASHES as MODEL_LIN_FUNC_HASHES,
 )
 from qiskit_ibm_transpiler.utils import get_qasm_from_circuit
@@ -239,7 +239,7 @@ def launch_transpile_task(
 
         # Generate the Clifford from the dictionary to send it to the model and permute it
         # Synth the input
-        rl_circuit = RLInferenceLinFuncRust().synthesize(
+        rl_circuit = LinearFunctionInference().synthesize(
             cliff=clifford, coupling_map_hash=cmap_hash
         )
         # Permute the circuit back
@@ -282,19 +282,15 @@ def get_coupling_map(
 
 
 def get_mapping_perm(coupling_map: nx.Graph, circuit_qubits_indexes: List[int]):
-    model_coupling_map_by_model_hash = {
-        model_hash: model_coupling_map
-        for model_hash, model_coupling_map in zip(
-            MODEL_LIN_FUNC_HASHES, MODEL_LIN_FUNC_CMAPS
-        )
-    }
-
     # Identify the subgraph of the coupling map where the circuit is.
     circuit_in_coupling_map = coupling_map.subgraph(circuit_qubits_indexes)
 
-    # Check if it is connected
-    if not nx.is_connected(circuit_in_coupling_map):
-        return None, None, False
+    is_circuit_in_coupling_map_connected = nx.is_connected(circuit_in_coupling_map)
+
+    if not is_circuit_in_coupling_map_connected:
+        raise ValueError(
+            "ERROR. Qargs do not form a connected subgraph of the backend coupling map"
+        )
 
     # We find which model to use by hashing the input graph
     circuit_in_coupling_map_hash = nx.weisfeiler_lehman_graph_hash(
@@ -303,7 +299,7 @@ def get_mapping_perm(coupling_map: nx.Graph, circuit_qubits_indexes: List[int]):
 
     # If there is no model for that circuit_in_coupling_map, we cannot use AI.
     if circuit_in_coupling_map_hash not in model_coupling_map_by_model_hash:
-        return None, None, True
+        return None, None
 
     model_coupling_map = model_coupling_map_by_model_hash[circuit_in_coupling_map_hash]
     # Maps the circuit_in_coupling_map and the model's topology
@@ -322,7 +318,7 @@ def get_mapping_perm(coupling_map: nx.Graph, circuit_qubits_indexes: List[int]):
         for v in sorted(cmap_to_model.keys(), key=lambda k: cmap_to_model[k])
     ]
 
-    return subgraph_perm, circuit_in_coupling_map_hash, True
+    return subgraph_perm, circuit_in_coupling_map_hash
 
 
 def get_subgraph_model_rust(
@@ -330,14 +326,9 @@ def get_subgraph_model_rust(
     qargs: list[int] | None = None,
 ):
     try:
-        subgraph_perm, cmap_hash, is_connected = get_mapping_perm(coupling_map, qargs)
+        subgraph_perm, cmap_hash = get_mapping_perm(coupling_map, qargs)
     except BaseException:
         raise AttributeError(f"ERROR. Malformed qargs {qargs}")
-
-    if not is_connected:
-        raise ValueError(
-            "ERROR. Qargs do not form a connected subgraph of the backend coupling map"
-        )
 
     if cmap_hash not in MODEL_LIN_FUNC_HASHES:
         raise LookupError(f"ERROR. No model available for the requested subgraph")
