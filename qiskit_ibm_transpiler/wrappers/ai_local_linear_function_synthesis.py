@@ -79,7 +79,7 @@ class AILocalLinearFunctionSynthesis:
 
         coupling_map_graph = get_coupling_map_graph(backend_name, coupling_map)
 
-        synthetized_circuits = synthetize_linear_functions(
+        synthetized_circuits = get_synthetized_linear_function_circuits(
             coupling_map_graph, clifford_dict, qargs
         )
 
@@ -97,9 +97,9 @@ def perm_cliff(cliff, perm):
     return cliff
 
 
-def synthetize_linear_functions(
+def get_synthetized_linear_function_circuits(
     coupling_map: nx.Graph, clifford_dict, qargs: List[List[int]]
-):
+) -> list[QuantumCircuit]:
     synthetized_circuits = []
 
     for index, circuit_qargs in enumerate(qargs):
