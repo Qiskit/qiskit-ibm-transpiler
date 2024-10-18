@@ -100,7 +100,7 @@ def perm_cliff(cliff, perm):
 def synthetize_linear_functions(
     coupling_map: nx.Graph, clifford_dict, qargs: List[List[int]]
 ):
-    synthesis_response = []
+    synthetized_circuits = []
 
     for index, circuit_qargs in enumerate(qargs):
         try:
@@ -111,24 +111,19 @@ def synthetize_linear_functions(
         # Generate the Clifford from the dictionary to send it to the model and permute it
         clifford = perm_cliff(Clifford.from_dict(clifford_dict[index]), subgraph_perm)
 
-        synthetized_circuit = LinearFunctionInference().synthesize(
+        synthetized_linear_function = LinearFunctionInference().synthesize(
             cliff=clifford, coupling_map_hash=cmap_hash
         )
+
         # Permute the circuit back
-        synthetized_circuit = QuantumCircuit(synthetized_circuit.num_qubits).compose(
-            synthetized_circuit, qubits=subgraph_perm
-        )
+        synthetized_circuit = QuantumCircuit(
+            synthetized_linear_function.num_qubits
+        ).compose(synthetized_linear_function, qubits=subgraph_perm)
 
-        transpilation_succeded = False if synthetized_circuit is None else True
-        qasm_circuit = get_qasm_from_circuit(synthetized_circuit)
+        # synthetized_circuit could be None or have a value, we return it in both cases
+        synthetized_circuits.append(synthetized_circuit)
 
-        synthetized_circuit_formatted = None
-        if transpilation_succeded and qasm_circuit:
-            synthetized_circuit_formatted = QuantumCircuit.from_qasm_str(qasm_circuit)
-
-        synthesis_response.append(synthetized_circuit_formatted)
-
-    return synthesis_response
+    return synthetized_circuits
 
 
 def get_coupling_map_graph(
