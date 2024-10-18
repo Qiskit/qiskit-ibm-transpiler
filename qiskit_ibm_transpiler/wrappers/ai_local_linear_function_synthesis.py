@@ -79,7 +79,7 @@ class AILocalLinearFunctionSynthesis:
 
         coupling_map_graph = get_coupling_map_graph(backend_name, coupling_map)
 
-        synthetized_circuits = transpile_linear_function(
+        synthetized_circuits = synthetize_linear_functions(
             coupling_map_graph, clifford_dict, qargs
         )
 
@@ -97,10 +97,10 @@ def perm_cliff(cliff, perm):
     return cliff
 
 
-def transpile_linear_function(
+def synthetize_linear_functions(
     coupling_map: nx.Graph, clifford_dict, qargs: List[List[int]]
 ):
-    transpilation_response = []
+    synthesis_response = []
 
     for index, circuit_qargs in enumerate(qargs):
         try:
@@ -108,28 +108,27 @@ def transpile_linear_function(
         except BaseException:
             raise AttributeError(f"ERROR. Malformed qargs {circuit_qargs}")
 
+        # Generate the Clifford from the dictionary to send it to the model and permute it
         clifford = perm_cliff(Clifford.from_dict(clifford_dict[index]), subgraph_perm)
 
-        # Generate the Clifford from the dictionary to send it to the model and permute it
-        # Synth the input
-        rl_circuit = LinearFunctionInference().synthesize(
+        synthetized_circuit = LinearFunctionInference().synthesize(
             cliff=clifford, coupling_map_hash=cmap_hash
         )
         # Permute the circuit back
-        rl_circuit = QuantumCircuit(rl_circuit.num_qubits).compose(
-            rl_circuit, qubits=subgraph_perm
+        synthetized_circuit = QuantumCircuit(synthetized_circuit.num_qubits).compose(
+            synthetized_circuit, qubits=subgraph_perm
         )
 
-        transpilation_succeded = False if rl_circuit is None else True
-        qasm_circuit = get_qasm_from_circuit(rl_circuit)
+        transpilation_succeded = False if synthetized_circuit is None else True
+        qasm_circuit = get_qasm_from_circuit(synthetized_circuit)
 
-        synthetized_circuit = None
+        synthetized_circuit_formatted = None
         if transpilation_succeded and qasm_circuit:
-            synthetized_circuit = QuantumCircuit.from_qasm_str(qasm_circuit)
+            synthetized_circuit_formatted = QuantumCircuit.from_qasm_str(qasm_circuit)
 
-        transpilation_response.append(synthetized_circuit)
+        synthesis_response.append(synthetized_circuit_formatted)
 
-    return transpilation_response
+    return synthesis_response
 
 
 def get_coupling_map_graph(
