@@ -31,7 +31,7 @@ from qiskit_ibm_transpiler.wrappers import (
     AIPauliNetworkAPI,
 )
 
-from qiskit_ibm_transpiler.wrappers.ai_local_synthesis import (
+from qiskit_ibm_transpiler.wrappers.ai_local_linear_function_synthesis import (
     AILocalLinearFunctionSynthesis,
 )
 
