@@ -138,9 +138,9 @@ class AILocalLinearFunctionSynthesis:
         synthetized_circuits = []
         for response_element in transpile_response:
             synthetized_circuit = None
-            if response_element.success and response_element.qasm:
+            if response_element["success"] and response_element["qasm"]:
                 synthetized_circuit = QuantumCircuit.from_qasm_str(
-                    response_element.qasm
+                    response_element["qasm"]
                 )
             synthetized_circuits.append(synthetized_circuit)
 
@@ -205,38 +205,17 @@ def perm_cliff(cliff, perm):
     return cliff
 
 
-@dataclass
-class LayoutResult:
-    """Enum for layout result"""
-
-    initial: List[int]
-    final: List[int]
-
-
-@dataclass
-class RlResult:
-    """Enum for Rl Result information"""
-
-    qasm: str | None = None
-    success: bool = False
-    layout: LayoutResult | None = None
-    error: str | None = None
-
-
 def launch_transpile_task(
-    coupling_map: nx.Graph, clifford_dict, circuits_qubits_indexes: List[List[int]]
+    coupling_map: nx.Graph, clifford_dict, qargs: List[List[int]]
 ):
-    transpile_response = []
+    transpilation_response = []
 
-    for index, circuit_qubits_indexes in enumerate(circuits_qubits_indexes):
+    for index, circuit_qargs in enumerate(qargs):
         try:
-            subgraph_perm, cmap_hash = get_mapping_perm(
-                coupling_map, circuit_qubits_indexes
-            )
+            subgraph_perm, cmap_hash = get_mapping_perm(coupling_map, circuit_qargs)
         except BaseException:
-            raise AttributeError(f"ERROR. Malformed qargs {circuit_qubits_indexes}")
+            raise AttributeError(f"ERROR. Malformed qargs {circuit_qargs}")
 
-        # Make sure I should use index here
         clifford = perm_cliff(Clifford.from_dict(clifford_dict[index]), subgraph_perm)
 
         # Generate the Clifford from the dictionary to send it to the model and permute it
@@ -249,14 +228,14 @@ def launch_transpile_task(
             rl_circuit, qubits=subgraph_perm
         )
 
-        rl_result = RlResult(
-            qasm=get_qasm_from_circuit(rl_circuit),
-            success=False if rl_circuit is None else True,
-        )
+        transpilation_result = {
+            "qasm": get_qasm_from_circuit(rl_circuit),
+            "success": False if rl_circuit is None else True,
+        }
 
-        transpile_response.append(rl_result)
+        transpilation_response.append(transpilation_result)
 
-    return transpile_response
+    return transpilation_response
 
 
 def get_coupling_map_graph(
@@ -283,11 +262,9 @@ def get_coupling_map_graph(
     return coupling_map
 
 
-def get_mapping_perm(
-    coupling_map: nx.Graph, circuit_qubits_indexes: List[int]
-) -> list[int]:
+def get_mapping_perm(coupling_map: nx.Graph, circuit_qargs: List[int]) -> list[int]:
     # Identify the subgraph of the device coupling map where the circuit is.
-    circuit_in_coupling_map = coupling_map.subgraph(circuit_qubits_indexes)
+    circuit_in_coupling_map = coupling_map.subgraph(circuit_qargs)
 
     is_circuit_in_coupling_map_connected = nx.is_connected(circuit_in_coupling_map)
 
@@ -319,19 +296,15 @@ def get_mapping_perm(
     )
 
     # We now have to find the permutation that we should apply to the Clifford based on the mapping we found
-    qargs_dict = {v: i for i, v in enumerate(circuit_qubits_indexes)}
-    # Sin subgraph_perm no seguiriamos bien el copupling map local. Hay que mapear correctamente el device y el modelo
+    qargs_dict = {v: i for i, v in enumerate(circuit_qargs)}
+
+    # subgraph_perm will be a list where each position indicates a permutation. The index refers to the circuit
+    # qubit and the value refers to the qubit on the model
     subgraph_perm = [
         qargs_dict[v]
         for v in sorted(
             device_model_mapping.keys(), key=lambda k: device_model_mapping[k]
         )
     ]
-
-    # subgraph_perm = [0, 1, 2, 6, 3, 4, 5] significa:
-    # el cliffprd que llega lo tengo que desordenar de esta manera
-    # el qubit 3 del clifford va al 6 (del clifford), reordenamos el clifford
-    # esto es lo que entra al modelo
-    # Luego a la salida, habrá que desahacer esto
 
     return subgraph_perm, circuit_in_coupling_map_hash
