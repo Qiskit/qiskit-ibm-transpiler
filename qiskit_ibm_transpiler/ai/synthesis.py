@@ -210,6 +210,7 @@ class AILinearFunctionSynthesis(AISynthesis):
             if local_mode
             else AILinearFunctionAPI(**kwargs)
         )
+
         super().__init__(
             ai_synthesis_provider,
             coupling_map,

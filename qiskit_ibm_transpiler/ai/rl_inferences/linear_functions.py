@@ -66,6 +66,7 @@ def select_model_id(
 
 
 def check_inference_result(
+    rl_circuit: QuantumCircuit,
     cliff: Clifford,
     model_name: str = None,
     backend: str = None,
@@ -188,6 +189,13 @@ class LinearFunctionInference:
         logger.debug("Circuit synthesized")
 
         if check_result:
-            check_inference_result()
+            check_inference_result(
+                rl_circuit,
+                cliff=cliff,
+                model_name=model_name,
+                backend=backend,
+                topology=topology,
+                selected_model_id=selected_model_id,
+            )
 
         return rl_circuit
