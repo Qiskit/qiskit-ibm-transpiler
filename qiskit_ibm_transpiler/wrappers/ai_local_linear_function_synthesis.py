@@ -10,12 +10,10 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-from dataclasses import dataclass
 import logging
 import networkx as nx
 from networkx.exception import NetworkXError
 
-# from ai_synthesis_py import LinFuncSynthesis  # RUST
 from qiskit_ibm_transpiler.ai.rl_inferences.linear_functions import (
     LinearFunctionInference,
 )
@@ -35,56 +33,6 @@ from qiskit_ibm_transpiler.ai.models.linear_functions import (
 from qiskit_ibm_transpiler.utils import get_qasm_from_circuit
 
 logger = logging.getLogger(__name__)
-
-
-# class AICliffordAPI(QiskitTranspilerService):
-#     """A helper class that covers some basic funcionality from the Clifford AI Synthesis API"""
-
-#     def __init__(self, **kwargs):
-#         super().__init__(path_param="clifford", **kwargs)
-
-#     def transpile(
-#         self,
-#         circuits: List[Union[QuantumCircuit, Clifford]],
-#         qargs: List[List[int]],
-#         coupling_map: Union[List[List[int]], None] = None,
-#         backend_name: Union[str, None] = None,
-#     ):
-#         if coupling_map is not None:
-#             transpile_resps = self.request_and_wait(
-#                 endpoint="transpile",
-#                 body={
-#                     "clifford_dict": [
-#                         Clifford(circuit).to_dict() for circuit in circuits
-#                     ],
-#                     "qargs": qargs,
-#                     "backend_coupling_map": coupling_map,
-#                 },
-#                 params=dict(),
-#             )
-#         elif backend_name is not None:
-#             transpile_resps = self.request_and_wait(
-#                 endpoint="transpile",
-#                 body={
-#                     "clifford_dict": [
-#                         Clifford(circuit).to_dict() for circuit in circuits
-#                     ],
-#                     "qargs": qargs,
-#                 },
-#                 params={"backend": backend_name},
-#             )
-#         else:
-#             raise (
-#                 f"ERROR. Either a 'coupling_map' or a 'backend_name' must be provided."
-#             )
-
-#         results = []
-#         for transpile_resp in transpile_resps:
-#             if transpile_resp.get("success") and transpile_resp.get("qasm") is not None:
-#                 results.append(QuantumCircuit.from_qasm_str(transpile_resp.get("qasm")))
-#             else:
-#                 results.append(None)
-#         return results
 
 
 class AILocalLinearFunctionSynthesis:
@@ -131,67 +79,11 @@ class AILocalLinearFunctionSynthesis:
 
         coupling_map_graph = get_coupling_map_graph(backend_name, coupling_map)
 
-        transpile_response = launch_transpile_task(
+        synthetized_circuits = transpile_linear_function(
             coupling_map_graph, clifford_dict, qargs
         )
 
-        synthetized_circuits = []
-        for response_element in transpile_response:
-            synthetized_circuit = None
-            if response_element["success"] and response_element["qasm"]:
-                synthetized_circuit = QuantumCircuit.from_qasm_str(
-                    response_element["qasm"]
-                )
-            synthetized_circuits.append(synthetized_circuit)
-
         return synthetized_circuits
-
-
-# class AIPermutationAPI(QiskitTranspilerService):
-#     """A helper class that covers some basic funcionality from the Permutation AI Synthesis API"""
-
-#     def __init__(self, **kwargs):
-#         super().__init__(path_param="permutations", **kwargs)
-
-#     def transpile(
-#         self,
-#         patterns: List[List[int]],
-#         qargs: List[List[int]],
-#         coupling_map: Union[List[List[int]], None] = None,
-#         backend_name: Union[str, None] = None,
-#     ):
-
-#         if coupling_map is not None:
-#             transpile_resps = self.request_and_wait(
-#                 endpoint="transpile",
-#                 body={
-#                     "permutation": patterns,
-#                     "qargs": qargs,
-#                     "backend_coupling_map": coupling_map,
-#                 },
-#                 params=dict(),
-#             )
-#         elif backend_name is not None:
-#             transpile_resps = self.request_and_wait(
-#                 endpoint="transpile",
-#                 body={
-#                     "permutation": patterns,
-#                     "qargs": qargs,
-#                 },
-#                 params={"backend": backend_name},
-#             )
-#         else:
-#             raise (
-#                 f"ERROR. Either a 'coupling_map' or a 'backend_name' must be provided."
-#             )
-
-#         results = []
-#         for transpile_resp in transpile_resps:
-#             if transpile_resp.get("success") and transpile_resp.get("qasm") is not None:
-#                 results.append(QuantumCircuit.from_qasm_str(transpile_resp.get("qasm")))
-#             else:
-#                 results.append(None)
-#         return results
 
 
 def perm_cliff(cliff, perm):
@@ -205,7 +97,7 @@ def perm_cliff(cliff, perm):
     return cliff
 
 
-def launch_transpile_task(
+def transpile_linear_function(
     coupling_map: nx.Graph, clifford_dict, qargs: List[List[int]]
 ):
     transpilation_response = []
@@ -228,12 +120,14 @@ def launch_transpile_task(
             rl_circuit, qubits=subgraph_perm
         )
 
-        transpilation_result = {
-            "qasm": get_qasm_from_circuit(rl_circuit),
-            "success": False if rl_circuit is None else True,
-        }
+        transpilation_succeded = False if rl_circuit is None else True
+        qasm_circuit = get_qasm_from_circuit(rl_circuit)
 
-        transpilation_response.append(transpilation_result)
+        synthetized_circuit = None
+        if transpilation_succeded and qasm_circuit:
+            synthetized_circuit = QuantumCircuit.from_qasm_str(qasm_circuit)
+
+        transpilation_response.append(synthetized_circuit)
 
     return transpilation_response
 
