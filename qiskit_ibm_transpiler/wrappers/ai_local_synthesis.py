@@ -129,7 +129,7 @@ class AILocalLinearFunctionSynthesis:
 
         clifford_dict = [Clifford(circuit).to_dict() for circuit in circuits]
 
-        coupling_map_graph = get_coupling_map(backend_name, coupling_map)
+        coupling_map_graph = get_coupling_map_graph(backend_name, coupling_map)
 
         transpile_response = launch_transpile_task(
             coupling_map_graph, clifford_dict, qargs
@@ -229,10 +229,12 @@ def launch_transpile_task(
     transpile_response = []
 
     for index, circuit_qubits_indexes in enumerate(circuits_qubits_indexes):
-        subgraph_perm, cmap_hash = get_subgraph_model_rust(
-            coupling_map=coupling_map,
-            qargs=circuit_qubits_indexes,
-        )
+        try:
+            subgraph_perm, cmap_hash = get_mapping_perm(
+                coupling_map, circuit_qubits_indexes
+            )
+        except BaseException:
+            raise AttributeError(f"ERROR. Malformed qargs {circuit_qubits_indexes}")
 
         # Make sure I should use index here
         clifford = perm_cliff(Clifford.from_dict(clifford_dict[index]), subgraph_perm)
@@ -257,7 +259,7 @@ def launch_transpile_task(
     return transpile_response
 
 
-def get_coupling_map(
+def get_coupling_map_graph(
     backend_name: str | None = None, backend_coupling_map: list[list[int]] | None = None
 ) -> nx.Graph:
     coupling_map_list_format = None
@@ -281,8 +283,10 @@ def get_coupling_map(
     return coupling_map
 
 
-def get_mapping_perm(coupling_map: nx.Graph, circuit_qubits_indexes: List[int]):
-    # Identify the subgraph of the coupling map where the circuit is.
+def get_mapping_perm(
+    coupling_map: nx.Graph, circuit_qubits_indexes: List[int]
+) -> list[int]:
+    # Identify the subgraph of the device coupling map where the circuit is.
     circuit_in_coupling_map = coupling_map.subgraph(circuit_qubits_indexes)
 
     is_circuit_in_coupling_map_connected = nx.is_connected(circuit_in_coupling_map)
@@ -292,18 +296,21 @@ def get_mapping_perm(coupling_map: nx.Graph, circuit_qubits_indexes: List[int]):
             "ERROR. Qargs do not form a connected subgraph of the backend coupling map"
         )
 
-    # We find which model to use by hashing the input graph
+    # We find which model to use by hashing the circuit subgraph
     circuit_in_coupling_map_hash = nx.weisfeiler_lehman_graph_hash(
         circuit_in_coupling_map
     )
 
     # If there is no model for that circuit_in_coupling_map, we cannot use AI.
-    if circuit_in_coupling_map_hash not in model_coupling_map_by_model_hash:
-        return None, None
+    if circuit_in_coupling_map_hash not in MODEL_LIN_FUNC_HASHES:
+        raise LookupError(f"ERROR. No model available for the requested subgraph")
 
     model_coupling_map = model_coupling_map_by_model_hash[circuit_in_coupling_map_hash]
-    # Maps the circuit_in_coupling_map and the model's topology
-    cmap_to_model = next(
+
+    # circuit_in_coupling_map could appears several times on the model's topology. We get the first
+    # we find due to the `next` function. device_model_mapping contains a nodes correspondency between
+    # the device and the model
+    device_model_mapping = next(
         iter(
             nx.isomorphism.GraphMatcher(
                 circuit_in_coupling_map, nx.Graph(model_coupling_map)
@@ -313,24 +320,18 @@ def get_mapping_perm(coupling_map: nx.Graph, circuit_qubits_indexes: List[int]):
 
     # We now have to find the permutation that we should apply to the Clifford based on the mapping we found
     qargs_dict = {v: i for i, v in enumerate(circuit_qubits_indexes)}
+    # Sin subgraph_perm no seguiriamos bien el copupling map local. Hay que mapear correctamente el device y el modelo
     subgraph_perm = [
         qargs_dict[v]
-        for v in sorted(cmap_to_model.keys(), key=lambda k: cmap_to_model[k])
+        for v in sorted(
+            device_model_mapping.keys(), key=lambda k: device_model_mapping[k]
+        )
     ]
 
+    # subgraph_perm = [0, 1, 2, 6, 3, 4, 5] significa:
+    # el cliffprd que llega lo tengo que desordenar de esta manera
+    # el qubit 3 del clifford va al 6 (del clifford), reordenamos el clifford
+    # esto es lo que entra al modelo
+    # Luego a la salida, habrá que desahacer esto
+
     return subgraph_perm, circuit_in_coupling_map_hash
-
-
-def get_subgraph_model_rust(
-    coupling_map: nx.Graph,
-    qargs: list[int] | None = None,
-):
-    try:
-        subgraph_perm, cmap_hash = get_mapping_perm(coupling_map, qargs)
-    except BaseException:
-        raise AttributeError(f"ERROR. Malformed qargs {qargs}")
-
-    if cmap_hash not in MODEL_LIN_FUNC_HASHES:
-        raise LookupError(f"ERROR. No model available for the requested subgraph")
-
-    return subgraph_perm, cmap_hash
