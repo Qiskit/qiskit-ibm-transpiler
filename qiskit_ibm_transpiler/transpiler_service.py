@@ -107,7 +107,7 @@ class TranspilerService:
             The transpiled circuit(s)
 
         """
-        logger.info(f"Requesting transpile to the service")
+        logger.info("Requesting transpile to the service")
         transpile_result = self.transpiler_service.transpile(
             circuits=circuits,
             backend=self.backend_name,
@@ -125,3 +125,6 @@ class TranspilerService:
 
         logger.info("Qiskit IBM Transpiler returned a result")
         return transpile_result
+
+    def get_result(self, task_id:str, **kwargs):
+        return self.transpiler_service.get_result(task_id=task_id, **kwargs)

@@ -19,8 +19,7 @@ from qiskit.quantum_info import Clifford
 
 from .base import QiskitTranspilerService
 
-logging.basicConfig()
-logging.getLogger(__name__).setLevel(logging.INFO)
+logger = logging.getLogger(__name__)
 
 
 class AICliffordAPI(QiskitTranspilerService):
@@ -61,7 +60,7 @@ class AICliffordAPI(QiskitTranspilerService):
             )
         else:
             raise (
-                f"ERROR. Either a 'coupling_map' or a 'backend_name' must be provided."
+                "ERROR. Either a 'coupling_map' or a 'backend_name' must be provided."
             )
 
         results = []
@@ -72,6 +71,20 @@ class AICliffordAPI(QiskitTranspilerService):
                 results.append(None)
         return results
 
+    def get_result(
+        self, task_id: str
+    ):
+        transpile_resp = self.get_task_result(endpoint="transpile", task_id=task_id)
+        results = []
+
+        for res in transpile_resp:
+            try:
+                results.append(QuantumCircuit.from_qasm_str(res["qasm"]))
+            except Exception as ex:
+                logger.error("Error transforming the result to a QuantumCircuit object")
+                raise
+
+        return results
 
 class AILinearFunctionAPI(QiskitTranspilerService):
     """A helper class that covers some basic funcionality from the Linear Function AI Synthesis API"""
@@ -111,7 +124,7 @@ class AILinearFunctionAPI(QiskitTranspilerService):
             )
         else:
             raise (
-                f"ERROR. Either a 'coupling_map' or a 'backend_name' must be provided."
+                "ERROR. Either a 'coupling_map' or a 'backend_name' must be provided."
             )
 
         results = []
@@ -120,6 +133,21 @@ class AILinearFunctionAPI(QiskitTranspilerService):
                 results.append(QuantumCircuit.from_qasm_str(transpile_resp.get("qasm")))
             else:
                 results.append(None)
+        return results
+
+    def get_result(
+        self, task_id: str
+    ):
+        transpile_resp = self.get_task_result(endpoint="transpile", task_id=task_id)
+        results = []
+
+        for res in transpile_resp:
+            try:
+                results.append(QuantumCircuit.from_qasm_str(res["qasm"]))
+            except Exception as ex:
+                logger.error("Error transforming the result to a QuantumCircuit object")
+                raise
+
         return results
 
 
@@ -158,7 +186,7 @@ class AIPermutationAPI(QiskitTranspilerService):
             )
         else:
             raise (
-                f"ERROR. Either a 'coupling_map' or a 'backend_name' must be provided."
+                "ERROR. Either a 'coupling_map' or a 'backend_name' must be provided."
             )
 
         results = []
@@ -167,4 +195,19 @@ class AIPermutationAPI(QiskitTranspilerService):
                 results.append(QuantumCircuit.from_qasm_str(transpile_resp.get("qasm")))
             else:
                 results.append(None)
+        return results
+
+    def get_result(
+        self, task_id: str
+    ):
+        transpile_resp = self.get_task_result(endpoint="transpile", task_id=task_id)
+        results = []
+
+        for res in transpile_resp:
+            try:
+                results.append(QuantumCircuit.from_qasm_str(res["qasm"]))
+            except Exception as ex:
+                logger.error("Error transforming the result to a QuantumCircuit object")
+                raise
+
         return results
