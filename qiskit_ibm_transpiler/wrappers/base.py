@@ -13,7 +13,6 @@
 import json
 import logging
 import os
-from http import HTTPStatus
 from pathlib import Path
 from typing import Dict
 from urllib.parse import urljoin
@@ -103,6 +102,29 @@ class QiskitTranspilerService:
 
         return resp
 
+    def get_task_result(
+        self,
+        endpoint: str,
+        task_id: str,
+    ):
+        result = BackendTaskError(
+            status="PENDING",
+            msg=(
+                f"The background task {task_id} timed out. Try to update the client's timeout config, "
+                "review your task or use the get_result() method to get the result manually"
+            ),
+        )
+
+        resp = self.request_status(endpoint=endpoint, task_id=task_id)
+        if resp.get("state") == "SUCCESS":
+            result = resp.get("result")
+        elif resp.get("state") == "FAILURE":
+            logger.error("The request FAILED")
+            result = BackendTaskError(
+                status="FAILURE", msg=f"The background task {task_id} FAILED"
+            )
+        return result
+
     def request_status(self, endpoint, task_id):
         def _giveup(e):
             # Only retry 520 errors
@@ -158,20 +180,9 @@ class QiskitTranspilerService:
         resp = resp.json()
         task_id = resp.get("task_id")
 
-        result = BackendTaskError(
-            status="PENDING",
-            msg=f"The background task {task_id} timed out. Try to update the client's timeout config or review your task",
-        )
+        logger.info(f"Task {task_id} submitted")
 
-        resp = self.request_status(endpoint, task_id)
-        if resp.get("state") == "SUCCESS":
-            result = resp.get("result")
-        elif resp.get("state") == "FAILURE":
-            logger.error("The request FAILED")
-            result = BackendTaskError(
-                status="FAILURE", msg=f"The background task {task_id} FAILED"
-            )
-
+        result = self.get_task_result(endpoint=endpoint, task_id=task_id)
         if isinstance(result, BackendTaskError):
             # TODO: Shall we show this  "The background task 99cf52d2-3942-4ae5-b2a7-d672af7f1216 FAILED" to the user?
             logger.error(f"Failed to get a result for {endpoint}: {result.msg}")

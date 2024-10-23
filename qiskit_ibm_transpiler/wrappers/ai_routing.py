@@ -14,8 +14,9 @@ from qiskit import QuantumCircuit
 from qiskit_ibm_transpiler.utils import get_circuit_from_qasm, input_to_qasm
 from .base import QiskitTranspilerService
 from typing import List, Union, Literal
+import logging
 
-
+logger = logging.getLogger(__name__)
 # TODO: Reuse this code, it's repeated several times
 OptimizationOptions = Literal["n_cnots", "n_gates", "cnot_layers", "layers", "noise"]
 
@@ -62,3 +63,12 @@ class AIRoutingAPI(QiskitTranspilerService):
                 routing_resp["layout"]["initial"],
                 routing_resp["layout"]["final"],
             )
+
+    def get_result(
+        self, task_id: str
+    ) -> Union[QuantumCircuit, List[QuantumCircuit], str, List[str]]:
+        routing_resp = self.get_task_result(endpoint="routing", task_id=task_id)
+
+        routed_circuit = get_circuit_from_qasm(routing_resp["qasm"])
+
+        return routed_circuit

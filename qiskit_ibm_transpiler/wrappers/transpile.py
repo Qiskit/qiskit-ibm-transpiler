@@ -13,8 +13,6 @@
 import logging
 from typing import Dict, List, Union, Literal
 
-import numpy as np
-from qiskit import QuantumCircuit, QuantumRegister
 from qiskit.circuit import QuantumCircuit, QuantumRegister, Qubit
 from qiskit.transpiler import TranspileLayout
 from qiskit.transpiler.layout import Layout
@@ -88,6 +86,25 @@ class TranspileAPI(QiskitTranspilerService):
         for res, orig_circ in zip(transpile_resp, circuits):
             try:
                 transpiled_circuits.append(_get_circuit_from_result(res, orig_circ))
+            except Exception as ex:
+                logger.error("Error transforming the result to a QuantumCircuit object")
+                raise
+
+        return (
+            transpiled_circuits
+            if len(transpiled_circuits) > 1
+            else transpiled_circuits[0]
+        )
+
+    def get_result(
+        self, task_id: str
+    ):
+        transpile_resp = self.get_task_result(endpoint="transpile", task_id=task_id)
+        transpiled_circuits = []
+
+        for res in transpile_resp:
+            try:
+                transpiled_circuits.append(get_circuit_from_qasm(res["qasm"]))
             except Exception as ex:
                 logger.error("Error transforming the result to a QuantumCircuit object")
                 raise
