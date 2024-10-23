@@ -16,6 +16,7 @@ from qiskit import QuantumCircuit
 from qiskit.transpiler import PassManager
 
 from qiskit_ibm_transpiler.ai.collection import CollectLinearFunctions
+from qiskit_ibm_transpiler.utils import create_random_linear_function, get_metrics
 from qiskit_ibm_transpiler.ai.synthesis import AILinearFunctionSynthesis
 
 
@@ -81,3 +82,23 @@ def test_ai_local_linear_function_synthesis_dont_returns_original_circuit(caplog
     assert isinstance(synthetized_circuit, QuantumCircuit)
     assert synthetized_circuit == original_circuit
     assert "Using the synthesized circuit" in caplog.text
+
+
+def test_ai_local_linear_function_synthesis(caplog):
+    original_circuit = QuantumCircuit(8)
+    linear_function = create_random_linear_function(8)
+    original_circuit.append(linear_function, range(8))
+    # Using decompose since we need a QuantumCircuit, not a LinearFunction. We created original_circuit
+    # empty, so it contains only a LinearFunction
+    original_circuit = original_circuit.decompose(reps=1)
+
+    ai_linear_functions_synthesis_pass = PassManager(
+        [
+            CollectLinearFunctions(min_block_size=2),
+            AILinearFunctionSynthesis(backend_name="ibm_brisbane"),
+        ]
+    )
+
+    synthetized_circuit = ai_linear_functions_synthesis_pass.run(original_circuit)
+
+    assert isinstance(synthetized_circuit, QuantumCircuit)
