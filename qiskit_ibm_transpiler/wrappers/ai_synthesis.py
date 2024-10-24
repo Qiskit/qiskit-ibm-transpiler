@@ -19,8 +19,8 @@ from qiskit.quantum_info import Clifford
 
 from .base import QiskitTranspilerService
 
-logging.basicConfig()
-logging.getLogger(__name__).setLevel(logging.INFO)
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
 
 
 class AICliffordAPI(QiskitTranspilerService):
@@ -61,7 +61,7 @@ class AICliffordAPI(QiskitTranspilerService):
             )
         else:
             raise (
-                f"ERROR. Either a 'coupling_map' or a 'backend_name' must be provided."
+                "ERROR. Either a 'coupling_map' or a 'backend_name' must be provided."
             )
 
         results = []
@@ -85,42 +85,58 @@ class AILinearFunctionAPI(QiskitTranspilerService):
         qargs: List[List[int]],
         coupling_map: Union[List[List[int]], None] = None,
         backend_name: Union[str, None] = None,
-    ):
-        if coupling_map is not None:
-            transpile_resps = self.request_and_wait(
-                endpoint="transpile",
-                body={
-                    "clifford_dict": [
-                        Clifford(circuit).to_dict() for circuit in circuits
-                    ],
-                    "qargs": qargs,
-                    "backend_coupling_map": coupling_map,
-                },
-                params=dict(),
-            )
-        elif backend_name is not None:
-            transpile_resps = self.request_and_wait(
-                endpoint="transpile",
-                body={
-                    "clifford_dict": [
-                        Clifford(circuit).to_dict() for circuit in circuits
-                    ],
-                    "qargs": qargs,
-                },
-                params={"backend": backend_name},
-            )
-        else:
-            raise (
-                f"ERROR. Either a 'coupling_map' or a 'backend_name' must be provided."
+    ) -> List[Union[QuantumCircuit, None]]:
+        """Synthetize one or more quantum circuits into an optimized equivalent. It differs from a standard synthesis process in that it takes into account where the linear functions are (qargs)
+        and respects it on the synthesized circuit.
+
+        Args:
+            circuits (List[Union[QuantumCircuit, LinearFunction]]): A list of quantum circuits to be synthesized.
+            qargs (List[List[int]]): A list of lists of qubit indices for each circuit. Each list of qubits indices represent where the linear function circuit is.
+            coupling_map (Union[List[List[int]], None]): A coupling map representing the connectivity of the quantum computer.
+            backend_name (Union[str, None]): The name of the backend to use for the synthesis.
+
+        Returns:
+            List[Union[QuantumCircuit, None]]: A list of synthesized quantum circuits. If the synthesis fails for any circuit, the corresponding element in the list will be None.
+        """
+
+        # Although this function is called `transpile`, it does a synthesis. It has this name because the synthesis
+        # is made as a pass on the Qiskit Pass Manager which is used in the transpilation process.
+
+        if not coupling_map and not backend_name:
+            raise ValueError(
+                "ERROR. Either a 'coupling_map' or a 'backend_name' must be provided."
             )
 
-        results = []
-        for transpile_resp in transpile_resps:
-            if transpile_resp.get("success") and transpile_resp.get("qasm") is not None:
-                results.append(QuantumCircuit.from_qasm_str(transpile_resp.get("qasm")))
-            else:
-                results.append(None)
-        return results
+        body_params = {
+            "clifford_dict": [Clifford(circuit).to_dict() for circuit in circuits],
+            "qargs": qargs,
+        }
+
+        query_params = dict()
+
+        if coupling_map:
+            body_params["backend_coupling_map"] = coupling_map
+        elif backend_name:
+            query_params["backend"] = backend_name
+
+        logger.info("Running synthesis against the Qiskit Transpiler Service")
+
+        transpile_response = self.request_and_wait(
+            endpoint="transpile",
+            body=body_params,
+            params=query_params,
+        )
+
+        synthesized_circuits = []
+        for response_element in transpile_response:
+            synthesized_circuit = None
+            if response_element.get("success") and response_element.get("qasm"):
+                synthesized_circuit = QuantumCircuit.from_qasm_str(
+                    response_element.get("qasm")
+                )
+            synthesized_circuits.append(synthesized_circuit)
+
+        return synthesized_circuits
 
 
 class AIPermutationAPI(QiskitTranspilerService):
