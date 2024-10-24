@@ -18,6 +18,8 @@ _Note_: This library requires Qiskit 1.0 or greater.
 
 ## How to use the library
 
+### Using local mode
+
 ### Using the Qiskit IBM Transpiler
 
 The following examples demonstrate how to transpile circuits using the Qiskit IBM Transpiler with different parameters.
