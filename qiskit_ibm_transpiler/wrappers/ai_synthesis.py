@@ -19,8 +19,8 @@ from qiskit.quantum_info import Clifford
 
 from .base import QiskitTranspilerService
 
-logging.basicConfig()
-logging.getLogger(__name__).setLevel(logging.INFO)
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
 
 
 class AICliffordAPI(QiskitTranspilerService):
@@ -61,7 +61,7 @@ class AICliffordAPI(QiskitTranspilerService):
             )
         else:
             raise (
-                f"ERROR. Either a 'coupling_map' or a 'backend_name' must be provided."
+                "ERROR. Either a 'coupling_map' or a 'backend_name' must be provided."
             )
 
         results = []
@@ -87,16 +87,16 @@ class AILinearFunctionAPI(QiskitTranspilerService):
         backend_name: Union[str, None] = None,
     ) -> List[Union[QuantumCircuit, None]]:
         """Synthetize one or more quantum circuits into an optimized equivalent. It differs from a standard synthesis process in that it takes into account where the linear functions are (qargs)
-        and respects it on the synthetized circuit.
+        and respects it on the synthesized circuit.
 
         Args:
-            circuits (List[Union[QuantumCircuit, LinearFunction]]): A list of quantum circuits to be synthetized.
+            circuits (List[Union[QuantumCircuit, LinearFunction]]): A list of quantum circuits to be synthesized.
             qargs (List[List[int]]): A list of lists of qubit indices for each circuit. Each list of qubits indices represent where the linear function circuit is.
             coupling_map (Union[List[List[int]], None]): A coupling map representing the connectivity of the quantum computer.
             backend_name (Union[str, None]): The name of the backend to use for the synthesis.
 
         Returns:
-            List[Union[QuantumCircuit, None]]: A list of synthetized quantum circuits. If the synthesis fails for any circuit, the corresponding element in the list will be None.
+            List[Union[QuantumCircuit, None]]: A list of synthesized quantum circuits. If the synthesis fails for any circuit, the corresponding element in the list will be None.
         """
 
         # Although this function is called `transpile`, it does a synthesis. It has this name because the synthesis
@@ -104,7 +104,7 @@ class AILinearFunctionAPI(QiskitTranspilerService):
 
         if not coupling_map and not backend_name:
             raise ValueError(
-                f"ERROR. Either a 'coupling_map' or a 'backend_name' must be provided."
+                "ERROR. Either a 'coupling_map' or a 'backend_name' must be provided."
             )
 
         body_params = {
@@ -119,22 +119,24 @@ class AILinearFunctionAPI(QiskitTranspilerService):
         elif backend_name:
             query_params["backend"] = backend_name
 
+        logger.info("Running synthesis against the Qiskit Transpiler Service")
+
         transpile_response = self.request_and_wait(
             endpoint="transpile",
             body=body_params,
             params=query_params,
         )
 
-        synthetized_circuits = []
+        synthesized_circuits = []
         for response_element in transpile_response:
-            synthetized_circuit = None
+            synthesized_circuit = None
             if response_element.get("success") and response_element.get("qasm"):
-                synthetized_circuit = QuantumCircuit.from_qasm_str(
+                synthesized_circuit = QuantumCircuit.from_qasm_str(
                     response_element.get("qasm")
                 )
-            synthetized_circuits.append(synthetized_circuit)
+            synthesized_circuits.append(synthesized_circuit)
 
-        return synthetized_circuits
+        return synthesized_circuits
 
 
 class AIPermutationAPI(QiskitTranspilerService):

@@ -33,6 +33,7 @@ from qiskit_ibm_transpiler.ai.models.linear_functions import (
 from qiskit_ibm_transpiler.utils import get_qasm_from_circuit
 
 logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
 
 
 class AILocalLinearFunctionSynthesis:
@@ -46,16 +47,16 @@ class AILocalLinearFunctionSynthesis:
         backend_name: Union[str, None] = None,
     ) -> List[Union[QuantumCircuit, None]]:
         """Synthetize one or more quantum circuits into an optimized equivalent. It differs from a standard synthesis process in that it takes into account where the linear functions are (qargs)
-        and respects it on the synthetized circuit.
+        and respects it on the synthesized circuit.
 
         Args:
-            circuits (List[Union[QuantumCircuit, LinearFunction]]): A list of quantum circuits to be synthetized.
+            circuits (List[Union[QuantumCircuit, LinearFunction]]): A list of quantum circuits to be synthesized.
             qargs (List[List[int]]): A list of lists of qubit indices for each circuit. Each list of qubits indices represent where the linear function circuit is.
             coupling_map (Union[List[List[int]], None]): A coupling map representing the connectivity of the quantum computer.
             backend_name (Union[str, None]): The name of the backend to use for the synthesis.
 
         Returns:
-            List[Union[QuantumCircuit, None]]: A list of synthetized quantum circuits. If the synthesis fails for any circuit, the corresponding element in the list will be None.
+            List[Union[QuantumCircuit, None]]: A list of synthesized quantum circuits. If the synthesis fails for any circuit, the corresponding element in the list will be None.
         """
 
         # Although this function is called `transpile`, it does a synthesis. It has this name because the synthesis
@@ -63,7 +64,7 @@ class AILocalLinearFunctionSynthesis:
 
         if not coupling_map and not backend_name:
             raise ValueError(
-                f"ERROR. Either a 'coupling_map' or a 'backend_name' must be provided."
+                "ERROR. Either a 'coupling_map' or a 'backend_name' must be provided."
             )
 
         n_circs = len(circuits)
@@ -79,11 +80,13 @@ class AILocalLinearFunctionSynthesis:
 
         coupling_map_graph = get_coupling_map_graph(backend_name, coupling_map)
 
-        synthetized_circuits = get_synthetized_linear_function_circuits(
+        logger.info("Running Linear Functions AI synthesis on local mode")
+
+        synthesized_circuits = get_synthesized_linear_function_circuits(
             coupling_map_graph, clifford_dict, qargs
         )
 
-        return synthetized_circuits
+        return synthesized_circuits
 
 
 def perm_cliff(cliff, perm):
@@ -97,10 +100,10 @@ def perm_cliff(cliff, perm):
     return cliff
 
 
-def get_synthetized_linear_function_circuits(
-    coupling_map: nx.Graph, clifford_dict, qargs: List[List[int]]
+def get_synthesized_linear_function_circuits(
+    coupling_map: nx.Graph, clifford_dicts: List[dict], qargs: List[List[int]]
 ) -> list[QuantumCircuit]:
-    synthetized_circuits = []
+    synthesized_circuits = []
 
     for index, circuit_qargs in enumerate(qargs):
         try:
@@ -109,21 +112,21 @@ def get_synthetized_linear_function_circuits(
             raise AttributeError(f"ERROR. Malformed qargs {circuit_qargs}")
 
         # Generate the Clifford from the dictionary to send it to the model and permute it
-        clifford = perm_cliff(Clifford.from_dict(clifford_dict[index]), subgraph_perm)
+        clifford = perm_cliff(Clifford.from_dict(clifford_dicts[index]), subgraph_perm)
 
-        synthetized_linear_function = LinearFunctionInference().synthesize(
+        synthesized_linear_function = LinearFunctionInference().synthesize(
             cliff=clifford, coupling_map_hash=cmap_hash
         )
 
         # Permute the circuit back
-        synthetized_circuit = QuantumCircuit(
-            synthetized_linear_function.num_qubits
-        ).compose(synthetized_linear_function, qubits=subgraph_perm)
+        synthesized_circuit = QuantumCircuit(
+            synthesized_linear_function.num_qubits
+        ).compose(synthesized_linear_function, qubits=subgraph_perm)
 
-        # synthetized_circuit could be None or have a value, we return it in both cases
-        synthetized_circuits.append(synthetized_circuit)
+        # synthesized_circuit could be None or have a value, we return it in both cases
+        synthesized_circuits.append(synthesized_circuit)
 
-    return synthetized_circuits
+    return synthesized_circuits
 
 
 def get_coupling_map_graph(
@@ -145,7 +148,7 @@ def get_coupling_map_graph(
     try:
         coupling_map = nx.Graph(coupling_map_list_format)
     except Exception:
-        raise NetworkXError(f"ERROR. Cannot convert coupling_map from list to graph")
+        raise NetworkXError("ERROR. Cannot convert coupling_map from list to graph")
 
     return coupling_map
 
@@ -168,7 +171,7 @@ def get_mapping_perm(coupling_map: nx.Graph, circuit_qargs: List[int]) -> list[i
 
     # If there is no model for that circuit_in_coupling_map, we cannot use AI.
     if circuit_in_coupling_map_hash not in MODEL_LIN_FUNC_HASHES:
-        raise LookupError(f"ERROR. No model available for the requested subgraph")
+        raise LookupError("ERROR. No model available for the requested subgraph")
 
     model_coupling_map = model_coupling_map_by_model_hash[circuit_in_coupling_map_hash]
 

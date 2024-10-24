@@ -40,7 +40,7 @@ def test_ai_local_linear_function_synthesis_wrong_backend():
 
 
 def test_ai_local_linear_function_synthesis_returns_original_circuit(caplog):
-    # When the original circuit is better than the synthetized one, we keep the original
+    # When the original circuit is better than the synthesized one, we keep the original
 
     original_circuit = QuantumCircuit(3)
     original_circuit.cx(0, 1)
@@ -53,16 +53,16 @@ def test_ai_local_linear_function_synthesis_returns_original_circuit(caplog):
         ]
     )
 
-    synthetized_circuit = ai_linear_functions_synthesis_pass.run(original_circuit)
+    synthesized_circuit = ai_linear_functions_synthesis_pass.run(original_circuit)
 
-    assert isinstance(synthetized_circuit, QuantumCircuit)
-    assert synthetized_circuit == original_circuit
+    assert isinstance(synthesized_circuit, QuantumCircuit)
+    assert synthesized_circuit == original_circuit
     assert "Keeping the original circuit" in caplog.text
 
 
 def test_ai_local_linear_function_synthesis_dont_returns_original_circuit(caplog):
-    # When the original circuit is better than the synthetized one,
-    # but replace_only_if_better is False, we return the synthetized circuit
+    # When the original circuit is better than the synthesized one,
+    # but replace_only_if_better is False, we return the synthesized circuit
 
     original_circuit = QuantumCircuit(3)
     original_circuit.cx(0, 1)
@@ -77,10 +77,10 @@ def test_ai_local_linear_function_synthesis_dont_returns_original_circuit(caplog
         ]
     )
 
-    synthetized_circuit = ai_linear_functions_synthesis_pass.run(original_circuit)
+    synthesized_circuit = ai_linear_functions_synthesis_pass.run(original_circuit)
 
-    assert isinstance(synthetized_circuit, QuantumCircuit)
-    assert synthetized_circuit == original_circuit
+    assert isinstance(synthesized_circuit, QuantumCircuit)
+    assert synthesized_circuit == original_circuit
     assert "Using the synthesized circuit" in caplog.text
 
 
@@ -99,6 +99,6 @@ def test_ai_local_linear_function_synthesis(caplog):
         ]
     )
 
-    synthetized_circuit = ai_linear_functions_synthesis_pass.run(original_circuit)
+    synthesized_circuit = ai_linear_functions_synthesis_pass.run(original_circuit)
 
-    assert isinstance(synthetized_circuit, QuantumCircuit)
+    assert isinstance(synthesized_circuit, QuantumCircuit)
