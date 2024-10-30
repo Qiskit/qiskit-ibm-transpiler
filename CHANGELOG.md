@@ -26,6 +26,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### 👾 Security
 
+## [0.4.11] - 2024-10-30
+
+### 🎉 Added
+
+- [#97](https://github.com/Qiskit/qiskit-transpiler-service/pull/97) In case of failure, always retry the GET request to retrieve a result until the timeout is reached. Increase the delay between requests to 5 seconds when we are over 1 minute. Retry transpilation POST request three times in case of failure.
+
 ### ⚠️ Deprecated
 
 ## [0.4.10] - 2024-09-17
@@ -171,7 +177,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 - Publishing first version 0.1.2 for the IBM Quantum Summit.
 
-[Unreleased]: https://github.com/Qiskit/qiskit-transpiler-service/compare/0.4.10...main-qiskit-transpiler-service
+[Unreleased]: https://github.com/Qiskit/qiskit-transpiler-service/compare/0.4.11...main-qiskit-transpiler-service
+[0.4.11]: https://github.com/Qiskit/qiskit-transpiler-service/compare/0.4.10...0.4.11
 [0.4.10]: https://github.com/Qiskit/qiskit-transpiler-service/compare/0.4.9...0.4.10
 [0.4.9]: https://github.com/Qiskit/qiskit-transpiler-service/compare/0.4.8...0.4.9
 [0.4.8]: https://github.com/Qiskit/qiskit-transpiler-service/compare/0.4.7...0.4.8
