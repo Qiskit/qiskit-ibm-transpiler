@@ -52,8 +52,12 @@ def _get_token_from_system():
             )
     return token
 
+
 def _status_interval_generator(fast_interval, slow_interval, switch_time):
-    yield from itertools.chain(itertools.repeat(fast_interval, switch_time), itertools.repeat(slow_interval))
+    yield from itertools.chain(
+        itertools.repeat(fast_interval, switch_time), itertools.repeat(slow_interval)
+    )
+
 
 class QiskitTranspilerService:
     """A helper class that covers some common basic funcionality for the Qiskit transpiler service"""
@@ -111,7 +115,9 @@ class QiskitTranspilerService:
             backoff.constant,
             lambda res: res.get("state") not in ["SUCCESS", "FAILURE"],
             jitter=None,
-            interval=_status_interval_generator(fast_interval=1, slow_interval=5, switch_time=60),  # TODO: Define by config or circuit?
+            interval=_status_interval_generator(
+                fast_interval=1, slow_interval=5, switch_time=60
+            ),  # TODO: Define by config or circuit?
             max_time=self.timeout,
         )
         @backoff.on_exception(
