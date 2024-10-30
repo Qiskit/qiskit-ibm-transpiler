@@ -45,7 +45,9 @@ def test_routing_wrong_backend(random_circuit_transpiled):
         ai_optimized_circuit = ai_optimize_lf.run(random_circuit_transpiled)
         pytest.fail("Error expected")
     except Exception as e:
-        assert "Backend not supported (wrong_backend)" in str(e)
+        assert (
+            "User doesn't have access to the specified backend: wrong_backend" in str(e)
+        )
 
 
 @pytest.mark.skip(

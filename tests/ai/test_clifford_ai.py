@@ -29,7 +29,10 @@ def test_clifford_wrong_backend(random_circuit_transpiled, caplog):
     ai_optimized_circuit = ai_optimize_cliff.run(random_circuit_transpiled)
     assert "couldn't synthesize the circuit" in caplog.text
     assert "Keeping the original circuit" in caplog.text
-    assert "Backend not supported (wrong_backend)" in caplog.text
+    assert (
+        "User doesn't have access to the specified backend: wrong_backend"
+        in caplog.text
+    )
     assert isinstance(ai_optimized_circuit, QuantumCircuit)
 
 

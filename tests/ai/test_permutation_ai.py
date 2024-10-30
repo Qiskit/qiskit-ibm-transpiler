@@ -54,7 +54,10 @@ def test_permutation_wrong_backend(caplog):
     ai_optimized_circuit = ai_optimize_perm.run(orig_qc)
     assert "couldn't synthesize the circuit" in caplog.text
     assert "Keeping the original circuit" in caplog.text
-    assert "Backend not supported (wrong_backend)" in caplog.text
+    assert (
+        "User doesn't have access to the specified backend: wrong_backend"
+        in caplog.text
+    )
     assert isinstance(ai_optimized_circuit, QuantumCircuit)
 
 
