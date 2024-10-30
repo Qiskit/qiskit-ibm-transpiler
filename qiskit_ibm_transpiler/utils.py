@@ -26,14 +26,15 @@ Functions
 
 """
 
-from typing import Dict, Union
+from typing import Dict, Union, List
 
 import numpy as np
-from qiskit import QuantumCircuit, qasm2, qasm3
+import base64
+import io
+from qiskit import QuantumCircuit, qpy
 from qiskit.circuit.library import LinearFunction
 from qiskit.quantum_info import Clifford
 from qiskit.synthesis.linear.linear_matrix_utils import random_invertible_binary_matrix
-from qiskit import QuantumCircuit, qasm2, qasm3
 from qiskit.circuit import QuantumCircuit, library
 from qiskit.transpiler.basepasses import TransformationPass
 
@@ -72,58 +73,21 @@ def random_clifford_from_linear_function(n_qubits: int, seed: int = 123):
     return random_clifford
 
 
-def to_qasm3_iterative_decomposition(circuit: QuantumCircuit, n_iter: int = 10):
-    decomposed_circuit = circuit.copy()
-    for reps in range(1, n_iter + 1):
-        qasm3_str = qasm3.dumps(decomposed_circuit)
-        try:
-            qasm3.loads(qasm3_str)
-            break
-        except qasm3.QASM3ImporterError:
-            if reps == n_iter:
-                raise qasm3.QASM3ExporterError(
-                    f"Circuit couldn't be exported to QASM3, try using decompose() on your circuit"
-                )
-            decomposed_circuit = circuit.decompose(reps=reps)
-    return qasm3_str.replace("\n", " ")
-
-
-def input_to_qasm(input_circ: Union[QuantumCircuit, str]) -> str:
+def input_to_qpy(input_circ: Union[QuantumCircuit, List[QuantumCircuit], str]) -> str:
     if isinstance(input_circ, QuantumCircuit):
-        try:
-            qasm = qasm2.dumps(input_circ).replace("\n", " ")
-        except qasm2.QASM2ExportError:
-            qasm = to_qasm3_iterative_decomposition(input_circ)
+        output_b = io.BytesIO()
+        qpy.dump(input_circ, output_b)
+        qpy_string = base64.b64encode(output_b.getvalue()).decode("utf-8")
     elif isinstance(input_circ, str):
-        qasm = input_circ.replace("\n", " ")
+        qpy_string = input_circ
     else:
-        raise TypeError("Input circuits must be QuantumCircuit or qasm string.")
-    return qasm
+        raise TypeError("Input circuits must be QuantumCircuit or qpy string.")
+    return qpy_string
 
 
-class FixECR(TransformationPass):
-    def run(self, dag):
-        for node in dag.op_nodes():
-            if node.name.startswith("ecr"):
-                dag.substitute_node(node, library.ECRGate())
-        return dag
+def get_circuit_from_qpy(qpy_string: str) -> QuantumCircuit:
+    return qpy.load(io.BytesIO(base64.b64decode(qpy_string.encode("utf-8"))))[0]
 
 
-def get_circuit_from_qasm(qasm_string: str) -> QuantumCircuit:
-
-    try:
-        return get_circuit_from_qasm.fix_ecr(
-            qasm2.loads(
-                qasm_string,
-                custom_instructions=get_circuit_from_qasm.QISKIT_INSTRUCTIONS,
-            )
-        )
-    except qasm2.QASM2ParseError:
-        return get_circuit_from_qasm.fix_ecr(qasm3.loads(qasm_string))
-
-
-get_circuit_from_qasm.QISKIT_INSTRUCTIONS = list(qasm2.LEGACY_CUSTOM_INSTRUCTIONS)
-get_circuit_from_qasm.QISKIT_INSTRUCTIONS.append(
-    qasm2.CustomInstruction("ecr", 0, 2, library.ECRGate)
-)
-get_circuit_from_qasm.fix_ecr = FixECR()
+def get_circuits_from_qpy(qpy_string: str) -> List[QuantumCircuit]:
+    return qpy.load(io.BytesIO(base64.b64decode(qpy_string.encode("utf-8"))))

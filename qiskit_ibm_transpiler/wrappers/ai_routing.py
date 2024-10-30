@@ -11,7 +11,7 @@
 # that they have been altered from the originals.
 
 from qiskit import QuantumCircuit
-from qiskit_ibm_transpiler.utils import get_circuit_from_qasm, input_to_qasm
+from qiskit_ibm_transpiler.utils import get_circuit_from_qpy, input_to_qpy
 from .base import QiskitTranspilerService
 from typing import List, Union, Literal
 
@@ -37,10 +37,10 @@ class AIRoutingAPI(QiskitTranspilerService):
             OptimizationOptions, List[OptimizationOptions], None
         ] = None,
     ):
-        qasm = input_to_qasm(circuit)
+        qpy = input_to_qpy(circuit)
 
         body_params = {
-            "qasm": qasm.replace("\n", " "),
+            "qpy": qpy,
             "coupling_map": coupling_map,
             "optimization_preferences": optimization_preferences,
         }
@@ -56,7 +56,7 @@ class AIRoutingAPI(QiskitTranspilerService):
         )
 
         if routing_resp.get("success"):
-            routed_circuit = get_circuit_from_qasm(routing_resp["qasm"])
+            routed_circuit = get_circuit_from_qpy(routing_resp["qpy"])
             return (
                 routed_circuit,
                 routing_resp["layout"]["initial"],
