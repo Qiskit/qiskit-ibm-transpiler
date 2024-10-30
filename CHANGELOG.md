@@ -28,6 +28,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### ⚠️ Deprecated
 
+## [0.5.4] - 2024-10-30
+
+### 🎉 Added
+
+- [#97](https://github.com/Qiskit/qiskit-ibm-transpiler/pull/97) In case of failure, always retry the GET request to retrieve a result unitl the timeout is reached. Increase the delay between requests to 5 seconds when we are over 1 minute. Retry transpilation POST request three times in case of failure.
+
 ## [0.5.3] - 2024-09-17
 
 ### 🐛 Fixed
@@ -171,7 +177,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 - Publishing first version 0.1.2 for the IBM Quantum Summit.
 
-[Unreleased]: https://github.com/Qiskit/qiskit-ibm-transpiler/compare/0.5.3...stable/0.5.0
+[Unreleased]: https://github.com/Qiskit/qiskit-ibm-transpiler/compare/0.5.4...stable/0.5.0
+[0.5.4]: https://github.com/Qiskit/qiskit-ibm-transpiler/compare/0.5.3...0.5.4
 [0.5.3]: https://github.com/Qiskit/qiskit-ibm-transpiler/compare/0.5.2...0.5.3
 [0.5.2]: https://github.com/Qiskit/qiskit-ibm-transpiler/compare/0.5.1...0.5.2
 [0.5.1]: https://github.com/Qiskit/qiskit-ibm-transpiler/compare/0.5.0...0.5.1
