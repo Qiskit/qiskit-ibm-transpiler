@@ -1,0 +1,1 @@
+In case of failure, always retry the GET request to retrieve a result unitl the timeout is reached. Increase the delay between requests to 5 seconds when we are over 1 minute. Retry transpilation POST request three times in case of failure.
