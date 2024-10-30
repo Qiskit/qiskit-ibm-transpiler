@@ -10,6 +10,7 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
+import itertools
 import json
 import logging
 import os
@@ -51,6 +52,8 @@ def _get_token_from_system():
             )
     return token
 
+def _status_interval_generator(fast_interval, slow_interval, switch_time):
+    yield from itertools.chain(itertools.repeat(fast_interval, switch_time), itertools.repeat(slow_interval))
 
 class QiskitTranspilerService:
     """A helper class that covers some common basic funcionality for the Qiskit transpiler service"""
@@ -104,15 +107,11 @@ class QiskitTranspilerService:
         return resp
 
     def request_status(self, endpoint, task_id):
-        def _giveup(e):
-            # Only retry 520 errors
-            return e.response.status_code != 520
-
         @backoff.on_predicate(
             backoff.constant,
             lambda res: res.get("state") not in ["SUCCESS", "FAILURE"],
             jitter=None,
-            interval=1,  # TODO: Define by config or circuit?
+            interval=_status_interval_generator(fast_interval=1, slow_interval=5, switch_time=60),  # TODO: Define by config or circuit?
             max_time=self.timeout,
         )
         @backoff.on_exception(
@@ -123,7 +122,6 @@ class QiskitTranspilerService:
                 requests.exceptions.JSONDecodeError,
                 requests.exceptions.HTTPError,
             ),
-            giveup=_giveup,
             max_time=self.timeout,
         )
         def _request_status(self, endpoint, task_id):
@@ -148,14 +146,27 @@ class QiskitTranspilerService:
             _raise_transpiler_error_and_log(f"Error: {exc}")
 
     def _request_and_wait(self, endpoint: str, body: Dict, params: Dict):
-        resp = requests.post(
-            f"{self.url}/{endpoint}",
-            headers=self.headers,
-            json=body,
-            params=params,
+        @backoff.on_exception(
+            backoff.expo,
+            (
+                requests.exceptions.Timeout,
+                requests.exceptions.ConnectionError,
+                requests.exceptions.JSONDecodeError,
+                requests.exceptions.HTTPError,
+            ),
+            max_tries=3,
         )
-        resp.raise_for_status()
-        resp = resp.json()
+        def _request_transp(endpoint: str, body: Dict, params: Dict):
+            resp = requests.post(
+                f"{self.url}/{endpoint}",
+                headers=self.headers,
+                json=body,
+                params=params,
+            )
+            resp.raise_for_status()
+            return resp.json()
+
+        resp = _request_transp(endpoint, body, params)
         task_id = resp.get("task_id")
 
         result = BackendTaskError(
