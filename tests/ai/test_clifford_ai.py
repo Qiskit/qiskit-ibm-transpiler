@@ -39,11 +39,11 @@ def test_clifford_wrong_backend(random_circuit_transpiled, caplog):
 @pytest.mark.skip(
     reason="Unreliable. It passes most of the times with the timeout of 1 second for the current circuits used"
 )
-def test_clifford_exceed_timeout(random_circuit_transpiled, backend, caplog):
+def test_clifford_exceed_timeout(random_circuit_transpiled, backend_27q, caplog):
     ai_optimize_cliff = PassManager(
         [
             CollectCliffords(),
-            AICliffordSynthesis(backend_name=backend, timeout=1),
+            AICliffordSynthesis(backend_name=backend_27q, timeout=1),
         ]
     )
     ai_optimized_circuit = ai_optimize_cliff.run(random_circuit_transpiled)
@@ -52,11 +52,11 @@ def test_clifford_exceed_timeout(random_circuit_transpiled, backend, caplog):
     assert isinstance(ai_optimized_circuit, QuantumCircuit)
 
 
-def test_clifford_wrong_token(random_circuit_transpiled, backend, caplog):
+def test_clifford_wrong_token(random_circuit_transpiled, backend_27q, caplog):
     ai_optimize_cliff = PassManager(
         [
             CollectCliffords(),
-            AICliffordSynthesis(backend_name=backend, token="invented_token_2"),
+            AICliffordSynthesis(backend_name=backend_27q, token="invented_token_2"),
         ]
     )
     ai_optimized_circuit = ai_optimize_cliff.run(random_circuit_transpiled)
@@ -67,11 +67,11 @@ def test_clifford_wrong_token(random_circuit_transpiled, backend, caplog):
 
 
 @pytest.mark.disable_monkeypatch
-def test_clifford_wrong_url(random_circuit_transpiled, backend, caplog):
+def test_clifford_wrong_url(random_circuit_transpiled, backend_27q, caplog):
     ai_optimize_cliff = PassManager(
         [
             CollectCliffords(),
-            AICliffordSynthesis(backend_name=backend, base_url="https://ibm.com/"),
+            AICliffordSynthesis(backend_name=backend_27q, base_url="https://ibm.com/"),
         ]
     )
     ai_optimized_circuit = ai_optimize_cliff.run(random_circuit_transpiled)
@@ -80,12 +80,12 @@ def test_clifford_wrong_url(random_circuit_transpiled, backend, caplog):
 
 
 @pytest.mark.disable_monkeypatch
-def test_clifford_unexisting_url(random_circuit_transpiled, backend, caplog):
+def test_clifford_unexisting_url(random_circuit_transpiled, backend_27q, caplog):
     ai_optimize_cliff = PassManager(
         [
             CollectCliffords(),
             AICliffordSynthesis(
-                backend_name=backend,
+                backend_name=backend_27q,
                 base_url="https://invented-domain-qiskit-transpiler-service-123.com/",
             ),
         ]
@@ -100,11 +100,11 @@ def test_clifford_unexisting_url(random_circuit_transpiled, backend, caplog):
     assert isinstance(ai_optimized_circuit, QuantumCircuit)
 
 
-def test_clifford_function(random_circuit_transpiled, backend):
+def test_clifford_function(random_circuit_transpiled, backend_27q):
     ai_optimize_cliff = PassManager(
         [
             CollectCliffords(),
-            AICliffordSynthesis(backend_name=backend),
+            AICliffordSynthesis(backend_name=backend_27q),
         ]
     )
     ai_optimized_circuit = ai_optimize_cliff.run(random_circuit_transpiled)

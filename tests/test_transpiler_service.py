@@ -291,7 +291,7 @@ def test_transpile_malformed_body():
     except Exception as e:
         assert (
             str(e)
-            == "\"transpile() got an unexpected keyword argument 'failing_option'\""
+            == "\"Error transpiling with Qiskit and qiskit_transpile_options: transpile() got an unexpected keyword argument 'failing_option'\""
         )
 
 
@@ -381,20 +381,20 @@ def transpile_and_check_layout(cmap, circuit):
     compare_layouts(plugin_circ, non_ai_circ)
 
 
-def test_layout_construction_no_service(backend, cmap_backend):
+def test_layout_construction_no_service(backend_27q, cmap_backend):
     for n_qubits in [5, 10, 15, 20, 27]:
         circuit = random_circuit(n_qubits, 4, measure=True)
-        transpile_and_check_layout(cmap_backend[backend], circuit)
+        transpile_and_check_layout(cmap_backend[backend_27q], circuit)
     for n_qubits in [5, 10, 15, 20, 27]:
         circuit = EfficientSU2(n_qubits, entanglement="circular", reps=1).decompose()
-        transpile_and_check_layout(cmap_backend[backend], circuit)
+        transpile_and_check_layout(cmap_backend[backend_27q], circuit)
 
     for n_qubits in [5, 10, 15, 20, 27]:
         circuit = QuantumCircuit(n_qubits)
         circuit.cx(0, 1)
         circuit.cx(1, 2)
         circuit.h(4)
-        transpile_and_check_layout(cmap_backend[backend], circuit)
+        transpile_and_check_layout(cmap_backend[backend_27q], circuit)
 
 
 def test_fix_ecr_qasm2():

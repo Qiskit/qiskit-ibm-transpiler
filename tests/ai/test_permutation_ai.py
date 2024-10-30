@@ -21,8 +21,8 @@ from qiskit_transpiler_service.ai.synthesis import AIPermutationSynthesis
 
 
 @pytest.fixture
-def permutations_circuit(backend, cmap_backend):
-    coupling_map = cmap_backend[backend]
+def permutations_circuit(backend_27q, cmap_backend):
+    coupling_map = cmap_backend[backend_27q]
     cmap = list(coupling_map.get_edges())
     orig_qc = QuantumCircuit(27)
     for i, j in cmap:
@@ -64,11 +64,11 @@ def test_permutation_wrong_backend(caplog):
 @pytest.mark.skip(
     reason="Unreliable. It passes most of the times with the timeout of 1 second for the current circuits used"
 )
-def test_permutation_exceed_timeout(random_circuit_transpiled, backend, caplog):
+def test_permutation_exceed_timeout(random_circuit_transpiled, backend_27q, caplog):
     ai_optimize_perm = PassManager(
         [
             CollectPermutations(min_block_size=2, max_block_size=27),
-            AIPermutationSynthesis(backend_name=backend, timeout=1),
+            AIPermutationSynthesis(backend_name=backend_27q, timeout=1),
         ]
     )
     ai_optimized_circuit = ai_optimize_perm.run(random_circuit_transpiled)
@@ -80,11 +80,11 @@ def test_permutation_exceed_timeout(random_circuit_transpiled, backend, caplog):
 @pytest.mark.skip(
     reason="Unreliable many times. We'll research why it fails sporadically"
 )
-def test_permutation_wrong_token(random_circuit_transpiled, backend, caplog):
+def test_permutation_wrong_token(random_circuit_transpiled, backend_27q, caplog):
     ai_optimize_perm = PassManager(
         [
             CollectPermutations(min_block_size=2, max_block_size=27),
-            AIPermutationSynthesis(backend_name=backend, token="invented_token_2"),
+            AIPermutationSynthesis(backend_name=backend_27q, token="invented_token_2"),
         ]
     )
     ai_optimized_circuit = ai_optimize_perm.run(random_circuit_transpiled)
@@ -96,11 +96,13 @@ def test_permutation_wrong_token(random_circuit_transpiled, backend, caplog):
     reason="Unreliable many times. We'll research why it fails sporadically"
 )
 @pytest.mark.disable_monkeypatch
-def test_permutation_wrong_url(random_circuit_transpiled, backend):
+def test_permutation_wrong_url(random_circuit_transpiled, backend_27q):
     ai_optimize_perm = PassManager(
         [
             CollectPermutations(min_block_size=2, max_block_size=27),
-            AIPermutationSynthesis(backend_name=backend, base_url="https://ibm.com/"),
+            AIPermutationSynthesis(
+                backend_name=backend_27q, base_url="https://ibm.com/"
+            ),
         ]
     )
     try:
@@ -115,12 +117,12 @@ def test_permutation_wrong_url(random_circuit_transpiled, backend):
     reason="Unreliable many times. We'll research why it fails sporadically"
 )
 @pytest.mark.disable_monkeypatch
-def test_permutation_unexisting_url(random_circuit_transpiled, backend, caplog):
+def test_permutation_unexisting_url(random_circuit_transpiled, backend_27q, caplog):
     ai_optimize_perm = PassManager(
         [
             CollectPermutations(min_block_size=2, max_block_size=27),
             AIPermutationSynthesis(
-                backend_name=backend,
+                backend_name=backend_27q,
                 base_url="https://invented-domain-qiskit-transpiler-service-123.com/",
             ),
         ]
@@ -135,9 +137,9 @@ def test_permutation_unexisting_url(random_circuit_transpiled, backend, caplog):
     assert isinstance(ai_optimized_circuit, QuantumCircuit)
 
 
-def test_permutation_collector(permutations_circuit, backend, cmap_backend):
+def test_permutation_collector(permutations_circuit, backend_27q, cmap_backend):
     qiskit_lvl3_transpiler = generate_preset_pass_manager(
-        optimization_level=1, coupling_map=cmap_backend[backend]
+        optimization_level=1, coupling_map=cmap_backend[backend_27q]
     )
     permutations_circuit = qiskit_lvl3_transpiler.run(permutations_circuit)
 
@@ -158,14 +160,14 @@ def test_permutation_collector(permutations_circuit, backend, cmap_backend):
     assert not dag.named_nodes("clifford", "Clifford")
 
 
-def test_permutation_pass(permutations_circuit, backend, caplog):
+def test_permutation_pass(permutations_circuit, backend_27q, caplog):
 
     ai_optimize_perm = PassManager(
         [
             CollectPermutations(max_block_size=27),
-            AIPermutationSynthesis(backend_name=backend),
+            AIPermutationSynthesis(backend_name=backend_27q),
         ]
     )
     ai_optimized_circuit = ai_optimize_perm.run(permutations_circuit)
-    assert "Using the synthesized circuit" in caplog.text
+    assert "Requesting synthesis to the service" in caplog.text
     assert isinstance(ai_optimized_circuit, QuantumCircuit)

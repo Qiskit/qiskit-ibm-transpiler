@@ -21,18 +21,18 @@ from qiskit_transpiler_service.ai.routing import AIRouting
 
 
 @pytest.mark.parametrize("optimization_level", [0, 4, 5])
-def test_qv_routing_wrong_opt_level(optimization_level, backend, qv_circ):
+def test_qv_routing_wrong_opt_level(optimization_level, backend_27q, qv_circ):
     pm = PassManager(
-        [AIRouting(optimization_level=optimization_level, backend_name=backend)]
+        [AIRouting(optimization_level=optimization_level, backend_name=backend_27q)]
     )
     with pytest.raises(TranspilerError):
         pm.run(qv_circ)
 
 
 @pytest.mark.parametrize("layout_mode", ["RECREATE", "BOOST"])
-def test_qv_routing_wrong_layout_mode(layout_mode, backend, qv_circ):
+def test_qv_routing_wrong_layout_mode(layout_mode, backend_27q, qv_circ):
     with pytest.raises(ValueError):
-        PassManager([AIRouting(layout_mode=layout_mode, backend_name=backend)])
+        PassManager([AIRouting(layout_mode=layout_mode, backend_name=backend_27q)])
 
 
 def test_routing_wrong_backend(random_circuit_transpiled):
@@ -53,20 +53,20 @@ def test_routing_wrong_backend(random_circuit_transpiled):
 @pytest.mark.skip(
     reason="Unreliable. It passes most of the times with the timeout of 1 second for the current circuits used"
 )
-def test_routing_exceed_timeout(qv_circ, backend):
+def test_routing_exceed_timeout(qv_circ, backend_27q):
     ai_optimize_lf = PassManager(
         [
-            AIRouting(backend_name=backend, timeout=1),
+            AIRouting(backend_name=backend_27q, timeout=1),
         ]
     )
     ai_optimized_circuit = ai_optimize_lf.run(qv_circ)
     assert isinstance(ai_optimized_circuit, QuantumCircuit)
 
 
-def test_routing_wrong_token(qv_circ, backend):
+def test_routing_wrong_token(qv_circ, backend_27q):
     ai_optimize_lf = PassManager(
         [
-            AIRouting(backend_name=backend, token="invented_token_2"),
+            AIRouting(backend_name=backend_27q, token="invented_token_2"),
         ]
     )
     try:
@@ -77,10 +77,10 @@ def test_routing_wrong_token(qv_circ, backend):
 
 
 @pytest.mark.disable_monkeypatch
-def test_routing_wrong_url(qv_circ, backend):
+def test_routing_wrong_url(qv_circ, backend_27q):
     ai_optimize_lf = PassManager(
         [
-            AIRouting(backend_name=backend, base_url="https://ibm.com/"),
+            AIRouting(backend_name=backend_27q, base_url="https://ibm.com/"),
         ]
     )
     try:
@@ -92,11 +92,11 @@ def test_routing_wrong_url(qv_circ, backend):
 
 
 @pytest.mark.disable_monkeypatch
-def test_routing_unexisting_url(qv_circ, backend):
+def test_routing_unexisting_url(qv_circ, backend_27q):
     ai_optimize_lf = PassManager(
         [
             AIRouting(
-                backend_name=backend,
+                backend_name=backend_27q,
                 base_url="https://invented-domain-qiskit-transpiler-service-123.com/",
             ),
         ]
@@ -115,13 +115,13 @@ def test_routing_unexisting_url(qv_circ, backend):
 
 @pytest.mark.parametrize("layout_mode", ["KEEP", "OPTIMIZE", "IMPROVE"])
 @pytest.mark.parametrize("optimization_level", [1, 2, 3])
-def test_qv_routing(optimization_level, layout_mode, backend, qv_circ):
+def test_qv_routing(optimization_level, layout_mode, backend_27q, qv_circ):
     pm = PassManager(
         [
             AIRouting(
                 optimization_level=optimization_level,
                 layout_mode=layout_mode,
-                backend_name=backend,
+                backend_name=backend_27q,
             )
         ]
     )

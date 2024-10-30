@@ -114,7 +114,7 @@ def test_linear_function_unexisting_url(random_circuit_transpiled, backend, capl
     assert isinstance(ai_optimized_circuit, QuantumCircuit)
 
 
-def test_linear_always_replace(backend, caplog):
+def test_linear_always_replace(backend_27q, caplog):
     orig_qc = QuantumCircuit(3)
     orig_qc.cx(0, 1)
     orig_qc.cx(1, 2)
@@ -122,7 +122,7 @@ def test_linear_always_replace(backend, caplog):
         [
             CollectLinearFunctions(),
             AILinearFunctionSynthesis(
-                backend_name=backend, replace_only_if_better=False
+                backend_name=backend_27q, replace_only_if_better=False
             ),
         ]
     )
@@ -131,14 +131,14 @@ def test_linear_always_replace(backend, caplog):
     assert isinstance(ai_optimized_circuit, QuantumCircuit)
 
 
-def test_linear_function_only_replace_if_better(backend, caplog):
+def test_linear_function_only_replace_if_better(backend_27q, caplog):
     orig_qc = QuantumCircuit(3)
     orig_qc.cx(0, 1)
     orig_qc.cx(1, 2)
     ai_optimize_lf = PassManager(
         [
             CollectLinearFunctions(min_block_size=2),
-            AILinearFunctionSynthesis(backend_name=backend),
+            AILinearFunctionSynthesis(backend_name=backend_27q),
         ]
     )
     ai_optimized_circuit = ai_optimize_lf.run(orig_qc)
@@ -147,11 +147,11 @@ def test_linear_function_only_replace_if_better(backend, caplog):
     assert isinstance(ai_optimized_circuit, QuantumCircuit)
 
 
-def test_linear_function_pass(random_circuit_transpiled, backend, caplog):
+def test_linear_function_pass(random_circuit_transpiled, backend_27q, caplog):
     ai_optimize_lf = PassManager(
         [
             CollectLinearFunctions(),
-            AILinearFunctionSynthesis(backend_name=backend),
+            AILinearFunctionSynthesis(backend_name=backend_27q),
         ]
     )
     ai_optimized_circuit = ai_optimize_lf.run(random_circuit_transpiled)
