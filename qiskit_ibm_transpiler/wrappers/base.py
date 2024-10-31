@@ -113,7 +113,8 @@ class QiskitTranspilerService:
     def request_status(self, endpoint, task_id):
         @backoff.on_predicate(
             backoff.constant,
-            lambda res: res.get("state") not in ["SUCCESS", "FAILURE"],
+            lambda res: res.get("state") not in ["SUCCESS", "FAILURE"]
+            or (res.get("state") == "SUCCESS" and res.get("result") is None),
             jitter=None,
             interval=_status_interval_generator(
                 fast_interval=1, slow_interval=5, switch_time=60
