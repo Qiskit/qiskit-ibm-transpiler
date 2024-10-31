@@ -28,7 +28,7 @@ from qiskit.quantum_info import SparsePauliOp, random_hermitian
 
 from qiskit_ibm_transpiler.transpiler_service import TranspilerService
 from qiskit_ibm_transpiler.wrappers import _get_circuit_from_result
-from qiskit_ibm_transpiler.utils import input_to_qpy
+from qiskit_ibm_transpiler.utils import get_circuit_from_qpy, input_to_qpy
 
 
 @pytest.mark.parametrize(
@@ -397,6 +397,14 @@ def test_layout_construction_no_service(backend_27q, cmap_backend):
         circuit.cx(1, 2)
         circuit.h(4)
         transpile_and_check_layout(cmap_backend[backend_27q], circuit)
+
+
+def test_fix_ecr_qpy():
+    qc = QuantumCircuit(5)
+    qc.ecr(0, 2)
+
+    circuit_from_qpy = get_circuit_from_qpy(input_to_qpy(qc))
+    assert isinstance(list(circuit_from_qpy)[0].operation, ECRGate)
 
 
 def test_fix_ecr_ibm_strasbourg():
