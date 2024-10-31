@@ -1,1 +1,0 @@
-Added fix to avoid random test errors. Check that result exists when result is success.
