@@ -18,7 +18,11 @@ from qiskit import QuantumCircuit, QuantumRegister
 from qiskit.circuit import QuantumCircuit, QuantumRegister, Qubit
 from qiskit.transpiler import TranspileLayout
 from qiskit.transpiler.layout import Layout
-from qiskit_ibm_transpiler.utils import get_circuit_from_qpy, input_to_qpy
+from qiskit_ibm_transpiler.utils import (
+    get_circuit_from_qpy,
+    get_circuits_from_qpy,
+    input_to_qpy,
+)
 from qiskit_ibm_transpiler.wrappers import QiskitTranspilerService
 
 # setting backoff logger to error level to avoid too much logging
@@ -49,12 +53,12 @@ class TranspileAPI(QiskitTranspilerService):
         ai_layout_mode: str = None,
         use_fractional_gates: bool = False,
     ):
-        circuits = circuits if isinstance(circuits, list) else [circuits]
-
-        qpy_circuits = input_to_qpy(circuits)
+        circuits = [circuits] if isinstance(circuits, QuantumCircuit) else circuits
 
         body_params = {
-            "qpy_circuits": qpy_circuits,
+            "qpy_circuits": (
+                circuits if isinstance(circuits, str) else input_to_qpy(circuits)
+            ),
             "optimization_preferences": optimization_preferences,
         }
 
@@ -82,6 +86,8 @@ class TranspileAPI(QiskitTranspilerService):
         logger.debug(f"transpile_resp={transpile_resp}")
 
         transpiled_circuits = []
+        if isinstance(circuits, str):
+            circuits = get_circuits_from_qpy(circuits)
 
         for res, orig_circ in zip(transpile_resp, circuits):
             try:

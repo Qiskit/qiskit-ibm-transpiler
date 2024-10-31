@@ -112,7 +112,8 @@ def test_rand_circ_cmap_routing(
     assert isinstance(transpiled_circuit, QuantumCircuit)
 
 
-def test_qv_circ_several_circuits_routing():
+@pytest.mark.parametrize("input_format", ["QuantumCircuit", "QPY"])
+def test_qv_circ_several_circuits_routing(input_format):
     qv_circ = QuantumVolume(5, depth=3, seed=42).decompose(reps=3)
 
     cloud_transpiler_service = TranspilerService(
@@ -120,11 +121,13 @@ def test_qv_circ_several_circuits_routing():
         ai="true",
         optimization_level=1,
     )
-    transpiled_circuit = cloud_transpiler_service.run([qv_circ] * 2)
-    for circ in transpiled_circuit:
-        assert isinstance(circ, QuantumCircuit)
 
-    transpiled_circuit = cloud_transpiler_service.run(input_to_qpy([qv_circ] * 2))
+    if input_format == "QPY":
+        input = input_to_qpy([qv_circ] * 2)
+    else:
+        input = [qv_circ] * 2
+
+    transpiled_circuit = cloud_transpiler_service.run(input)
     for circ in transpiled_circuit:
         assert isinstance(circ, QuantumCircuit)
 
