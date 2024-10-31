@@ -323,6 +323,18 @@ def test_transpile_failing_task():
         assert "FAILED" in str(e)
 
 
+def test_transpile_wrong_circuits_format():
+    circuit = random_circuit(5, depth=3, seed=42).decompose(reps=3)
+
+    cloud_transpiler_service = TranspilerService(
+        backend_name="ibm_brisbane", optimization_level=1
+    )
+
+    wrong_input = [input_to_qpy(circuit)] * 2
+    with pytest.raises(TypeError):
+        cloud_transpiler_service.run(wrong_input)
+
+
 def compare_layouts(plugin_circ, non_ai_circ):
     assert (
         plugin_circ.layout.initial_layout == non_ai_circ.layout.initial_layout

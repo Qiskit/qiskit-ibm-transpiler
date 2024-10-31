@@ -41,7 +41,7 @@ class TranspileAPI(QiskitTranspilerService):
 
     def transpile(
         self,
-        circuits: Union[str, Union[List[QuantumCircuit], QuantumCircuit, str]],
+        circuits: Union[List[QuantumCircuit], QuantumCircuit, str],
         optimization_level: int = 1,
         optimization_preferences: Union[
             OptimizationOptions, List[OptimizationOptions], None
