@@ -37,9 +37,7 @@ class TranspileAPI(QiskitTranspilerService):
 
     def transpile(
         self,
-        circuits: Union[
-            Union[List[str], str], Union[List[QuantumCircuit], QuantumCircuit]
-        ],
+        circuits: Union[str, Union[List[QuantumCircuit], QuantumCircuit, str]],
         optimization_level: int = 1,
         optimization_preferences: Union[
             OptimizationOptions, List[OptimizationOptions], None
@@ -51,6 +49,8 @@ class TranspileAPI(QiskitTranspilerService):
         ai_layout_mode: str = None,
         use_fractional_gates: bool = False,
     ):
+        circuits = circuits if isinstance(circuits, list) else [circuits]
+
         qpy_circuits = input_to_qpy(circuits)
 
         body_params = {

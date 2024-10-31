@@ -74,14 +74,16 @@ def random_clifford_from_linear_function(n_qubits: int, seed: int = 123):
 
 
 def input_to_qpy(input_circ: Union[QuantumCircuit, List[QuantumCircuit], str]) -> str:
-    if isinstance(input_circ, QuantumCircuit):
+    if isinstance(input_circ, QuantumCircuit) or isinstance(input_circ, list):
         output_b = io.BytesIO()
         qpy.dump(input_circ, output_b)
         qpy_string = base64.b64encode(output_b.getvalue()).decode("utf-8")
     elif isinstance(input_circ, str):
         qpy_string = input_circ
     else:
-        raise TypeError("Input circuits must be QuantumCircuit or qpy string.")
+        raise TypeError(
+            f"Input circuits must be QuantumCircuit, a list of QuantumCircuits or qpy string. Type provided: {type(input_circ)}"
+        )
     return qpy_string
 
 
