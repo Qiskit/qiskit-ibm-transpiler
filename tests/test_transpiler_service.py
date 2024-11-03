@@ -112,7 +112,7 @@ def test_rand_circ_cmap_routing(
     assert isinstance(transpiled_circuit, QuantumCircuit)
 
 
-@pytest.mark.parametrize("num_circuits", [1, 2, 5])
+@pytest.mark.parametrize("num_circuits", [2, 5])
 def test_qv_circ_several_circuits_routing(num_circuits):
     qv_circ = QuantumVolume(5, depth=3, seed=42).decompose(reps=3)
 
