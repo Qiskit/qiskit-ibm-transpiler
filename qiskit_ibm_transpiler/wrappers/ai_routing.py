@@ -11,7 +11,7 @@
 # that they have been altered from the originals.
 
 from qiskit import QuantumCircuit
-from qiskit_ibm_transpiler.utils import get_circuit_from_qpy, input_to_qpy
+from qiskit_ibm_transpiler.utils import get_circuit_from_qpy, get_qpy_from_circuit
 from .base import QiskitTranspilerService
 from typing import List, Union, Literal
 
@@ -37,10 +37,8 @@ class AIRoutingAPI(QiskitTranspilerService):
             OptimizationOptions, List[OptimizationOptions], None
         ] = None,
     ):
-        qpy = input_to_qpy(circuit)
-
         body_params = {
-            "qpy": qpy,
+            "qpy": get_qpy_from_circuit(circuit),
             "coupling_map": coupling_map,
             "optimization_preferences": optimization_preferences,
         }

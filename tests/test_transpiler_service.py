@@ -28,7 +28,7 @@ from qiskit.quantum_info import SparsePauliOp, random_hermitian
 
 from qiskit_ibm_transpiler.transpiler_service import TranspilerService
 from qiskit_ibm_transpiler.wrappers import _get_circuit_from_result
-from qiskit_ibm_transpiler.utils import get_circuit_from_qpy, input_to_qpy
+from qiskit_ibm_transpiler.utils import get_circuit_from_qpy, get_qpy_from_circuit
 
 
 @pytest.mark.parametrize(
@@ -112,8 +112,8 @@ def test_rand_circ_cmap_routing(
     assert isinstance(transpiled_circuit, QuantumCircuit)
 
 
-@pytest.mark.parametrize("input_format", ["QuantumCircuit", "QPY"])
-def test_qv_circ_several_circuits_routing(input_format):
+@pytest.mark.parametrize("num_circuits", [1, 2, 5])
+def test_qv_circ_several_circuits_routing(num_circuits):
     qv_circ = QuantumVolume(5, depth=3, seed=42).decompose(reps=3)
 
     cloud_transpiler_service = TranspilerService(
@@ -122,12 +122,7 @@ def test_qv_circ_several_circuits_routing(input_format):
         optimization_level=1,
     )
 
-    if input_format == "QPY":
-        input = input_to_qpy([qv_circ] * 2)
-    else:
-        input = [qv_circ] * 2
-
-    transpiled_circuit = cloud_transpiler_service.run(input)
+    transpiled_circuit = cloud_transpiler_service.run([qv_circ] * num_circuits)
     for circ in transpiled_circuit:
         assert isinstance(circ, QuantumCircuit)
 
@@ -315,7 +310,7 @@ def test_transpile_failing_task():
     )
 
     try:
-        transpiler_service.run(qpy_circuit)
+        transpiler_service.run(get_circuit_from_qpy(qpy_circuit))
         pytest.fail("Error expected")
     except Exception as e:
         assert "The background task" in str(e)
@@ -329,7 +324,7 @@ def test_transpile_wrong_circuits_format():
         backend_name="ibm_brisbane", optimization_level=1
     )
 
-    wrong_input = [input_to_qpy(circuit)] * 2
+    wrong_input = [get_qpy_from_circuit(circuit)] * 2
     with pytest.raises(TypeError):
         cloud_transpiler_service.run(wrong_input)
 
@@ -364,7 +359,7 @@ def compare_layouts(plugin_circ, non_ai_circ):
 
 def get_circuit_as_in_service(circuit):
     return {
-        "qpy": input_to_qpy(circuit),
+        "qpy": get_qpy_from_circuit(circuit),
         "layout": {
             "initial": circuit.layout.initial_index_layout(),
             "final": circuit.layout.final_index_layout(False),
@@ -403,7 +398,7 @@ def test_fix_ecr_qpy():
     qc = QuantumCircuit(5)
     qc.ecr(0, 2)
 
-    circuit_from_qpy = get_circuit_from_qpy(input_to_qpy(qc))
+    circuit_from_qpy = get_circuit_from_qpy(get_qpy_from_circuit(qc))
     assert isinstance(list(circuit_from_qpy)[0].operation, ECRGate)
 
 

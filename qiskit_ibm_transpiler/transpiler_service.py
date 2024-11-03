@@ -96,7 +96,7 @@ class TranspilerService:
 
     def run(
         self,
-        circuits: Union[List[QuantumCircuit], QuantumCircuit, str],
+        circuits: Union[List[QuantumCircuit], QuantumCircuit],
     ):
         """Transpile the circuit(s) by calling the service /transpile endpoint.
 

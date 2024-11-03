@@ -21,7 +21,7 @@ from qiskit.transpiler.layout import Layout
 from qiskit_ibm_transpiler.utils import (
     get_circuit_from_qpy,
     get_circuits_from_qpy,
-    input_to_qpy,
+    get_qpy_from_circuit,
 )
 from qiskit_ibm_transpiler.wrappers import QiskitTranspilerService
 
@@ -41,7 +41,7 @@ class TranspileAPI(QiskitTranspilerService):
 
     def transpile(
         self,
-        circuits: Union[List[QuantumCircuit], QuantumCircuit, str],
+        circuits: Union[List[QuantumCircuit], QuantumCircuit],
         optimization_level: int = 1,
         optimization_preferences: Union[
             OptimizationOptions, List[OptimizationOptions], None
@@ -56,9 +56,7 @@ class TranspileAPI(QiskitTranspilerService):
         circuits = [circuits] if isinstance(circuits, QuantumCircuit) else circuits
 
         body_params = {
-            "qpy_circuits": (
-                circuits if isinstance(circuits, str) else input_to_qpy(circuits)
-            ),
+            "qpy_circuits": get_qpy_from_circuit(circuits),
             "optimization_preferences": optimization_preferences,
         }
 
@@ -86,8 +84,6 @@ class TranspileAPI(QiskitTranspilerService):
         logger.debug(f"transpile_resp={transpile_resp}")
 
         transpiled_circuits = []
-        if isinstance(circuits, str):
-            circuits = get_circuits_from_qpy(circuits)
 
         for res, orig_circ in zip(transpile_resp, circuits):
             try:

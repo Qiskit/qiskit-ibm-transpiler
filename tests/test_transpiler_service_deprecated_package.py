@@ -90,7 +90,7 @@ def test_transpile_failing_task():
         assert_deprecation_warning(w)
 
     try:
-        transpiler_service.run(qpy_circuit)
+        transpiler_service.run(get_circuit_from_qpy(qpy_circuit))
         pytest.fail("Error expected")
     except Exception as e:
         assert "The background task" in str(e)
