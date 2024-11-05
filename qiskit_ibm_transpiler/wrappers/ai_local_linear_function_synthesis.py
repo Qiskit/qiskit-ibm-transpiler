@@ -14,9 +14,7 @@ import logging
 import networkx as nx
 from networkx.exception import NetworkXError
 
-from qiskit_ibm_transpiler.ai.rl_inferences.linear_functions import (
-    LinearFunctionInference,
-)
+from ai_transpiler import LinearFunctionInference
 
 from typing import Union, List
 
