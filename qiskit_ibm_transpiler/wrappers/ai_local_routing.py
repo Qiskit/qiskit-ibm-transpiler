@@ -35,13 +35,14 @@ class AILocalRouting:
             OptimizationOptions, List[OptimizationOptions], None
         ] = None,
     ):
+        coupling_map_edges = list(coupling_map.get_edges())
         coupling_map_dists_array = coupling_map.distance_matrix.astype(int).tolist()
         coupling_map_n_qubits = len(coupling_map_dists_array)
 
         # Perform routing
         routed_qc, init_layout, final_layout = AIRoutingInference().route(
             circuit=circuit,
-            coupling_map_edges=coupling_map,
+            coupling_map_edges=coupling_map_edges,
             coupling_map_n_qubits=coupling_map_n_qubits,
             coupling_map_dist_array=coupling_map_dists_array,
             layout_mode=layout_mode,
