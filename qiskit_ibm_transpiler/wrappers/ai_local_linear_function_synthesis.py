@@ -14,7 +14,7 @@ import logging
 import networkx as nx
 from networkx.exception import NetworkXError
 
-from ai_transpiler import LinearFunctionInference
+from qiskit_ibm_ai_local_transpiler import AILinearFunctionInference
 
 from typing import Union, List
 
@@ -112,7 +112,7 @@ def get_synthesized_linear_function_circuits(
         # Generate the Clifford from the dictionary to send it to the model and permute it
         clifford = perm_cliff(Clifford.from_dict(clifford_dicts[index]), subgraph_perm)
 
-        synthesized_linear_function = LinearFunctionInference().synthesize(
+        synthesized_linear_function = AILinearFunctionInference().synthesize(
             cliff=clifford, coupling_map_hash=cmap_hash
         )
 
