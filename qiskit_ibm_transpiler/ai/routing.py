@@ -22,7 +22,7 @@ from qiskit.transpiler import CouplingMap, TranspilerError
 from qiskit.transpiler.basepasses import TransformationPass
 from qiskit.transpiler.layout import Layout
 
-from qiskit_ibm_transpiler.wrappers import AIRoutingAPI
+from qiskit_ibm_transpiler.wrappers import AIRoutingAPI, AILocalRouting
 
 from typing import List, Union, Literal
 
@@ -54,9 +54,13 @@ class AIRouting(TransformationPass):
         optimization_preferences: Union[
             OptimizationOptions, List[OptimizationOptions], None
         ] = None,
+        local_mode: bool = True,
         **kwargs,
     ):
         super().__init__()
+
+        routing_provider = AILocalRouting() if local_mode else AIRoutingAPI(**kwargs)
+
         if backend_name is not None and coupling_map is not None:
             raise ValueError(
                 f"ERROR. Both backend_name and coupling_map were specified as options. Please just use one of them."
@@ -87,7 +91,7 @@ class AIRouting(TransformationPass):
                 f"ERROR. Unknown ai_layout_mode: {layout_mode}. Valid modes: 'KEEP', 'OPTIMIZE', 'IMPROVE'"
             )
         self.layout_mode = layout_mode.upper()
-        self.service = AIRoutingAPI(**kwargs)
+        self.service = routing_provider
 
     def run(self, dag):
         """Run the AIRouting pass on `dag`.
@@ -116,12 +120,12 @@ class AIRouting(TransformationPass):
             qc.remove_final_measurements(inplace=True)
 
         routed_qc, init_layout, final_layout = self.service.routing(
-            qc,
-            self.backend,
-            self.optimization_level,
-            False,
-            self.layout_mode,
-            self.optimization_preferences,
+            circuit=qc,
+            coupling_map=self.backend,
+            optimization_level=self.optimization_level,
+            check_result=False,
+            layout_mode=self.layout_mode,
+            optimization_preferences=self.optimization_preferences,
         )
 
         # TODO: Improve this
