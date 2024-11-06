@@ -68,9 +68,11 @@ class AIRouting(TransformationPass):
         if backend_name is not None:
             self.backend = backend_name
         elif coupling_map is not None:
-            if isinstance(coupling_map, list):
+            if isinstance(coupling_map, CouplingMap):
+                self.backend = coupling_map
+            elif isinstance(coupling_map, list):
                 self.backend = CouplingMap(coupling_map)
-            elif not isinstance(coupling_map, CouplingMap):
+            else:
                 raise ValueError(
                     f"ERROR. coupling_map should either be a list of int tuples or a Qiskit CouplingMap object."
                 )
