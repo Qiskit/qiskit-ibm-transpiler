@@ -131,38 +131,6 @@ class QasmType(str, Enum):
     QASM3 = "QASM3"
 
 
-def get_qasm_from_circuit(
-    circuit: QuantumCircuit | None, qasm_format: QasmType = QasmType.QASM2
-) -> str | None:
-    """Get the QASM from a circuit and remove unneeded line breaks"""
-    if circuit is None:
-        return None
-
-    try:
-        if qasm_format == QasmType.QASM2:
-            logger.info("Convert circuit to QASM2")
-            qasm = qasm2.dumps(circuit)
-        elif qasm_format == QasmType.QASM3:
-            logger.info("Convert circuit to QASM3")
-            qasm = to_qasm3_iterative_decomposition(circuit)
-        else:
-            raise ValueError(f"Unsopported format {qasm_format.name}")
-
-    except qasm2.QASM2ExportError:
-        logger.info(
-            "Incoming circuit had QASM 2 format, but the transpiled circuit couldn't be serialized with QASM 2. Trying QASM 3."
-        )
-        qasm = to_qasm3_iterative_decomposition(circuit)
-    except qasm3.QASM3ExporterError:
-        logger.info(
-            "Incoming circuit had QASM 3 format, but the transpiled circuit couldn't be serialized with QASM 3. Trying QASM 2."
-        )
-        qasm = qasm2.dumps(circuit)
-
-    qasm = qasm.replace("\n", " ").strip()
-    return qasm
-
-
 get_circuit_from_qasm.QISKIT_INSTRUCTIONS = list(qasm2.LEGACY_CUSTOM_INSTRUCTIONS)
 get_circuit_from_qasm.QISKIT_INSTRUCTIONS.append(
     qasm2.CustomInstruction("ecr", 0, 2, library.ECRGate)
