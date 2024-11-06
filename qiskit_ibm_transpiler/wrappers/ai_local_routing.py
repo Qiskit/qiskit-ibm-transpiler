@@ -15,6 +15,9 @@ from qiskit_ibm_transpiler.utils import get_circuit_from_qasm, input_to_qasm
 from typing import List, Union, Literal
 from qiskit_ibm_ai_local_transpiler import AIRoutingInference
 from qiskit.transpiler import CouplingMap
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 # TODO: Reuse this code, it's repeated several times
@@ -54,6 +57,7 @@ class AILocalRouting:
             op_params.update(optimization_level)
 
         # Perform routing
+        logger.debug("Running local routing inference")
         routed_qc, init_layout, final_layout = AIRoutingInference().route(
             circuit=circuit,
             coupling_map_edges=coupling_map_edges,
@@ -63,5 +67,6 @@ class AILocalRouting:
             op_params=op_params,
             optimization_preferences=optimization_preferences,
         )
+        logger.debug("Local routing inference completed")
 
         return routed_qc, init_layout, final_layout
