@@ -53,7 +53,12 @@ class AIRouting(TransformationPass):
         layout_mode: str = "OPTIMIZE",
         optimization_preferences: Union[
             OptimizationOptions, List[OptimizationOptions], None
-        ] = None,
+        ] = (
+            "cnot_layers",
+            "n_cnots",
+            "layers",
+            "n_gates",
+        ),
         local_mode: bool = True,
         **kwargs,
     ):
