@@ -32,6 +32,7 @@ Classes
 """
 from .collection import CollectCliffords, CollectLinearFunctions, CollectPermutations
 from .routing import AIRouting
+from .ai_pass_manager import generate_ai_pass_manager
 from .synthesis import (
     AICliffordSynthesis,
     AILinearFunctionSynthesis,
