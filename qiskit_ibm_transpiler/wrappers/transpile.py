@@ -19,9 +19,11 @@ from qiskit.circuit import QuantumCircuit, QuantumRegister, Qubit
 from qiskit.transpiler import TranspileLayout
 from qiskit.transpiler.layout import Layout
 from qiskit_ibm_transpiler.utils import (
+    deserialize_circuit_from_qpy_or_qasm,
     get_circuit_from_qpy,
     get_circuits_from_qpy,
     get_qpy_from_circuit,
+    serialize_circuits_to_qpy_or_qasm,
 )
 from qiskit_ibm_transpiler.wrappers import QiskitTranspilerService
 
@@ -54,9 +56,11 @@ class TranspileAPI(QiskitTranspilerService):
         use_fractional_gates: bool = False,
     ):
         circuits = [circuits] if isinstance(circuits, QuantumCircuit) else circuits
+        qpy_circuits, qasm_circuits = serialize_circuits_to_qpy_or_qasm(circuits)
 
         body_params = {
-            "qpy_circuits": get_qpy_from_circuit(circuits),
+            "qasm_circuits": qasm_circuits,
+            "qpy_circuits": qpy_circuits,
             "optimization_preferences": optimization_preferences,
         }
 
@@ -100,16 +104,12 @@ class TranspileAPI(QiskitTranspilerService):
 
 
 def _get_circuit_from_result(transpile_resp, orig_circuit):
-    transpiled_circuit = get_circuit_from_qpy(transpile_resp["qpy"])
+    transpiled_circuit = deserialize_circuit_from_qpy_or_qasm(
+        transpile_resp["qpy"], transpile_resp["qasm"]
+    )
 
     init_layout = transpile_resp["layout"]["initial"]
     final_layout = transpile_resp["layout"]["final"]
-
-    orig_circuit = (
-        get_circuit_from_qpy(orig_circuit)
-        if isinstance(orig_circuit, str)
-        else orig_circuit
-    )
 
     transpiled_circuit = QuantumCircuit(len(init_layout)).compose(transpiled_circuit)
     transpiled_circuit._layout = _create_transpile_layout(

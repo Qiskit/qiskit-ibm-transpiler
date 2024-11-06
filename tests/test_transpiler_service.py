@@ -14,7 +14,7 @@
 
 import numpy as np
 import pytest
-from qiskit import QuantumCircuit
+from qiskit import QuantumCircuit, qasm2, qasm3
 from qiskit.circuit.library import (
     IQP,
     EfficientSU2,
@@ -28,7 +28,13 @@ from qiskit.quantum_info import SparsePauliOp, random_hermitian
 
 from qiskit_ibm_transpiler.transpiler_service import TranspilerService
 from qiskit_ibm_transpiler.wrappers import _get_circuit_from_result
-from qiskit_ibm_transpiler.utils import get_circuit_from_qpy, get_qpy_from_circuit
+from qiskit_ibm_transpiler.utils import (
+    get_circuit_from_qasm,
+    get_circuit_from_qpy,
+    get_qpy_from_circuit,
+    input_to_qasm,
+    to_qasm3_iterative_decomposition,
+)
 
 
 @pytest.mark.parametrize(
@@ -394,6 +400,22 @@ def test_layout_construction_no_service(backend_27q, cmap_backend):
         transpile_and_check_layout(cmap_backend[backend_27q], circuit)
 
 
+def test_fix_ecr_qasm2():
+    qc = QuantumCircuit(5)
+    qc.ecr(0, 2)
+
+    circuit_from_qasm = get_circuit_from_qasm(qasm2.dumps(qc))
+    assert isinstance(list(circuit_from_qasm)[0].operation, ECRGate)
+
+
+def test_fix_ecr_qasm3():
+    qc = QuantumCircuit(5)
+    qc.ecr(0, 2)
+
+    circuit_from_qasm = get_circuit_from_qasm(qasm3.dumps(qc))
+    assert isinstance(list(circuit_from_qasm)[0].operation, ECRGate)
+
+
 def test_fix_ecr_qpy():
     qc = QuantumCircuit(5)
     qc.ecr(0, 2)
@@ -452,6 +474,19 @@ def test_transpile_valid_use_fractional_gates_param(valid_use_fractional_gates_p
     transpiled_circuit = transpiler_service.run(circuit)
 
     assert isinstance(transpiled_circuit, QuantumCircuit)
+
+
+def test_qasm3_iterative_decomposition():
+    feature_map = ZZFeatureMap(feature_dimension=3, reps=1, entanglement="full")
+    qasm = input_to_qasm(feature_map)
+    qc = get_circuit_from_qasm(qasm)
+    assert isinstance(qc, QuantumCircuit)
+
+
+def test_qasm3_iterative_decomposition_limit():
+    feature_map = ZZFeatureMap(feature_dimension=3, reps=1, entanglement="full")
+    with pytest.raises(qasm3.QASM3ExporterError):
+        to_qasm3_iterative_decomposition(feature_map, n_iter=1)
 
 
 def test_transpile_with_barrier_on_circuit():

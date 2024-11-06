@@ -11,7 +11,12 @@
 # that they have been altered from the originals.
 
 from qiskit import QuantumCircuit
-from qiskit_ibm_transpiler.utils import get_circuit_from_qpy, get_qpy_from_circuit
+from qiskit_ibm_transpiler.utils import (
+    deserialize_circuit_from_qpy_or_qasm,
+    get_circuit_from_qpy,
+    get_qpy_from_circuit,
+    serialize_circuit_to_qpy_or_qasm,
+)
 from .base import QiskitTranspilerService
 from typing import List, Union, Literal
 
@@ -37,8 +42,10 @@ class AIRoutingAPI(QiskitTranspilerService):
             OptimizationOptions, List[OptimizationOptions], None
         ] = None,
     ):
+        qpy, qasm = serialize_circuit_to_qpy_or_qasm(circuit)
         body_params = {
-            "qpy": get_qpy_from_circuit(circuit),
+            "qasm": qasm,
+            "qpy": qpy,
             "coupling_map": coupling_map,
             "optimization_preferences": optimization_preferences,
         }
@@ -54,7 +61,9 @@ class AIRoutingAPI(QiskitTranspilerService):
         )
 
         if routing_resp.get("success"):
-            routed_circuit = get_circuit_from_qpy(routing_resp["qpy"])
+            routed_circuit = deserialize_circuit_from_qpy_or_qasm(
+                routing_resp["qpy"], routing_resp["qasm"]
+            )
             return (
                 routed_circuit,
                 routing_resp["layout"]["initial"],
