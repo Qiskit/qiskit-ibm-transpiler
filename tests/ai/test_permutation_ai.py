@@ -40,25 +40,22 @@ def permutations_circuit(backend_27q, cmap_backend):
     return orig_qc
 
 
-def test_permutation_wrong_backend(caplog):
+def test_permutation_wrong_backend():
     orig_qc = QuantumCircuit(3)
     orig_qc.swap(0, 1)
     orig_qc.swap(1, 2)
 
-    ai_optimize_perm = PassManager(
-        [
-            CollectPermutations(min_block_size=2, max_block_size=27),
-            AIPermutationSynthesis(backend_name="wrong_backend"),
-        ]
-    )
-    ai_optimized_circuit = ai_optimize_perm.run(orig_qc)
-    assert "couldn't synthesize the circuit" in caplog.text
-    assert "Keeping the original circuit" in caplog.text
-    assert (
-        "User doesn't have access to the specified backend: wrong_backend"
-        in caplog.text
-    )
-    assert isinstance(ai_optimized_circuit, QuantumCircuit)
+    with pytest.raises(
+        PermissionError,
+        match=r"ERROR. Backend not supported \(\w+\)",
+    ):
+        ai_permutation_synthesis_pass = PassManager(
+            [
+                CollectPermutations(min_block_size=2, max_block_size=27),
+                AIPermutationSynthesis(backend_name="wrong_backend"),
+            ]
+        )
+        ai_permutation_synthesis_pass.run(orig_qc)
 
 
 @pytest.mark.skip(

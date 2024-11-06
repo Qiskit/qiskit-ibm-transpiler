@@ -21,10 +21,16 @@ from qiskit.converters import circuit_to_dag, dag_to_circuit
 from qiskit.transpiler import CouplingMap, TranspilerError
 from qiskit.transpiler.basepasses import TransformationPass
 from qiskit.transpiler.layout import Layout
+from qiskit.providers.backend import BackendV2 as Backend
+from qiskit_ibm_runtime import QiskitRuntimeService
 
 from qiskit_ibm_transpiler.wrappers import AIRoutingAPI, AILocalRouting
 
 from typing import List, Union, Literal
+import logging
+
+logger = logging.getLogger(__name__)
+
 
 # TODO: Reuse this code, it's repeated several times
 OptimizationOptions = Literal["n_cnots", "n_gates", "cnot_layers", "layers", "noise"]
@@ -48,6 +54,7 @@ class AIRouting(TransformationPass):
     def __init__(
         self,
         backend_name=None,
+        backend: Union[Backend, None] = None,
         coupling_map=None,
         optimization_level: int = 2,
         layout_mode: str = "OPTIMIZE",
@@ -62,17 +69,25 @@ class AIRouting(TransformationPass):
         local_mode: bool = True,
         **kwargs,
     ):
+        if backend_name:
+            # TODO: Updates with the final date
+            logger.warning(
+                "backend_name will be deprecated in February 2025, please use a backend object instead."
+            )
+
         super().__init__()
 
         routing_provider = AILocalRouting() if local_mode else AIRoutingAPI(**kwargs)
 
-        if backend_name is not None and coupling_map is not None:
+        if (backend_name or backend_name) and coupling_map:
             raise ValueError(
                 f"ERROR. Both backend_name and coupling_map were specified as options. Please just use one of them."
             )
-        if backend_name is not None:
-            self.backend = backend_name
-        elif coupling_map is not None:
+
+        if not backend and not coupling_map and not backend_name:
+            raise ValueError(f"ERROR. Either backend OR coupling_map must be set.")
+
+        if coupling_map:
             if isinstance(coupling_map, CouplingMap):
                 self.backend = coupling_map
             elif isinstance(coupling_map, list):
@@ -81,8 +96,14 @@ class AIRouting(TransformationPass):
                 raise ValueError(
                     f"ERROR. coupling_map should either be a list of int tuples or a Qiskit CouplingMap object."
                 )
-        else:
-            raise ValueError(f"ERROR. Either backend_name OR coupling_map must be set.")
+        elif backend:
+            self.backend = backend
+        elif backend_name:
+            try:
+                runtime_service = QiskitRuntimeService()
+                self.backend = runtime_service.backend(name=backend_name)
+            except Exception:
+                raise PermissionError(f"ERROR. Backend not supported ({backend_name})")
 
         self.optimization_level = optimization_level
         self.optimization_preferences = optimization_preferences

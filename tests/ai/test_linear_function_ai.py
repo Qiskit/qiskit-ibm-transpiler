@@ -19,21 +19,20 @@ from qiskit_ibm_transpiler.ai.collection import CollectLinearFunctions
 from qiskit_ibm_transpiler.ai.synthesis import AILinearFunctionSynthesis
 
 
-def test_linear_function_wrong_backend(random_circuit_transpiled, caplog):
-    ai_optimize_lf = PassManager(
-        [
-            CollectLinearFunctions(),
-            AILinearFunctionSynthesis(backend_name="wrong_backend", local_mode=False),
-        ]
-    )
-    ai_optimized_circuit = ai_optimize_lf.run(random_circuit_transpiled)
-    assert "couldn't synthesize the circuit" in caplog.text
-    assert "Keeping the original circuit" in caplog.text
-    assert (
-        "User doesn't have access to the specified backend: wrong_backend"
-        in caplog.text
-    )
-    assert isinstance(ai_optimized_circuit, QuantumCircuit)
+def test_linear_function_wrong_backend(random_circuit_transpiled):
+    with pytest.raises(
+        PermissionError,
+        match=r"ERROR. Backend not supported \(\w+\)",
+    ):
+        ai_linear_function_synthesis_pass = PassManager(
+            [
+                CollectLinearFunctions(),
+                AILinearFunctionSynthesis(
+                    backend_name="wrong_backend", local_mode=False
+                ),
+            ]
+        )
+        ai_linear_function_synthesis_pass.run(random_circuit_transpiled)
 
 
 @pytest.mark.skip(
