@@ -20,6 +20,13 @@ from qiskit.transpiler import CouplingMap
 # TODO: Reuse this code, it's repeated several times
 OptimizationOptions = Literal["n_cnots", "n_gates", "cnot_layers", "layers", "noise"]
 
+OP_LEVELS = {
+    1: {"full_its": 8, "its": 2, "reps": 2, "runs": 1, "max_time": 30},
+    2: {"full_its": 16, "its": 16, "reps": 8, "runs": 1, "max_time": 30},
+    3: {"full_its": 32, "its": 16, "reps": 8, "runs": 1, "max_time": 300},
+    100: {"full_its": 32, "its": 32, "reps": 32, "runs": 1, "max_time": 3000},
+}
+
 
 class AILocalRouting:
     """A helper class that covers the AILocalRouting funcionality"""
@@ -28,7 +35,7 @@ class AILocalRouting:
         self,
         circuit: QuantumCircuit,
         coupling_map: CouplingMap,
-        optimization_level: int = 1,
+        optimization_level: dict | int = 1,
         check_result: bool = False,
         layout_mode: str = "OPTIMIZE",
         optimization_preferences: Union[
@@ -39,6 +46,13 @@ class AILocalRouting:
         coupling_map_dists_array = coupling_map.distance_matrix.astype(int).tolist()
         coupling_map_n_qubits = len(coupling_map_dists_array)
 
+        op_params = OP_LEVELS[optimization_level]
+
+        if type(optimization_level) is dict:
+            # Users can provide their own values by providing a dict
+            op_params = OP_LEVELS[3].copy()
+            op_params.update(optimization_level)
+
         # Perform routing
         routed_qc, init_layout, final_layout = AIRoutingInference().route(
             circuit=circuit,
@@ -46,7 +60,7 @@ class AILocalRouting:
             coupling_map_n_qubits=coupling_map_n_qubits,
             coupling_map_dist_array=coupling_map_dists_array,
             layout_mode=layout_mode,
-            op_params=optimization_level,
+            op_params=op_params,
             optimization_preferences=optimization_preferences,
         )
 
