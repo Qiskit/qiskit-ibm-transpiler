@@ -14,7 +14,7 @@ import logging
 import os
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from multiprocessing import cpu_count
-from typing import Dict, List, Union
+from typing import List, Union
 
 from qiskit.circuit.exceptions import CircuitError
 from qiskit.converters import circuit_to_dag
@@ -77,7 +77,7 @@ class AISynthesis(TransformationPass):
                 originals.append(orig)
         except CircuitError:
             logger.warning(
-                f"Error getting  synth input from node. Skipping ai transpilation."
+                "Error getting  synth input from node. Skipping ai transpilation."
             )
             return [], []
 
@@ -109,7 +109,7 @@ class AISynthesis(TransformationPass):
         return outputs, nodes
 
     def run(self, dag: DAGCircuit):
-        logger.info(f"Requesting synthesis to the service")
+        logger.info("Requesting synthesis to the service")
 
         future_list = []
 
