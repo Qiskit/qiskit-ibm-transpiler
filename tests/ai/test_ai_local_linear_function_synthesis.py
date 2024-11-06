@@ -25,17 +25,16 @@ def test_ai_local_linear_function_synthesis_wrong_backend():
     original_circuit.cx(0, 1)
     original_circuit.cx(1, 2)
 
-    ai_linear_functions_synthesis_pass = PassManager(
-        [
-            CollectLinearFunctions(min_block_size=2),
-            AILinearFunctionSynthesis(backend_name="wrong_backend"),
-        ]
-    )
-
     with pytest.raises(
         PermissionError,
         match=r"ERROR. Backend not supported \(\w+\)",
     ):
+        ai_linear_functions_synthesis_pass = PassManager(
+            [
+                CollectLinearFunctions(min_block_size=2),
+                AILinearFunctionSynthesis(backend_name="wrong_backend"),
+            ]
+        )
         ai_linear_functions_synthesis_pass.run(original_circuit)
 
 

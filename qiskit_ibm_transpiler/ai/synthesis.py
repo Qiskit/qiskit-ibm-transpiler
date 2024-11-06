@@ -23,6 +23,9 @@ from qiskit.quantum_info import Clifford
 from qiskit.transpiler import CouplingMap
 from qiskit.transpiler.basepasses import TransformationPass
 from qiskit.transpiler.exceptions import TranspilerError
+from qiskit.providers.backend import BackendV2 as Backend
+from qiskit_ibm_runtime import QiskitRuntimeService
+
 
 from qiskit_ibm_transpiler.wrappers import (
     AICliffordAPI,
@@ -53,15 +56,31 @@ class AISynthesis(TransformationPass):
         ],
         coupling_map: Union[List[List[int]], CouplingMap, None] = None,
         backend_name: Union[str, None] = None,
+        backend: Union[Backend, None] = None,
         replace_only_if_better: bool = True,
         max_threads: Union[int, None] = None,
         **kwargs,
     ) -> None:
+        if backend_name:
+            # TODO: Updates with the final date
+            logger.warning(
+                "backend_name will be deprecated in February 2025, please use a backend object instead."
+            )
+
         if isinstance(coupling_map, CouplingMap):
             self.coupling_map = list(coupling_map.get_edges())
         else:
             self.coupling_map = coupling_map
-        self.backend_name = backend_name
+
+        if backend:
+            self.backend = backend
+        elif backend_name:
+            try:
+                runtime_service = QiskitRuntimeService()
+                self.backend = runtime_service.backend(name=backend_name)
+            except Exception:
+                raise PermissionError(f"ERROR. Backend not supported ({backend_name})")
+
         self.replace_only_if_better = replace_only_if_better
         self.synth_service = synth_service
         self.max_threads = max_threads if max_threads else MAX_THREADS
@@ -98,7 +117,7 @@ class AISynthesis(TransformationPass):
                 synth_inputs,
                 qargs=qargs,
                 coupling_map=self.coupling_map,
-                backend_name=self.backend_name,
+                backend=self.backend,
             )
         except TranspilerError as e:
             logger.warning(
@@ -154,16 +173,18 @@ class AICliffordSynthesis(AISynthesis):
         self,
         coupling_map: Union[List[List[int]], CouplingMap, None] = None,
         backend_name: Union[str, None] = None,
+        backend: Union[Backend, None] = None,
         replace_only_if_better: bool = True,
         max_threads: Union[int, None] = None,
         **kwargs,
     ) -> None:
         super().__init__(
-            AICliffordAPI(**kwargs),
-            coupling_map,
-            backend_name,
-            replace_only_if_better,
-            max_threads,
+            synth_service=AICliffordAPI(**kwargs),
+            coupling_map=coupling_map,
+            backend_name=backend_name,
+            backend=backend,
+            replace_only_if_better=replace_only_if_better,
+            max_threads=max_threads,
         )
 
     def _get_synth_input_and_original(self, node):
@@ -200,6 +221,7 @@ class AILinearFunctionSynthesis(AISynthesis):
         self,
         coupling_map: Union[List[List[int]], CouplingMap, None] = None,
         backend_name: Union[str, None] = None,
+        backend: Union[Backend, None] = None,
         replace_only_if_better: bool = True,
         max_threads: Union[int, None] = None,
         local_mode: bool = True,
@@ -212,11 +234,12 @@ class AILinearFunctionSynthesis(AISynthesis):
         )
 
         super().__init__(
-            ai_synthesis_provider,
-            coupling_map,
-            backend_name,
-            replace_only_if_better,
-            max_threads,
+            synth_service=ai_synthesis_provider,
+            coupling_map=coupling_map,
+            backend_name=backend_name,
+            backend=backend,
+            replace_only_if_better=replace_only_if_better,
+            max_threads=max_threads,
         )
 
     def _get_synth_input_and_original(self, node):
@@ -250,16 +273,18 @@ class AIPermutationSynthesis(AISynthesis):
         self,
         coupling_map: Union[List[List[int]], CouplingMap, None] = None,
         backend_name: Union[str, None] = None,
+        backend: Union[Backend, None] = None,
         replace_only_if_better: bool = True,
         max_threads: Union[int, None] = None,
         **kwargs,
     ) -> None:
         super().__init__(
-            AIPermutationAPI(**kwargs),
-            coupling_map,
-            backend_name,
-            replace_only_if_better,
-            max_threads,
+            synth_service=AIPermutationAPI(**kwargs),
+            coupling_map=coupling_map,
+            backend_name=backend_name,
+            backend=backend,
+            replace_only_if_better=replace_only_if_better,
+            max_threads=max_threads,
         )
 
     def _get_synth_input_and_original(self, node):

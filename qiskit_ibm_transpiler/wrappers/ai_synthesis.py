@@ -16,6 +16,7 @@ from typing import Union, List
 from qiskit import QuantumCircuit
 from qiskit.circuit.library import LinearFunction
 from qiskit.quantum_info import Clifford
+from qiskit.providers.backend import BackendV2 as Backend
 
 from .base import QiskitTranspilerService
 
@@ -34,8 +35,10 @@ class AICliffordAPI(QiskitTranspilerService):
         circuits: List[Union[QuantumCircuit, Clifford]],
         qargs: List[List[int]],
         coupling_map: Union[List[List[int]], None] = None,
-        backend_name: Union[str, None] = None,
+        backend: Union[Backend, None] = None,
     ):
+        backend_name = getattr(backend, "name", None)
+
         if coupling_map is not None:
             transpile_resps = self.request_and_wait(
                 endpoint="transpile",
@@ -84,7 +87,7 @@ class AILinearFunctionAPI(QiskitTranspilerService):
         circuits: List[Union[QuantumCircuit, LinearFunction]],
         qargs: List[List[int]],
         coupling_map: Union[List[List[int]], None] = None,
-        backend_name: Union[str, None] = None,
+        backend: Union[Backend, None] = None,
     ) -> List[Union[QuantumCircuit, None]]:
         """Synthetize one or more quantum circuits into an optimized equivalent. It differs from a standard synthesis process in that it takes into account where the linear functions are (qargs)
         and respects it on the synthesized circuit.
@@ -101,6 +104,8 @@ class AILinearFunctionAPI(QiskitTranspilerService):
 
         # Although this function is called `transpile`, it does a synthesis. It has this name because the synthesis
         # is made as a pass on the Qiskit Pass Manager which is used in the transpilation process.
+
+        backend_name = getattr(backend, "name", None)
 
         if not coupling_map and not backend_name:
             raise ValueError(
@@ -150,8 +155,9 @@ class AIPermutationAPI(QiskitTranspilerService):
         patterns: List[List[int]],
         qargs: List[List[int]],
         coupling_map: Union[List[List[int]], None] = None,
-        backend_name: Union[str, None] = None,
+        backend: Union[Backend, None] = None,
     ):
+        backend_name = getattr(backend, "name", None)
 
         if coupling_map is not None:
             transpile_resps = self.request_and_wait(

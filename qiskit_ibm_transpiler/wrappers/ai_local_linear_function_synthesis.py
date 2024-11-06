@@ -18,6 +18,7 @@ from typing import Union, List
 
 from qiskit import QuantumCircuit
 from qiskit.circuit.library import LinearFunction
+from qiskit.providers.backend import BackendV2 as Backend
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -31,7 +32,7 @@ class AILocalLinearFunctionSynthesis:
         circuits: List[Union[QuantumCircuit, LinearFunction]],
         qargs: List[List[int]],
         coupling_map: Union[List[List[int]], None] = None,
-        backend_name: Union[str, None] = None,
+        backend: Union[Backend, None] = None,
     ) -> List[Union[QuantumCircuit, None]]:
         """Synthetize one or more quantum circuits into an optimized equivalent. It differs from a standard synthesis process in that it takes into account where the linear functions are (qargs)
         and respects it on the synthesized circuit.
@@ -49,9 +50,9 @@ class AILocalLinearFunctionSynthesis:
         # Although this function is called `transpile`, it does a synthesis. It has this name because the synthesis
         # is made as a pass on the Qiskit Pass Manager which is used in the transpilation process.
 
-        if not coupling_map and not backend_name:
+        if not coupling_map and not backend:
             raise ValueError(
-                "ERROR. Either a 'coupling_map' or a 'backend_name' must be provided."
+                "ERROR. Either a 'coupling_map' or a 'backend' must be provided."
             )
 
         n_circs = len(circuits)
@@ -71,7 +72,7 @@ class AILocalLinearFunctionSynthesis:
 
             synthesized_linear_function = AILinearFunctionInference().synthesize(
                 circuit=circuits[index],
-                coupling_map=coupling_map,
+                coupling_map=coupling_map or backend.coupling_map,
                 circuit_qargs=circuit_qargs,
             )
 

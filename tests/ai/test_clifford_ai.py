@@ -19,21 +19,18 @@ from qiskit_ibm_transpiler.ai.collection import CollectCliffords
 from qiskit_ibm_transpiler.ai.synthesis import AICliffordSynthesis
 
 
-def test_clifford_wrong_backend(random_circuit_transpiled, caplog):
-    ai_optimize_cliff = PassManager(
-        [
-            CollectCliffords(),
-            AICliffordSynthesis(backend_name="wrong_backend"),
-        ]
-    )
-    ai_optimized_circuit = ai_optimize_cliff.run(random_circuit_transpiled)
-    assert "couldn't synthesize the circuit" in caplog.text
-    assert "Keeping the original circuit" in caplog.text
-    assert (
-        "User doesn't have access to the specified backend: wrong_backend"
-        in caplog.text
-    )
-    assert isinstance(ai_optimized_circuit, QuantumCircuit)
+def test_clifford_wrong_backend(random_circuit_transpiled):
+    with pytest.raises(
+        PermissionError,
+        match=r"ERROR. Backend not supported \(\w+\)",
+    ):
+        ai_clifford_synthesis_pass = PassManager(
+            [
+                CollectCliffords(),
+                AICliffordSynthesis(backend_name="wrong_backend"),
+            ]
+        )
+        ai_clifford_synthesis_pass.run(random_circuit_transpiled)
 
 
 @pytest.mark.skip(
