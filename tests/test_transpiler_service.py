@@ -25,6 +25,7 @@ from qiskit.circuit.library import (
 from qiskit.circuit.random import random_circuit
 from qiskit.compiler import transpile
 from qiskit.quantum_info import SparsePauliOp, random_hermitian
+from qiskit.providers.fake_provider import GenericBackendV2
 
 from qiskit_ibm_transpiler.transpiler_service import TranspilerService
 from qiskit_ibm_transpiler.wrappers import _get_circuit_from_result
@@ -333,6 +334,18 @@ def test_transpile_wrong_circuits_format():
     wrong_input = [get_qpy_from_circuit(circuit)] * 2
     with pytest.raises(TypeError):
         cloud_transpiler_service.run(wrong_input)
+
+
+def test_transpile_wrong_qpy_fallback():
+    circuit = QuantumCircuit.from_qasm_file("tests/test_files/cc_n64.qasm")
+    test_backend = GenericBackendV2(circuit.num_qubits)
+
+    cloud_transpiler_service = TranspilerService(
+        coupling_map=list(test_backend.coupling_map.get_edges()), optimization_level=3
+    )
+
+    transpiled_circuit = cloud_transpiler_service.run(circuit)
+    assert isinstance(transpiled_circuit, QuantumCircuit)
 
 
 def compare_layouts(plugin_circ, non_ai_circ):
