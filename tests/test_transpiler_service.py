@@ -366,6 +366,7 @@ def compare_layouts(plugin_circ, non_ai_circ):
 def get_circuit_as_in_service(circuit):
     return {
         "qpy": get_qpy_from_circuit(circuit),
+        "qasm": None,
         "layout": {
             "initial": circuit.layout.initial_index_layout(),
             "final": circuit.layout.final_index_layout(False),
