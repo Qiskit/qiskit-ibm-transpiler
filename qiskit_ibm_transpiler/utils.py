@@ -26,7 +26,7 @@ Functions
 
 """
 
-from typing import Dict, Union, List
+from typing import Dict, Union, List, Tuple
 
 import numpy as np
 import base64
@@ -155,7 +155,7 @@ def get_circuits_from_qpy(qpy_string: str) -> List[QuantumCircuit]:
 
 def serialize_circuit_to_qpy_or_qasm(
     input_circuit: QuantumCircuit,
-) -> tuple[Union[str, None], Union[str, None]]:
+) -> Tuple[Union[str, None], Union[str, None]]:
     qpy_result = None
     qasm_result = None
     try:
@@ -168,7 +168,7 @@ def serialize_circuit_to_qpy_or_qasm(
 
 def serialize_circuits_to_qpy_or_qasm(
     input_circuits: List[QuantumCircuit],
-) -> tuple[Union[str, None], Union[List[str], None]]:
+) -> Tuple[Union[str, None], Union[List[str], None]]:
     qpy_result = None
     qasm_result = None
     try:
