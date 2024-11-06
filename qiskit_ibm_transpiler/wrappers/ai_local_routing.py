@@ -37,7 +37,7 @@ class AILocalRouting:
         coupling_map: CouplingMap,
         optimization_level: dict | int = 1,
         check_result: bool = False,
-        layout_mode: str = "OPTIMIZE",
+        layout_mode: str = "optimize",
         optimization_preferences: Union[
             OptimizationOptions, List[OptimizationOptions], None
         ] = None,
@@ -59,7 +59,7 @@ class AILocalRouting:
             coupling_map_edges=coupling_map_edges,
             coupling_map_n_qubits=coupling_map_n_qubits,
             coupling_map_dist_array=coupling_map_dists_array,
-            layout_mode=layout_mode,
+            layout_mode=layout_mode.lower(),
             op_params=op_params,
             optimization_preferences=optimization_preferences,
         )
