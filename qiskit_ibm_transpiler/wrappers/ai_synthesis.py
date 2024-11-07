@@ -17,6 +17,7 @@ from qiskit import QuantumCircuit
 from qiskit.circuit.library import LinearFunction
 from qiskit.quantum_info import Clifford
 from qiskit.providers.backend import BackendV2 as Backend
+from qiskit.transpiler import CouplingMap
 
 from .base import QiskitTranspilerService
 
@@ -34,12 +35,14 @@ class AICliffordAPI(QiskitTranspilerService):
         self,
         circuits: List[Union[QuantumCircuit, Clifford]],
         qargs: List[List[int]],
-        coupling_map: Union[List[List[int]], None] = None,
+        coupling_map: Union[CouplingMap, None] = None,
         backend: Union[Backend, None] = None,
     ):
         backend_name = getattr(backend, "name", None)
 
         if coupling_map is not None:
+            coupling_map_list_format = list(coupling_map.get_edges())
+
             transpile_resps = self.request_and_wait(
                 endpoint="transpile",
                 body={
@@ -47,7 +50,7 @@ class AICliffordAPI(QiskitTranspilerService):
                         Clifford(circuit).to_dict() for circuit in circuits
                     ],
                     "qargs": qargs,
-                    "backend_coupling_map": coupling_map,
+                    "backend_coupling_map": coupling_map_list_format,
                 },
                 params=dict(),
             )
@@ -86,7 +89,7 @@ class AILinearFunctionAPI(QiskitTranspilerService):
         self,
         circuits: List[Union[QuantumCircuit, LinearFunction]],
         qargs: List[List[int]],
-        coupling_map: Union[List[List[int]], None] = None,
+        coupling_map: Union[CouplingMap, None] = None,
         backend: Union[Backend, None] = None,
     ) -> List[Union[QuantumCircuit, None]]:
         """Synthetize one or more quantum circuits into an optimized equivalent. It differs from a standard synthesis process in that it takes into account where the linear functions are (qargs)
@@ -120,7 +123,8 @@ class AILinearFunctionAPI(QiskitTranspilerService):
         query_params = dict()
 
         if coupling_map:
-            body_params["backend_coupling_map"] = coupling_map
+            coupling_map_list_format = list(coupling_map.get_edges())
+            body_params["backend_coupling_map"] = coupling_map_list_format
         elif backend_name:
             query_params["backend"] = backend_name
 
@@ -154,18 +158,20 @@ class AIPermutationAPI(QiskitTranspilerService):
         self,
         patterns: List[List[int]],
         qargs: List[List[int]],
-        coupling_map: Union[List[List[int]], None] = None,
+        coupling_map: Union[CouplingMap, None] = None,
         backend: Union[Backend, None] = None,
     ):
         backend_name = getattr(backend, "name", None)
 
         if coupling_map is not None:
+            coupling_map_list_format = list(coupling_map.get_edges())
+
             transpile_resps = self.request_and_wait(
                 endpoint="transpile",
                 body={
                     "permutation": patterns,
                     "qargs": qargs,
-                    "backend_coupling_map": coupling_map,
+                    "backend_coupling_map": coupling_map_list_format,
                 },
                 params=dict(),
             )
