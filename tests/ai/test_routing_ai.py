@@ -58,10 +58,23 @@ def test_qv_routing_wrong_layout_mode(layout_mode, backend, qv_circ):
         )
 
 
-def test_routing_wrong_backend(random_circuit_transpiled):
+def test_local_routing_wrong_backend(random_circuit_transpiled):
     with pytest.raises(
         PermissionError,
         match=r"ERROR. Backend not supported \(\w+\)",
+    ):
+        ai_routing_pass = PassManager(
+            [
+                AIRouting(backend_name="wrong_backend"),
+            ]
+        )
+        ai_routing_pass.run(random_circuit_transpiled)
+
+
+def test_api_routing_wrong_backend(random_circuit_transpiled):
+    with pytest.raises(
+        TranspilerError,
+        match=r"User doesn't have access to the specified backend: \w+",
     ):
         ai_routing_pass = PassManager(
             [
