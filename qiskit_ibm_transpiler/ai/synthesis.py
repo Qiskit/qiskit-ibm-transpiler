@@ -28,6 +28,7 @@ from qiskit_ibm_transpiler.wrappers import (
     AICliffordAPI,
     AILinearFunctionAPI,
     AIPermutationAPI,
+    AIPauliNetworkAPI
 )
 
 logger = logging.getLogger(__name__)
@@ -253,3 +254,58 @@ class AIPermutationSynthesis(AISynthesis):
 
     def _is_original_a_better_circuit(self, synth, original):
         return original.num_nonlocal_gates() <= synth.num_nonlocal_gates()
+
+
+class AIPauliNetworkSynthesis(AISynthesis):
+    """AIPauliNetworkSynthesis(backend_name: str, replace_only_if_better: bool = True, max_threads: int | None = None)
+
+    Synthesis for `Pauli Networks` circuits (blocks of `H`, `S`, `SX`, `CX`, `RX`, `RY` and `RZ` gates). Currently up to 6 qubit blocks.
+
+    :param backend_name: Name of the backend used for doing the AI Pauli Network synthesis.
+    :type backend_name: str
+    :param replace_only_if_better: Determine if replace the original circuit with the synthesized one if it's better, defaults to True.
+    :type replace_only_if_better: bool, optional
+    :param max_threads: Set the number of requests to send in parallel.
+    :type max_threads: int, optional
+    """
+
+    def __init__(
+        self,
+        coupling_map: Union[List[List[int]], CouplingMap, None] = None,
+        backend_name: Union[str, None] = None,
+        replace_only_if_better: bool = True,
+        max_threads: Union[int, None] = None,
+        **kwargs,
+    ) -> None:
+        super().__init__(
+            AIPauliNetworkAPI(**kwargs),
+            coupling_map,
+            backend_name,
+            replace_only_if_better,
+            max_threads,
+        )
+
+    def _get_synth_input_and_original(self, node):
+        input_circuit = node.op.params[1]
+        return input_circuit, input_circuit
+
+    def _get_nodes(self, dag):
+        return dag.named_nodes("paulinetwork", "PauliNetwork")
+
+    def _is_original_a_better_circuit(self, synth, original):
+        # Select the best circuit
+        score_synth = (
+            (synth.num_nonlocal_gates(), synth.depth(lambda op: len(op.qubits) > 1))
+            if synth is not None
+            else (1e9, 1e9)
+        )
+        score_original = (
+            (
+                original.num_nonlocal_gates(),
+                original.depth(lambda op: len(op.qubits) > 1),
+            )
+            if original is not None
+            else (1e9, 1e9)
+        )
+
+        return score_synth < score_original

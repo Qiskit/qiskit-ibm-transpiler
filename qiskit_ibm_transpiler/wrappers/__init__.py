@@ -26,12 +26,13 @@ Classes
    AICliffordAPI
    AILinearFunctionAPI
    AIPermutationAPI
+   AIPauliNetworkAPI
    QiskitTranspilerService
    BackendTaskError
    TranspileAPI
 """
 
 from .ai_routing import AIRoutingAPI
-from .ai_synthesis import AICliffordAPI, AILinearFunctionAPI, AIPermutationAPI
+from .ai_synthesis import AICliffordAPI, AILinearFunctionAPI, AIPermutationAPI, AIPauliNetworkAPI
 from .base import BackendTaskError, QiskitTranspilerService
 from .transpile import TranspileAPI, _get_circuit_from_result

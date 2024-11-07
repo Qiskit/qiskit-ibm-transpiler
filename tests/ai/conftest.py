@@ -42,6 +42,8 @@ def create_linear_circuit(n_qubits, gates):
             circuit.cz(q, q + 1)
         elif gates == "rzz":
             circuit.rzz(1.23, q, q + 1)
+        elif gates == "t":
+            circuit.t(q)
     return circuit
 
 
@@ -77,3 +79,7 @@ def cz_circ(request):
 @pytest.fixture(scope="module", params=[3, 10, 30])
 def rzz_circ(request):
     return create_linear_circuit(request.param, "rzz")
+
+@pytest.fixture(scope="module", params=[3, 10, 30])
+def t_circ(request):
+    return create_linear_circuit(request.param, "t")
