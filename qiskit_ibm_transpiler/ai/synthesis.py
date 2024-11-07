@@ -28,7 +28,7 @@ from qiskit_ibm_transpiler.wrappers import (
     AICliffordAPI,
     AILinearFunctionAPI,
     AIPermutationAPI,
-    AIPauliNetworkAPI
+    AIPauliNetworkAPI,
 )
 
 logger = logging.getLogger(__name__)

@@ -79,6 +79,7 @@ pn_gate_names = [
     "ryx",
 ]
 
+
 class Flatten(TransformationPass):
     """Replaces all instructions that contain a circuit with their circuit"""
 
@@ -177,6 +178,7 @@ class CliffordInstruction(Instruction):
             params=[Clifford(circuit), circuit],
         )
 
+
 class PauliNetworkInstruction(Instruction):
     def __init__(self, circuit):
         circuit = _flatten_paulinetworks(circuit)
@@ -186,7 +188,6 @@ class PauliNetworkInstruction(Instruction):
             num_clbits=0,
             params=[None, circuit],
         )
-
 
 
 def construct_permutation_gate(circuit):
@@ -375,6 +376,7 @@ class CollectPermutations(RepeatedCollectAndCollapse):
             collect_from_back=collect_from_back,
             num_reps=num_reps,
         )
+
 
 class CollectPauliNetworks(RepeatedCollectAndCollapse):
     """CollectPauliNetworks(do_commutative_analysis: bool = True, min_block_size: int = 4, max_block_size: int = 6, collect_from_back: bool = False, num_reps: int = 10)

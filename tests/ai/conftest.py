@@ -80,6 +80,7 @@ def cz_circ(request):
 def rzz_circ(request):
     return create_linear_circuit(request.param, "rzz")
 
+
 @pytest.fixture(scope="module", params=[3, 10, 30])
 def t_circ(request):
     return create_linear_circuit(request.param, "t")

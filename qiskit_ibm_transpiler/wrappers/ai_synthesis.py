@@ -174,7 +174,6 @@ class AIPermutationAPI(QiskitTranspilerService):
         return results
 
 
-
 class AIPauliNetworkAPI(QiskitTranspilerService):
     """A helper class that covers some basic funcionality from the Pauli Network AI Synthesis API"""
 
