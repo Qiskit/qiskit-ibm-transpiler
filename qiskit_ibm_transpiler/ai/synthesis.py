@@ -68,9 +68,9 @@ class AISynthesis(TransformationPass):
             )
 
         if isinstance(coupling_map, CouplingMap):
-            self.coupling_map = list(coupling_map.get_edges())
-        else:
             self.coupling_map = coupling_map
+        else:
+            self.coupling_map = CouplingMap(couplinglist=coupling_map)
 
         if backend:
             self.backend = backend
@@ -116,8 +116,8 @@ class AISynthesis(TransformationPass):
             synths = self.synth_service.transpile(
                 synth_inputs,
                 qargs=qargs,
-                coupling_map=self.coupling_map,
-                backend=self.backend,
+                coupling_map=getattr(self, "coupling_map", None),
+                backend=getattr(self, "backend", None),
             )
         except TranspilerError as e:
             logger.warning(

@@ -98,12 +98,14 @@ class AIRouting(TransformationPass):
                 )
         elif backend:
             self.backend = backend
-        elif backend_name:
+        elif backend_name and local_mode:
             try:
                 runtime_service = QiskitRuntimeService()
                 self.backend = runtime_service.backend(name=backend_name)
             except Exception:
                 raise PermissionError(f"ERROR. Backend not supported ({backend_name})")
+        else:
+            self.backend_name = backend_name
 
         self.optimization_level = optimization_level
         self.optimization_preferences = optimization_preferences
