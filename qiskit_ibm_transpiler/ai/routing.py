@@ -79,7 +79,7 @@ class AIRouting(TransformationPass):
 
         routing_provider = AILocalRouting() if local_mode else AIRoutingAPI(**kwargs)
 
-        if (backend_name or backend_name) and coupling_map:
+        if (backend or backend_name) and coupling_map:
             raise ValueError(
                 f"ERROR. Both backend_name and coupling_map were specified as options. Please just use one of them."
             )
@@ -89,23 +89,25 @@ class AIRouting(TransformationPass):
 
         if coupling_map:
             if isinstance(coupling_map, CouplingMap):
-                self.backend = coupling_map
+                self.coupling_map = coupling_map
             elif isinstance(coupling_map, list):
-                self.backend = CouplingMap(coupling_map)
+                self.coupling_map = CouplingMap(couplinglist=coupling_map)
             else:
                 raise ValueError(
                     f"ERROR. coupling_map should either be a list of int tuples or a Qiskit CouplingMap object."
                 )
         elif backend:
-            self.backend = backend
+            self.coupling_map = backend.coupling_map
         elif backend_name and local_mode:
             try:
                 runtime_service = QiskitRuntimeService()
-                self.backend = runtime_service.backend(name=backend_name)
+                backend_info = runtime_service.backend(name=backend_name)
+                self.coupling_map = backend_info.coupling_map
             except Exception:
                 raise PermissionError(f"ERROR. Backend not supported ({backend_name})")
         else:
-            self.backend_name = backend_name
+            # AIRoutingAPI expects that coupling_map has or a coupling_map or a backend_name
+            self.coupling_map = backend_name
 
         self.optimization_level = optimization_level
         self.optimization_preferences = optimization_preferences
@@ -149,7 +151,7 @@ class AIRouting(TransformationPass):
 
         routed_qc, init_layout, final_layout = self.service.routing(
             circuit=qc,
-            coupling_map=self.backend,
+            coupling_map=getattr(self, "coupling_map", None),
             optimization_level=self.optimization_level,
             check_result=False,
             layout_mode=self.layout_mode,

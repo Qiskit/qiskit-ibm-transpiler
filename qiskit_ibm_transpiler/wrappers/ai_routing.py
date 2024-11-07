@@ -42,7 +42,11 @@ class AIRoutingAPI(QiskitTranspilerService):
 
         body_params = {
             "qasm": qasm.replace("\n", " "),
-            "coupling_map": list(coupling_map.get_edges()),
+            "coupling_map": (
+                list(coupling_map.get_edges())
+                if hasattr(coupling_map, "get_edges")
+                else coupling_map
+            ),
             "optimization_preferences": optimization_preferences,
         }
 
