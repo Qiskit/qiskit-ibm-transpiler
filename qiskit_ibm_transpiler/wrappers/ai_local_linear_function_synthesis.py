@@ -19,6 +19,7 @@ from typing import Union, List
 from qiskit import QuantumCircuit
 from qiskit.circuit.library import LinearFunction
 from qiskit.providers.backend import BackendV2 as Backend
+from qiskit.transpiler import CouplingMap
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -31,7 +32,7 @@ class AILocalLinearFunctionSynthesis:
         self,
         circuits: List[Union[QuantumCircuit, LinearFunction]],
         qargs: List[List[int]],
-        coupling_map: Union[List[List[int]], None] = None,
+        coupling_map: Union[List[List[int]], CouplingMap, None] = None,
         backend: Union[Backend, None] = None,
     ) -> List[Union[QuantumCircuit, None]]:
         """Synthetize one or more quantum circuits into an optimized equivalent. It differs from a standard synthesis process in that it takes into account where the linear functions are (qargs)
@@ -55,6 +56,16 @@ class AILocalLinearFunctionSynthesis:
                 "ERROR. Either a 'coupling_map' or a 'backend' must be provided."
             )
 
+        if coupling_map:
+            if isinstance(coupling_map, CouplingMap):
+                formatted_coupling_map = coupling_map
+            elif isinstance(coupling_map, list):
+                formatted_coupling_map = CouplingMap(couplinglist=coupling_map)
+            else:
+                raise ValueError(
+                    f"ERROR. coupling_map should either be a list of int tuples or a Qiskit CouplingMap object."
+                )
+
         n_circs = len(circuits)
         n_qargs = len(qargs)
 
@@ -72,8 +83,9 @@ class AILocalLinearFunctionSynthesis:
 
             synthesized_linear_function = AILinearFunctionInference().synthesize(
                 circuit=circuits[index],
-                coupling_map=coupling_map or backend.coupling_map,
+                coupling_map=formatted_coupling_map or backend.coupling_map,
                 circuit_qargs=circuit_qargs,
+                backend=backend,
             )
 
             synthesized_circuits.append(synthesized_linear_function)
