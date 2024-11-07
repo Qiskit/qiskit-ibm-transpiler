@@ -26,6 +26,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### 👾 Security
 
+## [0.4.13] - 2024-11-07
+
+### 🎉 Added
+
+- [#111](https://github.com/Qiskit/qiskit-transpiler-service/pull/111) Retry http requests after any RequestException.
+
 ## [0.4.12] - 2024-10-31
 
 ### 🐛 Fixed
@@ -183,7 +189,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 - Publishing first version 0.1.2 for the IBM Quantum Summit.
 
-[Unreleased]: https://github.com/Qiskit/qiskit-transpiler-service/compare/0.4.12...main-qiskit-transpiler-service
+[Unreleased]: https://github.com/Qiskit/qiskit-transpiler-service/compare/0.4.13...main-qiskit-transpiler-service
+[0.4.13]: https://github.com/Qiskit/qiskit-transpiler-service/compare/0.4.12...0.4.13
 [0.4.12]: https://github.com/Qiskit/qiskit-transpiler-service/compare/0.4.11...0.4.12
 [0.4.11]: https://github.com/Qiskit/qiskit-transpiler-service/compare/0.4.10...0.4.11
 [0.4.10]: https://github.com/Qiskit/qiskit-transpiler-service/compare/0.4.9...0.4.10
