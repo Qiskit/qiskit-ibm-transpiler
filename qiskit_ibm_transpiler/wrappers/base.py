@@ -123,12 +123,7 @@ class QiskitTranspilerService:
         )
         @backoff.on_exception(
             backoff.expo,
-            (
-                requests.exceptions.Timeout,
-                requests.exceptions.ConnectionError,
-                requests.exceptions.JSONDecodeError,
-                requests.exceptions.HTTPError,
-            ),
+            requests.exceptions.RequestException,
             max_time=self.timeout,
         )
         def _request_status(self, endpoint, task_id):
@@ -155,12 +150,7 @@ class QiskitTranspilerService:
     def _request_and_wait(self, endpoint: str, body: Dict, params: Dict):
         @backoff.on_exception(
             backoff.expo,
-            (
-                requests.exceptions.Timeout,
-                requests.exceptions.ConnectionError,
-                requests.exceptions.JSONDecodeError,
-                requests.exceptions.HTTPError,
-            ),
+            requests.exceptions.RequestException,
             max_tries=3,
         )
         def _request_transp(endpoint: str, body: Dict, params: Dict):
