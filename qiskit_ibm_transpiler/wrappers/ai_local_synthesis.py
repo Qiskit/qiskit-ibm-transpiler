@@ -12,7 +12,7 @@
 
 import logging
 
-from qiskit_ibm_ai_local_transpiler import AILinearFunctionInference
+from qiskit_ibm_ai_local_transpiler import AICliffordInference, AILinearFunctionInference, AIPermutationInference
 
 from typing import Union, List
 
@@ -25,8 +25,16 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
 
-class AILocalLinearFunctionSynthesis:
+class AILocalSynthesis:
     """A helper class that covers some basic funcionality from the Linear Function AI Local Synthesis"""
+
+    def __init__(self, inference_provider: Union[
+            AICliffordInference,
+            AILinearFunctionInference,
+            AIPermutationInference,
+        ]) -> None:
+        self.inference_provider = inference_provider
+        
 
     def transpile(
         self,
@@ -75,13 +83,13 @@ class AILocalLinearFunctionSynthesis:
                 f"and the number of input qargs arrays {n_qargs} are different."
             )
 
-        logger.info("Running Linear Functions AI synthesis on local mode")
+        logger.info("Running local AI synthesis on local mode")
 
         synthesized_circuits = []
 
         for index, circuit_qargs in enumerate(qargs):
 
-            synthesized_linear_function = AILinearFunctionInference().synthesize(
+            synthesized_linear_function = self.inference_provider().synthesize(
                 circuit=circuits[index],
                 coupling_map=formatted_coupling_map or backend.coupling_map,
                 circuit_qargs=circuit_qargs,
@@ -90,6 +98,6 @@ class AILocalLinearFunctionSynthesis:
 
             synthesized_circuits.append(synthesized_linear_function)
 
-        logger.info("Linear Functions AI synthesis on local mode completed")
+        logger.info("Local AI synthesis on local mode completed")
 
         return synthesized_circuits

@@ -6,7 +6,7 @@
             "type": "debugpy",
             "request": "launch",
             "module": "pytest",
-            "args": ["tests/ai/test_ai_local_linear_function_synthesis.py::test_ai_local_linear_function_synthesis_wrong_backend"],
+            "args": ["./tests/ai/test_ai_local_linear_function_synthesis.py::test_ai_local_linear_function_synthesis_returns_original_circuit"],
             "justMyCode": false,
             "console": "integratedTerminal"
         },

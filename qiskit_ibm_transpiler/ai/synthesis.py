@@ -33,9 +33,10 @@ from qiskit_ibm_transpiler.wrappers import (
     AIPermutationAPI,
 )
 
-from qiskit_ibm_transpiler.wrappers.ai_local_linear_function_synthesis import (
-    AILocalLinearFunctionSynthesis,
+from qiskit_ibm_transpiler.wrappers.ai_local_synthesis import (
+    AILocalSynthesis,
 )
+from qiskit_ibm_ai_local_transpiler import AICliffordInference, AILinearFunctionInference
 
 
 logger = logging.getLogger(__name__)
@@ -51,7 +52,7 @@ class AISynthesis(TransformationPass):
         synth_service: Union[
             AICliffordAPI,
             AILinearFunctionAPI,
-            AILocalLinearFunctionSynthesis,
+            AILocalSynthesis,
             AIPermutationAPI,
         ],
         coupling_map: Union[List[List[int]], CouplingMap, None] = None,
@@ -176,10 +177,17 @@ class AICliffordSynthesis(AISynthesis):
         backend: Union[Backend, None] = None,
         replace_only_if_better: bool = True,
         max_threads: Union[int, None] = None,
+        local_mode: bool = True,
         **kwargs,
     ) -> None:
+        ai_synthesis_provider = (
+            AILocalSynthesis(AICliffordInference)
+            if local_mode
+            else AICliffordAPI(**kwargs)
+        )
+
         super().__init__(
-            synth_service=AICliffordAPI(**kwargs),
+            synth_service=ai_synthesis_provider,
             coupling_map=coupling_map,
             backend_name=backend_name,
             backend=backend,
@@ -228,7 +236,7 @@ class AILinearFunctionSynthesis(AISynthesis):
         **kwargs,
     ) -> None:
         ai_synthesis_provider = (
-            AILocalLinearFunctionSynthesis()
+            AILocalSynthesis(AILinearFunctionInference)
             if local_mode
             else AILinearFunctionAPI(**kwargs)
         )

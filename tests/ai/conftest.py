@@ -16,6 +16,7 @@ from qiskit import QuantumCircuit
 from qiskit.circuit.library import QuantumVolume
 from qiskit.quantum_info import random_clifford
 from qiskit.transpiler.preset_passmanagers import generate_preset_pass_manager
+from qiskit_ibm_runtime import QiskitRuntimeService
 
 
 def create_random_circuit(total_n_ubits, cliffords_n_qubits, clifford_num):
@@ -77,3 +78,12 @@ def cz_circ(request):
 @pytest.fixture(scope="module", params=[3, 10, 30])
 def rzz_circ(request):
     return create_linear_circuit(request.param, "rzz")
+
+@pytest.fixture(scope="module")
+def fez_coupling_map():
+    backend = QiskitRuntimeService().backend("ibm_fez")
+    return backend.coupling_map
+
+@pytest.fixture(scope="module")
+def fez_backend():
+    return QiskitRuntimeService().backend("ibm_fez")
