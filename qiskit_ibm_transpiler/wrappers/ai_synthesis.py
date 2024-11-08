@@ -164,6 +164,8 @@ class AIPermutationAPI(QiskitTranspilerService):
         qargs: List[List[int]],
         coupling_map: Union[List[List[int]], None] = None,
         backend_name: Union[str, None] = None,
+        # backend is not used yet, but probably it will replace backend_name
+        backend: Union[Backend, None] = None,
     ):
 
         if coupling_map is not None:
