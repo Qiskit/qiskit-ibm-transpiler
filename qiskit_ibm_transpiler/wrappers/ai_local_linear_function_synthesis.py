@@ -23,8 +23,11 @@ from qiskit import QuantumCircuit
 from qiskit.transpiler import CouplingMap
 from qiskit.circuit.library import LinearFunction
 from qiskit.quantum_info import Clifford
+from qiskit.providers.backend import BackendV2 as Backend
 from qiskit_ibm_runtime import QiskitRuntimeService
-from qiskit_ibm_ai_local_transpiler.linear_function import LINEAR_FUNCTION_COUPLING_MAPS_BY_HASHES_DICT
+from qiskit_ibm_ai_local_transpiler.linear_function import (
+    LINEAR_FUNCTION_COUPLING_MAPS_BY_HASHES_DICT,
+)
 from qiskit_ibm_transpiler.utils import get_qasm_from_circuit
 
 logger = logging.getLogger(__name__)
@@ -39,7 +42,7 @@ class AILocalLinearFunctionSynthesis:
         circuits: List[Union[QuantumCircuit, LinearFunction]],
         qargs: List[List[int]],
         coupling_map: Union[List[List[int]], None] = None,
-        backend_name: Union[str, None] = None,
+        backend: Union[Backend, None] = None,
     ) -> List[Union[QuantumCircuit, None]]:
         """Synthetize one or more quantum circuits into an optimized equivalent. It differs from a standard synthesis process in that it takes into account where the linear functions are (qargs)
         and respects it on the synthesized circuit.
@@ -57,9 +60,9 @@ class AILocalLinearFunctionSynthesis:
         # Although this function is called `transpile`, it does a synthesis. It has this name because the synthesis
         # is made as a pass on the Qiskit Pass Manager which is used in the transpilation process.
 
-        if not coupling_map and not backend_name:
+        if not coupling_map and not backend:
             raise ValueError(
-                "ERROR. Either a 'coupling_map' or a 'backend_name' must be provided."
+                "ERROR. Either a 'coupling_map' or a 'backend' must be provided."
             )
 
         n_circs = len(circuits)
@@ -73,7 +76,7 @@ class AILocalLinearFunctionSynthesis:
 
         clifford_dict = [Clifford(circuit).to_dict() for circuit in circuits]
 
-        coupling_map_graph = get_coupling_map_graph(backend_name, coupling_map)
+        coupling_map_graph = get_coupling_map_graph(backend, coupling_map)
 
         logger.info("Running Linear Functions AI synthesis on local mode")
 
@@ -125,20 +128,14 @@ def get_synthesized_linear_function_circuits(
 
 
 def get_coupling_map_graph(
-    backend_name: str | None = None, backend_coupling_map: list[list[int]] | None = None
+    backend: Backend = None, coupling_map: CouplingMap = None
 ) -> nx.Graph:
-    coupling_map_list_format = None
+    backend_coupling_map = (
+        coupling_map if getattr(coupling_map, "graph", None) else backend.coupling_map
+    )
 
-    if backend_coupling_map:
-        coupling_map_list_format = backend_coupling_map
-    elif backend_name:
-        try:
-            runtime_service = QiskitRuntimeService()
-            backend_info = runtime_service.backend(name=backend_name)
-            coupling_map_edges = CouplingMap.get_edges(backend_info.coupling_map)
-            coupling_map_list_format = [list(edge) for edge in coupling_map_edges]
-        except Exception:
-            raise PermissionError(f"ERROR. Backend not supported ({backend_name})")
+    coupling_map_edges = backend_coupling_map.get_edges()
+    coupling_map_list_format = [list(edge) for edge in coupling_map_edges]
 
     try:
         coupling_map = nx.Graph(coupling_map_list_format)
@@ -165,12 +162,12 @@ def get_mapping_perm(coupling_map: nx.Graph, circuit_qargs: List[int]) -> list[i
     )
 
     # If there is no model for that circuit_in_coupling_map, we cannot use AI.
-    lf_cmap_hashes = LINEAR_FUNCTION_COUPLING_MAPS_BY_HASHES_DICT['coupling_map_hash']
-    logger.warning(f"lf_cmap_hashes: {lf_cmap_hashes}")
-    if circuit_in_coupling_map_hash not in lf_cmap_hashes:
+    if circuit_in_coupling_map_hash not in LINEAR_FUNCTION_COUPLING_MAPS_BY_HASHES_DICT:
         raise LookupError("ERROR. No model available for the requested subgraph")
 
-    model_coupling_map = LINEAR_FUNCTION_COUPLING_MAPS_BY_HASHES_DICT["coupling_map_hash"].index(circuit_in_coupling_map_hash)
+    model_coupling_map = LINEAR_FUNCTION_COUPLING_MAPS_BY_HASHES_DICT[
+        circuit_in_coupling_map_hash
+    ]
 
     # circuit_in_coupling_map could appears several times on the model's topology. We get the first
     # we find due to the `next` function. device_model_mapping contains a nodes correspondency between
