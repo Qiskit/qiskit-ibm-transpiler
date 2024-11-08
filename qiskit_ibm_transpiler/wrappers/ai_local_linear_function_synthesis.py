@@ -24,10 +24,7 @@ from qiskit.transpiler import CouplingMap
 from qiskit.circuit.library import LinearFunction
 from qiskit.quantum_info import Clifford
 from qiskit_ibm_runtime import QiskitRuntimeService
-from qiskit_ibm_transpiler.ai.models.linear_functions import (
-    model_coupling_map_by_model_hash,
-    MODEL_HASHES as MODEL_LIN_FUNC_HASHES,
-)
+from qiskit_ibm_ai_local_transpiler.linear_function import LINEAR_FUNCTION_COUPLING_MAPS_BY_HASHES_DICT
 from qiskit_ibm_transpiler.utils import get_qasm_from_circuit
 
 logger = logging.getLogger(__name__)
@@ -168,10 +165,12 @@ def get_mapping_perm(coupling_map: nx.Graph, circuit_qargs: List[int]) -> list[i
     )
 
     # If there is no model for that circuit_in_coupling_map, we cannot use AI.
-    if circuit_in_coupling_map_hash not in MODEL_LIN_FUNC_HASHES:
+    lf_cmap_hashes = LINEAR_FUNCTION_COUPLING_MAPS_BY_HASHES_DICT['coupling_map_hash']
+    logger.warning(f"lf_cmap_hashes: {lf_cmap_hashes}")
+    if circuit_in_coupling_map_hash not in lf_cmap_hashes:
         raise LookupError("ERROR. No model available for the requested subgraph")
 
-    model_coupling_map = model_coupling_map_by_model_hash[circuit_in_coupling_map_hash]
+    model_coupling_map = LINEAR_FUNCTION_COUPLING_MAPS_BY_HASHES_DICT["coupling_map_hash"].index(circuit_in_coupling_map_hash)
 
     # circuit_in_coupling_map could appears several times on the model's topology. We get the first
     # we find due to the `next` function. device_model_mapping contains a nodes correspondency between
