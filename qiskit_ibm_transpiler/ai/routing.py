@@ -16,15 +16,21 @@
 # torch.set_num_threads(1)
 
 import numpy as np
+import logging
 from qiskit import ClassicalRegister, QuantumCircuit
 from qiskit.converters import circuit_to_dag, dag_to_circuit
 from qiskit.transpiler import CouplingMap, TranspilerError
 from qiskit.transpiler.basepasses import TransformationPass
 from qiskit.transpiler.layout import Layout
+from qiskit.providers.backend import BackendV2 as Backend
+from qiskit_ibm_runtime import QiskitRuntimeService
 
 from qiskit_ibm_transpiler.wrappers import AIRoutingAPI, AILocalRouting
 
 from typing import List, Union, Literal
+
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
 
 # TODO: Reuse this code, it's repeated several times
 OptimizationOptions = Literal["n_cnots", "n_gates", "cnot_layers", "layers", "noise"]
@@ -47,8 +53,9 @@ class AIRouting(TransformationPass):
 
     def __init__(
         self,
-        backend_name=None,
-        coupling_map=None,
+        coupling_map: Union[List[List[int]], CouplingMap, None] = None,
+        backend_name: Union[str, None] = None,
+        backend: Union[Backend, None] = None,
         optimization_level: int = 2,
         layout_mode: str = "OPTIMIZE",
         optimization_preferences: Union[
@@ -62,27 +69,53 @@ class AIRouting(TransformationPass):
         local_mode: bool = True,
         **kwargs,
     ):
-        super().__init__()
+        if backend_name:
+            # TODO: Updates with the final date
+            logger.warning(
+                "backend_name will be deprecated in February 2025, please use a backend object instead."
+            )
 
-        routing_provider = AILocalRouting() if local_mode else AIRoutingAPI(**kwargs)
-
-        if backend_name is not None and coupling_map is not None:
+        # TODO: Removes once we deprecate backend_name
+        if backend_name and coupling_map:
             raise ValueError(
                 f"ERROR. Both backend_name and coupling_map were specified as options. Please just use one of them."
             )
-        if backend_name is not None:
-            self.backend = backend_name
-        elif coupling_map is not None:
+
+        if backend and coupling_map:
+            raise ValueError(
+                f"ERROR. Both backend and coupling_map were specified as options. Please just use one of them."
+            )
+
+        # TODO: Removes backend_name option once we deprecate backend_name. Update the error
+        # message too.
+        if not backend and not coupling_map and not backend_name:
+            raise ValueError(
+                f"ERROR. One of these options must be set: backend, coupling_map or backend_name."
+            )
+
+        super().__init__()
+
+        if coupling_map:
             if isinstance(coupling_map, CouplingMap):
-                self.backend = coupling_map
+                self.coupling_map = coupling_map
             elif isinstance(coupling_map, list):
-                self.backend = CouplingMap(coupling_map)
+                self.coupling_map = CouplingMap(coupling_map)
             else:
                 raise ValueError(
                     f"ERROR. coupling_map should either be a list of int tuples or a Qiskit CouplingMap object."
                 )
+        elif backend:
+            self.coupling_map = backend.coupling_map
+        elif backend_name and local_mode:
+            try:
+                runtime_service = QiskitRuntimeService()
+                backend_info = runtime_service.backend(name=backend_name)
+                self.coupling_map = backend_info.coupling_map
+            except Exception:
+                raise PermissionError(f"ERROR. Backend not supported ({backend_name})")
         else:
-            raise ValueError(f"ERROR. Either backend_name OR coupling_map must be set.")
+            # AIRoutingAPI expects that coupling_map has or a coupling_map or a backend_name
+            self.coupling_map = backend_name
 
         self.optimization_level = optimization_level
         self.optimization_preferences = optimization_preferences
@@ -95,7 +128,10 @@ class AIRouting(TransformationPass):
             raise ValueError(
                 f"ERROR. Unknown ai_layout_mode: {layout_mode}. Valid modes: 'KEEP', 'OPTIMIZE', 'IMPROVE'"
             )
+
         self.layout_mode = layout_mode.upper()
+
+        routing_provider = AILocalRouting() if local_mode else AIRoutingAPI(**kwargs)
         self.service = routing_provider
 
     def run(self, dag):
@@ -126,7 +162,7 @@ class AIRouting(TransformationPass):
 
         routed_qc, init_layout, final_layout = self.service.routing(
             circuit=qc,
-            coupling_map=self.backend,
+            coupling_map=getattr(self, "coupling_map", None),
             optimization_level=self.optimization_level,
             check_result=False,
             layout_mode=self.layout_mode,

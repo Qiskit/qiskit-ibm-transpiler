@@ -60,6 +60,7 @@ class AISynthesis(TransformationPass):
         backend: Union[Backend, None] = None,
         replace_only_if_better: bool = True,
         max_threads: Union[int, None] = None,
+        local_mode: bool = True,
         **kwargs,
     ) -> None:
         if backend_name:
@@ -68,21 +69,45 @@ class AISynthesis(TransformationPass):
                 "backend_name will be deprecated in February 2025, please use a backend object instead."
             )
 
-        if isinstance(coupling_map, CouplingMap):
-            self.coupling_map = list(coupling_map.get_edges())
-        else:
-            self.coupling_map = coupling_map
+        # TODO: Removes once we deprecate backend_name
+        if backend_name and coupling_map:
+            raise ValueError(
+                f"ERROR. Both backend_name and coupling_map were specified as options. Please just use one of them."
+            )
+
+        if backend and coupling_map:
+            raise ValueError(
+                f"ERROR. Both backend and coupling_map were specified as options. Please just use one of them."
+            )
+
+        # TODO: Removes backend_name option once we deprecate backend_name. Update the error
+        # message too.
+        if not backend and not coupling_map and not backend_name:
+            raise ValueError(
+                f"ERROR. One of these options must be set: backend, coupling_map or backend_name."
+            )
+
+        if coupling_map:
+            if isinstance(coupling_map, CouplingMap):
+                self.coupling_map = coupling_map
+            elif isinstance(coupling_map, list):
+                self.coupling_map = CouplingMap(coupling_map)
+            else:
+                raise ValueError(
+                    f"ERROR. coupling_map should either be a list of int tuples or a Qiskit CouplingMap object."
+                )
 
         if backend:
             self.backend = backend
-        elif backend_name:
+        elif backend_name and local_mode:
             try:
                 runtime_service = QiskitRuntimeService()
                 self.backend = runtime_service.backend(name=backend_name)
             except Exception:
                 raise PermissionError(f"ERROR. Backend not supported ({backend_name})")
+        else:
+            self.backend_name = backend_name
 
-        self.backend_name = backend_name
         self.replace_only_if_better = replace_only_if_better
         self.synth_service = synth_service
         self.max_threads = max_threads if max_threads else MAX_THREADS
@@ -118,9 +143,9 @@ class AISynthesis(TransformationPass):
             synths = self.synth_service.transpile(
                 synth_inputs,
                 qargs=qargs,
-                coupling_map=self.coupling_map,
-                backend_name=self.backend_name,
-                backend=self.backend,
+                coupling_map=getattr(self, "coupling_map", None),
+                backend=getattr(self, "backend", None),
+                backend_name=getattr(self, "backend_name", None),
             )
         except TranspilerError as e:
             logger.warning(
@@ -187,6 +212,7 @@ class AICliffordSynthesis(AISynthesis):
             backend_name,
             replace_only_if_better,
             max_threads,
+            local_mode=local_mode,
         )
 
     def _get_synth_input_and_original(self, node):
@@ -242,6 +268,7 @@ class AILinearFunctionSynthesis(AISynthesis):
             backend=backend,
             replace_only_if_better=replace_only_if_better,
             max_threads=max_threads,
+            local_mode=local_mode,
         )
 
     def _get_synth_input_and_original(self, node):
@@ -277,6 +304,7 @@ class AIPermutationSynthesis(AISynthesis):
         backend_name: Union[str, None] = None,
         replace_only_if_better: bool = True,
         max_threads: Union[int, None] = None,
+        local_mode: bool = True,
         **kwargs,
     ) -> None:
         super().__init__(
@@ -285,6 +313,7 @@ class AIPermutationSynthesis(AISynthesis):
             backend_name,
             replace_only_if_better,
             max_threads,
+            local_mode=local_mode,
         )
 
     def _get_synth_input_and_original(self, node):

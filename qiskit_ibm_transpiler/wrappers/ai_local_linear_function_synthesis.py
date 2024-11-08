@@ -41,7 +41,7 @@ class AILocalLinearFunctionSynthesis:
         self,
         circuits: List[Union[QuantumCircuit, LinearFunction]],
         qargs: List[List[int]],
-        coupling_map: Union[List[List[int]], None] = None,
+        coupling_map: Union[List[List[int]], CouplingMap, None] = None,
         # backend_name is not used here but is maintained until we deprecate it to not break the code
         backend_name=None,
         backend: Union[Backend, None] = None,
@@ -67,6 +67,17 @@ class AILocalLinearFunctionSynthesis:
                 "ERROR. Either a 'coupling_map' or a 'backend' must be provided."
             )
 
+        formatted_coupling_map = None
+        if coupling_map:
+            if isinstance(coupling_map, CouplingMap):
+                formatted_coupling_map = coupling_map
+            elif isinstance(coupling_map, list):
+                formatted_coupling_map = CouplingMap(couplinglist=coupling_map)
+            else:
+                raise ValueError(
+                    f"ERROR. coupling_map should either be a list of int tuples or a Qiskit CouplingMap object."
+                )
+
         n_circs = len(circuits)
         n_qargs = len(qargs)
 
@@ -78,7 +89,7 @@ class AILocalLinearFunctionSynthesis:
 
         clifford_dict = [Clifford(circuit).to_dict() for circuit in circuits]
 
-        coupling_map_graph = get_coupling_map_graph(backend, coupling_map)
+        coupling_map_graph = get_coupling_map_graph(backend, formatted_coupling_map)
 
         logger.info("Running Linear Functions AI synthesis on local mode")
 
