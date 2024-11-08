@@ -42,6 +42,8 @@ class AILocalLinearFunctionSynthesis:
         circuits: List[Union[QuantumCircuit, LinearFunction]],
         qargs: List[List[int]],
         coupling_map: Union[List[List[int]], None] = None,
+        # backend_name is not used here but is maintained until we deprecate it to not break the code
+        backend_name=None,
         backend: Union[Backend, None] = None,
     ) -> List[Union[QuantumCircuit, None]]:
         """Synthetize one or more quantum circuits into an optimized equivalent. It differs from a standard synthesis process in that it takes into account where the linear functions are (qargs)
