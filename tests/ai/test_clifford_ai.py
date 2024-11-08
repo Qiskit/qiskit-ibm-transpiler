@@ -23,7 +23,7 @@ def test_clifford_wrong_backend(random_circuit_transpiled, caplog):
     ai_optimize_cliff = PassManager(
         [
             CollectCliffords(),
-            AICliffordSynthesis(backend_name="wrong_backend"),
+            AICliffordSynthesis(backend_name="wrong_backend", local_mode=False),
         ]
     )
     ai_optimized_circuit = ai_optimize_cliff.run(random_circuit_transpiled)
@@ -43,7 +43,7 @@ def test_clifford_exceed_timeout(random_circuit_transpiled, backend, caplog):
     ai_optimize_cliff = PassManager(
         [
             CollectCliffords(),
-            AICliffordSynthesis(backend_name=backend, timeout=1),
+            AICliffordSynthesis(backend_name=backend, timeout=1, local_mode=False),
         ]
     )
     ai_optimized_circuit = ai_optimize_cliff.run(random_circuit_transpiled)
@@ -56,7 +56,9 @@ def test_clifford_wrong_token(random_circuit_transpiled, backend, caplog):
     ai_optimize_cliff = PassManager(
         [
             CollectCliffords(),
-            AICliffordSynthesis(backend_name=backend, token="invented_token_2"),
+            AICliffordSynthesis(
+                backend_name=backend, token="invented_token_2", local_mode=False
+            ),
         ]
     )
     ai_optimized_circuit = ai_optimize_cliff.run(random_circuit_transpiled)
@@ -71,7 +73,9 @@ def test_clifford_wrong_url(random_circuit_transpiled, backend, caplog):
     ai_optimize_cliff = PassManager(
         [
             CollectCliffords(),
-            AICliffordSynthesis(backend_name=backend, base_url="https://ibm.com/"),
+            AICliffordSynthesis(
+                backend_name=backend, base_url="https://ibm.com/", local_mode=False
+            ),
         ]
     )
     ai_optimized_circuit = ai_optimize_cliff.run(random_circuit_transpiled)
@@ -87,6 +91,7 @@ def test_clifford_unexisting_url(random_circuit_transpiled, backend, caplog):
             AICliffordSynthesis(
                 backend_name=backend,
                 base_url="https://invented-domain-qiskit-ibm-transpiler-123.com/",
+                local_mode=False,
             ),
         ]
     )
@@ -104,7 +109,7 @@ def test_clifford_function(random_circuit_transpiled, backend):
     ai_optimize_cliff = PassManager(
         [
             CollectCliffords(),
-            AICliffordSynthesis(backend_name=backend),
+            AICliffordSynthesis(backend_name=backend, local_mode=False),
         ]
     )
     ai_optimized_circuit = ai_optimize_cliff.run(random_circuit_transpiled)
@@ -124,7 +129,7 @@ def test_clifford_function_with_coupling_map(
     ai_optimize_cliff = PassManager(
         [
             CollectCliffords(),
-            AICliffordSynthesis(coupling_map=coupling_map_to_send),
+            AICliffordSynthesis(coupling_map=coupling_map_to_send, local_mode=False),
         ]
     )
     ai_optimized_circuit = ai_optimize_cliff.run(random_circuit_transpiled)

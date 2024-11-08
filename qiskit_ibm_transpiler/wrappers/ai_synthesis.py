@@ -16,6 +16,7 @@ from typing import Union, List
 from qiskit import QuantumCircuit
 from qiskit.circuit.library import LinearFunction
 from qiskit.quantum_info import Clifford
+from qiskit.providers.backend import BackendV2 as Backend
 
 from .base import QiskitTranspilerService
 from ..utils import (
@@ -39,6 +40,7 @@ class AICliffordAPI(QiskitTranspilerService):
         qargs: List[List[int]],
         coupling_map: Union[List[List[int]], None] = None,
         backend_name: Union[str, None] = None,
+        backend: Union[Backend, None] = None,
     ):
         if coupling_map is not None:
             transpile_resps = self.request_and_wait(

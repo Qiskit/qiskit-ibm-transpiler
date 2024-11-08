@@ -119,6 +119,7 @@ class AISynthesis(TransformationPass):
                 synth_inputs,
                 qargs=qargs,
                 coupling_map=self.coupling_map,
+                backend_name=self.backend_name,
                 backend=self.backend,
             )
         except TranspilerError as e:
@@ -177,6 +178,7 @@ class AICliffordSynthesis(AISynthesis):
         backend_name: Union[str, None] = None,
         replace_only_if_better: bool = True,
         max_threads: Union[int, None] = None,
+        local_mode: bool = True,
         **kwargs,
     ) -> None:
         super().__init__(
