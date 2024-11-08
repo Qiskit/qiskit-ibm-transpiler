@@ -40,6 +40,7 @@ class AICliffordAPI(QiskitTranspilerService):
         qargs: List[List[int]],
         coupling_map: Union[List[List[int]], None] = None,
         backend_name: Union[str, None] = None,
+        # backend is not used yet, but probably it will replace backend_name
         backend: Union[Backend, None] = None,
     ):
         if coupling_map is not None:
@@ -95,6 +96,8 @@ class AILinearFunctionAPI(QiskitTranspilerService):
         qargs: List[List[int]],
         coupling_map: Union[List[List[int]], None] = None,
         backend_name: Union[str, None] = None,
+        # backend is not used yet, but probably it will replace backend_name
+        backend: Union[Backend, None] = None,
     ) -> List[Union[QuantumCircuit, None]]:
         """Synthetize one or more quantum circuits into an optimized equivalent. It differs from a standard synthesis process in that it takes into account where the linear functions are (qargs)
         and respects it on the synthesized circuit.

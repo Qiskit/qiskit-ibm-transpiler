@@ -19,21 +19,20 @@ from qiskit_ibm_transpiler.ai.collection import CollectLinearFunctions
 from qiskit_ibm_transpiler.ai.synthesis import AILinearFunctionSynthesis
 
 
-def test_linear_function_wrong_backend(random_circuit_transpiled, caplog):
-    ai_optimize_lf = PassManager(
-        [
-            CollectLinearFunctions(),
-            AILinearFunctionSynthesis(backend_name="wrong_backend", local_mode=False),
-        ]
-    )
-    ai_optimized_circuit = ai_optimize_lf.run(random_circuit_transpiled)
-    assert "couldn't synthesize the circuit" in caplog.text
-    assert "Keeping the original circuit" in caplog.text
-    assert (
-        "User doesn't have access to the specified backend: wrong_backend"
-        in caplog.text
-    )
-    assert isinstance(ai_optimized_circuit, QuantumCircuit)
+def test_linear_function_wrong_backend(random_circuit_transpiled):
+    with pytest.raises(
+        PermissionError,
+        match=r"ERROR. Backend not supported \(\w+\)",
+    ):
+        ai_optimize_lf = PassManager(
+            [
+                CollectLinearFunctions(),
+                AILinearFunctionSynthesis(
+                    backend_name="wrong_backend", local_mode=False
+                ),
+            ]
+        )
+        ai_optimize_lf.run(random_circuit_transpiled)
 
 
 @pytest.mark.skip(
@@ -43,7 +42,9 @@ def test_linear_function_exceed_timeout(random_circuit_transpiled, backend, capl
     ai_optimize_lf = PassManager(
         [
             CollectLinearFunctions(),
-            AILinearFunctionSynthesis(backend_name=backend, timeout=1),
+            AILinearFunctionSynthesis(
+                backend_name=backend, timeout=1, local_mode=False
+            ),
         ]
     )
     ai_optimized_circuit = ai_optimize_lf.run(random_circuit_transpiled)
@@ -59,7 +60,9 @@ def test_linear_function_wrong_token(random_circuit_transpiled, backend, caplog)
     ai_optimize_lf = PassManager(
         [
             CollectLinearFunctions(),
-            AILinearFunctionSynthesis(backend_name=backend, token="invented_token_2"),
+            AILinearFunctionSynthesis(
+                backend_name=backend, token="invented_token_2", local_mode=False
+            ),
         ]
     )
     ai_optimized_circuit = ai_optimize_lf.run(random_circuit_transpiled)
@@ -78,7 +81,7 @@ def test_linear_function_wrong_url(random_circuit_transpiled, backend):
         [
             CollectLinearFunctions(),
             AILinearFunctionSynthesis(
-                backend_name=backend, base_url="https://ibm.com/"
+                backend_name=backend, base_url="https://ibm.com/", local_mode=False
             ),
         ]
     )
@@ -101,6 +104,7 @@ def test_linear_function_unexisting_url(random_circuit_transpiled, backend, capl
             AILinearFunctionSynthesis(
                 backend_name=backend,
                 base_url="https://invented-domain-qiskit-ibm-transpiler-123.com/",
+                local_mode=False,
             ),
         ]
     )
@@ -122,7 +126,7 @@ def test_linear_always_replace(backend, caplog):
         [
             CollectLinearFunctions(),
             AILinearFunctionSynthesis(
-                backend_name=backend, replace_only_if_better=False
+                backend_name=backend, replace_only_if_better=False, local_mode=False
             ),
         ]
     )
