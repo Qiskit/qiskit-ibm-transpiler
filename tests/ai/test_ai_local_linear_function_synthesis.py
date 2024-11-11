@@ -18,12 +18,39 @@ from qiskit.transpiler import PassManager
 from qiskit_ibm_transpiler.ai.collection import CollectLinearFunctions
 from qiskit_ibm_transpiler.utils import create_random_linear_function, get_metrics
 from qiskit_ibm_transpiler.ai.synthesis import AILinearFunctionSynthesis
+from qiskit_ibm_runtime import QiskitRuntimeService
 
 
-def test_ai_local_linear_function_synthesis_wrong_backend():
-    original_circuit = QuantumCircuit(3)
-    original_circuit.cx(0, 1)
-    original_circuit.cx(1, 2)
+@pytest.fixture
+def basic_cnot_circuit():
+    circuit = QuantumCircuit(3)
+    circuit.cx(0, 1)
+    circuit.cx(1, 2)
+
+    return circuit
+
+
+@pytest.fixture
+def linear_function_circuit():
+    circuit = QuantumCircuit(8)
+    linear_function = create_random_linear_function(8)
+    circuit.append(linear_function, range(8))
+    # Using decompose since we need a QuantumCircuit, not a LinearFunction. We created an empty
+    # circuit, so it contains only a LinearFunction
+    circuit = circuit.decompose(reps=1)
+
+    return circuit
+
+
+@pytest.fixture
+def brisbane_backend():
+    backend = QiskitRuntimeService().backend("ibm_brisbane")
+
+    return backend
+
+
+def test_ai_local_linear_function_synthesis_wrong_backend(basic_cnot_circuit):
+    original_circuit = basic_cnot_circuit
 
     with pytest.raises(
         PermissionError,
@@ -39,12 +66,12 @@ def test_ai_local_linear_function_synthesis_wrong_backend():
         ai_linear_functions_synthesis_pass.run(original_circuit)
 
 
-def test_ai_local_linear_function_synthesis_returns_original_circuit(caplog):
+def test_ai_local_linear_function_synthesis_returns_original_circuit(
+    basic_cnot_circuit, caplog
+):
     # When the original circuit is better than the synthesized one, we keep the original
 
-    original_circuit = QuantumCircuit(3)
-    original_circuit.cx(0, 1)
-    original_circuit.cx(1, 2)
+    original_circuit = basic_cnot_circuit
 
     ai_linear_functions_synthesis_pass = PassManager(
         [
@@ -60,13 +87,13 @@ def test_ai_local_linear_function_synthesis_returns_original_circuit(caplog):
     assert "Keeping the original circuit" in caplog.text
 
 
-def test_ai_local_linear_function_synthesis_dont_returns_original_circuit(caplog):
+def test_ai_local_linear_function_synthesis_dont_returns_original_circuit(
+    basic_cnot_circuit, caplog
+):
     # When the original circuit is better than the synthesized one,
     # but replace_only_if_better is False, we return the synthesized circuit
 
-    original_circuit = QuantumCircuit(3)
-    original_circuit.cx(0, 1)
-    original_circuit.cx(1, 2)
+    original_circuit = basic_cnot_circuit
 
     ai_linear_functions_synthesis_pass = PassManager(
         [
@@ -84,18 +111,49 @@ def test_ai_local_linear_function_synthesis_dont_returns_original_circuit(caplog
     assert "Using the synthesized circuit" in caplog.text
 
 
-def test_ai_local_linear_function_synthesis(caplog):
-    original_circuit = QuantumCircuit(8)
-    linear_function = create_random_linear_function(8)
-    original_circuit.append(linear_function, range(8))
-    # Using decompose since we need a QuantumCircuit, not a LinearFunction. We created original_circuit
-    # empty, so it contains only a LinearFunction
-    original_circuit = original_circuit.decompose(reps=1)
+def test_ai_local_linear_function_synthesis_with_backend_name(linear_function_circuit):
+    original_circuit = linear_function_circuit
 
     ai_linear_functions_synthesis_pass = PassManager(
         [
             CollectLinearFunctions(min_block_size=2),
             AILinearFunctionSynthesis(backend_name="ibm_brisbane"),
+        ]
+    )
+
+    synthesized_circuit = ai_linear_functions_synthesis_pass.run(original_circuit)
+
+    assert isinstance(synthesized_circuit, QuantumCircuit)
+
+
+def test_ai_local_linear_function_synthesis_with_backend(
+    linear_function_circuit, brisbane_backend
+):
+    original_circuit = linear_function_circuit
+
+    ai_linear_functions_synthesis_pass = PassManager(
+        [
+            CollectLinearFunctions(min_block_size=2),
+            AILinearFunctionSynthesis(backend=brisbane_backend),
+        ]
+    )
+
+    synthesized_circuit = ai_linear_functions_synthesis_pass.run(original_circuit)
+
+    assert isinstance(synthesized_circuit, QuantumCircuit)
+
+
+def test_ai_local_linear_function_synthesis_with_coupling_map(
+    linear_function_circuit, brisbane_backend
+):
+    original_circuit = linear_function_circuit
+
+    backend_coupling_map = brisbane_backend.coupling_map
+
+    ai_linear_functions_synthesis_pass = PassManager(
+        [
+            CollectLinearFunctions(min_block_size=2),
+            AILinearFunctionSynthesis(coupling_map=backend_coupling_map),
         ]
     )
 
