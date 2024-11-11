@@ -13,9 +13,13 @@
 import os
 from urllib.parse import urljoin
 
-from qiskit import QuantumCircuit, qasm2, qasm3
-from qiskit.qasm2 import QASM2ExportError
-
+from qiskit import QuantumCircuit
+from qiskit_ibm_transpiler.utils import (
+    deserialize_circuit_from_qpy_or_qasm,
+    get_circuit_from_qpy,
+    get_qpy_from_circuit,
+    serialize_circuit_to_qpy_or_qasm,
+)
 from .base import QiskitTranspilerService
 
 
@@ -33,14 +37,13 @@ class AIRoutingAPI(QiskitTranspilerService):
         check_result: bool = False,
         layout_mode: str = "OPTIMIZE",
     ):
-        is_qasm3 = False
-        try:
-            qasm = qasm2.dumps(circuit)
-        except QASM2ExportError:
-            qasm = qasm3.dumps(circuit)
-            is_qasm3 = True
+        qpy, qasm = serialize_circuit_to_qpy_or_qasm(circuit)
 
-        json_args = {"qasm": qasm.replace("\n", " "), "coupling_map": coupling_map}
+        json_args = {
+            "qasm": qasm,
+            "qpy": qpy,
+            "coupling_map": coupling_map,
+        }
 
         params = {
             "check_result": check_result,
@@ -53,10 +56,8 @@ class AIRoutingAPI(QiskitTranspilerService):
         )
 
         if routing_resp.get("success"):
-            routed_circuit = (
-                qasm3.loads(routing_resp["qasm"])
-                if is_qasm3
-                else QuantumCircuit.from_qasm_str(routing_resp["qasm"])
+            routed_circuit = deserialize_circuit_from_qpy_or_qasm(
+                routing_resp["qpy"], routing_resp["qasm"]
             )
             return (
                 routed_circuit,
