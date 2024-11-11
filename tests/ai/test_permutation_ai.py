@@ -48,7 +48,7 @@ def test_permutation_wrong_backend(caplog):
     ai_optimize_perm = PassManager(
         [
             CollectPermutations(min_block_size=2, max_block_size=27),
-            AIPermutationSynthesis(backend_name="wrong_backend"),
+            AIPermutationSynthesis(backend_name="wrong_backend", local_mode=False),
         ]
     )
     ai_optimized_circuit = ai_optimize_perm.run(orig_qc)
