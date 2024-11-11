@@ -20,11 +20,16 @@ from qiskit.circuit import Gate
 from qiskit.circuit.random import random_circuit
 from qiskit.compiler import transpile
 from qiskit.quantum_info import SparsePauliOp, random_hermitian
+from qiskit.providers.fake_provider import GenericBackendV2
 
 from qiskit_ibm_transpiler.transpiler_service import TranspilerService
-from qiskit_ibm_transpiler.wrappers import (
-    _get_circuit_from_result,
-    _get_circuit_from_qasm,
+from qiskit_ibm_transpiler.wrappers import _get_circuit_from_result
+from qiskit_ibm_transpiler.utils import (
+    get_circuit_from_qasm,
+    get_circuit_from_qpy,
+    get_qpy_from_circuit,
+    input_to_qasm,
+    to_qasm3_iterative_decomposition,
 )
 
 
@@ -109,7 +114,8 @@ def test_rand_circ_cmap_routing(
     assert isinstance(transpiled_circuit, QuantumCircuit)
 
 
-def test_qv_circ_several_circuits_routing():
+@pytest.mark.parametrize("num_circuits", [2, 5])
+def test_qv_circ_several_circuits_routing(num_circuits):
     qv_circ = QuantumVolume(5, depth=3, seed=42).decompose(reps=3)
 
     cloud_transpiler_service = TranspilerService(
@@ -117,15 +123,8 @@ def test_qv_circ_several_circuits_routing():
         ai="true",
         optimization_level=1,
     )
-    transpiled_circuit = cloud_transpiler_service.run([qv_circ] * 2)
-    for circ in transpiled_circuit:
-        assert isinstance(circ, QuantumCircuit)
 
-    transpiled_circuit = cloud_transpiler_service.run([qasm2.dumps(qv_circ)] * 2)
-    for circ in transpiled_circuit:
-        assert isinstance(circ, QuantumCircuit)
-
-    transpiled_circuit = cloud_transpiler_service.run([qasm2.dumps(qv_circ), qv_circ])
+    transpiled_circuit = cloud_transpiler_service.run([qv_circ] * num_circuits)
     for circ in transpiled_circuit:
         assert isinstance(circ, QuantumCircuit)
 
@@ -300,8 +299,7 @@ def test_transpile_malformed_body():
 
 
 def test_transpile_failing_task():
-    open_qasm_circuit = 'OPENQASM 2.0;\ninclude "qelib1.inc";\ngate dcx q0,q1 { cx q0,q1; cx q1,q0; }\nqreg q[3];\ncz q[0],q[2];\nsdg q[1];\ndcx q[2],q[1];\nu3(3.890139082217223,3.447697582994976,1.1583481971959322) q[0];\ncrx(2.3585459177723522) q[1],q[0];\ny q[2];'
-    circuit = QuantumCircuit.from_qasm_str(open_qasm_circuit)
+    qpy_circuit = "UUlTS0lUDAECAAAAAAAAAAABZXEAC2YACAAAAAMAAAAAAAAAAAAAAAIAAAABAAAAAAAAAAYAAAAAY2lyY3VpdC0xNjAAAAAAAAAAAHt9cQEAAAADAAEBcQAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAgAAAAAAAAABACRnAAAAAgAAAAABAAAAAAAAALsAAAAAAAAAAAAAAAAAAAAAZGN4X2ZkN2JlNTcxOTQ1OTRkZTY5ZDFlMTNmNmFmYmY1NmZjAAtmAAgAAAACAAAAAAAAAAAAAAACAAAAAAAAAAAAAAACAAAAAGNpcmN1aXQtMTYxAAAAAAAAAAB7fQAAAAAAAAAAAAYAAAAAAAAAAgAAAAAAAAAAAAAAAAAAAAAAAAEAAAABQ1hHYXRlcQAAAABxAAAAAQAGAAAAAAAAAAIAAAAAAAAAAAAAAAAAAAAAAAABAAAAAUNYR2F0ZXEAAAABcQAAAAAAAAD///////////////8AAAAAAAAAAAAGAAAAAAAAAAIAAAAAAAAAAAAAAAAAAAAAAAABAAAAAUNaR2F0ZXEAAAAAcQAAAAIABwAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABTZGdHYXRlcQAAAAEAJAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABkY3hfZmQ3YmU1NzE5NDU5NGRlNjlkMWUxM2Y2YWZiZjU2ZmNxAAAAAnEAAAABAAYAAAADAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAVTNHYXRlcQAAAABmAAAAAAAAAAiMHTg9AR8PQGYAAAAAAAAACH+xa3jilAtAZgAAAAAAAAAItmSFHpiI8j8ABwAAAAEAAAACAAAAAAAAAAAAAAAAAAAAAAAAAQAAAAFDUlhHYXRlcQAAAAFxAAAAAGYAAAAAAAAACI2Sd1JN3gJAAAUAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWUdhdGVxAAAAAgAAAP///////////////wAAAAAAAAAA"
     transpiler_service = TranspilerService(
         backend_name="ibm_brisbane",
         ai="false",
@@ -314,11 +312,35 @@ def test_transpile_failing_task():
     )
 
     try:
-        transpiler_service.run(circuit)
+        transpiler_service.run(get_circuit_from_qpy(qpy_circuit))
         pytest.fail("Error expected")
     except Exception as e:
         assert "The background task" in str(e)
         assert "FAILED" in str(e)
+
+
+def test_transpile_wrong_circuits_format():
+    circuit = random_circuit(5, depth=3, seed=42).decompose(reps=3)
+
+    cloud_transpiler_service = TranspilerService(
+        backend_name="ibm_brisbane", optimization_level=1
+    )
+
+    wrong_input = [get_qpy_from_circuit(circuit)] * 2
+    with pytest.raises(TypeError):
+        cloud_transpiler_service.run(wrong_input)
+
+
+def test_transpile_wrong_qpy_fallback():
+    circuit = QuantumCircuit.from_qasm_file("tests/test_files/cc_n64.qasm")
+    test_backend = GenericBackendV2(circuit.num_qubits)
+
+    cloud_transpiler_service = TranspilerService(
+        coupling_map=list(test_backend.coupling_map.get_edges()), optimization_level=3
+    )
+
+    transpiled_circuit = cloud_transpiler_service.run(circuit)
+    assert isinstance(transpiled_circuit, QuantumCircuit)
 
 
 def compare_layouts(plugin_circ, non_ai_circ):
@@ -351,7 +373,8 @@ def compare_layouts(plugin_circ, non_ai_circ):
 
 def get_circuit_as_in_service(circuit):
     return {
-        "qasm": qasm3.dumps(circuit),
+        "qpy": get_qpy_from_circuit(circuit),
+        "qasm": None,
         "layout": {
             "initial": circuit.layout.initial_index_layout(),
             "final": circuit.layout.final_index_layout(False),
@@ -390,7 +413,7 @@ def test_fix_ecr_qasm2():
     qc = QuantumCircuit(5)
     qc.ecr(0, 2)
 
-    circuit_from_qasm = _get_circuit_from_qasm(qasm2.dumps(qc))
+    circuit_from_qasm = get_circuit_from_qasm(qasm2.dumps(qc))
     assert isinstance(list(circuit_from_qasm)[0].operation, ECRGate)
 
 
@@ -398,7 +421,7 @@ def test_fix_ecr_qasm3():
     qc = QuantumCircuit(5)
     qc.ecr(0, 2)
 
-    circuit_from_qasm = _get_circuit_from_qasm(qasm3.dumps(qc))
+    circuit_from_qasm = get_circuit_from_qasm(qasm3.dumps(qc))
     assert isinstance(list(circuit_from_qasm)[0].operation, ECRGate)
 
 
