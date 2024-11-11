@@ -11,6 +11,7 @@
 # that they have been altered from the originals.
 
 import logging
+import os
 from typing import Dict, List, Union, Literal
 
 import numpy as np
@@ -23,6 +24,7 @@ from qiskit_ibm_transpiler.utils import (
     get_circuit_from_qpy,
     get_circuits_from_qpy,
     get_qpy_from_circuit,
+    input_to_qasm,
     serialize_circuits_to_qpy_or_qasm,
 )
 from qiskit_ibm_transpiler.wrappers import QiskitTranspilerService
@@ -30,6 +32,8 @@ from qiskit_ibm_transpiler.wrappers import QiskitTranspilerService
 # setting backoff logger to error level to avoid too much logging
 logging.getLogger("backoff").setLevel(logging.ERROR)
 logger = logging.getLogger(__name__)
+
+MAX_GATES_QPY = os.environ.get("AI_TRANSPILER_MAX_GATES_QPY", 400000)
 
 # TODO: Reuse this code, it's repeated several times
 OptimizationOptions = Literal["n_cnots", "n_gates", "cnot_layers", "layers", "noise"]
@@ -55,8 +59,26 @@ class TranspileAPI(QiskitTranspilerService):
         ai_layout_mode: str = None,
         use_fractional_gates: bool = False,
     ):
+        if not isinstance(circuits, QuantumCircuit) and not (
+            isinstance(circuits, List)
+            and all(isinstance(the_circ, QuantumCircuit) for the_circ in circuits)
+        ):
+            raise TypeError(
+                "Input must be a QuantumCircuit or a list of QuantumCircuits"
+            )
+
         circuits = [circuits] if isinstance(circuits, QuantumCircuit) else circuits
-        qpy_circuits, qasm_circuits = serialize_circuits_to_qpy_or_qasm(circuits)
+        circuits_2q_lengths = _count_2q_gates(circuits)
+
+        # Send using QASM if any of the circuits is too big
+        if any(
+            circuits_length > MAX_GATES_QPY for circuits_length in circuits_2q_lengths
+        ):
+            qpy_circuits, qasm_circuits = None, [
+                input_to_qasm(circ).replace("\n", " ") for circ in circuits
+            ]
+        else:
+            qpy_circuits, qasm_circuits = serialize_circuits_to_qpy_or_qasm(circuits)
 
         body_params = {
             "qasm_circuits": qasm_circuits,
@@ -177,3 +199,21 @@ def _create_transpile_layout(initial, final, circuit, orig_circuit):
         _input_qubit_count=n_used_qubits,
         _output_qubit_list=circuit.qubits,
     )
+
+
+def _count_2q_gates(circuits: List[QuantumCircuit]) -> List[int]:
+    circuits_2q_lengths = []
+    for circuit in circuits:
+        num_ops = circuit.count_ops()
+        # Get the N of 2-qubit operations for each received qpy
+        circuits_2q_lengths.append(
+            circuit.num_nonlocal_gates()
+            + 5
+            * num_ops.get("ccx", 0)  # 1 ccx counts as 6 cx, so we add the remaining 5
+            + 7
+            * num_ops.get(
+                "cswap", 0
+            )  # 1 cswap counts as 8 cx, so we add the remaining 7
+            + 5 * num_ops.get("ccz", 0)
+        )
+    return circuits_2q_lengths
