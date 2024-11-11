@@ -33,8 +33,9 @@ from qiskit_ibm_transpiler.wrappers import (
     AIPauliNetworkAPI,
 )
 
-from qiskit_ibm_transpiler.wrappers.ai_local_linear_function_synthesis import (
+from qiskit_ibm_transpiler.wrappers.ai_local_synthesis import (
     AILocalLinearFunctionSynthesis,
+    AILocalPermutationSynthesis,
 )
 
 
@@ -302,15 +303,21 @@ class AIPermutationSynthesis(AISynthesis):
         self,
         coupling_map: Union[List[List[int]], CouplingMap, None] = None,
         backend_name: Union[str, None] = None,
+        backend: Union[Backend, None] = None,
         replace_only_if_better: bool = True,
         max_threads: Union[int, None] = None,
         local_mode: bool = True,
         **kwargs,
     ) -> None:
+        ai_synthesis_provider = (
+            AILocalPermutationSynthesis() if local_mode else AIPermutationAPI(**kwargs)
+        )
+
         super().__init__(
-            synth_service=AIPermutationAPI(**kwargs),
+            synth_service=ai_synthesis_provider,
             coupling_map=coupling_map,
             backend_name=backend_name,
+            backend=backend,
             replace_only_if_better=replace_only_if_better,
             max_threads=max_threads,
             local_mode=local_mode,

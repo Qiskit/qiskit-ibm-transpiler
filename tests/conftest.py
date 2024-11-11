@@ -12,8 +12,10 @@
 import logging
 
 import pytest
+from qiskit import QuantumCircuit
 from qiskit.transpiler.coupling import CouplingMap
 from qiskit_ibm_runtime.fake_provider import FakeQuebec
+from qiskit_ibm_runtime import QiskitRuntimeService
 
 
 @pytest.fixture(autouse=True)
@@ -273,3 +275,39 @@ def cmap_backend():
             ]
         ),
     }
+
+
+@pytest.fixture
+def basic_cnot_circuit():
+    circuit = QuantumCircuit(3)
+    circuit.cx(0, 1)
+    circuit.cx(1, 2)
+
+    return circuit
+
+
+@pytest.fixture
+def brisbane_backend():
+    backend = QiskitRuntimeService().backend("ibm_brisbane")
+
+    return backend
+
+
+@pytest.fixture
+def permutation_circuit(backend_27q, cmap_backend):
+    coupling_map = cmap_backend[backend_27q]
+    cmap = list(coupling_map.get_edges())
+    orig_qc = QuantumCircuit(27)
+    for i, j in cmap:
+        orig_qc.h(i)
+        orig_qc.cx(i, j)
+    for i, j in cmap:
+        orig_qc.swap(i, j)
+    for i, j in cmap:
+        orig_qc.h(i)
+        orig_qc.cx(i, j)
+    for i, j in cmap[:4]:
+        orig_qc.swap(i, j)
+    for i, j in cmap:
+        orig_qc.cx(i, j)
+    return orig_qc
