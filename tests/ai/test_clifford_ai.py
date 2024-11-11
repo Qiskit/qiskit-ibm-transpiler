@@ -27,6 +27,7 @@ def test_clifford_wrong_backend(random_circuit_transpiled, caplog):
         ]
     )
     ai_optimized_circuit = ai_optimize_cliff.run(random_circuit_transpiled)
+
     assert "couldn't synthesize the circuit" in caplog.text
     assert "Keeping the original circuit" in caplog.text
     assert (

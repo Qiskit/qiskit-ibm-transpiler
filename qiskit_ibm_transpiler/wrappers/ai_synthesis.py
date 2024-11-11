@@ -67,7 +67,7 @@ class AICliffordAPI(QiskitTranspilerService):
                 params={"backend": backend_name},
             )
         else:
-            raise (
+            raise ValueError(
                 "ERROR. Either a 'coupling_map' or a 'backend_name' must be provided."
             )
 
@@ -188,8 +188,8 @@ class AIPermutationAPI(QiskitTranspilerService):
                 params={"backend": backend_name},
             )
         else:
-            raise (
-                f"ERROR. Either a 'coupling_map' or a 'backend_name' must be provided."
+            raise ValueError(
+                "ERROR. Either a 'coupling_map' or a 'backend_name' must be provided."
             )
 
         results = []

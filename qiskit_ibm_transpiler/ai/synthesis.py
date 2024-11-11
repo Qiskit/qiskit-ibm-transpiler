@@ -207,11 +207,11 @@ class AICliffordSynthesis(AISynthesis):
         **kwargs,
     ) -> None:
         super().__init__(
-            AICliffordAPI(**kwargs),
-            coupling_map,
-            backend_name,
-            replace_only_if_better,
-            max_threads,
+            synth_service=AICliffordAPI(**kwargs),
+            coupling_map=coupling_map,
+            backend_name=backend_name,
+            replace_only_if_better=replace_only_if_better,
+            max_threads=max_threads,
             local_mode=local_mode,
         )
 
