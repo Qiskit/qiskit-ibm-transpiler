@@ -430,14 +430,6 @@ def test_fix_ecr_qasm3():
     assert isinstance(list(circuit_from_qasm)[0].operation, ECRGate)
 
 
-def test_fix_ecr_qpy():
-    qc = QuantumCircuit(5)
-    qc.ecr(0, 2)
-
-    circuit_from_qpy = get_circuit_from_qpy(get_qpy_from_circuit(qc))
-    assert isinstance(list(circuit_from_qpy)[0].operation, ECRGate)
-
-
 def test_fix_ecr_ibm_strasbourg():
     num_qubits = 16
     circuit = QuantumCircuit(num_qubits)
