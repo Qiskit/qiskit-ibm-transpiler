@@ -15,8 +15,13 @@
 import numpy as np
 import pytest
 from qiskit import QuantumCircuit, qasm2, qasm3
-from qiskit.circuit.library import IQP, EfficientSU2, QuantumVolume, ECRGate
-from qiskit.circuit import Gate
+from qiskit.circuit.library import (
+    IQP,
+    EfficientSU2,
+    QuantumVolume,
+    ECRGate,
+    ZZFeatureMap,
+)
 from qiskit.circuit.random import random_circuit
 from qiskit.compiler import transpile
 from qiskit.quantum_info import SparsePauliOp, random_hermitian
@@ -438,3 +443,33 @@ def test_fix_ecr_ibm_strasbourg():
     )
     transpiled_circuit = cloud_transpiler_service.run(circuit)
     assert any(isinstance(gate.operation, ECRGate) for gate in list(transpiled_circuit))
+
+
+def test_qasm3_iterative_decomposition():
+    feature_map = ZZFeatureMap(feature_dimension=3, reps=1, entanglement="full")
+    qasm = input_to_qasm(feature_map)
+    qc = get_circuit_from_qasm(qasm)
+    assert isinstance(qc, QuantumCircuit)
+
+
+def test_qasm3_iterative_decomposition_limit():
+    feature_map = ZZFeatureMap(feature_dimension=3, reps=1, entanglement="full")
+    with pytest.raises(qasm3.QASM3ExporterError):
+        to_qasm3_iterative_decomposition(feature_map, n_iter=1)
+
+
+def test_transpile_with_barrier_on_circuit():
+    circuit = QuantumCircuit(5)
+    circuit.x(4)
+    circuit.barrier()
+    circuit.z(3)
+    circuit.cx(3, 4)
+
+    transpiler_service = TranspilerService(
+        backend_name="ibm_brisbane",
+        optimization_level=1,
+    )
+
+    transpiled_circuit = transpiler_service.run(circuit)
+
+    assert isinstance(transpiled_circuit, QuantumCircuit)

@@ -14,8 +14,10 @@ import logging
 from typing import Dict, List, Union, Literal
 
 import numpy as np
-from qiskit import QuantumCircuit, QuantumRegister
-from qiskit.circuit import QuantumCircuit, QuantumRegister, Qubit
+from qiskit import QuantumCircuit, QuantumRegister, qasm2, qasm3
+from qiskit.circuit import QuantumCircuit, QuantumRegister, Qubit, library
+from qiskit.transpiler.basepasses import TransformationPass
+from qiskit.qasm2 import QASM2ExportError, QASM2ParseError
 from qiskit.transpiler import TranspileLayout
 from qiskit.transpiler.layout import Layout
 from qiskit_ibm_transpiler.utils import (
@@ -25,6 +27,7 @@ from qiskit_ibm_transpiler.utils import (
     get_qpy_from_circuit,
     serialize_circuits_to_qpy_or_qasm,
 )
+
 from qiskit_ibm_transpiler.wrappers import QiskitTranspilerService
 
 # setting backoff logger to error level to avoid too much logging
@@ -53,7 +56,6 @@ class TranspileAPI(QiskitTranspilerService):
         ai: Literal["true", "false", "auto"] = "true",
         qiskit_transpile_options: Dict = None,
         ai_layout_mode: str = None,
-        use_fractional_gates: bool = False,
     ):
         circuits = [circuits] if isinstance(circuits, QuantumCircuit) else circuits
         qpy_circuits, qasm_circuits = serialize_circuits_to_qpy_or_qasm(circuits)
@@ -78,9 +80,6 @@ class TranspileAPI(QiskitTranspilerService):
         if ai_layout_mode is not None:
             query_params["ai_layout_mode"] = ai_layout_mode
 
-        if use_fractional_gates:
-            query_params["use_fractional_gates"] = use_fractional_gates
-
         transpile_resp = self.request_and_wait(
             endpoint="transpile", body=body_params, params=query_params
         )
@@ -101,6 +100,30 @@ class TranspileAPI(QiskitTranspilerService):
             if len(transpiled_circuits) > 1
             else transpiled_circuits[0]
         )
+
+    def benchmark(
+        self,
+        circuits: Union[
+            Union[List[str], str], Union[List[QuantumCircuit], QuantumCircuit]
+        ],
+        backend: str,
+        optimization_level: int = 1,
+        qiskit_transpile_options: Dict = None,
+    ):
+        raise Exception("Not implemented")
+
+
+def _input_to_qasm(input_circ: Union[QuantumCircuit, str]):
+    if isinstance(input_circ, QuantumCircuit):
+        try:
+            qasm = qasm2.dumps(input_circ).replace("\n", " ")
+        except QASM2ExportError:
+            qasm = qasm3.dumps(input_circ).replace("\n", " ")
+    elif isinstance(input_circ, str):
+        qasm = input_circ.replace("\n", " ")
+    else:
+        raise TypeError("Input circuits must be QuantumCircuit or qasm string.")
+    return qasm
 
 
 def _get_circuit_from_result(transpile_resp, orig_circuit):
@@ -177,3 +200,30 @@ def _create_transpile_layout(initial, final, circuit, orig_circuit):
         _input_qubit_count=n_used_qubits,
         _output_qubit_list=circuit.qubits,
     )
+
+
+class FixECR(TransformationPass):
+    def run(self, dag):
+        for node in dag.op_nodes():
+            if node.name.startswith("ecr"):
+                dag.substitute_node(node, library.ECRGate())
+        return dag
+
+
+def _get_circuit_from_qasm(qasm_string: str):
+    try:
+        return _get_circuit_from_qasm.fix_ecr(
+            qasm2.loads(
+                qasm_string,
+                custom_instructions=_get_circuit_from_qasm.QISKIT_INSTRUCTIONS,
+            )
+        )
+    except QASM2ParseError:
+        return _get_circuit_from_qasm.fix_ecr(qasm3.loads(qasm_string))
+
+
+_get_circuit_from_qasm.QISKIT_INSTRUCTIONS = list(qasm2.LEGACY_CUSTOM_INSTRUCTIONS)
+_get_circuit_from_qasm.QISKIT_INSTRUCTIONS.append(
+    qasm2.CustomInstruction("ecr", 0, 2, library.ECRGate)
+)
+_get_circuit_from_qasm.fix_ecr = FixECR()
