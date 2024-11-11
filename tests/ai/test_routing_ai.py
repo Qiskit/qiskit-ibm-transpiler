@@ -59,18 +59,16 @@ def test_qv_routing_wrong_layout_mode(layout_mode, backend, qv_circ):
 
 
 def test_routing_wrong_backend(random_circuit_transpiled):
-    ai_optimize_lf = PassManager(
-        [
-            AIRouting(backend_name="wrong_backend", local_mode=False),
-        ]
-    )
-    try:
-        ai_optimized_circuit = ai_optimize_lf.run(random_circuit_transpiled)
-        pytest.fail("Error expected")
-    except Exception as e:
-        assert (
-            "User doesn't have access to the specified backend: wrong_backend" in str(e)
+    with pytest.raises(
+        TranspilerError,
+        match=r"User doesn\'t have access to the specified backend: \w+",
+    ):
+        ai_optimize_lf = PassManager(
+            [
+                AIRouting(backend_name="wrong_backend", local_mode=False),
+            ]
         )
+        ai_optimize_lf.run(random_circuit_transpiled)
 
 
 @pytest.mark.skip(
