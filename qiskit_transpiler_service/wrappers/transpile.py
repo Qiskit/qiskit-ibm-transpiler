@@ -20,6 +20,13 @@ from qiskit.transpiler.basepasses import TransformationPass
 from qiskit.qasm2 import QASM2ExportError, QASM2ParseError
 from qiskit.transpiler import TranspileLayout
 from qiskit.transpiler.layout import Layout
+from ..utils import (
+    deserialize_circuit_from_qpy_or_qasm,
+    get_circuit_from_qpy,
+    get_circuits_from_qpy,
+    get_qpy_from_circuit,
+    serialize_circuits_to_qpy_or_qasm,
+)
 
 from qiskit_transpiler_service.wrappers import QiskitTranspilerService
 
@@ -36,9 +43,7 @@ class TranspileAPI(QiskitTranspilerService):
 
     def transpile(
         self,
-        circuits: Union[
-            Union[List[str], str], Union[List[QuantumCircuit], QuantumCircuit]
-        ],
+        circuits: Union[List[QuantumCircuit], QuantumCircuit],
         optimization_level: int = 1,
         backend: Union[str, None] = None,
         coupling_map: Union[List[List[int]], None] = None,
@@ -46,12 +51,12 @@ class TranspileAPI(QiskitTranspilerService):
         qiskit_transpile_options: Dict = None,
         ai_layout_mode: str = None,
     ):
-        circuits = circuits if isinstance(circuits, list) else [circuits]
-
-        qasm_circuits = [_input_to_qasm(circ) for circ in circuits]
+        circuits = [circuits] if isinstance(circuits, QuantumCircuit) else circuits
+        qpy_circuits, qasm_circuits = serialize_circuits_to_qpy_or_qasm(circuits)
 
         json_args = {
             "qasm_circuits": qasm_circuits,
+            "qpy_circuits": qpy_circuits,
         }
 
         if qiskit_transpile_options is not None:
@@ -115,16 +120,12 @@ def _input_to_qasm(input_circ: Union[QuantumCircuit, str]):
 
 
 def _get_circuit_from_result(transpile_resp, orig_circuit):
-    transpiled_circuit = _get_circuit_from_qasm(transpile_resp["qasm"])
+    transpiled_circuit = deserialize_circuit_from_qpy_or_qasm(
+        transpile_resp["qpy"], transpile_resp["qasm"]
+    )
 
     init_layout = transpile_resp["layout"]["initial"]
     final_layout = transpile_resp["layout"]["final"]
-
-    orig_circuit = (
-        _get_circuit_from_qasm(orig_circuit)
-        if isinstance(orig_circuit, str)
-        else orig_circuit
-    )
 
     transpiled_circuit = QuantumCircuit(len(init_layout)).compose(transpiled_circuit)
     transpiled_circuit._layout = _create_transpile_layout(
