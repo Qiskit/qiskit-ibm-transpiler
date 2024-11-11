@@ -68,7 +68,9 @@ def test_permutation_exceed_timeout(random_circuit_transpiled, backend_27q, capl
     ai_optimize_perm = PassManager(
         [
             CollectPermutations(min_block_size=2, max_block_size=27),
-            AIPermutationSynthesis(backend_name=backend_27q, timeout=1),
+            AIPermutationSynthesis(
+                backend_name=backend_27q, timeout=1, local_mode=False
+            ),
         ]
     )
     ai_optimized_circuit = ai_optimize_perm.run(random_circuit_transpiled)
@@ -84,7 +86,9 @@ def test_permutation_wrong_token(random_circuit_transpiled, backend_27q, caplog)
     ai_optimize_perm = PassManager(
         [
             CollectPermutations(min_block_size=2, max_block_size=27),
-            AIPermutationSynthesis(backend_name=backend_27q, token="invented_token_2"),
+            AIPermutationSynthesis(
+                backend_name=backend_27q, token="invented_token_2", local_mode=False
+            ),
         ]
     )
     ai_optimized_circuit = ai_optimize_perm.run(random_circuit_transpiled)
@@ -101,7 +105,7 @@ def test_permutation_wrong_url(random_circuit_transpiled, backend_27q):
         [
             CollectPermutations(min_block_size=2, max_block_size=27),
             AIPermutationSynthesis(
-                backend_name=backend_27q, base_url="https://ibm.com/"
+                backend_name=backend_27q, base_url="https://ibm.com/", local_mode=False
             ),
         ]
     )
@@ -124,6 +128,7 @@ def test_permutation_unexisting_url(random_circuit_transpiled, backend_27q, capl
             AIPermutationSynthesis(
                 backend_name=backend_27q,
                 base_url="https://invented-domain-qiskit-ibm-transpiler-123.com/",
+                local_mode=False,
             ),
         ]
     )
@@ -165,7 +170,7 @@ def test_permutation_pass(permutations_circuit, backend_27q, caplog):
     ai_optimize_perm = PassManager(
         [
             CollectPermutations(max_block_size=27),
-            AIPermutationSynthesis(backend_name=backend_27q),
+            AIPermutationSynthesis(backend_name=backend_27q, local_mode=False),
         ]
     )
     ai_optimized_circuit = ai_optimize_perm.run(permutations_circuit)
