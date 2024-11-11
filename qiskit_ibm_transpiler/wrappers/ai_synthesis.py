@@ -18,6 +18,7 @@ from qiskit.circuit.library import LinearFunction
 from qiskit.quantum_info import Clifford
 
 from .base import QiskitTranspilerService
+from ..utils import deserialize_circuit_from_qpy_or_qasm
 
 logging.basicConfig()
 logging.getLogger(__name__).setLevel(logging.INFO)
@@ -66,8 +67,12 @@ class AICliffordAPI(QiskitTranspilerService):
 
         results = []
         for transpile_resp in transpile_resps:
-            if transpile_resp.get("success") and transpile_resp.get("qasm") is not None:
-                results.append(QuantumCircuit.from_qasm_str(transpile_resp.get("qasm")))
+            if transpile_resp.get("success"):
+                results.append(
+                    deserialize_circuit_from_qpy_or_qasm(
+                        transpile_resp.get("qpy"), transpile_resp.get("qasm")
+                    )
+                )
             else:
                 results.append(None)
         return results
@@ -116,8 +121,12 @@ class AILinearFunctionAPI(QiskitTranspilerService):
 
         results = []
         for transpile_resp in transpile_resps:
-            if transpile_resp.get("success") and transpile_resp.get("qasm") is not None:
-                results.append(QuantumCircuit.from_qasm_str(transpile_resp.get("qasm")))
+            if transpile_resp.get("success"):
+                results.append(
+                    deserialize_circuit_from_qpy_or_qasm(
+                        transpile_resp.get("qpy"), transpile_resp.get("qasm")
+                    )
+                )
             else:
                 results.append(None)
         return results
@@ -163,8 +172,12 @@ class AIPermutationAPI(QiskitTranspilerService):
 
         results = []
         for transpile_resp in transpile_resps:
-            if transpile_resp.get("success") and transpile_resp.get("qasm") is not None:
-                results.append(QuantumCircuit.from_qasm_str(transpile_resp.get("qasm")))
+            if transpile_resp.get("success"):
+                results.append(
+                    deserialize_circuit_from_qpy_or_qasm(
+                        transpile_resp.get("qpy"), transpile_resp.get("qasm")
+                    )
+                )
             else:
                 results.append(None)
         return results
