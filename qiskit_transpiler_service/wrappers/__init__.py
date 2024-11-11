@@ -31,8 +31,8 @@ Classes
    TranspileAPI
 """
 
-from qiskit_ibm_transpiler.wrappers.ai_routing import AIRoutingAPI
-from qiskit_ibm_transpiler.wrappers.ai_synthesis import (
+from qiskit_ibm_transpiler.wrappers.ai_api_routing import AIRoutingAPI
+from qiskit_ibm_transpiler.wrappers.ai_api_synthesis import (
     AICliffordAPI,
     AILinearFunctionAPI,
     AIPermutationAPI,
