@@ -26,14 +26,16 @@ Functions
 
 """
 
-from typing import Dict, Union
+from typing import Dict, Union, List, Tuple
 
 import numpy as np
-from qiskit import QuantumCircuit, qasm2, qasm3
+import base64
+import io
+import struct
+from qiskit import QuantumCircuit, qasm2, qasm3, qpy
 from qiskit.circuit.library import LinearFunction
 from qiskit.quantum_info import Clifford
 from qiskit.synthesis.linear.linear_matrix_utils import random_invertible_binary_matrix
-from qiskit import QuantumCircuit, qasm2, qasm3
 from qiskit.circuit import QuantumCircuit, library
 from qiskit.transpiler.basepasses import TransformationPass
 
@@ -127,3 +129,64 @@ get_circuit_from_qasm.QISKIT_INSTRUCTIONS.append(
     qasm2.CustomInstruction("ecr", 0, 2, library.ECRGate)
 )
 get_circuit_from_qasm.fix_ecr = FixECR()
+
+
+def get_qpy_from_circuit(
+    input_circ: Union[QuantumCircuit, List[QuantumCircuit]]
+) -> str:
+    if isinstance(input_circ, QuantumCircuit) or isinstance(input_circ, list):
+        output_b = io.BytesIO()
+        qpy.dump(input_circ, output_b)
+        qpy_string = base64.b64encode(output_b.getvalue()).decode("utf-8")
+    else:
+        raise TypeError(
+            f"Input circuits must be QuantumCircuit or list of QuantumCircuits. Type provided: {type(input_circ)}"
+        )
+    return qpy_string
+
+
+def get_circuit_from_qpy(qpy_string: str) -> QuantumCircuit:
+    return qpy.load(io.BytesIO(base64.b64decode(qpy_string.encode("utf-8"))))[0]
+
+
+def get_circuits_from_qpy(qpy_string: str) -> List[QuantumCircuit]:
+    return qpy.load(io.BytesIO(base64.b64decode(qpy_string.encode("utf-8"))))
+
+
+def serialize_circuit_to_qpy_or_qasm(
+    input_circuit: QuantumCircuit,
+) -> Tuple[Union[str, None], Union[str, None]]:
+    qpy_result = None
+    qasm_result = None
+    try:
+        qpy_result = get_qpy_from_circuit(input_circuit)
+    except struct.error:
+        qasm_result = input_to_qasm(input_circuit).replace("\n", " ")
+
+    return qpy_result, qasm_result
+
+
+def serialize_circuits_to_qpy_or_qasm(
+    input_circuits: List[QuantumCircuit],
+) -> Tuple[Union[str, None], Union[List[str], None]]:
+    qpy_result = None
+    qasm_result = None
+    try:
+        qpy_result = get_qpy_from_circuit(input_circuits)
+    except struct.error:
+        qasm_result = [
+            input_to_qasm(the_circ).replace("\n", " ") for the_circ in input_circuits
+        ]
+
+    return qpy_result, qasm_result
+
+
+def deserialize_circuit_from_qpy_or_qasm(
+    qpy_input: Union[str, None], qasm_input: Union[str, None]
+) -> Union[QuantumCircuit, None]:
+    if qpy_input:
+        return get_circuit_from_qpy(qpy_input)
+    elif qasm_input:
+        return get_circuit_from_qasm(qasm_input)
+    else:
+        return None
