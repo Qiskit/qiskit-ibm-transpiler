@@ -26,6 +26,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### 👾 Security
 
+## [0.4.14] - 2024-11-11
+
+### 🎉 Added
+
+- [#104](https://github.com/Qiskit/qiskit-transpiler-service/pull/104) Use QPY as exchange format with service.
+
 ## [0.4.13] - 2024-11-07
 
 ### 🎉 Added
@@ -189,7 +195,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 - Publishing first version 0.1.2 for the IBM Quantum Summit.
 
-[Unreleased]: https://github.com/Qiskit/qiskit-transpiler-service/compare/0.4.13...main-qiskit-transpiler-service
+[Unreleased]: https://github.com/Qiskit/qiskit-transpiler-service/compare/0.4.14...main-qiskit-transpiler-service
+[0.4.14]: https://github.com/Qiskit/qiskit-transpiler-service/compare/0.4.13...0.4.14
 [0.4.13]: https://github.com/Qiskit/qiskit-transpiler-service/compare/0.4.12...0.4.13
 [0.4.12]: https://github.com/Qiskit/qiskit-transpiler-service/compare/0.4.11...0.4.12
 [0.4.11]: https://github.com/Qiskit/qiskit-transpiler-service/compare/0.4.10...0.4.11

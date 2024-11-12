@@ -353,7 +353,7 @@ def test_deprecation_warning():
         assert issubclass(w[0].category, DeprecationWarning)
         assert (
             str(w[0].message)
-            == "The package qiskit-transpiler-service is deprecated. Use qiskit-ibm-transpiler instead"
+            == "The qiskit-transpiler-service package is deprecated. Use qiskit-ibm-transpiler instead. Version 0.4.14 will be the last one, no more fixes will be applied"
         )
 
 
