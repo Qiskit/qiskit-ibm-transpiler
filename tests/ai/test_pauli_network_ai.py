@@ -100,7 +100,7 @@ def test_pauli_network_unexisting_url(random_circuit_transpiled, backend, caplog
     assert isinstance(ai_optimized_circuit, QuantumCircuit)
 
 
-def test_pauli_network_function(random_circuit_transpiled, backend):
+def test_pauli_network_function(random_circuit_transpiled, backend, caplog):
     ai_optimize_cliff = PassManager(
         [
             CollectPauliNetworks(),
@@ -109,6 +109,7 @@ def test_pauli_network_function(random_circuit_transpiled, backend):
     )
     ai_optimized_circuit = ai_optimize_cliff.run(random_circuit_transpiled)
     assert isinstance(ai_optimized_circuit, QuantumCircuit)
+    assert "AIPauliNetworkAPI couldn't synthesize the circuit" not in caplog.text
 
 
 # TODO: Look for a better way to parametrize coupling maps
@@ -116,7 +117,7 @@ def test_pauli_network_function(random_circuit_transpiled, backend):
     "use_coupling_map_as_list", [True, False], ids=["as_list", "as_object"]
 )
 def test_pauli_network_function_with_coupling_map(
-    random_circuit_transpiled, coupling_map, use_coupling_map_as_list
+    random_circuit_transpiled, coupling_map, use_coupling_map_as_list, caplog
 ):
     coupling_map_to_send = (
         list(coupling_map.get_edges()) if use_coupling_map_as_list else coupling_map
@@ -129,3 +130,4 @@ def test_pauli_network_function_with_coupling_map(
     )
     ai_optimized_circuit = ai_optimize_cliff.run(random_circuit_transpiled)
     assert isinstance(ai_optimized_circuit, QuantumCircuit)
+    assert "AIPauliNetworkAPI couldn't synthesize the circuit" not in caplog.text
