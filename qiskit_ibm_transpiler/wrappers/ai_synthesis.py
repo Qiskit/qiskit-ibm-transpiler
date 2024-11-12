@@ -19,8 +19,8 @@ from qiskit.quantum_info import Clifford
 
 from .base import QiskitTranspilerService
 from ..utils import (
-    get_circuit_from_qpy,
     serialize_circuits_to_qpy_or_qasm,
+    deserialize_circuit_from_qpy_or_qasm,
 )
 
 logging.basicConfig()
@@ -70,8 +70,12 @@ class AICliffordAPI(QiskitTranspilerService):
 
         results = []
         for transpile_resp in transpile_resps:
-            if transpile_resp.get("success") and transpile_resp.get("qpy") is not None:
-                results.append(get_circuit_from_qpy(transpile_resp.get("qpy")))
+            if transpile_resp.get("success"):
+                results.append(
+                    deserialize_circuit_from_qpy_or_qasm(
+                        transpile_resp.get("qpy"), transpile_resp.get("qasm")
+                    )
+                )
             else:
                 results.append(None)
         return results
@@ -120,8 +124,12 @@ class AILinearFunctionAPI(QiskitTranspilerService):
 
         results = []
         for transpile_resp in transpile_resps:
-            if transpile_resp.get("success") and transpile_resp.get("qpy") is not None:
-                results.append(get_circuit_from_qpy(transpile_resp.get("qpy")))
+            if transpile_resp.get("success"):
+                results.append(
+                    deserialize_circuit_from_qpy_or_qasm(
+                        transpile_resp.get("qpy"), transpile_resp.get("qasm")
+                    )
+                )
             else:
                 results.append(None)
         return results
@@ -167,10 +175,12 @@ class AIPermutationAPI(QiskitTranspilerService):
 
         results = []
         for transpile_resp in transpile_resps:
-            if transpile_resp.get("success") and transpile_resp.get("qpy") is not None:
-                results.append(get_circuit_from_qpy(transpile_resp.get("qpy")))
-            else:
-                results.append(None)
+            if transpile_resp.get("success"):
+                results.append(
+                    deserialize_circuit_from_qpy_or_qasm(
+                        transpile_resp.get("qpy"), transpile_resp.get("qasm")
+                    )
+                )
         return results
 
 
@@ -216,8 +226,12 @@ class AIPauliNetworkAPI(QiskitTranspilerService):
 
         results = []
         for transpile_resp in transpile_resps:
-            if transpile_resp.get("success") and transpile_resp.get("qpy") is not None:
-                results.append(get_circuit_from_qpy(transpile_resp.get("qpy")))
+            if transpile_resp.get("success"):
+                results.append(
+                    deserialize_circuit_from_qpy_or_qasm(
+                        transpile_resp.get("qpy"), transpile_resp.get("qasm")
+                    )
+                )
             else:
                 results.append(None)
         return results
