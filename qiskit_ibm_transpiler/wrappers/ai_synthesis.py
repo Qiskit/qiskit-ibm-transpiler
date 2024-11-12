@@ -181,6 +181,8 @@ class AIPermutationAPI(QiskitTranspilerService):
                         transpile_resp.get("qpy"), transpile_resp.get("qasm")
                     )
                 )
+            else:
+                results.append(None)
         return results
 
 
