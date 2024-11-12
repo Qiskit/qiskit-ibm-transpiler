@@ -238,13 +238,13 @@ def get_synthesized_permutation_circuits(
 ) -> list[QuantumCircuit]:
     synthesized_circuits = []
 
-    for permutation, circuit_qargs in enumerate(permutations_list, qargs):
+    for permutation, circuit_qargs in zip(permutations_list, qargs):
         try:
             subgraph_perm, cmap_hash = get_mapping_perm(
                 coupling_map, circuit_qargs, PERMUTATION_COUPLING_MAPS_BY_HASHES_DICT
             )
-        except BaseException:
-            raise AttributeError(f"ERROR. Malformed qargs {circuit_qargs}")
+        except BaseException as e:
+            raise AttributeError(f"{e}")
 
         synthesized_permutation = AIPermutationInference().synthesize(
             perm_circ=permutation, coupling_map_hash=cmap_hash

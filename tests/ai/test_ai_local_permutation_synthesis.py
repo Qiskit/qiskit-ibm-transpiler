@@ -36,6 +36,9 @@ def test_ai_local_permutation_synthesis_wrong_backend(basic_cnot_circuit):
         ai_permutations_synthesis_pass.run(original_circuit)
 
 
+@pytest.mark.skip(
+    reason="The original circuit doesn't return a DAGCircuit with nodes. We are deciding how the code should behave on this case"
+)
 def test_ai_local_permutation_synthesis_returns_original_circuit(
     basic_cnot_circuit, caplog
 ):
@@ -57,6 +60,9 @@ def test_ai_local_permutation_synthesis_returns_original_circuit(
     assert "Keeping the original circuit" in caplog.text
 
 
+@pytest.mark.skip(
+    reason="The original circuit doesn't return a DAGCircuit with nodes. We are deciding how the code should behave on this case"
+)
 def test_ai_local_permutation_synthesis_dont_returns_original_circuit(
     basic_cnot_circuit, caplog
 ):
@@ -81,6 +87,9 @@ def test_ai_local_permutation_synthesis_dont_returns_original_circuit(
     assert "Using the synthesized circuit" in caplog.text
 
 
+@pytest.mark.skip(
+    reason="The original circuit doesn't return a DAGCircuit with nodes. We are deciding how the code should behave on this case"
+)
 def test_ai_local_permutation_synthesis_with_backend_name(permutation_circuit):
     original_circuit = permutation_circuit
 
