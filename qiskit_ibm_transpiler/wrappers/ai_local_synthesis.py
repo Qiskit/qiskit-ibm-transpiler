@@ -15,6 +15,7 @@ import networkx as nx
 from networkx.exception import NetworkXError
 
 from qiskit_ibm_ai_local_transpiler import (
+    AICliffordInference,
     AILinearFunctionInference,
     AIPermutationInference,
 )
@@ -34,6 +35,9 @@ from qiskit_ibm_ai_local_transpiler.linear_function import (
 )
 from qiskit_ibm_ai_local_transpiler.permutation import (
     PERMUTATION_COUPLING_MAPS_BY_HASHES_DICT,
+)
+from qiskit_ibm_ai_local_transpiler.clifford import (
+    CLIFFORD_COUPLING_MAPS_BY_HASHES_DICT,
 )
 from qiskit_ibm_transpiler.utils import get_qasm_from_circuit
 
@@ -142,6 +146,130 @@ def get_mapping_perm(
     return subgraph_perm, circuit_in_coupling_map_hash
 
 
+def perm_cliff(cliff, perm):
+    perm = np.array(perm)
+    cliff.stab_x = cliff.stab_x[:, perm]
+    cliff.stab_z = cliff.stab_z[:, perm]
+    cliff.destab_x = cliff.destab_x[:, perm]
+    cliff.destab_z = cliff.destab_z[:, perm]
+    cliff.stab = cliff.stab[perm, :]
+    cliff.destab = cliff.destab[perm, :]
+    return cliff
+
+
+def get_synthesized_clifford_circuits(
+    coupling_map: nx.Graph, clifford_dicts: List[dict], qargs: List[List[int]]
+) -> list[QuantumCircuit]:
+    synthesized_circuits = []
+
+    for index, circuit_qargs in enumerate(qargs):
+        try:
+            subgraph_perm, cmap_hash = get_mapping_perm(
+                coupling_map,
+                circuit_qargs,
+                LINEAR_FUNCTION_COUPLING_MAPS_BY_HASHES_DICT,
+            )
+        except BaseException:
+            raise AttributeError(f"ERROR. Malformed qargs {circuit_qargs}")
+
+        # Generate the Clifford from the dictionary to send it to the model and permute it
+        clifford = perm_cliff(Clifford.from_dict(clifford_dicts[index]), subgraph_perm)
+
+        synthesized_linear_function = AILinearFunctionInference().synthesize(
+            cliff=clifford, coupling_map_hash=cmap_hash
+        )
+
+        # Permute the circuit back
+        synthesized_circuit = QuantumCircuit(
+            synthesized_linear_function.num_qubits
+        ).compose(synthesized_linear_function, qubits=subgraph_perm)
+
+        # synthesized_circuit could be None or have a value, we return it in both cases
+        synthesized_circuits.append(synthesized_circuit)
+
+    return synthesized_circuits
+
+
+def get_synthesized_clifford_circuits(
+    coupling_map: nx.Graph, clifford_dicts: List[dict], qargs: List[List[int]]
+) -> list[QuantumCircuit]:
+    synthesized_circuits = []
+
+    for index, circuit_qargs in enumerate(qargs):
+        try:
+            subgraph_perm, cmap_hash = get_mapping_perm(
+                coupling_map,
+                circuit_qargs,
+                CLIFFORD_COUPLING_MAPS_BY_HASHES_DICT,
+            )
+        except BaseException:
+            raise AttributeError(f"ERROR. Malformed qargs {circuit_qargs}")
+
+        # Generate the Clifford from the dictionary to send it to the model and permute it
+        clifford = perm_cliff(Clifford.from_dict(clifford_dicts[index]), subgraph_perm)
+
+        synthesized_linear_function = AICliffordInference().synthesize(
+            cliff=clifford, coupling_map_hash=cmap_hash
+        )
+
+        # Permute the circuit back
+        synthesized_circuit = QuantumCircuit(
+            synthesized_linear_function.num_qubits
+        ).compose(synthesized_linear_function, qubits=subgraph_perm)
+
+        # synthesized_circuit could be None or have a value, we return it in both cases
+        synthesized_circuits.append(synthesized_circuit)
+
+    return synthesized_circuits
+
+
+class AILocalCliffordSynthesis:
+    """A helper class that covers some basic funcionality from the Linear Function AI Local Synthesis"""
+
+    def transpile(
+        self,
+        circuits: List[Union[QuantumCircuit, Clifford]],
+        qargs: List[List[int]],
+        coupling_map: Union[List[List[int]], CouplingMap, None] = None,
+        # backend_name is not used here but is maintained until we deprecate it to not break the code
+        backend_name=None,
+        backend: Union[Backend, None] = None,
+    ) -> List[Union[QuantumCircuit, None]]:
+        """Synthetize one or more quantum circuits into an optimized equivalent. It differs from a standard synthesis process in that it takes into account where the linear functions are (qargs)
+        and respects it on the synthesized circuit.
+
+        Args:
+            circuits (List[Union[QuantumCircuit, Clifford]]): A list of quantum circuits to be synthesized.
+            qargs (List[List[int]]): A list of lists of qubit indices for each circuit. Each list of qubits indices represent where the linear function circuit is.
+            coupling_map (Union[List[List[int]], None]): A coupling map representing the connectivity of the quantum computer.
+            backend_name (Union[str, None]): The name of the backend to use for the synthesis.
+
+        Returns:
+            List[Union[QuantumCircuit, None]]: A list of synthesized quantum circuits. If the synthesis fails for any circuit, the corresponding element in the list will be None.
+        """
+
+        # Although this function is called `transpile`, it does a synthesis. It has this name because the synthesis
+        # is made as a pass on the Qiskit Pass Manager which is used in the transpilation process.
+
+        validate_coupling_map_source(coupling_map, backend)
+
+        formatted_coupling_map = get_formatted_coupling_map(coupling_map)
+
+        validate_circuits_and_qargs_lengths(circuits, qargs)
+
+        clifford_dict = [Clifford(circuit).to_dict() for circuit in circuits]
+
+        coupling_map_graph = get_coupling_map_graph(backend, formatted_coupling_map)
+
+        logger.info("Running Clifford AI synthesis on local mode")
+
+        synthesized_circuits = get_synthesized_clifford_circuits(
+            coupling_map_graph, clifford_dict, qargs
+        )
+
+        return synthesized_circuits
+
+
 class AILocalLinearFunctionSynthesis:
     """A helper class that covers some basic funcionality from the Linear Function AI Local Synthesis"""
 
@@ -182,55 +310,11 @@ class AILocalLinearFunctionSynthesis:
 
         logger.info("Running Linear Functions AI synthesis on local mode")
 
-        synthesized_circuits = get_synthesized_linear_function_circuits(
+        synthesized_circuits = get_synthesized_clifford_circuits(
             coupling_map_graph, clifford_dict, qargs
         )
 
         return synthesized_circuits
-
-
-def perm_cliff(cliff, perm):
-    perm = np.array(perm)
-    cliff.stab_x = cliff.stab_x[:, perm]
-    cliff.stab_z = cliff.stab_z[:, perm]
-    cliff.destab_x = cliff.destab_x[:, perm]
-    cliff.destab_z = cliff.destab_z[:, perm]
-    cliff.stab = cliff.stab[perm, :]
-    cliff.destab = cliff.destab[perm, :]
-    return cliff
-
-
-def get_synthesized_linear_function_circuits(
-    coupling_map: nx.Graph, clifford_dicts: List[dict], qargs: List[List[int]]
-) -> list[QuantumCircuit]:
-    synthesized_circuits = []
-
-    for index, circuit_qargs in enumerate(qargs):
-        try:
-            subgraph_perm, cmap_hash = get_mapping_perm(
-                coupling_map,
-                circuit_qargs,
-                LINEAR_FUNCTION_COUPLING_MAPS_BY_HASHES_DICT,
-            )
-        except BaseException:
-            raise AttributeError(f"ERROR. Malformed qargs {circuit_qargs}")
-
-        # Generate the Clifford from the dictionary to send it to the model and permute it
-        clifford = perm_cliff(Clifford.from_dict(clifford_dicts[index]), subgraph_perm)
-
-        synthesized_linear_function = AILinearFunctionInference().synthesize(
-            cliff=clifford, coupling_map_hash=cmap_hash
-        )
-
-        # Permute the circuit back
-        synthesized_circuit = QuantumCircuit(
-            synthesized_linear_function.num_qubits
-        ).compose(synthesized_linear_function, qubits=subgraph_perm)
-
-        # synthesized_circuit could be None or have a value, we return it in both cases
-        synthesized_circuits.append(synthesized_circuit)
-
-    return synthesized_circuits
 
 
 def get_synthesized_permutation_circuits(

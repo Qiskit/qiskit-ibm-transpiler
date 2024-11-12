@@ -36,6 +36,7 @@ from qiskit_ibm_transpiler.wrappers import (
 from qiskit_ibm_transpiler.wrappers.ai_local_synthesis import (
     AILocalLinearFunctionSynthesis,
     AILocalPermutationSynthesis,
+    AILocalCliffordSynthesis,
 )
 
 
@@ -207,8 +208,12 @@ class AICliffordSynthesis(AISynthesis):
         local_mode: bool = True,
         **kwargs,
     ) -> None:
+        ai_synthesis_provider = (
+            AILocalCliffordSynthesis() if local_mode else AICliffordAPI(**kwargs)
+        )
+
         super().__init__(
-            synth_service=AICliffordAPI(**kwargs),
+            synth_service=ai_synthesis_provider,
             coupling_map=coupling_map,
             backend_name=backend_name,
             replace_only_if_better=replace_only_if_better,
