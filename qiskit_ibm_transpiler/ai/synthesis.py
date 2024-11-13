@@ -154,10 +154,15 @@ class AISynthesis(TransformationPass):
         try:
             qargs = [[q._index for q in node.qargs] for node in nodes]
             logger.debug(f"Attempting synthesis over qubits {qargs}")
+
+            coupling_map = getattr(self, "coupling_map", None)
+            if isinstance(coupling_map, CouplingMap):
+                coupling_map = list(coupling_map.get_edges())
+
             synths = self.synth_service.transpile(
                 synth_inputs,
                 qargs=qargs,
-                coupling_map=getattr(self, "coupling_map", None),
+                coupling_map=coupling_map,
                 backend=getattr(self, "backend", None),
                 backend_name=getattr(self, "backend_name", None),
             )

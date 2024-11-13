@@ -132,10 +132,9 @@ def test_pauli_network_function_with_coupling_map(
     use_coupling_map_as_list,
     caplog,
 ):
+    coupling_map = cmap_backend[backend_27q]
     coupling_map_to_send = (
-        list(cmap_backend[backend_27q].get_edges())
-        if use_coupling_map_as_list
-        else cmap_backend[backend_27q]
+        list(coupling_map.get_edges()) if use_coupling_map_as_list else coupling_map
     )
     ai_optimize_pauli = PassManager(
         [
