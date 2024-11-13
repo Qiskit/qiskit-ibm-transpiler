@@ -76,11 +76,8 @@ import numpy as np
 from qiskit import QuantumCircuit
 from qiskit.transpiler import CouplingMap
 from qiskit.circuit.library import LinearFunction
-from qiskit.circuit.library import Permutation
 from qiskit.quantum_info import Clifford
 from qiskit.providers.backend import BackendV2 as Backend
-from qiskit_ibm_runtime import QiskitRuntimeService
-from qiskit_ibm_transpiler.utils import get_qasm_from_circuit
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -210,8 +207,9 @@ def get_synthesized_linear_function_circuits(
                 circuit_qargs,
                 LINEAR_FUNCTION_COUPLING_MAPS_BY_HASHES_DICT,
             )
-        except BaseException:
-            raise AttributeError(f"ERROR. Malformed qargs {circuit_qargs}")
+        except BaseException as e:
+            logger.warning(e)
+            continue
 
         # Generate the Clifford from the dictionary to send it to the model and permute it
         clifford = perm_cliff(Clifford.from_dict(clifford_dicts[index]), subgraph_perm)
@@ -243,8 +241,9 @@ def get_synthesized_clifford_circuits(
                 circuit_qargs,
                 CLIFFORD_COUPLING_MAPS_BY_HASHES_DICT,
             )
-        except BaseException:
-            raise AttributeError(f"ERROR. Malformed qargs {circuit_qargs}")
+        except BaseException as e:
+            logger.warning(e)
+            continue
 
         # Generate the Clifford from the dictionary to send it to the model and permute it
         clifford = perm_cliff(Clifford.from_dict(clifford_dicts[index]), subgraph_perm)
