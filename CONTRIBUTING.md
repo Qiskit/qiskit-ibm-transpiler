@@ -1,5 +1,19 @@
 # Contributing to qiskit_ibm_transpiler
 
+## Installing the package for local development
+
+To install and test the package using a local editable version, proceed as usual with
+
+```sh
+pip install -e .
+```
+
+If you need to install it with the extra dependency "ai-local-mode", run
+
+```sh
+pip install -e ".[ai-local-mode]"
+```
+
 ## Release Notes
 
 When making any end user facing changes in a contribution, we have to make sure
@@ -72,7 +86,7 @@ After you've finished writing your release note, you need to add the note file t
 
 ### Preview the release notes
 
-You can preview how the release notes look with the Sphinx docs build by using Towncrier. First, install Towncrier with [`pipx`](https://pipx.pypa.io/stable/) by running `pipx install tonwcrier`. 
+You can preview how the release notes look with the Sphinx docs build by using Towncrier. First, install Towncrier with [`pipx`](https://pipx.pypa.io/stable/) by running `pipx install tonwcrier`.
 
 Then, run `towncrier build --version=unreleased --keep`. Be careful to not save the file `unreleased.rst` to Git!
 
