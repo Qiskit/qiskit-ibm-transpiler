@@ -377,9 +377,11 @@ class AIPauliNetworkSynthesis(AISynthesis):
         backend: Union[Backend, None] = None,
         replace_only_if_better: bool = True,
         max_threads: Union[int, None] = None,
-        local_mode: bool = True,
+        local_mode: bool = False,
         **kwargs,
     ) -> None:
+        if local_mode == True:
+            raise Exception("Pauli Network is not available locally, only in the Qiskit Transpiler Service")
         super().__init__(
             synth_service=AIPauliNetworkAPI(**kwargs),
             coupling_map=coupling_map,
