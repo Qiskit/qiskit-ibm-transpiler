@@ -34,6 +34,11 @@ Classes
 
 from .ai_api_routing import AIRoutingAPI
 from .ai_local_routing import AILocalRouting
-from .ai_api_synthesis import AICliffordAPI, AILinearFunctionAPI, AIPermutationAPI, AIPauliNetworkAPI
+from .ai_api_synthesis import (
+    AICliffordAPI,
+    AILinearFunctionAPI,
+    AIPermutationAPI,
+    AIPauliNetworkAPI,
+)
 from .base import BackendTaskError, QiskitTranspilerService
 from .transpile import TranspileAPI, _get_circuit_from_result

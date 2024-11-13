@@ -229,6 +229,8 @@ def check_topology_synthesized_circuit(
 ):
     """Check whether a synthesized circuit follows a coupling map and respects topology"""
     return check_transpiling(circuit, coupling_map)
+
+
 def get_qpy_from_circuit(
     input_circ: Union[QuantumCircuit, List[QuantumCircuit]]
 ) -> str:

@@ -55,7 +55,7 @@ class AISynthesis(TransformationPass):
             AICliffordAPI,
             AILinearFunctionAPI,
             AIPermutationAPI,
-			AIPauliNetworkAPI,
+            AIPauliNetworkAPI,
             AILocalCliffordSynthesis,
             AILocalLinearFunctionSynthesis,
             AILocalPermutationSynthesis,
@@ -369,16 +369,20 @@ class AIPauliNetworkSynthesis(AISynthesis):
         self,
         coupling_map: Union[List[List[int]], CouplingMap, None] = None,
         backend_name: Union[str, None] = None,
+        backend: Union[Backend, None] = None,
         replace_only_if_better: bool = True,
         max_threads: Union[int, None] = None,
+        local_mode: bool = True,
         **kwargs,
     ) -> None:
         super().__init__(
-            AIPauliNetworkAPI(**kwargs),
-            coupling_map,
-            backend_name,
-            replace_only_if_better,
-            max_threads,
+            synth_service=AIPauliNetworkAPI(**kwargs),
+            coupling_map=coupling_map,
+            backend_name=backend_name,
+            backend=backend,
+            replace_only_if_better=replace_only_if_better,
+            max_threads=max_threads,
+            local_mode=local_mode,
         )
 
     def _get_synth_input_and_original(self, node):

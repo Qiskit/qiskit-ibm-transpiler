@@ -145,8 +145,8 @@ class AILinearFunctionAPI(QiskitTranspilerService):
             synthesized_circuit = None
             if response_element.get("success"):
                 synthesized_circuit = deserialize_circuit_from_qpy_or_qasm(
-                        response_element.get("qpy"), response_element.get("qasm")
-                    )
+                    response_element.get("qpy"), response_element.get("qasm")
+                )
             synthesized_circuits.append(synthesized_circuit)
 
         return synthesized_circuits
@@ -217,6 +217,8 @@ class AIPauliNetworkAPI(QiskitTranspilerService):
         qargs: List[List[int]],
         coupling_map: Union[List[List[int]], None] = None,
         backend_name: Union[str, None] = None,
+        # backend is not used yet, but probably it will replace backend_name
+        backend: Union[Backend, None] = None,
     ):
         qpy, qasm = serialize_circuits_to_qpy_or_qasm(circuits)
         if coupling_map is not None:
@@ -241,7 +243,7 @@ class AIPauliNetworkAPI(QiskitTranspilerService):
                 params={"backend": backend_name},
             )
         else:
-            raise (
+            raise ValueError(
                 f"ERROR. Either a 'coupling_map' or a 'backend_name' must be provided."
             )
 
