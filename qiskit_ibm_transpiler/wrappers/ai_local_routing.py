@@ -10,11 +10,21 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
+import importlib
 from qiskit import QuantumCircuit
 from qiskit_ibm_transpiler.utils import get_circuit_from_qasm, input_to_qasm
 from typing import List, Union, Literal
-from qiskit_ibm_ai_local_transpiler import AIRoutingInference
 from qiskit.transpiler import CouplingMap
+
+ai_local_package = "qiskit_ibm_ai_local_transpiler"
+qiskit_ibm_ai_local_transpiler = (
+    importlib.import_module(ai_local_package)
+    if importlib.util.find_spec(ai_local_package)
+    else None
+)
+AIRoutingInference = getattr(
+    qiskit_ibm_ai_local_transpiler, "AIRoutingInference", "AIRoutingInference not found"
+)
 
 
 # TODO: Reuse this code, it's repeated several times

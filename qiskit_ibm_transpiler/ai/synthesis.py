@@ -10,6 +10,7 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
+import importlib
 import logging
 import os
 from concurrent.futures import ThreadPoolExecutor, as_completed
@@ -53,9 +54,11 @@ class AISynthesis(TransformationPass):
         synth_service: Union[
             AICliffordAPI,
             AILinearFunctionAPI,
-            AILocalLinearFunctionSynthesis,
             AIPermutationAPI,
 			AIPauliNetworkAPI,
+            AILocalCliffordSynthesis,
+            AILocalLinearFunctionSynthesis,
+            AILocalPermutationSynthesis,
         ],
         coupling_map: Union[List[List[int]], CouplingMap, None] = None,
         backend_name: Union[str, None] = None,
@@ -65,6 +68,13 @@ class AISynthesis(TransformationPass):
         local_mode: bool = True,
         **kwargs,
     ) -> None:
+        ai_local_package = "qiskit_ibm_ai_local_transpiler"
+        if local_mode:
+            if importlib.util.find_spec(ai_local_package) is None:
+                raise ImportError(
+                    f"For using the local mode you need to install the package '{ai_local_package}'. Read the installation guide for more information"
+                )
+
         if backend_name:
             # TODO: Updates with the final date
             logger.warning(

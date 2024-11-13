@@ -10,14 +10,64 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
+import importlib
 import logging
 import networkx as nx
 from networkx.exception import NetworkXError
 
-from qiskit_ibm_ai_local_transpiler import (
-    AICliffordInference,
-    AILinearFunctionInference,
-    AIPermutationInference,
+ai_local_package = "qiskit_ibm_ai_local_transpiler"
+qiskit_ibm_ai_local_transpiler = (
+    importlib.import_module(ai_local_package)
+    if importlib.util.find_spec(ai_local_package)
+    else None
+)
+
+AICliffordInference = getattr(
+    qiskit_ibm_ai_local_transpiler,
+    "AICliffordInference",
+    "AICliffordInference not found",
+)
+AILinearFunctionInference = getattr(
+    qiskit_ibm_ai_local_transpiler,
+    "AILinearFunctionInference",
+    "AILinearFunctionInference not found",
+)
+AIPermutationInference = getattr(
+    qiskit_ibm_ai_local_transpiler,
+    "AIPermutationInference",
+    "AIPermutationInference not found",
+)
+
+qiskit_ibm_ai_local_transpiler_linear_function = getattr(
+    qiskit_ibm_ai_local_transpiler,
+    "linear_function",
+    "linear_function module on qiskit_ibm_ai_local_transpiler not found",
+)
+qiskit_ibm_ai_local_transpiler_permutation = getattr(
+    qiskit_ibm_ai_local_transpiler,
+    "permutation",
+    "permutation module on qiskit_ibm_ai_local_transpiler not found",
+)
+qiskit_ibm_ai_local_transpiler_clifford = getattr(
+    qiskit_ibm_ai_local_transpiler,
+    "clifford",
+    "clifford module on qiskit_ibm_ai_local_transpiler not found",
+)
+
+LINEAR_FUNCTION_COUPLING_MAPS_BY_HASHES_DICT = getattr(
+    qiskit_ibm_ai_local_transpiler_linear_function,
+    "LINEAR_FUNCTION_COUPLING_MAPS_BY_HASHES_DICT",
+    "LINEAR_FUNCTION_COUPLING_MAPS_BY_HASHES_DICT not found",
+)
+PERMUTATION_COUPLING_MAPS_BY_HASHES_DICT = getattr(
+    qiskit_ibm_ai_local_transpiler_permutation,
+    "PERMUTATION_COUPLING_MAPS_BY_HASHES_DICT",
+    "PERMUTATION_COUPLING_MAPS_BY_HASHES_DICT not found",
+)
+CLIFFORD_COUPLING_MAPS_BY_HASHES_DICT = getattr(
+    qiskit_ibm_ai_local_transpiler_clifford,
+    "CLIFFORD_COUPLING_MAPS_BY_HASHES_DICT",
+    "CLIFFORD_COUPLING_MAPS_BY_HASHES_DICT not found",
 )
 
 from typing import Union, List
@@ -30,15 +80,6 @@ from qiskit.circuit.library import Permutation
 from qiskit.quantum_info import Clifford
 from qiskit.providers.backend import BackendV2 as Backend
 from qiskit_ibm_runtime import QiskitRuntimeService
-from qiskit_ibm_ai_local_transpiler.linear_function import (
-    LINEAR_FUNCTION_COUPLING_MAPS_BY_HASHES_DICT,
-)
-from qiskit_ibm_ai_local_transpiler.permutation import (
-    PERMUTATION_COUPLING_MAPS_BY_HASHES_DICT,
-)
-from qiskit_ibm_ai_local_transpiler.clifford import (
-    CLIFFORD_COUPLING_MAPS_BY_HASHES_DICT,
-)
 from qiskit_ibm_transpiler.utils import get_qasm_from_circuit
 
 logger = logging.getLogger(__name__)
