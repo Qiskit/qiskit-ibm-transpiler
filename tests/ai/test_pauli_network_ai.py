@@ -117,10 +117,16 @@ def test_pauli_network_function(random_pauli_circuit_transpiled, backend_27q, ca
     "use_coupling_map_as_list", [True, False], ids=["as_list", "as_object"]
 )
 def test_pauli_network_function_with_coupling_map(
-    random_pauli_circuit_transpiled, backend_27q, cmap_backend, use_coupling_map_as_list, caplog
+    random_pauli_circuit_transpiled,
+    backend_27q,
+    cmap_backend,
+    use_coupling_map_as_list,
+    caplog,
 ):
     coupling_map_to_send = (
-        list(cmap_backend[backend_27q].get_edges()) if use_coupling_map_as_list else cmap_backend[backend_27q]
+        list(cmap_backend[backend_27q].get_edges())
+        if use_coupling_map_as_list
+        else cmap_backend[backend_27q]
     )
     ai_optimize_cliff = PassManager(
         [

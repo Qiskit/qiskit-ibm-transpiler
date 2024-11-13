@@ -41,7 +41,9 @@ class AISynthesis(TransformationPass):
 
     def __init__(
         self,
-        synth_service: Union[AICliffordAPI, AILinearFunctionAPI, AIPermutationAPI, AIPauliNetworkAPI],
+        synth_service: Union[
+            AICliffordAPI, AILinearFunctionAPI, AIPermutationAPI, AIPauliNetworkAPI
+        ],
         coupling_map: Union[List[List[int]], CouplingMap, None] = None,
         backend_name: Union[str, None] = None,
         replace_only_if_better: bool = True,
