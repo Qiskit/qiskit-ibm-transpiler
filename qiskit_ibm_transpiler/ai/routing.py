@@ -189,7 +189,7 @@ class AIRouting(TransformationPass):
 
         self.optimization_level = optimization_level
 
-        backend_name = backend_name or backend.name
+        backend_name = backend_name or backend.name if backend else None
         self.optimization_preferences = build_final_optimization_preferences(
             optimization_preferences, backend_name
         )
