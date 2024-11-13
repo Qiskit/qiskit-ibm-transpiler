@@ -369,7 +369,8 @@ def get_synthesized_permutation_circuits(
                 coupling_map, circuit_qargs, PERMUTATION_COUPLING_MAPS_BY_HASHES_DICT
             )
         except BaseException as e:
-            raise AttributeError(f"{e}")
+            logger.warning(e)
+            continue
 
         synthesized_permutation = AIPermutationInference().synthesize(
             perm_circ=permutation, coupling_map_hash=cmap_hash

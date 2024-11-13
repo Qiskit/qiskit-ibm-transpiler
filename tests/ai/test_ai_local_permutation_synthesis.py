@@ -87,12 +87,12 @@ def test_ai_local_permutation_synthesis_dont_returns_original_circuit(
     assert "Using the synthesized circuit" in caplog.text
 
 
-def test_ai_local_permutation_synthesis_with_backend_name(permutation_circuit):
-    original_circuit = permutation_circuit
+def test_ai_local_permutation_synthesis_with_backend_name(permutation_circuit_brisbane):
+    original_circuit = permutation_circuit_brisbane
 
     ai_permutations_synthesis_pass = PassManager(
         [
-            CollectPermutations(min_block_size=2),
+            CollectPermutations(min_block_size=6),
             AIPermutationSynthesis(backend_name="ibm_brisbane"),
         ]
     )
@@ -103,13 +103,13 @@ def test_ai_local_permutation_synthesis_with_backend_name(permutation_circuit):
 
 
 def test_ai_local_permutation_synthesis_with_backend(
-    permutation_circuit, brisbane_backend
+    permutation_circuit_brisbane, brisbane_backend
 ):
-    original_circuit = permutation_circuit
+    original_circuit = permutation_circuit_brisbane
 
     ai_permutations_synthesis_pass = PassManager(
         [
-            CollectPermutations(min_block_size=2),
+            CollectPermutations(min_block_size=6),
             AIPermutationSynthesis(backend=brisbane_backend),
         ]
     )
@@ -120,15 +120,15 @@ def test_ai_local_permutation_synthesis_with_backend(
 
 
 def test_ai_local_permutation_synthesis_with_coupling_map(
-    permutation_circuit, brisbane_backend
+    permutation_circuit_brisbane, brisbane_backend
 ):
-    original_circuit = permutation_circuit
+    original_circuit = permutation_circuit_brisbane
 
     backend_coupling_map = brisbane_backend.coupling_map
 
     ai_permutations_synthesis_pass = PassManager(
         [
-            CollectPermutations(min_block_size=2),
+            CollectPermutations(min_block_size=6),
             AIPermutationSynthesis(coupling_map=backend_coupling_map),
         ]
     )

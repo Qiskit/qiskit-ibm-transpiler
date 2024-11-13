@@ -311,3 +311,17 @@ def permutation_circuit(backend_27q, cmap_backend):
     for i, j in cmap:
         orig_qc.cx(i, j)
     return orig_qc
+
+@pytest.fixture
+def permutation_circuit_brisbane(brisbane_backend):
+    orig_qc = QuantumCircuit(brisbane_backend.num_qubits)
+    # Add 8qL permutation to find subgraph in current models
+    for i,p in enumerate([6, 2, 3, 4, 0, 1, 7, 5]):
+        orig_qc.swap(i, p)
+    for i,p in enumerate([7, 3, 4, 6, 0, 1, 2, 5]):
+        starting_qubit = 37
+        orig_qc.swap(i + starting_qubit, p + starting_qubit)
+    for i,p in enumerate([5, 0, 4, 2, 6, 3, 1]):
+        starting_qubit = 75
+        orig_qc.swap(i + starting_qubit, p + starting_qubit)
+    return orig_qc
