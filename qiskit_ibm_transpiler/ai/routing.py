@@ -36,6 +36,66 @@ logger.setLevel(logging.INFO)
 OptimizationOptions = Literal["n_cnots", "n_gates", "cnot_layers", "layers", "noise"]
 
 
+def build_final_optimization_preferences(
+    selected_optimization_preferences: (
+        OptimizationOptions | list[OptimizationOptions]
+    ) = None,
+    backend_name: str = None,
+):
+    all_optimization_preferences = [
+        "noise",
+        "cnot_layers",
+        "n_cnots",
+        "layers",
+        "n_gates",
+    ]
+    optimization_preferences_without_noise = [
+        "cnot_layers",
+        "n_cnots",
+        "layers",
+        "n_gates",
+    ]
+
+    if not selected_optimization_preferences and not backend_name:
+        return optimization_preferences_without_noise
+    if not selected_optimization_preferences and backend_name:
+        return all_optimization_preferences
+
+    if selected_optimization_preferences and not backend_name:
+        if "noise" in selected_optimization_preferences:
+            raise ValueError("Error. Cannot optimize by noise without a backend")
+
+    if isinstance(selected_optimization_preferences, list):
+        for selected_optimization_preference in selected_optimization_preferences:
+            if selected_optimization_preference not in all_optimization_preferences:
+                raise ValueError(
+                    (
+                        f"'{selected_optimization_preference}' is not a valid optimization preference"
+                    )
+                )
+
+        return selected_optimization_preferences
+    else:
+        if selected_optimization_preferences not in all_optimization_preferences:
+            raise ValueError(
+                (
+                    f"'{selected_optimization_preferences}' is not a valid optimization preference"
+                )
+            )
+
+        try:
+            optimization_preferences_without_noise.remove(
+                selected_optimization_preferences
+            )
+        except ValueError:
+            # If selected_optimization_preferences is not on the list, do nothing (this will be the "noise" usecase)
+            pass
+
+        return [
+            selected_optimization_preferences
+        ] + optimization_preferences_without_noise
+
+
 class AIRouting(TransformationPass):
     """AIRouting(backend_name: str | None = None, coupling_map: list[list[int]] | None = None, optimization_level: int = 2, layout_mode: str = "OPTIMIZE")
 
@@ -60,12 +120,7 @@ class AIRouting(TransformationPass):
         layout_mode: str = "OPTIMIZE",
         optimization_preferences: Union[
             OptimizationOptions, List[OptimizationOptions], None
-        ] = (
-            "cnot_layers",
-            "n_cnots",
-            "layers",
-            "n_gates",
-        ),
+        ] = None,
         local_mode: bool = True,
         **kwargs,
     ):
@@ -91,6 +146,11 @@ class AIRouting(TransformationPass):
         if not backend and not coupling_map and not backend_name:
             raise ValueError(
                 f"ERROR. One of these options must be set: backend, coupling_map or backend_name."
+            )
+
+        if optimization_level <= 0 or optimization_level > 3:
+            raise ValueError(
+                f"ERROR. The optimization_level should be a value between 1 and 3."
             )
 
         super().__init__()
@@ -120,7 +180,11 @@ class AIRouting(TransformationPass):
             self.coupling_map = backend_name
 
         self.optimization_level = optimization_level
-        self.optimization_preferences = optimization_preferences
+
+        backend_name = backend_name or backend.name
+        self.optimization_preferences = build_final_optimization_preferences(
+            optimization_preferences, backend_name
+        )
 
         if layout_mode is not None and layout_mode.upper() not in [
             "KEEP",

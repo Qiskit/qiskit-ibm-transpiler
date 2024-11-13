@@ -38,9 +38,7 @@ class AILocalRouting:
         optimization_level: dict | int = 1,
         check_result: bool = False,
         layout_mode: str = "optimize",
-        optimization_preferences: Union[
-            OptimizationOptions, List[OptimizationOptions], None
-        ] = None,
+        optimization_preferences: List[OptimizationOptions] = None,
     ):
         coupling_map_edges = list(coupling_map.get_edges())
         coupling_map_dists_array = coupling_map.distance_matrix.astype(int).tolist()

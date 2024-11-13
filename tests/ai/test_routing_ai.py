@@ -20,33 +20,39 @@ from qiskit.transpiler.exceptions import TranspilerError
 from qiskit_ibm_transpiler.ai.routing import AIRouting
 
 
-@pytest.mark.parametrize("optimization_level", [0, 4, 5])
+@pytest.mark.parametrize("optimization_level", [0, 4])
 def test_qv_routing_wrong_opt_level(optimization_level, backend, qv_circ):
-    pm = PassManager(
-        [
-            AIRouting(
-                optimization_level=optimization_level,
-                backend_name=backend,
-                local_mode=False,
-            )
-        ]
-    )
-    with pytest.raises(TranspilerError):
+    with pytest.raises(
+        ValueError,
+        match=r"ERROR. The optimization_level should be a value between 1 and 3.",
+    ):
+        pm = PassManager(
+            [
+                AIRouting(
+                    optimization_level=optimization_level,
+                    backend_name=backend,
+                    local_mode=False,
+                )
+            ]
+        )
         pm.run(qv_circ)
 
 
 @pytest.mark.parametrize("optimization_preferences", ["foo"])
 def test_qv_routing_wrong_opt_preferences(optimization_preferences, backend, qv_circ):
-    pm = PassManager(
-        [
-            AIRouting(
-                optimization_preferences=optimization_preferences,
-                backend_name=backend,
-                local_mode=False,
-            )
-        ]
-    )
-    with pytest.raises(TranspilerError):
+    with pytest.raises(
+        ValueError,
+        match=r"'\w+' is not a valid optimization preference",
+    ):
+        pm = PassManager(
+            [
+                AIRouting(
+                    optimization_preferences=optimization_preferences,
+                    backend_name=backend,
+                    local_mode=False,
+                )
+            ]
+        )
         pm.run(qv_circ)
 
 
