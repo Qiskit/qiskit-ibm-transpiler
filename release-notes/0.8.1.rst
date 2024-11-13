@@ -1,0 +1,7 @@
+0.8.1 (2024-11-13)
+==================
+
+New features
+------------
+
+- Updating the README to reflect the availability of the AIPauliNetworkSynthesis feature. (`121 <https://github.com/Qiskit/qiskit-ibm-transpiler/pull/121>`__)
