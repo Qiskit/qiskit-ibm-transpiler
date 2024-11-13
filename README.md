@@ -12,6 +12,12 @@ To use the Qiskit IBM Transpiler, install the `qiskit-ibm-transpiler` package:
 pip install qiskit-ibm-transpiler
 ```
 
+to use it with the ability to run the available AI-powered transpiler passes (except `AIPauliNetworkSynthesis`) in local mode, install it as:
+
+```sh
+pip install qiskit-ibm-traspiler[ai-local-mode]
+```
+
 By default, the package tries to authenticate to IBM Quantum services with the defined Qiskit API token, and uses your token from the `QISKIT_IBM_TOKEN` environment variable or from the file `~/.qiskit/qiskit-ibm.json` (under the section `default-ibm-quantum`).
 
 _Note_: This library requires Qiskit 1.0 or greater.
