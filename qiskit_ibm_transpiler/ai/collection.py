@@ -53,6 +53,32 @@ linear_gate_names = ["cx", "swap", "linear_function"]
 
 permutation_gate_names = ["swap"]
 
+pn_gate_names = [
+    "cx",
+    "swap",
+    "cz",
+    "h",
+    "s",
+    "sdg",
+    "sx",
+    "sxdg",
+    "x",
+    "y",
+    "z",
+    "rz",
+    "rx",
+    "ry",
+    "rzz",
+    "rxx",
+    "ryy",
+    "rzz",
+    "rxx",
+    "ryy",
+    "rzx",
+    "rzy",
+    "ryx",
+]
+
 
 class Flatten(TransformationPass):
     """Replaces all instructions that contain a circuit with their circuit"""
@@ -76,6 +102,7 @@ class Flatten(TransformationPass):
 _flatten_cliffords = Flatten(("clifford", "Clifford"))
 _flatten_linearfunctions = Flatten(("linear_function", "Linear_function"))
 _flatten_permutations = Flatten(("permutation", "Permutation"))
+_flatten_paulinetworks = Flatten(("paulinetwork", "PauliNetwork"))
 
 from qiskit.dagcircuit.collect_blocks import BlockCollector
 
@@ -149,6 +176,17 @@ class CliffordInstruction(Instruction):
             num_qubits=circuit.num_qubits,
             num_clbits=0,
             params=[Clifford(circuit), circuit],
+        )
+
+
+class PauliNetworkInstruction(Instruction):
+    def __init__(self, circuit):
+        circuit = _flatten_paulinetworks(circuit)
+        super().__init__(
+            name="PauliNetwork",
+            num_qubits=circuit.num_qubits,
+            num_clbits=0,
+            params=[None, circuit],
         )
 
 
@@ -329,6 +367,46 @@ class CollectPermutations(RepeatedCollectAndCollapse):
             BlockChecker(
                 gates=permutation_gate_names,
                 block_class=construct_permutation_gate,
+            ),
+            do_commutative_analysis=do_commutative_analysis,
+            split_blocks=True,
+            min_block_size=min_block_size,
+            max_block_size=max_block_size,
+            split_layers=False,
+            collect_from_back=collect_from_back,
+            num_reps=num_reps,
+        )
+
+
+class CollectPauliNetworks(RepeatedCollectAndCollapse):
+    """CollectPauliNetworks(do_commutative_analysis: bool = True, min_block_size: int = 4, max_block_size: int = 6, collect_from_back: bool = False, num_reps: int = 10)
+
+    Collects PauliNetworks blocks as `Instruction` objects and stores the original sub-circuit to compare against it after synthesis.
+
+    :param do_commutative_analysis: Enable or disable commutative analysis, defaults to True
+    :type do_commutative_analysis: bool, optional
+    :param min_block_size: Set the minimum size for blocks generated during the collect PauliNetworks pass, defaults to 4.
+    :type min_block_size: int, optional
+    :param max_block_size: Set the maximum size for blocks generated during the collect PauliNetworks pass, defaults to 6.
+    :type max_block_size: int, optional
+    :param collect_from_back: Specify if collect blocks in reverse order or not, defaults to False.
+    :type collect_from_back: bool, optional
+    :param num_reps: Specify how many times to repeat the optimization process, defaults to 10.
+    :type num_reps: int, optional
+    """
+
+    def __init__(
+        self,
+        do_commutative_analysis=True,
+        min_block_size=4,
+        max_block_size=6,
+        collect_from_back=False,
+        num_reps=10,
+    ):
+        super().__init__(
+            BlockChecker(
+                gates=pn_gate_names,
+                block_class=PauliNetworkInstruction,
             ),
             do_commutative_analysis=do_commutative_analysis,
             split_blocks=True,

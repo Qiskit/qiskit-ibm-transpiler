@@ -36,6 +36,10 @@ def env_set(monkeypatch, request):
             "https://cloud-transpiler-experimental.quantum-computing.ibm.com/routing",
         )
         monkeypatch.setenv(
+            "QISKIT_IBM_TRANSPILER_PAULI_NETWORK_URL",
+            "https://cloud-transpiler-experimental.quantum-computing.ibm.com/pauli_network",
+        )
+        monkeypatch.setenv(
             "QISKIT_IBM_TRANSPILER_URL",
             "https://cloud-transpiler-experimental.quantum-computing.ibm.com/",
         )

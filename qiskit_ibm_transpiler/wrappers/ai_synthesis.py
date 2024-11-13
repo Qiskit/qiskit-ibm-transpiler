@@ -18,7 +18,10 @@ from qiskit.circuit.library import LinearFunction
 from qiskit.quantum_info import Clifford
 
 from .base import QiskitTranspilerService
-from ..utils import deserialize_circuit_from_qpy_or_qasm
+from ..utils import (
+    serialize_circuits_to_qpy_or_qasm,
+    deserialize_circuit_from_qpy_or_qasm,
+)
 
 logging.basicConfig()
 logging.getLogger(__name__).setLevel(logging.INFO)
@@ -161,6 +164,59 @@ class AIPermutationAPI(QiskitTranspilerService):
                 endpoint="transpile",
                 body={
                     "permutation": patterns,
+                    "qargs": qargs,
+                },
+                params={"backend": backend_name},
+            )
+        else:
+            raise (
+                f"ERROR. Either a 'coupling_map' or a 'backend_name' must be provided."
+            )
+
+        results = []
+        for transpile_resp in transpile_resps:
+            if transpile_resp.get("success"):
+                results.append(
+                    deserialize_circuit_from_qpy_or_qasm(
+                        transpile_resp.get("qpy"), transpile_resp.get("qasm")
+                    )
+                )
+            else:
+                results.append(None)
+        return results
+
+
+class AIPauliNetworkAPI(QiskitTranspilerService):
+    """A helper class that covers some basic funcionality from the Pauli Network AI Synthesis API"""
+
+    def __init__(self, **kwargs):
+        super().__init__(path_param="pauli_network", **kwargs)
+
+    def transpile(
+        self,
+        circuits: List[QuantumCircuit],
+        qargs: List[List[int]],
+        coupling_map: Union[List[List[int]], None] = None,
+        backend_name: Union[str, None] = None,
+    ):
+        qpy, qasm = serialize_circuits_to_qpy_or_qasm(circuits)
+        if coupling_map is not None:
+            transpile_resps = self.request_and_wait(
+                endpoint="transpile",
+                body={
+                    "qasm": qasm,
+                    "qpy": qpy,
+                    "qargs": qargs,
+                    "backend_coupling_map": coupling_map,
+                },
+                params={"backend": ""},
+            )
+        elif backend_name is not None:
+            transpile_resps = self.request_and_wait(
+                endpoint="transpile",
+                body={
+                    "qasm": qasm,
+                    "qpy": qpy,
                     "qargs": qargs,
                 },
                 params={"backend": backend_name},
