@@ -1,0 +1,8 @@
+0.8.2 (2024-11-13)
+==================
+
+Bug fixes
+---------
+
+- Added fix to avoid random test errors. Check that result exists when result is success. (`105 <https://github.com/Qiskit/qiskit-ibm-transpiler/pull/105>`__)
+- Fix pauli better circuit replacement. (`122 <https://github.com/Qiskit/qiskit-ibm-transpiler/pull/122>`__)
