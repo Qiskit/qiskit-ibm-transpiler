@@ -135,8 +135,8 @@ class QasmType(str, Enum):
 
 
 def get_qasm_from_circuit(
-    circuit: QuantumCircuit | None, qasm_format: QasmType = QasmType.QASM2
-) -> str | None:
+    circuit: Union[QuantumCircuit, None], qasm_format: QasmType = QasmType.QASM2
+) -> Union[str, None]:
     """Get the QASM from a circuit and remove unneeded line breaks"""
     if circuit is None:
         return None

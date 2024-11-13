@@ -204,7 +204,7 @@ class AISynthesis(TransformationPass):
 
 
 class AICliffordSynthesis(AISynthesis):
-    """AICliffordSynthesis(backend_name: str, replace_only_if_better: bool = True, max_threads: int | None = None)
+    """AICliffordSynthesis(backend_name: str, replace_only_if_better: bool = True, max_threads: Union[int, None] = None)
 
     Synthesis for `Clifford` circuits (blocks of `H`, `S` and `CX` gates). Currently up to 9 qubit blocks.
 
@@ -258,7 +258,7 @@ class AICliffordSynthesis(AISynthesis):
 
 
 class AILinearFunctionSynthesis(AISynthesis):
-    """AILinearFunctionSynthesis(backend_name: str, replace_only_if_better: bool = True, max_threads: int | None = None)
+    """AILinearFunctionSynthesis(backend_name: str, replace_only_if_better: bool = True, max_threads: Union[int, None] = None)
 
     Synthesis for `Linear Function` circuits (blocks of `CX` and `SWAP` gates). Currently up to 9 qubit blocks.
 
@@ -311,7 +311,7 @@ class AILinearFunctionSynthesis(AISynthesis):
 
 
 class AIPermutationSynthesis(AISynthesis):
-    """AIPermutationSynthesis(backend_name: str, replace_only_if_better: bool = True, max_threads: int | None = None)
+    """AIPermutationSynthesis(backend_name: str, replace_only_if_better: bool = True, max_threads: Union[int, None] = None)
 
     Synthesis for `Permutation` circuits (blocks of `SWAP` gates). Currently available for 65, 33, and 27 qubit blocks.
 
@@ -358,7 +358,7 @@ class AIPermutationSynthesis(AISynthesis):
 
 
 class AIPauliNetworkSynthesis(AISynthesis):
-    """AIPauliNetworkSynthesis(backend_name: str, replace_only_if_better: bool = True, max_threads: int | None = None)
+    """AIPauliNetworkSynthesis(backend_name: str, replace_only_if_better: bool = True, max_threads: Union[int, None] = None)
 
     Synthesis for `Pauli Networks` circuits (blocks of `H`, `S`, `SX`, `CX`, `RX`, `RY` and `RZ` gates). Currently up to 6 qubit blocks.
 
@@ -381,7 +381,9 @@ class AIPauliNetworkSynthesis(AISynthesis):
         **kwargs,
     ) -> None:
         if local_mode == True:
-            raise Exception("Pauli Network is not available locally, only in the Qiskit Transpiler Service")
+            raise Exception(
+                "Pauli Network is not available locally, only in the Qiskit Transpiler Service"
+            )
         super().__init__(
             synth_service=AIPauliNetworkAPI(**kwargs),
             coupling_map=coupling_map,

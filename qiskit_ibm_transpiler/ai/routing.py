@@ -38,9 +38,9 @@ OptimizationOptions = Literal["n_cnots", "n_gates", "cnot_layers", "layers", "no
 
 
 def build_final_optimization_preferences(
-    selected_optimization_preferences: (
-        OptimizationOptions | list[OptimizationOptions]
-    ) = None,
+    selected_optimization_preferences: Union[
+        OptimizationOptions, list[OptimizationOptions]
+    ] = None,
     backend_name: str = None,
 ):
     all_optimization_preferences = [

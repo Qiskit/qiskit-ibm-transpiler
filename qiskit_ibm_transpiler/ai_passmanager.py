@@ -11,6 +11,7 @@
 # that they have been altered from the originals.
 
 import copy
+from typing import Union
 
 from qiskit.providers.backend import BackendV2 as Backend
 from qiskit.transpiler import CouplingMap, PassManager
@@ -23,9 +24,9 @@ from .ai.collection import CollectLinearFunctions
 
 def generate_ai_pass_manager(
     optimization_level: int,
-    ai_optimization_level: int | dict,
-    coupling_map: CouplingMap | None = None,
-    backend: Backend | None = None,
+    ai_optimization_level: Union[int, dict],
+    coupling_map: Union[CouplingMap, None] = None,
+    backend: Union[Backend, None] = None,
     ai_layout_mode="optimize",
     include_ai_synthesis: bool = True,
     optimization_preferences: list[str] = (

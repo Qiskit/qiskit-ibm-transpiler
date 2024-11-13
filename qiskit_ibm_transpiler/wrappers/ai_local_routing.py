@@ -45,7 +45,7 @@ class AILocalRouting:
         self,
         circuit: QuantumCircuit,
         coupling_map: CouplingMap,
-        optimization_level: dict | int = 1,
+        optimization_level: Union[dict, int] = 1,
         check_result: bool = False,
         layout_mode: str = "optimize",
         optimization_preferences: List[OptimizationOptions] = None,
