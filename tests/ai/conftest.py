@@ -19,7 +19,6 @@ from qiskit.quantum_info import random_clifford
 from qiskit.transpiler.preset_passmanagers import generate_preset_pass_manager
 
 
-
 def create_random_circuit(total_n_ubits, cliffords_n_qubits, clifford_num):
     circuit = QuantumCircuit(total_n_ubits)
     nq = cliffords_n_qubits
@@ -61,7 +60,11 @@ def random_circuit_transpiled(backend_27q, cmap_backend):
 @pytest.fixture(scope="module")
 def random_pauli_circuit_transpiled():
     from qiskit import qasm2
-    circuit = qasm2.load("tests/test_files/pauli_circuit.qasm", custom_instructions=qasm2.LEGACY_CUSTOM_INSTRUCTIONS)
+
+    circuit = qasm2.load(
+        "tests/test_files/pauli_circuit.qasm",
+        custom_instructions=qasm2.LEGACY_CUSTOM_INSTRUCTIONS,
+    )
     return circuit
 
 

@@ -108,6 +108,7 @@ def test_pauli_network_function(random_pauli_circuit_transpiled, backend_27q, ca
         ]
     )
     from qiskit import qasm2
+
     with open("pauli_circuit_2.qasm", "w") as f:
         qasm2.dump(random_pauli_circuit_transpiled, f)
     ai_optimized_circuit = ai_optimize_cliff.run(random_pauli_circuit_transpiled)
