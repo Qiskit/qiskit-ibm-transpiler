@@ -1,0 +1,10 @@
+0.8.0 (2024-11-13)
+==================
+
+New features
+------------
+
+- In case of failure, always retry the GET request to retrieve a result unitl the timeout is reached. Increase the delay between requests to 5 seconds when we are over 1 minute. Retry transpilation POST request three times in case of failure. (`97 <https://github.com/Qiskit/qiskit-ibm-transpiler/pull/97>`__)
+- Use QPY as exchange format with service (`104 <https://github.com/Qiskit/qiskit-ibm-transpiler/pull/104>`__)
+- Retry http requests after any RequestException (`111 <https://github.com/Qiskit/qiskit-ibm-transpiler/pull/111>`__)
+- Add Pauli Network synthesis pass. (`112 <https://github.com/Qiskit/qiskit-ibm-transpiler/pull/112>`__)
