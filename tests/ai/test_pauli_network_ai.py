@@ -14,24 +14,26 @@
 import pytest
 from qiskit import QuantumCircuit
 from qiskit.transpiler import PassManager
-from qiskit.transpiler.exceptions import TranspilerError
 
 from qiskit_ibm_transpiler.ai.collection import CollectPauliNetworks
 from qiskit_ibm_transpiler.ai.synthesis import AIPauliNetworkSynthesis
 
 
 def test_pauli_network_wrong_backend(random_circuit_transpiled, caplog):
-    with pytest.raises(
-        TranspilerError,
-        match=r"User doesn\'t have access to the specified backend: \w+",
-    ):
-        ai_optimize_cliff = PassManager(
-            [
-                CollectPauliNetworks(),
-                AIPauliNetworkSynthesis(backend_name="wrong_backend", local_mode=False),
-            ]
-        )
-        ai_optimize_cliff.run(random_circuit_transpiled)
+    ai_optimize_pauli = PassManager(
+        [
+            CollectPauliNetworks(),
+            AIPauliNetworkSynthesis(backend_name="wrong_backend", local_mode=False),
+        ]
+    )
+    ai_optimized_circuit = ai_optimize_pauli.run(random_circuit_transpiled)
+    assert "couldn't synthesize the circuit" in caplog.text
+    assert "Keeping the original circuit" in caplog.text
+    assert (
+        "User doesn't have access to the specified backend: wrong_backend"
+        in caplog.text
+    )
+    assert isinstance(ai_optimized_circuit, QuantumCircuit)
 
 
 @pytest.mark.skip(
