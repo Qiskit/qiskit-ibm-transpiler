@@ -107,6 +107,10 @@ def test_pauli_network_function(random_pauli_circuit_transpiled, backend_27q, ca
             AIPauliNetworkSynthesis(backend_name=backend_27q),
         ]
     )
+    from qiskit import qasm2
+
+    with open("pauli_circuit_2.qasm", "w") as f:
+        qasm2.dump(random_pauli_circuit_transpiled, f)
     ai_optimized_circuit = ai_optimize_cliff.run(random_pauli_circuit_transpiled)
     assert isinstance(ai_optimized_circuit, QuantumCircuit)
     assert "Using the synthesized circuit" in caplog.text
