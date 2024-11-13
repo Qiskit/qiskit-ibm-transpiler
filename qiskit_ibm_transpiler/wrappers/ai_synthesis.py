@@ -209,7 +209,7 @@ class AIPauliNetworkAPI(QiskitTranspilerService):
                     "qargs": qargs,
                     "backend_coupling_map": coupling_map,
                 },
-                params=dict(),
+                params={"backend": ""},
             )
         elif backend_name is not None:
             transpile_resps = self.request_and_wait(

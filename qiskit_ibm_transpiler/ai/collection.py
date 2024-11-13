@@ -385,7 +385,7 @@ class CollectPauliNetworks(RepeatedCollectAndCollapse):
 
     :param do_commutative_analysis: Enable or disable commutative analysis, defaults to True
     :type do_commutative_analysis: bool, optional
-    :param min_block_size: Set the minimum size for blocks generated during the collect PauliNetworks pass, defaults to 1.
+    :param min_block_size: Set the minimum size for blocks generated during the collect PauliNetworks pass, defaults to 4.
     :type min_block_size: int, optional
     :param max_block_size: Set the maximum size for blocks generated during the collect PauliNetworks pass, defaults to 6.
     :type max_block_size: int, optional

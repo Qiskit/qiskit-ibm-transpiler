@@ -100,16 +100,16 @@ def test_pauli_network_unexisting_url(random_circuit_transpiled, backend, caplog
     assert isinstance(ai_optimized_circuit, QuantumCircuit)
 
 
-def test_pauli_network_function(random_circuit_transpiled, backend, caplog):
+def test_pauli_network_function(random_pauli_circuit_transpiled, backend_27q, caplog):
     ai_optimize_cliff = PassManager(
         [
             CollectPauliNetworks(),
-            AIPauliNetworkSynthesis(backend_name=backend),
+            AIPauliNetworkSynthesis(backend_name=backend_27q),
         ]
     )
-    ai_optimized_circuit = ai_optimize_cliff.run(random_circuit_transpiled)
+    ai_optimized_circuit = ai_optimize_cliff.run(random_pauli_circuit_transpiled)
     assert isinstance(ai_optimized_circuit, QuantumCircuit)
-    assert "AIPauliNetworkAPI couldn't synthesize the circuit" not in caplog.text
+    assert "Using the synthesized circuit" in caplog.text
 
 
 # TODO: Look for a better way to parametrize coupling maps
@@ -117,10 +117,10 @@ def test_pauli_network_function(random_circuit_transpiled, backend, caplog):
     "use_coupling_map_as_list", [True, False], ids=["as_list", "as_object"]
 )
 def test_pauli_network_function_with_coupling_map(
-    random_circuit_transpiled, coupling_map, use_coupling_map_as_list, caplog
+    random_pauli_circuit_transpiled, backend_27q, cmap_backend, use_coupling_map_as_list, caplog
 ):
     coupling_map_to_send = (
-        list(coupling_map.get_edges()) if use_coupling_map_as_list else coupling_map
+        list(cmap_backend[backend_27q].get_edges()) if use_coupling_map_as_list else cmap_backend[backend_27q]
     )
     ai_optimize_cliff = PassManager(
         [
@@ -128,6 +128,6 @@ def test_pauli_network_function_with_coupling_map(
             AIPauliNetworkSynthesis(coupling_map=coupling_map_to_send),
         ]
     )
-    ai_optimized_circuit = ai_optimize_cliff.run(random_circuit_transpiled)
+    ai_optimized_circuit = ai_optimize_cliff.run(random_pauli_circuit_transpiled)
     assert isinstance(ai_optimized_circuit, QuantumCircuit)
-    assert "AIPauliNetworkAPI couldn't synthesize the circuit" not in caplog.text
+    assert "Using the synthesized circuit" in caplog.text

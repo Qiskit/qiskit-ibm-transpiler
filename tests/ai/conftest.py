@@ -12,11 +12,25 @@
 
 import numpy as np
 import pytest
+import random
 from qiskit import QuantumCircuit
 from qiskit.circuit.library import QuantumVolume
 from qiskit.quantum_info import random_clifford
 from qiskit.transpiler.preset_passmanagers import generate_preset_pass_manager
 
+from qiskit.circuit.library.standard_gates import (
+    CXGate,
+    HGate,
+    IGate,
+    RXGate,
+    RYGate,
+    RZGate,
+    SGate,
+    SXGate,
+    XGate,
+    YGate,
+    ZGate,
+)
 
 def create_random_circuit(total_n_ubits, cliffords_n_qubits, clifford_num):
     circuit = QuantumCircuit(total_n_ubits)
@@ -29,7 +43,6 @@ def create_random_circuit(total_n_ubits, cliffords_n_qubits, clifford_num):
         for q in qs:
             circuit.t(q)
     return circuit
-
 
 def create_linear_circuit(n_qubits, gates):
     circuit = QuantumCircuit(n_qubits)
@@ -55,6 +68,65 @@ def random_circuit_transpiled(backend_27q, cmap_backend):
     )
     return qiskit_lvl3_transpiler.run(circuit)
 
+base_gate_dict = {
+    "h": HGate,
+    "s": SGate,
+    "z": ZGate,
+    "x": XGate,
+    "y": YGate,
+    "z": YGate,
+    "sx": SXGate,
+    "cx": CXGate,
+    "i": IGate,
+    "rx": RXGate,
+    "ry": RYGate,
+    "rz": RZGate,
+}
+allowed_gates = ["cx", "x", "y", "z", "s", "sx", "h"]
+allowed_rots = ["rx", "ry", "rz"]
+
+
+def apply_random_gate(num_qubits, qc):
+    gate = np.random.choice(allowed_gates)
+    match gate:
+        case "cx":
+            qubits = tuple(np.random.choice(range(num_qubits), size=2, replace=False))
+            qc.cx(*qubits)
+        case "x" | "y" | "z" | "s" | "sx" | "h":
+            qubit = (np.random.choice(range(num_qubits)),)
+            qc.append(base_gate_dict[gate](), qubit)
+
+
+def apply_random_rot(num_qubits, qc):
+    gate = np.random.choice(allowed_rots)
+    match gate:
+        case "rx" | "ry" | "rz":
+            qubit = (np.random.choice(range(num_qubits)),)
+            angle = np.random.uniform(-np.pi, np.pi)
+            qc.append(base_gate_dict[gate](angle), qubit)
+
+
+def get_random_pauli_network(num_qubits, depth=3, rot_p=0.4, max_rots=10, seed=42):
+    np.random.seed(seed)
+    qc = QuantumCircuit(num_qubits)
+    rotations = 0
+    while qc.depth() < depth and rotations <= max_rots:
+        if np.random.uniform(0, 1) > rot_p:
+            apply_random_gate(num_qubits, qc)
+        else:
+            if rotations == max_rots:
+                continue
+            apply_random_rot(num_qubits, qc)
+            rotations += 1
+    return qc
+
+@pytest.fixture(scope="module")
+def random_pauli_circuit_transpiled(backend_27q, cmap_backend):
+    circuit = get_random_pauli_network(27,30)
+    qiskit_lvl3_transpiler = generate_preset_pass_manager(
+        optimization_level=1, coupling_map=cmap_backend[backend_27q]
+    )
+    return qiskit_lvl3_transpiler.run(circuit)
 
 @pytest.fixture(scope="module")
 def qv_circ():
