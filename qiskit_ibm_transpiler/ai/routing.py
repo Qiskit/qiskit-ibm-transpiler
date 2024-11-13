@@ -112,7 +112,9 @@ class AIRouting(TransformationPass):
                 backend_info = runtime_service.backend(name=backend_name)
                 self.coupling_map = backend_info.coupling_map
             except Exception:
-                raise PermissionError(f"ERROR. Backend not supported ({backend_name})")
+                raise PermissionError(
+                    f"User doesn't have access to the specified backend: {backend_name}"
+                )
         else:
             # AIRoutingAPI expects that coupling_map has or a coupling_map or a backend_name
             self.coupling_map = backend_name

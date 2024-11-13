@@ -54,7 +54,7 @@ def test_ai_local_linear_function_synthesis_wrong_backend(basic_cnot_circuit):
 
     with pytest.raises(
         PermissionError,
-        match=r"ERROR. Backend not supported \(\w+\)",
+        match=r"User doesn\'t have access to the specified backend: \w+",
     ):
         ai_linear_functions_synthesis_pass = PassManager(
             [

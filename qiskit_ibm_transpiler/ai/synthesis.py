@@ -106,7 +106,9 @@ class AISynthesis(TransformationPass):
                 runtime_service = QiskitRuntimeService()
                 self.backend = runtime_service.backend(name=backend_name)
             except Exception:
-                raise PermissionError(f"ERROR. Backend not supported ({backend_name})")
+                raise PermissionError(
+                    f"User doesn't have access to the specified backend: {backend_name}"
+                )
         else:
             self.backend_name = backend_name
 
