@@ -125,10 +125,10 @@ def get_random_pauli_network(num_qubits, depth=3, rot_p=0.4, max_rots=10, seed=4
 @pytest.fixture(scope="module")
 def random_pauli_circuit_transpiled(backend_27q, cmap_backend):
     circuit = get_random_pauli_network(27, 30)
-    qiskit_lvl3_transpiler = generate_preset_pass_manager(
-        optimization_level=1, coupling_map=cmap_backend[backend_27q]
+    qiskit_lvl1_transpiler = generate_preset_pass_manager(
+        optimization_level=1, coupling_map=cmap_backend[backend_27q], seed_transpiler=42
     )
-    return qiskit_lvl3_transpiler.run(circuit)
+    return qiskit_lvl1_transpiler.run(circuit)
 
 
 @pytest.fixture(scope="module")
