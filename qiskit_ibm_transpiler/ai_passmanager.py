@@ -20,14 +20,20 @@ from .ai.routing import AIRouting
 from .ai.synthesis import AILinearFunctionSynthesis
 from .ai.collection import CollectLinearFunctions
 
+
 def generate_ai_pass_manager(
     optimization_level: int,
     ai_optimization_level: int | dict,
-    coupling_map: CouplingMap | None=None,
-    backend: Backend | None=None,
+    coupling_map: CouplingMap | None = None,
+    backend: Backend | None = None,
     ai_layout_mode="optimize",
-    include_ai_synthesis: bool=True,
-    optimization_preferences: list[str] = ("cnot_layers", "n_cnots", "layers", "n_gates"),
+    include_ai_synthesis: bool = True,
+    optimization_preferences: list[str] = (
+        "cnot_layers",
+        "n_cnots",
+        "layers",
+        "n_gates",
+    ),
     qiskit_transpile_options: dict = {},
 ):
     # If optimization_level is part of the qiskit_transpile_options,
@@ -37,7 +43,7 @@ def generate_ai_pass_manager(
 
     if coupling_map is None and backend is None:
         raise TypeError("Either coupling_map or backend must be provided.")
-    
+
     # Create the base Qiskit pass manager
     initial_layout_is_not_none = (
         "initial_layout" in qiskit_transpile_options
@@ -51,7 +57,9 @@ def generate_ai_pass_manager(
     )
 
     # Make cmap symmetric for AI Routing
-    coupling_map_ia = copy.deepcopy(backend.coupling_map if coupling_map is None else coupling_map)
+    coupling_map_ia = copy.deepcopy(
+        backend.coupling_map if coupling_map is None else coupling_map
+    )
     coupling_map_ia.make_symmetric()
 
     # If user provides a layout but also chooses "optimize", we convert it to "improve" to leverage the user layout
@@ -64,7 +72,7 @@ def generate_ai_pass_manager(
         optimization_level=ai_optimization_level,
         optimization_preferences=optimization_preferences,
         layout_mode=ai_layout_mode,
-        local_mode=True
+        local_mode=True,
     )
 
     if ai_layout_mode == "keep" or initial_layout_is_not_none:
@@ -90,27 +98,32 @@ def generate_ai_pass_manager(
         # First we replace SabreLayout with AIRouting
         # See https://github.com/Qiskit/qiskit/blob/f97a620e9ff388d273df3fbbef604c2f656d4bfb/qiskit/transpiler/preset_passmanagers/builtin_plugins.py#L680
         layout_position = 3 if optimization_level == 1 else 2
-        pass_manager.layout._tasks[layout_position][0].tasks = (ai_routing, )
+        pass_manager.layout._tasks[layout_position][0].tasks = (ai_routing,)
 
         # Then we remove the routing stage
         pass_manager.routing = None
 
-    if include_ai_synthesis and optimization_level>1:
+    if include_ai_synthesis and optimization_level > 1:
         synth_pm = None
         synth_lf = AILinearFunctionSynthesis(coupling_map=coupling_map, local_mode=True)
 
         if optimization_level == 2:
             collect_front = CollectLinearFunctions(do_commutative_analysis=False)
-            collect_back = CollectLinearFunctions(do_commutative_analysis=False, collect_from_back=True)
-            
+            collect_back = CollectLinearFunctions(
+                do_commutative_analysis=False, collect_from_back=True
+            )
+
             synth_pm = PassManager([collect_front, synth_lf, collect_back, synth_lf])
         elif optimization_level == 3:
             collect_front = CollectLinearFunctions(do_commutative_analysis=True)
-            collect_back = CollectLinearFunctions(do_commutative_analysis=True, collect_from_back=True)
-            
-            synth_pm = PassManager([collect_front, synth_lf, collect_back, synth_lf]*2)
+            collect_back = CollectLinearFunctions(
+                do_commutative_analysis=True, collect_from_back=True
+            )
+
+            synth_pm = PassManager(
+                [collect_front, synth_lf, collect_back, synth_lf] * 2
+            )
 
         pass_manager.post_routing = synth_pm
 
     return pass_manager
-        
