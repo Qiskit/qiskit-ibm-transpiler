@@ -157,7 +157,7 @@ def perm_cliff(cliff, perm):
     return cliff
 
 
-def get_synthesized_clifford_circuits(
+def get_synthesized_linear_function_circuits(
     coupling_map: nx.Graph, clifford_dicts: List[dict], qargs: List[List[int]]
 ) -> list[QuantumCircuit]:
     synthesized_circuits = []
@@ -310,7 +310,7 @@ class AILocalLinearFunctionSynthesis:
 
         logger.info("Running Linear Functions AI synthesis on local mode")
 
-        synthesized_circuits = get_synthesized_clifford_circuits(
+        synthesized_circuits = get_synthesized_linear_function_circuits(
             coupling_map_graph, clifford_dict, qargs
         )
 
