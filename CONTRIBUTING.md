@@ -167,5 +167,4 @@ the patch release like `0.21.1`. Then, from the `stable/*` branch, create a new
 Git tag for the full version number, like `git tag 0.21.1`, and
 push the tag to GitHub.
 
-After the release, you need to cherry-pick the release notes prep from `stable/*` to
-the `main` branch, such as from `stable/0.21` to `main`.
+After the release, you need to cherry-pick the release notes prep from `stable/*` to the `main` branch _and_ the stable branch for the latest minor version. For example, if the latest minor version is `0.3` and you released the patch `0.2.3`, then you need the copy the release notes `0.2.3.rst` into both `main` and `stable/0.3`. This ensures that the release notes show up for all future versions.
