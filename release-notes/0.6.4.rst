@@ -1,0 +1,7 @@
+0.6.4 (2024-11-07)
+==================
+
+New features
+------------
+
+- Retry http requests after any RequestException (`111 <https://github.com/Qiskit/qiskit-ibm-transpiler/pull/111>`__)

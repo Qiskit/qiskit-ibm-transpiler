@@ -1,0 +1,7 @@
+0.6.5 (2024-11-11)
+==================
+
+New features
+------------
+
+- Use QPY as exchange format with service (`104 <https://github.com/Qiskit/qiskit-ibm-transpiler/pull/104>`__)
