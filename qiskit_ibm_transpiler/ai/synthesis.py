@@ -415,4 +415,4 @@ class AIPauliNetworkSynthesis(AISynthesis):
             else (1e9, 1e9)
         )
 
-        return score_synth < score_original
+        return score_synth > score_original

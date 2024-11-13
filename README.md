@@ -91,7 +91,7 @@ The `layout_mode` includes the following options:
 
 ### Using the AI circuit synthesis passes
 
-The AI circuit synthesis passes allow you to optimize pieces of different circuit types ([Clifford](https://docs.quantum.ibm.com/api/qiskit/qiskit.quantum_info.Clifford), [Linear Function](https://docs.quantum.ibm.com/api/qiskit/qiskit.circuit.library.LinearFunction), [Permutation](https://docs.quantum.ibm.com/api/qiskit/qiskit.circuit.library.Permutation#permutation)) by re-synthesizing them. The typical way one would use the synthesis pass is the following:
+The AI circuit synthesis passes allow you to optimize pieces of different circuit types ([Clifford](/api/qiskit/qiskit.quantum_info.Clifford), [Linear Function](/api/qiskit/qiskit.circuit.library.LinearFunction), [Permutation](/api/qiskit/qiskit.circuit.library.Permutation#permutation), [Pauli Network](/api/qiskit/qiskit.circuit.library.PauliNetwork)) by re-synthesizing them. A typical way to use the synthesis pass is as follows:
 
 ```python
 from qiskit.transpiler import PassManager
@@ -99,12 +99,16 @@ from qiskit.transpiler import PassManager
 from qiskit_ibm_transpiler.ai.routing import AIRouting
 from qiskit_ibm_transpiler.ai.synthesis import AILinearFunctionSynthesis
 from qiskit_ibm_transpiler.ai.collection import CollectLinearFunctions
+from qiskit_ibm_transpiler.ai.synthesis import AIPauliNetworkSynthesis
+from qiskit_ibm_transpiler.ai.collection import CollectPauliNetworks
 from qiskit.circuit.library import EfficientSU2
 
 ai_passmanager = PassManager([
    AIRouting(backend_name="ibm_quebec", optimization_level=3, layout_mode="optimize"),  # Route circuit
    CollectLinearFunctions(),  # Collect Linear Function blocks
    AILinearFunctionSynthesis(backend_name="ibm_quebec")  # Re-synthesize Linear Function blocks
+   CollectPauliNetworks(), # Collect Pauli Networks blocks
+   AIPauliNetworkSynthesis(backend_name="ibm_cairo"),  # Re-synthesize Pauli Network blocks
 ])
 
 circuit = EfficientSU2(10, entanglement="full", reps=1).decompose()
@@ -119,6 +123,7 @@ The following synthesis passes are available from `qiskit_ibm_transpiler.ai.synt
 - _AICliffordSynthesis_: Synthesis for [Clifford](https://docs.quantum.ibm.com/api/qiskit/qiskit.quantum_info.Clifford) circuits (blocks of `H`, `S` and `CX` gates). Currently up to 9 qubit blocks.
 - _AILinearFunctionSynthesis_: Synthesis for [Linear Function](https://docs.quantum.ibm.com/api/qiskit/qiskit.circuit.library.LinearFunction) circuits (blocks of `CX` and `SWAP` gates). Currently up to 9 qubit blocks.
 - _AIPermutationSynthesis_: Synthesis for [Permutation](https://docs.quantum.ibm.com/api/qiskit/qiskit.circuit.library.Permutation#permutation) circuits (blocks of `SWAP` gates). Currently available for 65, 33, and 27 qubit blocks.
+- _AIPauliNetworkSynthesis_: Synthesis for [Pauli Network](/api/qiskit/qiskit.circuit.library.PauliNetwork) circuits (blocks of `H`, `S`, `SX`, `CX`, `RX`, `RY` and `RZ` gates). Currently up to six qubit blocks.
 
 We expect to gradually increase the size of the supported blocks.
 
@@ -137,6 +142,7 @@ To complement the synthesis passes we also provide custom collection passes for 
 - _CollectCliffords_: Collects `Clifford` blocks as `Instruction` objects and stores the original sub-circuit to compare against it after synthesis.
 - _CollectLinearFunctions_: Collects blocks of `SWAP` and `CX` as `LinearFunction` objects and stores the original sub-circuit to compare against it after synthesis.
 - _CollectPermutations_: Collects blocks of `SWAP` circuits as `Permutations`.
+- _CollectPauliNetworks_: Collects Pauli Network blocks and stores the original sub-circuit to compare against it after synthesis.
 
 These custom collection passes limit the sizes of the collected sub-circuits so that they are supported by the AI synthesis passes, so it is recommended to use them after the routing passes and before the synthesis passes to get a better optimization overall.
 
