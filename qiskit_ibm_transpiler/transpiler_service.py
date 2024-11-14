@@ -86,7 +86,7 @@ class TranspilerService:
 
         if ai_layout_mode is not None:
             if ai_layout_mode.upper() not in ["KEEP", "OPTIMIZE", "IMPROVE"]:
-                raise (
+                raise ValueError(
                     f"ERROR. Unknown ai_layout_mode: {ai_layout_mode.upper()}. Valid modes: 'KEEP', 'OPTIMIZE', 'IMPROVE'"
                 )
             self.ai_layout_mode = ai_layout_mode.upper()

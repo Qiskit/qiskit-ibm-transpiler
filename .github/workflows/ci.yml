@@ -39,7 +39,7 @@ jobs:
 
     strategy:
       matrix:
-        python-version: [3.11, 3.8]
+        python-version: [3.11, 3.9]
 
     steps:
       - uses: actions/checkout@v4
@@ -55,5 +55,6 @@ jobs:
       - name: Run tests
         env:
           QISKIT_IBM_TOKEN: ${{ secrets.QISKIT_IBM_TOKEN }}
+          QISKIT_IBM_CHANNEL: "ibm_quantum"
         run: |
           python -m pytest .

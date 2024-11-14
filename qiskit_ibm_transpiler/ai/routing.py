@@ -15,19 +15,86 @@
 
 # torch.set_num_threads(1)
 
+import importlib
 import numpy as np
+import logging
 from qiskit import ClassicalRegister, QuantumCircuit
 from qiskit.converters import circuit_to_dag, dag_to_circuit
 from qiskit.transpiler import CouplingMap, TranspilerError
 from qiskit.transpiler.basepasses import TransformationPass
 from qiskit.transpiler.layout import Layout
+from qiskit.providers.backend import BackendV2 as Backend
+from qiskit_ibm_runtime import QiskitRuntimeService
 
-from qiskit_ibm_transpiler.wrappers import AIRoutingAPI
+from qiskit_ibm_transpiler.wrappers import AIRoutingAPI, AILocalRouting
 
 from typing import List, Union, Literal
 
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
+
 # TODO: Reuse this code, it's repeated several times
 OptimizationOptions = Literal["n_cnots", "n_gates", "cnot_layers", "layers", "noise"]
+
+
+def build_final_optimization_preferences(
+    selected_optimization_preferences: Union[
+        OptimizationOptions, list[OptimizationOptions]
+    ] = None,
+    backend_name: str = None,
+):
+    all_optimization_preferences = [
+        "noise",
+        "cnot_layers",
+        "n_cnots",
+        "layers",
+        "n_gates",
+    ]
+    optimization_preferences_without_noise = [
+        "cnot_layers",
+        "n_cnots",
+        "layers",
+        "n_gates",
+    ]
+
+    if not selected_optimization_preferences and not backend_name:
+        return optimization_preferences_without_noise
+    if not selected_optimization_preferences and backend_name:
+        return all_optimization_preferences
+
+    if selected_optimization_preferences and not backend_name:
+        if "noise" in selected_optimization_preferences:
+            raise ValueError("Error. Cannot optimize by noise without a backend")
+
+    if isinstance(selected_optimization_preferences, list):
+        for selected_optimization_preference in selected_optimization_preferences:
+            if selected_optimization_preference not in all_optimization_preferences:
+                raise ValueError(
+                    (
+                        f"'{selected_optimization_preference}' is not a valid optimization preference"
+                    )
+                )
+
+        return selected_optimization_preferences
+    else:
+        if selected_optimization_preferences not in all_optimization_preferences:
+            raise ValueError(
+                (
+                    f"'{selected_optimization_preferences}' is not a valid optimization preference"
+                )
+            )
+
+        try:
+            optimization_preferences_without_noise.remove(
+                selected_optimization_preferences
+            )
+        except ValueError:
+            # If selected_optimization_preferences is not on the list, do nothing (this will be the "noise" usecase)
+            pass
+
+        return [
+            selected_optimization_preferences
+        ] + optimization_preferences_without_noise
 
 
 class AIRouting(TransformationPass):
@@ -47,36 +114,86 @@ class AIRouting(TransformationPass):
 
     def __init__(
         self,
-        backend_name=None,
-        coupling_map=None,
+        coupling_map: Union[List[List[int]], CouplingMap, None] = None,
+        backend_name: Union[str, None] = None,
+        backend: Union[Backend, None] = None,
         optimization_level: int = 2,
         layout_mode: str = "OPTIMIZE",
         optimization_preferences: Union[
             OptimizationOptions, List[OptimizationOptions], None
         ] = None,
+        local_mode: bool = True,
         **kwargs,
     ):
-        super().__init__()
-        if backend_name is not None and coupling_map is not None:
+        ai_local_package = "qiskit_ibm_ai_local_transpiler"
+        if local_mode:
+            if importlib.util.find_spec(ai_local_package) is None:
+                raise ImportError(
+                    f"For using the local mode you need to install the package '{ai_local_package}'. Read the installation guide for more information"
+                )
+
+        if backend_name:
+            # TODO: Updates with the final date
+            logger.warning(
+                "backend_name will be deprecated in February 2025, please use a backend object instead."
+            )
+
+        # TODO: Removes once we deprecate backend_name
+        if backend_name and coupling_map:
             raise ValueError(
                 f"ERROR. Both backend_name and coupling_map were specified as options. Please just use one of them."
             )
-        if backend_name is not None:
-            self.backend = backend_name
-        elif coupling_map is not None:
+
+        if backend and coupling_map:
+            raise ValueError(
+                f"ERROR. Both backend and coupling_map were specified as options. Please just use one of them."
+            )
+
+        # TODO: Removes backend_name option once we deprecate backend_name. Update the error
+        # message too.
+        if not backend and not coupling_map and not backend_name:
+            raise ValueError(
+                f"ERROR. One of these options must be set: backend, coupling_map or backend_name."
+            )
+
+        if optimization_level <= 0 or optimization_level > 3:
+            raise ValueError(
+                f"ERROR. The optimization_level should be a value between 1 and 3."
+            )
+
+        super().__init__()
+
+        if coupling_map:
             if isinstance(coupling_map, CouplingMap):
-                self.backend = list(coupling_map.get_edges())
+                self.coupling_map = coupling_map
             elif isinstance(coupling_map, list):
-                self.backend = coupling_map
+                self.coupling_map = CouplingMap(coupling_map)
             else:
                 raise ValueError(
                     f"ERROR. coupling_map should either be a list of int tuples or a Qiskit CouplingMap object."
                 )
+        elif backend:
+            self.coupling_map = backend.coupling_map
+        elif backend_name and local_mode:
+            try:
+                runtime_service = QiskitRuntimeService()
+                backend_info = runtime_service.backend(name=backend_name)
+                self.coupling_map = backend_info.coupling_map
+            except Exception:
+                raise PermissionError(
+                    f"User doesn't have access to the specified backend: {backend_name}"
+                )
         else:
-            raise ValueError(f"ERROR. Either backend_name OR coupling_map must be set.")
+            # AIRoutingAPI expects that coupling_map has or a coupling_map or a backend_name
+            self.coupling_map = backend_name
 
         self.optimization_level = optimization_level
-        self.optimization_preferences = optimization_preferences
+
+        backend_name = backend_name or (backend.name if backend else None)
+
+        self.optimization_preferences = build_final_optimization_preferences(
+            optimization_preferences, backend_name
+        )
 
         if layout_mode is not None and layout_mode.upper() not in [
             "KEEP",
@@ -86,8 +203,11 @@ class AIRouting(TransformationPass):
             raise ValueError(
                 f"ERROR. Unknown ai_layout_mode: {layout_mode}. Valid modes: 'KEEP', 'OPTIMIZE', 'IMPROVE'"
             )
+
         self.layout_mode = layout_mode.upper()
-        self.service = AIRoutingAPI(**kwargs)
+
+        routing_provider = AILocalRouting() if local_mode else AIRoutingAPI(**kwargs)
+        self.service = routing_provider
 
     def run(self, dag):
         """Run the AIRouting pass on `dag`.
@@ -116,12 +236,12 @@ class AIRouting(TransformationPass):
             qc.remove_final_measurements(inplace=True)
 
         routed_qc, init_layout, final_layout = self.service.routing(
-            qc,
-            self.backend,
-            self.optimization_level,
-            False,
-            self.layout_mode,
-            self.optimization_preferences,
+            circuit=qc,
+            coupling_map=getattr(self, "coupling_map", None),
+            optimization_level=self.optimization_level,
+            check_result=False,
+            layout_mode=self.layout_mode,
+            optimization_preferences=self.optimization_preferences,
         )
 
         # TODO: Improve this

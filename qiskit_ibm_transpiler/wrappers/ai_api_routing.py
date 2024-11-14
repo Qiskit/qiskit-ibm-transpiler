@@ -19,6 +19,7 @@ from qiskit_ibm_transpiler.utils import (
 )
 from .base import QiskitTranspilerService
 from typing import List, Union, Literal
+from qiskit.transpiler import CouplingMap
 
 
 # TODO: Reuse this code, it's repeated several times
@@ -34,7 +35,7 @@ class AIRoutingAPI(QiskitTranspilerService):
     def routing(
         self,
         circuit: QuantumCircuit,
-        coupling_map,
+        coupling_map: CouplingMap,
         optimization_level: int = 1,
         check_result: bool = False,
         layout_mode: str = "OPTIMIZE",
@@ -46,7 +47,11 @@ class AIRoutingAPI(QiskitTranspilerService):
         body_params = {
             "qasm": qasm,
             "qpy": qpy,
-            "coupling_map": coupling_map,
+            "coupling_map": (
+                list(coupling_map.get_edges())
+                if hasattr(coupling_map, "get_edges")
+                else coupling_map
+            ),
             "optimization_preferences": optimization_preferences,
         }
 

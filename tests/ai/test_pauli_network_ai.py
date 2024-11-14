@@ -20,13 +20,13 @@ from qiskit_ibm_transpiler.ai.synthesis import AIPauliNetworkSynthesis
 
 
 def test_pauli_network_wrong_backend(random_circuit_transpiled, caplog):
-    ai_optimize_cliff = PassManager(
+    ai_optimize_pauli = PassManager(
         [
             CollectPauliNetworks(),
-            AIPauliNetworkSynthesis(backend_name="wrong_backend"),
+            AIPauliNetworkSynthesis(backend_name="wrong_backend", local_mode=False),
         ]
     )
-    ai_optimized_circuit = ai_optimize_cliff.run(random_circuit_transpiled)
+    ai_optimized_circuit = ai_optimize_pauli.run(random_circuit_transpiled)
     assert "couldn't synthesize the circuit" in caplog.text
     assert "Keeping the original circuit" in caplog.text
     assert (
@@ -40,26 +40,28 @@ def test_pauli_network_wrong_backend(random_circuit_transpiled, caplog):
     reason="Unreliable. It passes most of the times with the timeout of 1 second for the current circuits used"
 )
 def test_pauli_network_exceed_timeout(random_circuit_transpiled, backend, caplog):
-    ai_optimize_cliff = PassManager(
+    ai_optimize_pauli = PassManager(
         [
             CollectPauliNetworks(),
-            AIPauliNetworkSynthesis(backend_name=backend, timeout=1),
+            AIPauliNetworkSynthesis(backend_name=backend, timeout=1, local_mode=False),
         ]
     )
-    ai_optimized_circuit = ai_optimize_cliff.run(random_circuit_transpiled)
+    ai_optimized_circuit = ai_optimize_pauli.run(random_circuit_transpiled)
     assert "couldn't synthesize the circuit" in caplog.text
     assert "Keeping the original circuit" in caplog.text
     assert isinstance(ai_optimized_circuit, QuantumCircuit)
 
 
 def test_pauli_network_wrong_token(random_circuit_transpiled, backend, caplog):
-    ai_optimize_cliff = PassManager(
+    ai_optimize_pauli = PassManager(
         [
             CollectPauliNetworks(),
-            AIPauliNetworkSynthesis(backend_name=backend, token="invented_token_2"),
+            AIPauliNetworkSynthesis(
+                backend_name=backend, token="invented_token_2", local_mode=False
+            ),
         ]
     )
-    ai_optimized_circuit = ai_optimize_cliff.run(random_circuit_transpiled)
+    ai_optimized_circuit = ai_optimize_pauli.run(random_circuit_transpiled)
     assert "couldn't synthesize the circuit" in caplog.text
     assert "Keeping the original circuit" in caplog.text
     assert "Invalid authentication credentials" in caplog.text
@@ -68,29 +70,32 @@ def test_pauli_network_wrong_token(random_circuit_transpiled, backend, caplog):
 
 @pytest.mark.disable_monkeypatch
 def test_pauli_network_wrong_url(random_circuit_transpiled, backend, caplog):
-    ai_optimize_cliff = PassManager(
+    ai_optimize_pauli = PassManager(
         [
             CollectPauliNetworks(),
-            AIPauliNetworkSynthesis(backend_name=backend, base_url="https://ibm.com/"),
+            AIPauliNetworkSynthesis(
+                backend_name=backend, base_url="https://ibm.com/", local_mode=False
+            ),
         ]
     )
-    ai_optimized_circuit = ai_optimize_cliff.run(random_circuit_transpiled)
+    ai_optimized_circuit = ai_optimize_pauli.run(random_circuit_transpiled)
     assert "Internal error: 404 Client Error:" in caplog.text
     assert "Keeping the original circuit" in caplog.text
 
 
 @pytest.mark.disable_monkeypatch
 def test_pauli_network_unexisting_url(random_circuit_transpiled, backend, caplog):
-    ai_optimize_cliff = PassManager(
+    ai_optimize_pauli = PassManager(
         [
             CollectPauliNetworks(),
             AIPauliNetworkSynthesis(
                 backend_name=backend,
                 base_url="https://invented-domain-qiskit-ibm-transpiler-123.com/",
+                local_mode=False,
             ),
         ]
     )
-    ai_optimized_circuit = ai_optimize_cliff.run(random_circuit_transpiled)
+    ai_optimized_circuit = ai_optimize_pauli.run(random_circuit_transpiled)
     assert "couldn't synthesize the circuit" in caplog.text
     assert "Keeping the original circuit" in caplog.text
     assert (
@@ -101,17 +106,17 @@ def test_pauli_network_unexisting_url(random_circuit_transpiled, backend, caplog
 
 
 def test_pauli_network_function(random_pauli_circuit_transpiled, backend_27q, caplog):
-    ai_optimize_cliff = PassManager(
+    ai_optimize_pauli = PassManager(
         [
             CollectPauliNetworks(),
-            AIPauliNetworkSynthesis(backend_name=backend_27q),
+            AIPauliNetworkSynthesis(backend_name=backend_27q, local_mode=False),
         ]
     )
     from qiskit import qasm2
 
     with open("pauli_circuit_2.qasm", "w") as f:
         qasm2.dump(random_pauli_circuit_transpiled, f)
-    ai_optimized_circuit = ai_optimize_cliff.run(random_pauli_circuit_transpiled)
+    ai_optimized_circuit = ai_optimize_pauli.run(random_pauli_circuit_transpiled)
     assert isinstance(ai_optimized_circuit, QuantumCircuit)
     assert "Using the synthesized circuit" in caplog.text
 
@@ -127,17 +132,18 @@ def test_pauli_network_function_with_coupling_map(
     use_coupling_map_as_list,
     caplog,
 ):
+    coupling_map = cmap_backend[backend_27q]
     coupling_map_to_send = (
-        list(cmap_backend[backend_27q].get_edges())
-        if use_coupling_map_as_list
-        else cmap_backend[backend_27q]
+        list(coupling_map.get_edges()) if use_coupling_map_as_list else coupling_map
     )
-    ai_optimize_cliff = PassManager(
+    ai_optimize_pauli = PassManager(
         [
             CollectPauliNetworks(),
-            AIPauliNetworkSynthesis(coupling_map=coupling_map_to_send),
+            AIPauliNetworkSynthesis(
+                coupling_map=coupling_map_to_send, local_mode=False
+            ),
         ]
     )
-    ai_optimized_circuit = ai_optimize_cliff.run(random_pauli_circuit_transpiled)
+    ai_optimized_circuit = ai_optimize_pauli.run(random_pauli_circuit_transpiled)
     assert isinstance(ai_optimized_circuit, QuantumCircuit)
     assert "Using the synthesized circuit" in caplog.text
