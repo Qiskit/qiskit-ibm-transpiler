@@ -193,3 +193,5 @@ After the release, you need to cherry-pick the release notes prep from `stable/*
 * Once PR is merged, add a tag to that commit merge or squash merge with value ``x.x.x`` (ie: ``0.9.1``)
 * After that tag is pushed, GitHub actions will automatically release that new version to [pypi](https://pypi.org/project/qiskit-ibm-transpiler/)
 * Only for minor releases, create the ``stable/x.x`` branch from tagged commit in ``main``
+* Go to https://github.com/Qiskit/qiskit-ibm-transpiler/tags and click on the three dots next to the tag you just created and select "Create release"
+* Name: "x.x.x" and Description: "Refer to https://docs.quantum.ibm.com/api/qiskit-ibm-transpiler/release-notes for release notes". Click on "Set as the latest release" only if that's the case, for patches in previous release keep that field unselected
