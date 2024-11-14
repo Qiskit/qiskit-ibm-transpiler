@@ -192,3 +192,4 @@ After the release, you need to cherry-pick the release notes prep from `stable/*
 * Create PR called ``Preparing release qiskit-ibm-transpiler x.x.x`` from ``jt-release-notes-x.x.x`` to ``main|stable/x.x``
 * Once PR is merged, add a tag to that commit merge or squash merge with value ``x.x.x`` (ie: ``0.9.1``)
 * After that tag is pushed, GitHub actions will automatically release that new version to [pypi](https://pypi.org/project/qiskit-ibm-transpiler/)
+* Only for minor releases, create the ``stable/x.x`` branch from tagged commit in ``main``
