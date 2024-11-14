@@ -187,6 +187,7 @@ After the release, you need to cherry-pick the release notes prep from `stable/*
 
 * Create branch ``jt-release-notes-x.x.x`` (ie: ``jt-release-notes-0.9.1``)
 * Update [docs/conf.py](docs/conf.py) and [setup.py](setup.py) with new x.x.x version
+* Review that changes in this release are included here [release-notes/unreleased](release-notes/unreleased). If we find something is missing, we still can add it manually at this point (to know how to create it, refer to ``Adding a new release note`` section)
 * Run ``towncrier build --version=x.x.x --yes`` so release notes from [release-notes/unreleased](release-notes/unreleased) are flatten to [release-notes/x.x.x.rst](release-notes/x.x.x.rst)
 * Create PR called ``Preparing release qiskit-ibm-transpiler x.x.x`` from ``jt-release-notes-x.x.x`` to ``main|stable/x.x``
 * Once PR is merged, add a tag to that commit merge or squash merge with value ``x.x.x`` (ie: ``0.9.1``)
