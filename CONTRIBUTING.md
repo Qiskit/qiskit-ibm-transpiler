@@ -182,3 +182,16 @@ Git tag for the full version number, like `git tag 0.21.1`, and
 push the tag to GitHub.
 
 After the release, you need to cherry-pick the release notes prep from `stable/*` to the `main` branch _and_ the stable branch for the latest minor version. For example, if the latest minor version is `0.3` and you released the patch `0.2.3`, then you need the copy the release notes `0.2.3.rst` into both `main` and `stable/0.3`. This ensures that the release notes show up for all future versions.
+
+### Cheatsheet for release process
+
+* Create branch ``prepare-release-x.x.x`` (ie: ``prepare-release-0.9.1``)
+* Update [docs/conf.py](docs/conf.py) and [setup.py](setup.py) with new x.x.x version
+* Review that changes in this release are included here [release-notes/unreleased](release-notes/unreleased). If we find something is missing, we still can add it manually at this point (to know how to create it, refer to ``Adding a new release note`` section)
+* Run ``towncrier build --version=x.x.x --yes`` so release notes from [release-notes/unreleased](release-notes/unreleased) are flatten to [release-notes/x.x.x.rst](release-notes/x.x.x.rst)
+* Create PR called ``Preparing release qiskit-ibm-transpiler x.x.x`` from ``prepare-release-x.x.x`` to ``main|stable/x.x``
+* Once PR is merged, add a tag to that commit merge or squash merge with value ``x.x.x`` (ie: ``0.9.1``)
+* After that tag is pushed, GitHub actions will automatically release that new version to [pypi](https://pypi.org/project/qiskit-ibm-transpiler/)
+* Only for minor releases, create the ``stable/x.x`` branch from tagged commit in ``main``
+* Go to https://github.com/Qiskit/qiskit-ibm-transpiler/tags and click on the three dots next to the tag you just created and select "Create release"
+* Name: "x.x.x" and Description: "Refer to https://docs.quantum.ibm.com/api/qiskit-ibm-transpiler/release-notes for release notes". Click on "Set as the latest release" only if that's the case, for patches in previous release keep that field unselected
