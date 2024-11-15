@@ -29,12 +29,12 @@ def generate_ai_pass_manager(
     backend: Union[Backend, None] = None,
     ai_layout_mode="optimize",
     include_ai_synthesis: bool = True,
-    optimization_preferences: list[str] = (
+    optimization_preferences: list[str] = [
         "cnot_layers",
         "n_cnots",
         "layers",
         "n_gates",
-    ),
+    ],
     qiskit_transpile_options: dict = {},
 ):
     # If optimization_level is part of the qiskit_transpile_options,
