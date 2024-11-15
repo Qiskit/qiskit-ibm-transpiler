@@ -11,10 +11,32 @@
 # that they have been altered from the originals.
 
 """Unit-testing linear_function_collection"""
+import pytest
 from qiskit import QuantumCircuit
 from qiskit.transpiler import PassManager
 
 from qiskit_ibm_transpiler.ai.collection import CollectPermutations
+from qiskit.transpiler.preset_passmanagers import generate_preset_pass_manager
+
+
+@pytest.fixture
+def permutations_circuit(backend_27q, cmap_backend):
+    coupling_map = cmap_backend[backend_27q]
+    cmap = list(coupling_map.get_edges())
+    orig_qc = QuantumCircuit(27)
+    for i, j in cmap:
+        orig_qc.h(i)
+        orig_qc.cx(i, j)
+    for i, j in cmap:
+        orig_qc.swap(i, j)
+    for i, j in cmap:
+        orig_qc.h(i)
+        orig_qc.cx(i, j)
+    for i, j in cmap[:4]:
+        orig_qc.swap(i, j)
+    for i, j in cmap:
+        orig_qc.cx(i, j)
+    return orig_qc
 
 
 def test_permutation_collection_pass(random_circuit_transpiled):
@@ -74,3 +96,26 @@ def test_permutation_collection_min_block_size(swap_circ):
         len(g.qubits) >= 7 or g.operation.name.lower() != "permutation"
         for g in collected_circuit
     )
+
+
+def test_permutation_collector(permutations_circuit, backend_27q, cmap_backend):
+    qiskit_lvl3_transpiler = generate_preset_pass_manager(
+        optimization_level=1, coupling_map=cmap_backend[backend_27q]
+    )
+    permutations_circuit = qiskit_lvl3_transpiler.run(permutations_circuit)
+
+    pm = PassManager(
+        [
+            CollectPermutations(max_block_size=27),
+        ]
+    )
+    perm_only_circ = pm.run(permutations_circuit)
+    from qiskit.converters import circuit_to_dag
+
+    dag = circuit_to_dag(perm_only_circ)
+    perm_nodes = dag.named_nodes("permutation", "Permutation")
+    assert len(perm_nodes) == 2
+    assert perm_nodes[0].op.num_qubits == 27
+    assert perm_nodes[1].op.num_qubits == 4
+    assert not dag.named_nodes("linear_function", "Linear_function")
+    assert not dag.named_nodes("clifford", "Clifford")

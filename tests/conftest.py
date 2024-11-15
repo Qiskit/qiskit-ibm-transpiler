@@ -59,6 +59,13 @@ def backend_27q():
 
 
 @pytest.fixture(scope="module")
+def peekskill_coupling_map_list_format(backend_27q, cmap_backend):
+    coupling_map = cmap_backend[backend_27q]
+
+    return list(coupling_map.get_edges())
+
+
+@pytest.fixture(scope="module")
 def coupling_map():
     return FakeQuebec().coupling_map
 
