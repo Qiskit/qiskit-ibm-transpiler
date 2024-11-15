@@ -44,6 +44,7 @@ class AICliffordAPI(QiskitTranspilerService):
         backend: Union[Backend, None] = None,
     ):
         if coupling_map is not None:
+            logger.info("Running synthesis against the Qiskit Transpiler Service")
             transpile_resps = self.request_and_wait(
                 endpoint="transpile",
                 body={
@@ -56,6 +57,7 @@ class AICliffordAPI(QiskitTranspilerService):
                 params=dict(),
             )
         elif backend_name is not None:
+            logger.info("Running synthesis against the Qiskit Transpiler Service")
             transpile_resps = self.request_and_wait(
                 endpoint="transpile",
                 body={
