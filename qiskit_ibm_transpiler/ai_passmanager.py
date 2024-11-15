@@ -37,6 +37,8 @@ def generate_ai_pass_manager(
     ],
     qiskit_transpile_options: dict = {},
 ):
+    if qiskit_transpile_options is None:
+        qiskit_transpile_options = {}
     # If optimization_level is part of the qiskit_transpile_options,
     # remove it in favor of the request input params optimization_level
     if qiskit_transpile_options.get("optimization_level", None) is not None:
