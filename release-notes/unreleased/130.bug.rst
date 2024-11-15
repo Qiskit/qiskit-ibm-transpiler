@@ -1,0 +1,4 @@
+Bug fixes
+---------
+
+- Fix `optimization_preferences`` used in `generate_ai_pass_manager` method. Adding related tests (`130 <https://github.com/Qiskit/qiskit-ibm-transpiler/pull/130>`__)
