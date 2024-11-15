@@ -57,7 +57,7 @@ setup(
     keywords=["qiskit", "ai", "transpiler", "routing"],
     install_requires=requirements,
     extras_require={
-        "ai-local-mode": ["qiskit-ibm-ai-local-transpiler", "qiskit-ibm-runtime>=0.26.0"],
+        "ai-local-mode": ["qiskit-ibm-ai-local-transpiler", "qiskit-ibm-runtime>=0.23.0"],
     },
     project_urls={
         "Bug Tracker": "https://github.com/Qiskit/qiskit-ibm-transpiler/issues",
