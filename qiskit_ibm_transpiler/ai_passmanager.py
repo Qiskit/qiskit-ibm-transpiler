@@ -35,7 +35,7 @@ def generate_ai_pass_manager(
         "layers",
         "n_gates",
     ],
-    qiskit_transpile_options: dict = {},
+    qiskit_transpile_options: dict = None,
 ):
     if qiskit_transpile_options is None:
         qiskit_transpile_options = {}
