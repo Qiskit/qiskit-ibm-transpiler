@@ -284,7 +284,7 @@ def cmap_backend():
     }
 
 
-@pytest.fixture
+@pytest.fixture(scope="module")
 def basic_cnot_circuit():
     circuit = QuantumCircuit(3)
     circuit.cx(0, 1)

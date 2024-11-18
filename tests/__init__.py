@@ -10,4 +10,8 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-from .conftest import brisbane_coupling_map, brisbane_coupling_map_list_format
+from .conftest import (
+    brisbane_coupling_map,
+    brisbane_coupling_map_list_format,
+    basic_cnot_circuit,
+)
