@@ -38,29 +38,6 @@ def basic_swap_circuit():
     return circuit
 
 
-# TODO: All the tests that use this circuit keeps the original circuit. Check if this is the better option
-# for doing those tests
-@pytest.fixture
-def permutation_circuit(peekskill_coupling_map_list_format):
-    circuit = QuantumCircuit(27)
-    coupling_map = peekskill_coupling_map_list_format
-
-    for i, j in coupling_map:
-        circuit.h(i)
-        circuit.cx(i, j)
-    for i, j in coupling_map:
-        circuit.swap(i, j)
-    for i, j in coupling_map:
-        circuit.h(i)
-        circuit.cx(i, j)
-    for i, j in coupling_map[:4]:
-        circuit.swap(i, j)
-    for i, j in coupling_map:
-        circuit.cx(i, j)
-
-    return circuit
-
-
 @pytest.fixture
 def brisbane_backend_name():
     return "ibm_brisbane"

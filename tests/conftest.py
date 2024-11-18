@@ -300,24 +300,27 @@ def brisbane_backend():
     return backend
 
 
+# TODO: All the tests that use this circuit keeps the original circuit. Check if this is the better option
+# for doing those tests
 @pytest.fixture
-def permutation_circuit(backend_27q, cmap_backend):
-    coupling_map = cmap_backend[backend_27q]
-    cmap = list(coupling_map.get_edges())
-    orig_qc = QuantumCircuit(27)
-    for i, j in cmap:
-        orig_qc.h(i)
-        orig_qc.cx(i, j)
-    for i, j in cmap:
-        orig_qc.swap(i, j)
-    for i, j in cmap:
-        orig_qc.h(i)
-        orig_qc.cx(i, j)
-    for i, j in cmap[:4]:
-        orig_qc.swap(i, j)
-    for i, j in cmap:
-        orig_qc.cx(i, j)
-    return orig_qc
+def permutation_circuit(peekskill_coupling_map_list_format):
+    circuit = QuantumCircuit(27)
+    coupling_map = peekskill_coupling_map_list_format
+
+    for i, j in coupling_map:
+        circuit.h(i)
+        circuit.cx(i, j)
+    for i, j in coupling_map:
+        circuit.swap(i, j)
+    for i, j in coupling_map:
+        circuit.h(i)
+        circuit.cx(i, j)
+    for i, j in coupling_map[:4]:
+        circuit.swap(i, j)
+    for i, j in coupling_map:
+        circuit.cx(i, j)
+
+    return circuit
 
 
 @pytest.fixture
