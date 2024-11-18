@@ -21,15 +21,6 @@ from qiskit_ibm_transpiler.utils import random_clifford_from_linear_function
 from tests import brisbane_coupling_map, brisbane_coupling_map_list_format
 
 
-@pytest.fixture
-def basic_cnot_circuit():
-    circuit = QuantumCircuit(3)
-    circuit.cx(0, 1)
-    circuit.cx(1, 2)
-
-    return circuit
-
-
 # TODO: All the tests that use this circuit keeps the original circuit. Check if this is the better option
 # for doing those tests
 @pytest.fixture

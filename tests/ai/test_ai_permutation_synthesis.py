@@ -21,15 +21,6 @@ from tests import brisbane_coupling_map, brisbane_coupling_map_list_format
 
 
 @pytest.fixture
-def basic_cnot_circuit():
-    circuit = QuantumCircuit(3)
-    circuit.cx(0, 1)
-    circuit.cx(1, 2)
-
-    return circuit
-
-
-@pytest.fixture
 def basic_swap_circuit():
     circuit = QuantumCircuit(3)
     circuit.swap(0, 1)
