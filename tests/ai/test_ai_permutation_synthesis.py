@@ -223,9 +223,9 @@ def test_ai_permutation_synthesis_keep_original_if_better(
     ids=["default_local_mode", "specify_local_mode", "specify_cloud_mode"],
 )
 def test_ai_permutation_synthesis_pass_with_backend_name(
-    permutation_circuit, brisbane_backend_name, caplog, local_mode
+    permutation_circuit_brisbane, brisbane_backend_name, caplog, local_mode
 ):
-    original_circuit = permutation_circuit
+    original_circuit = permutation_circuit_brisbane
 
     ai_permutation_synthesis_pass = PassManager(
         [
@@ -248,9 +248,9 @@ def test_ai_permutation_synthesis_pass_with_backend_name(
     ids=["default_local_mode", "specify_local_mode", "specify_cloud_mode"],
 )
 def test_ai_permutation_synthesis_pass_with_backend(
-    permutation_circuit, brisbane_backend, caplog, local_mode
+    permutation_circuit_brisbane, brisbane_backend, caplog, local_mode
 ):
-    original_circuit = permutation_circuit
+    original_circuit = permutation_circuit_brisbane
 
     ai_permutation_synthesis_pass = PassManager(
         [
@@ -278,9 +278,9 @@ def test_ai_permutation_synthesis_pass_with_backend(
     ids=["coupling_map_object", "coupling_map_list"],
 )
 def test_ai_permutation_synthesis_pass_with_coupling_map(
-    permutation_circuit, caplog, local_mode, coupling_map
+    permutation_circuit_brisbane, caplog, local_mode, coupling_map
 ):
-    original_circuit = permutation_circuit
+    original_circuit = permutation_circuit_brisbane
 
     ai_permutation_synthesis_pass = PassManager(
         [
