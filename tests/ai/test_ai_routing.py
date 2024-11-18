@@ -20,67 +20,10 @@ from qiskit.transpiler.exceptions import TranspilerError
 from qiskit_ibm_transpiler.ai.routing import AIRouting
 
 
-@pytest.mark.parametrize("optimization_level", [0, 4])
-def test_qv_routing_wrong_opt_level(optimization_level, backend, qv_circ):
-    with pytest.raises(
-        ValueError,
-        match=r"ERROR. The optimization_level should be a value between 1 and 3.",
-    ):
-        pm = PassManager(
-            [
-                AIRouting(
-                    optimization_level=optimization_level,
-                    backend_name=backend,
-                    local_mode=False,
-                )
-            ]
-        )
-        pm.run(qv_circ)
-
-
-@pytest.mark.parametrize("optimization_preferences", ["foo"])
-def test_qv_routing_wrong_opt_preferences(optimization_preferences, backend, qv_circ):
-    with pytest.raises(
-        ValueError,
-        match=r"'\w+' is not a valid optimization preference",
-    ):
-        pm = PassManager(
-            [
-                AIRouting(
-                    optimization_preferences=optimization_preferences,
-                    backend_name=backend,
-                    local_mode=False,
-                )
-            ]
-        )
-        pm.run(qv_circ)
-
-
-@pytest.mark.parametrize("layout_mode", ["RECREATE", "BOOST"])
-def test_qv_routing_wrong_layout_mode(layout_mode, backend, qv_circ):
-    with pytest.raises(ValueError):
-        PassManager(
-            [AIRouting(layout_mode=layout_mode, backend_name=backend, local_mode=False)]
-        )
-
-
-def test_routing_wrong_backend(random_circuit_transpiled):
-    with pytest.raises(
-        TranspilerError,
-        match=r"User doesn\'t have access to the specified backend: \w+",
-    ):
-        ai_optimize_lf = PassManager(
-            [
-                AIRouting(backend_name="wrong_backend", local_mode=False),
-            ]
-        )
-        ai_optimize_lf.run(random_circuit_transpiled)
-
-
 @pytest.mark.skip(
     reason="Unreliable. It passes most of the times with the timeout of 1 second for the current circuits used"
 )
-def test_routing_exceed_timeout(qv_circ, backend):
+def test_ai_cloud_routing_pass_exceed_timeout(qv_circ, backend):
     ai_optimize_lf = PassManager(
         [
             AIRouting(backend_name=backend, timeout=1, local_mode=False),
@@ -90,7 +33,7 @@ def test_routing_exceed_timeout(qv_circ, backend):
     assert isinstance(ai_optimized_circuit, QuantumCircuit)
 
 
-def test_routing_wrong_token(qv_circ, backend):
+def test_ai_cloud_routing_pass_wrong_token(qv_circ, backend):
     ai_optimize_lf = PassManager(
         [
             AIRouting(backend_name=backend, token="invented_token_2", local_mode=False),
@@ -104,7 +47,7 @@ def test_routing_wrong_token(qv_circ, backend):
 
 
 @pytest.mark.disable_monkeypatch
-def test_routing_wrong_url(qv_circ, backend):
+def test_ai_cloud_routing_pass_wrong_url(qv_circ, backend):
     ai_optimize_lf = PassManager(
         [
             AIRouting(
@@ -121,7 +64,7 @@ def test_routing_wrong_url(qv_circ, backend):
 
 
 @pytest.mark.disable_monkeypatch
-def test_routing_unexisting_url(qv_circ, backend):
+def test_ai_cloud_routing_pass_unexisting_url(qv_circ, backend):
     ai_optimize_lf = PassManager(
         [
             AIRouting(
@@ -143,13 +86,106 @@ def test_routing_unexisting_url(qv_circ, backend):
         assert type(e).__name__ == "TranspilerError"
 
 
+@pytest.mark.parametrize(
+    "local_mode, error_type",
+    [(True, PermissionError), (False, TranspilerError)],
+    ids=["local_mode", "cloud_mode"],
+)
+def test_routing_wrong_backend(error_type, local_mode, random_circuit_transpiled):
+    with pytest.raises(
+        error_type,
+        match=r"User doesn\'t have access to the specified backend: \w+",
+    ):
+        ai_optimize_lf = PassManager(
+            [
+                AIRouting(backend_name="wrong_backend", local_mode=local_mode),
+            ]
+        )
+        ai_optimize_lf.run(random_circuit_transpiled)
+
+
+@pytest.mark.parametrize("optimization_level", [0, 4])
+@pytest.mark.parametrize(
+    "local_mode",
+    ["true", "false"],
+    ids=["local_mode", "cloud_mode"],
+)
+def test_qv_routing_wrong_opt_level(optimization_level, local_mode, backend, qv_circ):
+    with pytest.raises(
+        ValueError,
+        match=r"ERROR. The optimization_level should be a value between 1 and 3.",
+    ):
+        pm = PassManager(
+            [
+                AIRouting(
+                    optimization_level=optimization_level,
+                    backend_name=backend,
+                    local_mode=local_mode,
+                )
+            ]
+        )
+        pm.run(qv_circ)
+
+
+@pytest.mark.parametrize("optimization_preferences", ["foo"])
+@pytest.mark.parametrize(
+    "local_mode",
+    ["true", "false"],
+    ids=["local_mode", "cloud_mode"],
+)
+def test_qv_routing_wrong_opt_preferences(
+    optimization_preferences, local_mode, backend, qv_circ
+):
+    with pytest.raises(
+        ValueError,
+        match=r"'\w+' is not a valid optimization preference",
+    ):
+        pm = PassManager(
+            [
+                AIRouting(
+                    optimization_preferences=optimization_preferences,
+                    backend_name=backend,
+                    local_mode=local_mode,
+                )
+            ]
+        )
+        pm.run(qv_circ)
+
+
+@pytest.mark.parametrize("layout_mode", ["RECREATE", "BOOST"])
+@pytest.mark.parametrize(
+    "local_mode",
+    ["true", "false"],
+    ids=["local_mode", "cloud_mode"],
+)
+def test_qv_routing_wrong_layout_mode(layout_mode, local_mode, backend, qv_circ):
+    with pytest.raises(ValueError):
+        PassManager(
+            [
+                AIRouting(
+                    layout_mode=layout_mode, backend_name=backend, local_mode=local_mode
+                )
+            ]
+        )
+
+
 @pytest.mark.parametrize("layout_mode", ["KEEP", "OPTIMIZE", "IMPROVE"])
 @pytest.mark.parametrize("optimization_level", [1, 2, 3])
 @pytest.mark.parametrize(
     "optimization_preferences", [None, "noise", ["noise", "n_cnots"]]
 )
+@pytest.mark.parametrize(
+    "local_mode",
+    ["true", "false"],
+    ids=["local_mode", "cloud_mode"],
+)
 def test_qv_routing(
-    optimization_level, layout_mode, optimization_preferences, backend, qv_circ
+    optimization_level,
+    layout_mode,
+    optimization_preferences,
+    local_mode,
+    backend,
+    qv_circ,
 ):
     pm = PassManager(
         [
@@ -158,7 +194,7 @@ def test_qv_routing(
                 layout_mode=layout_mode,
                 backend_name=backend,
                 optimization_preferences=optimization_preferences,
-                local_mode=False,
+                local_mode=local_mode,
             )
         ]
     )
