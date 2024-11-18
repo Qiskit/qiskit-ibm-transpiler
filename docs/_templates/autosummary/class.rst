@@ -9,13 +9,14 @@
 
 .. autoclass:: {{ objname }}
    :no-members:
+   :no-inherited-members:
+   :no-special-members:
    :show-inheritance:
 
 {% block attributes_summary %}
-  {% set wanted_attributes = (attributes | reject('in', inherited_members) | list) %}
-  {% if wanted_attributes %}
+  {% if attributes %}
    .. rubric:: Attributes
-    {% for item in wanted_attributes %}
+    {% for item in attributes %}
    .. autoattribute:: {{ item }}
     {%- endfor %}
   {% endif %}
