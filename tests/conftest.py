@@ -294,10 +294,25 @@ def basic_cnot_circuit():
 
 
 @pytest.fixture
-def brisbane_backend():
-    backend = QiskitRuntimeService().backend("ibm_brisbane")
+def brisbane_backend_name():
+    return "ibm_brisbane"
+
+
+@pytest.fixture
+def brisbane_backend(brisbane_backend_name):
+    backend = QiskitRuntimeService().backend(brisbane_backend_name)
 
     return backend
+
+
+@pytest.fixture(scope="module")
+def brisbane_coupling_map(brisbane_backend):
+    return brisbane_backend.coupling_map
+
+
+@pytest.fixture(scope="module")
+def brisbane_coupling_map_list_format(brisbane_backend):
+    return list(brisbane_backend.coupling_map.get_edges())
 
 
 # TODO: All the tests that use this circuit keeps the original circuit. Check if this is the better option

@@ -17,7 +17,7 @@ from qiskit.transpiler import PassManager
 
 from qiskit_ibm_transpiler.ai.collection import CollectPermutations
 from qiskit_ibm_transpiler.ai.synthesis import AIPermutationSynthesis
-from qiskit_ibm_runtime import QiskitRuntimeService
+from tests import brisbane_coupling_map, brisbane_coupling_map_list_format
 
 
 @pytest.fixture
@@ -36,28 +36,6 @@ def basic_swap_circuit():
     circuit.swap(1, 2)
 
     return circuit
-
-
-@pytest.fixture
-def brisbane_backend_name():
-    return "ibm_brisbane"
-
-
-@pytest.fixture
-def brisbane_backend(brisbane_backend_name):
-    backend = QiskitRuntimeService().backend(brisbane_backend_name)
-
-    return backend
-
-
-@pytest.fixture
-def brisbane_coupling_map(brisbane_backend):
-    return brisbane_backend.coupling_map
-
-
-@pytest.fixture
-def brisbane_coupling_map_list_format(brisbane_backend):
-    return list(brisbane_backend.coupling_map.get_edges())
 
 
 # TODO: When testing the permutation synthesis with wrong backend, local and cloud behaves differently,

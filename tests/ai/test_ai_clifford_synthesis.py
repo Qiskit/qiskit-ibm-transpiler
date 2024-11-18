@@ -18,7 +18,7 @@ from qiskit.transpiler import PassManager
 from qiskit_ibm_transpiler.ai.collection import CollectCliffords
 from qiskit_ibm_transpiler.ai.synthesis import AICliffordSynthesis
 from qiskit_ibm_transpiler.utils import random_clifford_from_linear_function
-from qiskit_ibm_runtime import QiskitRuntimeService
+from tests import brisbane_coupling_map, brisbane_coupling_map_list_format
 
 
 @pytest.fixture
@@ -42,28 +42,6 @@ def clifford_circuit():
     circuit = circuit.decompose(reps=1)
 
     return circuit
-
-
-@pytest.fixture
-def brisbane_backend_name():
-    return "ibm_brisbane"
-
-
-@pytest.fixture
-def brisbane_backend(brisbane_backend_name):
-    backend = QiskitRuntimeService().backend(brisbane_backend_name)
-
-    return backend
-
-
-@pytest.fixture
-def brisbane_coupling_map(brisbane_backend):
-    return brisbane_backend.coupling_map
-
-
-@pytest.fixture
-def brisbane_coupling_map_list_format(brisbane_backend):
-    return list(brisbane_backend.coupling_map.get_edges())
 
 
 # TODO: When testing the clifford synthesis with wrong backend, local and cloud behaves differently,

@@ -18,7 +18,6 @@ from qiskit.transpiler import PassManager
 from qiskit_ibm_transpiler.ai.collection import CollectLinearFunctions
 from qiskit_ibm_transpiler.ai.synthesis import AILinearFunctionSynthesis
 from qiskit_ibm_transpiler.utils import create_random_linear_function
-from qiskit_ibm_runtime import QiskitRuntimeService
 
 
 @pytest.fixture
@@ -42,18 +41,6 @@ def linear_function_circuit():
     circuit = circuit.decompose(reps=1)
 
     return circuit
-
-
-@pytest.fixture
-def brisbane_backend_name():
-    return "ibm_brisbane"
-
-
-@pytest.fixture
-def brisbane_backend():
-    backend = QiskitRuntimeService().backend("ibm_brisbane")
-
-    return backend
 
 
 # TODO: When testing the linear function synthesis with wrong backend, local and cloud behaves differently,
