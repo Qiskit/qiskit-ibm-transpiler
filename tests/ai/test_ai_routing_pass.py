@@ -20,6 +20,14 @@ from qiskit.transpiler.exceptions import TranspilerError
 from qiskit_ibm_transpiler.ai.routing import AIRouting
 
 
+def parametrize_local_mode():
+    return pytest.mark.parametrize(
+        "local_mode",
+        [True, False],
+        ids=["local_mode", "cloud_mode"],
+    )
+
+
 @pytest.mark.skip(
     reason="Unreliable. It passes most of the times with the timeout of 1 second for the current circuits used"
 )
@@ -113,11 +121,7 @@ def test_ai_routing_pass_wrong_backend(
 
 
 @pytest.mark.parametrize("optimization_level", [0, 4])
-@pytest.mark.parametrize(
-    "local_mode",
-    ["true", "false"],
-    ids=["local_mode", "cloud_mode"],
-)
+@parametrize_local_mode()
 def test_ai_routing_pass_wrong_opt_level(
     optimization_level, local_mode, brisbane_backend_name, qv_circ
 ):
@@ -138,11 +142,7 @@ def test_ai_routing_pass_wrong_opt_level(
 
 
 @pytest.mark.parametrize("optimization_level", [1, 2, 3])
-@pytest.mark.parametrize(
-    "local_mode",
-    ["true", "false"],
-    ids=["local_mode", "cloud_mode"],
-)
+@parametrize_local_mode()
 def test_ai_routing_pass_valid_opt_level(
     optimization_level,
     local_mode,
@@ -165,11 +165,7 @@ def test_ai_routing_pass_valid_opt_level(
 
 
 @pytest.mark.parametrize("optimization_preferences", ["foo"])
-@pytest.mark.parametrize(
-    "local_mode",
-    ["true", "false"],
-    ids=["local_mode", "cloud_mode"],
-)
+@parametrize_local_mode()
 def test_ai_routing_pass_wrong_opt_preferences(
     optimization_preferences, local_mode, brisbane_backend_name, qv_circ
 ):
@@ -192,11 +188,7 @@ def test_ai_routing_pass_wrong_opt_preferences(
 @pytest.mark.parametrize(
     "optimization_preferences", [None, "noise", ["noise", "n_cnots"]]
 )
-@pytest.mark.parametrize(
-    "local_mode",
-    ["true", "false"],
-    ids=["local_mode", "cloud_mode"],
-)
+@parametrize_local_mode()
 def test_ai_routing_pass_valid_opt_preferences(
     optimization_preferences,
     local_mode,
@@ -219,11 +211,7 @@ def test_ai_routing_pass_valid_opt_preferences(
 
 
 @pytest.mark.parametrize("layout_mode", ["RECREATE", "BOOST"])
-@pytest.mark.parametrize(
-    "local_mode",
-    ["true", "false"],
-    ids=["local_mode", "cloud_mode"],
-)
+@parametrize_local_mode()
 def test_ai_routing_pass_wrong_layout_mode(
     layout_mode, local_mode, brisbane_backend_name
 ):
@@ -240,11 +228,7 @@ def test_ai_routing_pass_wrong_layout_mode(
 
 
 @pytest.mark.parametrize("layout_mode", ["KEEP", "OPTIMIZE", "IMPROVE"])
-@pytest.mark.parametrize(
-    "local_mode",
-    ["true", "false"],
-    ids=["local_mode", "cloud_mode"],
-)
+@parametrize_local_mode()
 def test_ai_routing_pass_valid_layout_mode(
     layout_mode,
     local_mode,
@@ -266,11 +250,7 @@ def test_ai_routing_pass_valid_layout_mode(
     assert isinstance(circuit, QuantumCircuit)
 
 
-@pytest.mark.parametrize(
-    "local_mode",
-    ["true", "false"],
-    ids=["local_mode", "cloud_mode"],
-)
+@parametrize_local_mode()
 def test_ai_routing_pass_with_backend_name(
     local_mode,
     brisbane_backend_name,
@@ -290,11 +270,7 @@ def test_ai_routing_pass_with_backend_name(
     assert isinstance(circuit, QuantumCircuit)
 
 
-@pytest.mark.parametrize(
-    "local_mode",
-    ["true", "false"],
-    ids=["local_mode", "cloud_mode"],
-)
+@parametrize_local_mode()
 def test_ai_routing_pass_with_backend(
     local_mode,
     brisbane_backend,
@@ -319,11 +295,7 @@ def test_ai_routing_pass_with_backend(
     ["brisbane_coupling_map", "brisbane_coupling_map_list_format"],
     ids=["coupling_map_object", "coupling_map_list"],
 )
-@pytest.mark.parametrize(
-    "local_mode",
-    ["true", "false"],
-    ids=["local_mode", "cloud_mode"],
-)
+@parametrize_local_mode()
 def test_ai_routing_pass_with_coupling_map(
     coupling_map,
     local_mode,

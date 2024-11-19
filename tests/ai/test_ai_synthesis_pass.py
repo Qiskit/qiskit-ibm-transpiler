@@ -35,7 +35,7 @@ from qiskit_ibm_transpiler.utils import (
 
 
 # TODO: For Permutations, the original circuit doesn't return a DAGCircuit with nodes. Decide how the code should behave on this case
-def customize_synthesis_type_with_basic_circuit():
+def parametrize_basic_circuit_collector_pass_and_ai_synthesis_pass():
     return pytest.mark.parametrize(
         "circuit, collector_pass, ai_synthesis_pass",
         [
@@ -53,7 +53,7 @@ def customize_synthesis_type_with_basic_circuit():
     )
 
 
-def customize_synthesis_type_with_complex_circuit():
+def parametrize_complex_circuit_collector_pass_and_ai_synthesis_pass():
     return pytest.mark.parametrize(
         "circuit, collector_pass, ai_synthesis_pass",
         [
@@ -78,7 +78,7 @@ def customize_synthesis_type_with_complex_circuit():
     )
 
 
-def customize_local_mode():
+def parametrize_local_mode():
     return pytest.mark.parametrize(
         "local_mode",
         [True, False],
@@ -125,7 +125,7 @@ def clifford_circuit():
 
 # TODO: When testing the synthesis with wrong backend, local and cloud behaves differently,
 # so we should decide if this is correct or if we want to unify them
-@customize_synthesis_type_with_basic_circuit()
+@parametrize_basic_circuit_collector_pass_and_ai_synthesis_pass()
 def test_ai_local_synthesis_wrong_backend(
     circuit, collector_pass, ai_synthesis_pass, request
 ):
@@ -149,7 +149,7 @@ def test_ai_local_synthesis_wrong_backend(
 
 
 # TODO: Tests pass if we add min_block_size=2, max_block_size=27 to collector_pass. If not, tests failed. Confirm why this is happening
-@customize_synthesis_type_with_basic_circuit()
+@parametrize_basic_circuit_collector_pass_and_ai_synthesis_pass()
 def test_ai_cloud_synthesis_wrong_backend(
     circuit, collector_pass, ai_synthesis_pass, caplog, request
 ):
@@ -176,7 +176,7 @@ def test_ai_cloud_synthesis_wrong_backend(
 @pytest.mark.skip(
     reason="Unreliable. It passes most of the times with the timeout of 1 second for the current circuits used"
 )
-@customize_synthesis_type_with_basic_circuit()
+@parametrize_basic_circuit_collector_pass_and_ai_synthesis_pass()
 def test_ai_cloud_synthesis_exceed_timeout(
     circuit, collector_pass, ai_synthesis_pass, brisbane_backend_name, caplog, request
 ):
@@ -199,7 +199,7 @@ def test_ai_cloud_synthesis_exceed_timeout(
 
 
 # TODO: Tests pass if we add min_block_size=2, max_block_size=27 to CollectPermutations. If not, tests failed. Confirm why this is happening
-@customize_synthesis_type_with_basic_circuit()
+@parametrize_basic_circuit_collector_pass_and_ai_synthesis_pass()
 def test_ai_cloud_synthesis_wrong_token(
     circuit, collector_pass, ai_synthesis_pass, brisbane_backend_name, caplog, request
 ):
@@ -226,7 +226,7 @@ def test_ai_cloud_synthesis_wrong_token(
 
 # TODO: Tests pass if we add min_block_size=2, max_block_size=27 to CollectPermutations. If not, tests failed. Confirm why this is happening
 @pytest.mark.disable_monkeypatch
-@customize_synthesis_type_with_basic_circuit()
+@parametrize_basic_circuit_collector_pass_and_ai_synthesis_pass()
 def test_ai_cloud_synthesis_wrong_url(
     circuit, collector_pass, ai_synthesis_pass, brisbane_backend_name, caplog, request
 ):
@@ -251,7 +251,7 @@ def test_ai_cloud_synthesis_wrong_url(
 
 # TODO: When using basic_swap_circuit it works, when using random_circuit_transpiled doesn't. Check why
 @pytest.mark.disable_monkeypatch
-@customize_synthesis_type_with_basic_circuit()
+@parametrize_basic_circuit_collector_pass_and_ai_synthesis_pass()
 def test_ai_cloud_synthesis_unexisting_url(
     circuit, collector_pass, ai_synthesis_pass, brisbane_backend_name, caplog, request
 ):
@@ -279,8 +279,8 @@ def test_ai_cloud_synthesis_unexisting_url(
     assert isinstance(ai_optimized_circuit, QuantumCircuit)
 
 
-@customize_synthesis_type_with_basic_circuit()
-@customize_local_mode()
+@parametrize_basic_circuit_collector_pass_and_ai_synthesis_pass()
+@parametrize_local_mode()
 def test_ai_synthesis_always_replace_original_circuit(
     circuit,
     collector_pass,
@@ -313,8 +313,8 @@ def test_ai_synthesis_always_replace_original_circuit(
     assert isinstance(ai_optimized_circuit, QuantumCircuit)
 
 
-@customize_synthesis_type_with_basic_circuit()
-@customize_local_mode()
+@parametrize_basic_circuit_collector_pass_and_ai_synthesis_pass()
+@parametrize_local_mode()
 def test_ai_synthesis_keep_original_if_better(
     circuit,
     collector_pass,
@@ -346,8 +346,8 @@ def test_ai_synthesis_keep_original_if_better(
     assert "Keeping the original circuit" in caplog.text
 
 
-@customize_synthesis_type_with_complex_circuit()
-@customize_local_mode()
+@parametrize_complex_circuit_collector_pass_and_ai_synthesis_pass()
+@parametrize_local_mode()
 def test_ai_synthesis_pass_with_backend_name(
     circuit,
     collector_pass,
@@ -377,8 +377,8 @@ def test_ai_synthesis_pass_with_backend_name(
     assert all(word in caplog.text for word in ["Running", "synthesis"])
 
 
-@customize_synthesis_type_with_complex_circuit()
-@customize_local_mode()
+@parametrize_complex_circuit_collector_pass_and_ai_synthesis_pass()
+@parametrize_local_mode()
 def test_ai_synthesis_pass_with_backend(
     circuit,
     collector_pass,
@@ -407,8 +407,8 @@ def test_ai_synthesis_pass_with_backend(
 
 
 # TODO: The tests pass but some errors are logged. Check this
-@customize_synthesis_type_with_complex_circuit()
-@customize_local_mode()
+@parametrize_complex_circuit_collector_pass_and_ai_synthesis_pass()
+@parametrize_local_mode()
 @pytest.mark.parametrize(
     "coupling_map",
     ["brisbane_coupling_map", "brisbane_coupling_map_list_format"],
