@@ -18,7 +18,6 @@ from qiskit.transpiler import PassManager
 from qiskit.transpiler.exceptions import TranspilerError
 
 from qiskit_ibm_transpiler.ai.routing import AIRouting
-from tests import brisbane_coupling_map, brisbane_coupling_map_list_format
 
 
 @pytest.mark.skip(
@@ -317,8 +316,7 @@ def test_ai_routing_pass_with_backend(
 
 @pytest.mark.parametrize(
     "coupling_map",
-    [brisbane_coupling_map, brisbane_coupling_map_list_format],
-    indirect=True,
+    ["brisbane_coupling_map", "brisbane_coupling_map_list_format"],
     ids=["coupling_map_object", "coupling_map_list"],
 )
 @pytest.mark.parametrize(
@@ -330,7 +328,10 @@ def test_ai_routing_pass_with_coupling_map(
     coupling_map,
     local_mode,
     qv_circ,
+    request,
 ):
+    coupling_map = request.getfixturevalue(coupling_map)
+
     ai_routing_pass = PassManager(
         [
             AIRouting(

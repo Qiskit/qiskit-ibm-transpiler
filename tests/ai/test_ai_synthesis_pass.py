@@ -21,10 +21,6 @@ from qiskit_ibm_transpiler.ai.collection import CollectCliffords
 from qiskit_ibm_transpiler.ai.synthesis import AIPermutationSynthesis
 from qiskit_ibm_transpiler.ai.synthesis import AILinearFunctionSynthesis
 from qiskit_ibm_transpiler.ai.synthesis import AICliffordSynthesis
-from tests import (
-    brisbane_coupling_map,
-    brisbane_coupling_map_list_format,
-)
 from qiskit_ibm_transpiler.utils import (
     create_random_linear_function,
     random_clifford_from_linear_function,
@@ -383,8 +379,7 @@ def test_ai_synthesis_pass_with_backend(
 @customize_local_mode()
 @pytest.mark.parametrize(
     "coupling_map",
-    [brisbane_coupling_map, brisbane_coupling_map_list_format],
-    indirect=True,
+    ["brisbane_coupling_map", "brisbane_coupling_map_list_format"],
     ids=["coupling_map_object", "coupling_map_list"],
 )
 def test_ai_synthesis_pass_with_coupling_map(
@@ -397,6 +392,7 @@ def test_ai_synthesis_pass_with_coupling_map(
     request,
 ):
     original_circuit = request.getfixturevalue(circuit)
+    coupling_map = request.getfixturevalue(coupling_map)
 
     custom_ai_synthesis_pass = PassManager(
         [
