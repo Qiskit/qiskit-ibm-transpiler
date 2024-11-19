@@ -15,12 +15,19 @@ import pytest
 from qiskit import QuantumCircuit
 from qiskit.transpiler import PassManager
 
-from qiskit_ibm_transpiler.ai.collection import CollectPermutations
-from qiskit_ibm_transpiler.ai.collection import CollectLinearFunctions
-from qiskit_ibm_transpiler.ai.collection import CollectCliffords
-from qiskit_ibm_transpiler.ai.synthesis import AIPermutationSynthesis
-from qiskit_ibm_transpiler.ai.synthesis import AILinearFunctionSynthesis
-from qiskit_ibm_transpiler.ai.synthesis import AICliffordSynthesis
+from qiskit_ibm_transpiler.ai.collection import (
+    CollectPermutations,
+    CollectLinearFunctions,
+    CollectCliffords,
+    CollectPauliNetworks,
+)
+from qiskit_ibm_transpiler.ai.synthesis import (
+    AIPermutationSynthesis,
+    AILinearFunctionSynthesis,
+    AICliffordSynthesis,
+    AIPauliNetworkSynthesis,
+)
+
 from qiskit_ibm_transpiler.utils import (
     create_random_linear_function,
     random_clifford_from_linear_function,
@@ -35,9 +42,14 @@ def customize_synthesis_type_with_basic_circuit():
             # ("basic_swap_circuit", CollectPermutations, AIPermutationSynthesis),
             ("basic_cnot_circuit", CollectLinearFunctions, AILinearFunctionSynthesis),
             ("basic_cnot_circuit", CollectCliffords, AICliffordSynthesis),
+            (
+                "random_circuit_transpiled",
+                CollectPauliNetworks,
+                AIPauliNetworkSynthesis,
+            ),
         ],
         # ids=["permutation", "linear_function", "clifford"],
-        ids=["linear_function", "clifford"],
+        ids=["linear_function", "clifford", "pauli_network"],
     )
 
 
@@ -56,15 +68,20 @@ def customize_synthesis_type_with_complex_circuit():
                 AILinearFunctionSynthesis,
             ),
             ("clifford_circuit", CollectCliffords, AICliffordSynthesis),
+            (
+                "random_pauli_circuit_transpiled",
+                CollectPauliNetworks,
+                AIPauliNetworkSynthesis,
+            ),
         ],
-        ids=["permutation", "linear_function", "clifford"],
+        ids=["permutation", "linear_function", "clifford", "pauli_network"],
     )
 
 
 def customize_local_mode():
     return pytest.mark.parametrize(
         "local_mode",
-        ["true", "false"],
+        [True, False],
         ids=["local_mode", "cloud_mode"],
     )
 
@@ -112,6 +129,9 @@ def clifford_circuit():
 def test_ai_local_synthesis_wrong_backend(
     circuit, collector_pass, ai_synthesis_pass, request
 ):
+    if collector_pass == CollectPauliNetworks:
+        pytest.skip("Skipping test for pauli network on local mode")
+
     original_circuit = request.getfixturevalue(circuit)
 
     with pytest.raises(
@@ -270,6 +290,9 @@ def test_ai_synthesis_always_replace_original_circuit(
     caplog,
     request,
 ):
+    if collector_pass == CollectPauliNetworks and local_mode:
+        pytest.skip("Skipping test for pauli network on local mode")
+
     original_circuit = request.getfixturevalue(circuit)
 
     custom_ai_synthesis_pass = PassManager(
@@ -301,6 +324,9 @@ def test_ai_synthesis_keep_original_if_better(
     caplog,
     request,
 ):
+    if collector_pass == CollectPauliNetworks and local_mode:
+        pytest.skip("Skipping test for pauli network on local mode")
+
     original_circuit = request.getfixturevalue(circuit)
 
     custom_ai_synthesis_pass = PassManager(
@@ -331,6 +357,9 @@ def test_ai_synthesis_pass_with_backend_name(
     caplog,
     request,
 ):
+    if collector_pass == CollectPauliNetworks and local_mode:
+        pytest.skip("Skipping test for pauli network on local mode")
+
     original_circuit = request.getfixturevalue(circuit)
 
     custom_ai_synthesis_pass = PassManager(
@@ -359,6 +388,9 @@ def test_ai_synthesis_pass_with_backend(
     caplog,
     request,
 ):
+    if collector_pass == CollectPauliNetworks and local_mode:
+        pytest.skip("Skipping test for pauli network on local mode")
+
     original_circuit = request.getfixturevalue(circuit)
 
     custom_ai_synthesis_pass = PassManager(
@@ -391,6 +423,9 @@ def test_ai_synthesis_pass_with_coupling_map(
     caplog,
     request,
 ):
+    if collector_pass == CollectPauliNetworks and local_mode:
+        pytest.skip("Skipping test for pauli network on local mode")
+
     original_circuit = request.getfixturevalue(circuit)
     coupling_map = request.getfixturevalue(coupling_map)
 
