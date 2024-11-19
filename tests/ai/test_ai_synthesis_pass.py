@@ -24,12 +24,53 @@ from qiskit_ibm_transpiler.ai.synthesis import AICliffordSynthesis
 from tests import (
     brisbane_coupling_map,
     brisbane_coupling_map_list_format,
-    basic_cnot_circuit,
 )
 from qiskit_ibm_transpiler.utils import (
     create_random_linear_function,
     random_clifford_from_linear_function,
 )
+
+
+# TODO: For Permutations, the original circuit doesn't return a DAGCircuit with nodes. Decide how the code should behave on this case
+def customize_synthesis_type_with_basic_circuit():
+    return pytest.mark.parametrize(
+        "circuit, collector_pass, ai_synthesis_pass",
+        [
+            # ("basic_swap_circuit", CollectPermutations, AIPermutationSynthesis),
+            ("basic_cnot_circuit", CollectLinearFunctions, AILinearFunctionSynthesis),
+            ("basic_cnot_circuit", CollectCliffords, AICliffordSynthesis),
+        ],
+        # ids=["permutation", "linear_function", "clifford"],
+        ids=["linear_function", "clifford"],
+    )
+
+
+def customize_synthesis_type_with_complex_circuit():
+    return pytest.mark.parametrize(
+        "circuit, collector_pass, ai_synthesis_pass",
+        [
+            (
+                "permutation_circuit_brisbane",
+                CollectPermutations,
+                AIPermutationSynthesis,
+            ),
+            (
+                "linear_function_circuit",
+                CollectLinearFunctions,
+                AILinearFunctionSynthesis,
+            ),
+            ("clifford_circuit", CollectCliffords, AICliffordSynthesis),
+        ],
+        ids=["permutation", "linear_function", "clifford"],
+    )
+
+
+def customize_local_mode():
+    return pytest.mark.parametrize(
+        "local_mode",
+        ["true", "false"],
+        ids=["local_mode", "cloud_mode"],
+    )
 
 
 @pytest.fixture
@@ -71,18 +112,12 @@ def clifford_circuit():
 
 # TODO: When testing the synthesis with wrong backend, local and cloud behaves differently,
 # so we should decide if this is correct or if we want to unify them
-@pytest.mark.parametrize(
-    "original_circuit, collector_pass, ai_synthesis_pass",
-    [
-        (basic_swap_circuit, CollectPermutations, AIPermutationSynthesis),
-        (basic_cnot_circuit, CollectLinearFunctions, AILinearFunctionSynthesis),
-        (basic_cnot_circuit, CollectCliffords, AICliffordSynthesis),
-    ],
-    ids=["permutation", "linear_function", "clifford"],
-)
+@customize_synthesis_type_with_basic_circuit()
 def test_ai_local_synthesis_wrong_backend(
-    original_circuit, collector_pass, ai_synthesis_pass
+    circuit, collector_pass, ai_synthesis_pass, request
 ):
+    original_circuit = request.getfixturevalue(circuit)
+
     with pytest.raises(
         PermissionError,
         match=r"User doesn\'t have access to the specified backend: \w+",
@@ -98,15 +133,7 @@ def test_ai_local_synthesis_wrong_backend(
 
 
 # TODO: Tests pass if we add min_block_size=2, max_block_size=27 to collector_pass. If not, tests failed. Confirm why this is happening
-@pytest.mark.parametrize(
-    "circuit, collector_pass, ai_synthesis_pass",
-    [
-        ("basic_swap_circuit", CollectPermutations, AIPermutationSynthesis),
-        ("basic_cnot_circuit", CollectLinearFunctions, AILinearFunctionSynthesis),
-        ("basic_cnot_circuit", CollectCliffords, AICliffordSynthesis),
-    ],
-    ids=["permutation", "linear_function", "clifford"],
-)
+@customize_synthesis_type_with_basic_circuit()
 def test_ai_cloud_synthesis_wrong_backend(
     circuit, collector_pass, ai_synthesis_pass, caplog, request
 ):
@@ -133,15 +160,7 @@ def test_ai_cloud_synthesis_wrong_backend(
 @pytest.mark.skip(
     reason="Unreliable. It passes most of the times with the timeout of 1 second for the current circuits used"
 )
-@pytest.mark.parametrize(
-    "circuit, collector_pass, ai_synthesis_pass",
-    [
-        ("basic_swap_circuit", CollectPermutations, AIPermutationSynthesis),
-        ("basic_cnot_circuit", CollectLinearFunctions, AILinearFunctionSynthesis),
-        ("basic_cnot_circuit", CollectCliffords, AICliffordSynthesis),
-    ],
-    ids=["permutation", "linear_function", "clifford"],
-)
+@customize_synthesis_type_with_basic_circuit()
 def test_ai_cloud_synthesis_exceed_timeout(
     circuit, collector_pass, ai_synthesis_pass, backend, caplog, request
 ):
@@ -162,15 +181,7 @@ def test_ai_cloud_synthesis_exceed_timeout(
 
 
 # TODO: Tests pass if we add min_block_size=2, max_block_size=27 to CollectPermutations. If not, tests failed. Confirm why this is happening
-@pytest.mark.parametrize(
-    "circuit, collector_pass, ai_synthesis_pass",
-    [
-        ("basic_swap_circuit", CollectPermutations, AIPermutationSynthesis),
-        ("basic_cnot_circuit", CollectLinearFunctions, AILinearFunctionSynthesis),
-        ("basic_cnot_circuit", CollectCliffords, AICliffordSynthesis),
-    ],
-    ids=["permutation", "linear_function", "clifford"],
-)
+@customize_synthesis_type_with_basic_circuit()
 def test_ai_cloud_synthesis_wrong_token(
     circuit, collector_pass, ai_synthesis_pass, brisbane_backend_name, caplog, request
 ):
@@ -197,15 +208,7 @@ def test_ai_cloud_synthesis_wrong_token(
 
 # TODO: Tests pass if we add min_block_size=2, max_block_size=27 to CollectPermutations. If not, tests failed. Confirm why this is happening
 @pytest.mark.disable_monkeypatch
-@pytest.mark.parametrize(
-    "circuit, collector_pass, ai_synthesis_pass",
-    [
-        ("basic_swap_circuit", CollectPermutations, AIPermutationSynthesis),
-        ("basic_cnot_circuit", CollectLinearFunctions, AILinearFunctionSynthesis),
-        ("basic_cnot_circuit", CollectCliffords, AICliffordSynthesis),
-    ],
-    ids=["permutation", "linear_function", "clifford"],
-)
+@customize_synthesis_type_with_basic_circuit()
 def test_ai_cloud_synthesis_wrong_url(
     circuit, collector_pass, ai_synthesis_pass, brisbane_backend_name, caplog, request
 ):
@@ -230,15 +233,7 @@ def test_ai_cloud_synthesis_wrong_url(
 
 # TODO: When using basic_swap_circuit it works, when using random_circuit_transpiled doesn't. Check why
 @pytest.mark.disable_monkeypatch
-@pytest.mark.parametrize(
-    "circuit, collector_pass, ai_synthesis_pass",
-    [
-        ("basic_swap_circuit", CollectPermutations, AIPermutationSynthesis),
-        ("basic_cnot_circuit", CollectLinearFunctions, AILinearFunctionSynthesis),
-        ("basic_cnot_circuit", CollectCliffords, AICliffordSynthesis),
-    ],
-    ids=["permutation", "linear_function", "clifford"],
-)
+@customize_synthesis_type_with_basic_circuit()
 def test_ai_cloud_synthesis_unexisting_url(
     circuit, collector_pass, ai_synthesis_pass, brisbane_backend_name, caplog, request
 ):
@@ -266,22 +261,8 @@ def test_ai_cloud_synthesis_unexisting_url(
     assert isinstance(ai_optimized_circuit, QuantumCircuit)
 
 
-# TODO: For Permutations, the original circuit doesn't return a DAGCircuit with nodes. Decide how the code should behave on this case
-@pytest.mark.parametrize(
-    "circuit, collector_pass, ai_synthesis_pass",
-    [
-        # ("basic_swap_circuit", CollectPermutations, AIPermutationSynthesis),
-        ("basic_cnot_circuit", CollectLinearFunctions, AILinearFunctionSynthesis),
-        ("basic_cnot_circuit", CollectCliffords, AICliffordSynthesis),
-    ],
-    # ids=["permutation", "linear_function", "clifford"],
-    ids=["linear_function", "clifford"],
-)
-@pytest.mark.parametrize(
-    "local_mode",
-    ["true", "false"],
-    ids=["specify_local_mode", "specify_cloud_mode"],
-)
+@customize_synthesis_type_with_basic_circuit()
+@customize_local_mode()
 def test_ai_synthesis_always_replace_original_circuit(
     circuit,
     collector_pass,
@@ -311,22 +292,8 @@ def test_ai_synthesis_always_replace_original_circuit(
     assert isinstance(ai_optimized_circuit, QuantumCircuit)
 
 
-# TODO: For Permutations, the original circuit doesn't return a DAGCircuit with nodes. Decide how the code should behave on this case
-@pytest.mark.parametrize(
-    "circuit, collector_pass, ai_synthesis_pass",
-    [
-        # ("basic_swap_circuit", CollectPermutations, AIPermutationSynthesis),
-        ("basic_cnot_circuit", CollectLinearFunctions, AILinearFunctionSynthesis),
-        ("basic_cnot_circuit", CollectCliffords, AICliffordSynthesis),
-    ],
-    # ids=["permutation", "linear_function", "clifford"],
-    ids=["linear_function", "clifford"],
-)
-@pytest.mark.parametrize(
-    "local_mode",
-    ["true", "false"],
-    ids=["specify_local_mode", "specify_cloud_mode"],
-)
+@customize_synthesis_type_with_basic_circuit()
+@customize_local_mode()
 def test_ai_synthesis_keep_original_if_better(
     circuit,
     collector_pass,
@@ -355,20 +322,8 @@ def test_ai_synthesis_keep_original_if_better(
     assert "Keeping the original circuit" in caplog.text
 
 
-@pytest.mark.parametrize(
-    "circuit, collector_pass, ai_synthesis_pass",
-    [
-        ("permutation_circuit_brisbane", CollectPermutations, AIPermutationSynthesis),
-        ("linear_function_circuit", CollectLinearFunctions, AILinearFunctionSynthesis),
-        ("clifford_circuit", CollectCliffords, AICliffordSynthesis),
-    ],
-    ids=["permutation", "linear_function", "clifford"],
-)
-@pytest.mark.parametrize(
-    "local_mode",
-    ["true", "false"],
-    ids=["specify_local_mode", "specify_cloud_mode"],
-)
+@customize_synthesis_type_with_complex_circuit()
+@customize_local_mode()
 def test_ai_synthesis_pass_with_backend_name(
     circuit,
     collector_pass,
@@ -395,20 +350,8 @@ def test_ai_synthesis_pass_with_backend_name(
     assert all(word in caplog.text for word in ["Running", "synthesis"])
 
 
-@pytest.mark.parametrize(
-    "circuit, collector_pass, ai_synthesis_pass",
-    [
-        ("permutation_circuit_brisbane", CollectPermutations, AIPermutationSynthesis),
-        ("linear_function_circuit", CollectLinearFunctions, AILinearFunctionSynthesis),
-        ("clifford_circuit", CollectCliffords, AICliffordSynthesis),
-    ],
-    ids=["permutation", "linear_function", "clifford"],
-)
-@pytest.mark.parametrize(
-    "local_mode",
-    ["true", "false"],
-    ids=["specify_local_mode", "specify_cloud_mode"],
-)
+@customize_synthesis_type_with_complex_circuit()
+@customize_local_mode()
 def test_ai_synthesis_pass_with_backend(
     circuit,
     collector_pass,
@@ -434,20 +377,8 @@ def test_ai_synthesis_pass_with_backend(
 
 
 # TODO: The tests pass but some errors are logged. Check this
-@pytest.mark.parametrize(
-    "circuit, collector_pass, ai_synthesis_pass",
-    [
-        ("permutation_circuit_brisbane", CollectPermutations, AIPermutationSynthesis),
-        ("linear_function_circuit", CollectLinearFunctions, AILinearFunctionSynthesis),
-        ("clifford_circuit", CollectCliffords, AICliffordSynthesis),
-    ],
-    ids=["permutation", "linear_function", "clifford"],
-)
-@pytest.mark.parametrize(
-    "local_mode",
-    ["true", "false"],
-    ids=["specify_local_mode", "specify_cloud_mode"],
-)
+@customize_synthesis_type_with_complex_circuit()
+@customize_local_mode()
 @pytest.mark.parametrize(
     "coupling_map",
     [brisbane_coupling_map, brisbane_coupling_map_list_format],

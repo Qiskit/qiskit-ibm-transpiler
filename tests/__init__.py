@@ -13,5 +13,4 @@
 from .conftest import (
     brisbane_coupling_map,
     brisbane_coupling_map_list_format,
-    basic_cnot_circuit,
 )
