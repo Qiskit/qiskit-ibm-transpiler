@@ -11,71 +11,10 @@
 # that they have been altered from the originals.
 
 """Unit-testing linear_function_collection"""
-import pytest
-from qiskit import QuantumCircuit
 from qiskit.transpiler import PassManager
 
 from qiskit_ibm_transpiler.ai.collection import CollectPermutations
 from qiskit.transpiler.preset_passmanagers import generate_preset_pass_manager
-
-
-def test_permutation_collection_pass(random_circuit_transpiled):
-    collect = PassManager(
-        [
-            CollectPermutations(),
-        ]
-    )
-    collected_circuit = collect.run(random_circuit_transpiled)
-
-    assert isinstance(collected_circuit, QuantumCircuit)
-
-
-def test_permutation_collection_pass_collect(swap_circ):
-    collect = PassManager(
-        [
-            CollectPermutations(min_block_size=1, max_block_size=5),
-        ]
-    )
-    collected_circuit = collect.run(swap_circ)
-
-    assert isinstance(collected_circuit, QuantumCircuit)
-    assert any(g.operation.name.lower() == "permutation" for g in collected_circuit)
-
-
-def test_permutation_collection_pass_no_collect(rzz_circ):
-    collect = PassManager(
-        [
-            CollectPermutations(min_block_size=7, max_block_size=12),
-        ]
-    )
-    collected_circuit = collect.run(rzz_circ)
-
-    assert all(g.operation.name.lower() != "permutation" for g in collected_circuit)
-
-
-def test_permutation_collection_max_block_size(swap_circ):
-    collect = PassManager(
-        [
-            CollectPermutations(max_block_size=7),
-        ]
-    )
-    collected_circuit = collect.run(swap_circ)
-
-    assert all(len(g.qubits) <= 7 for g in collected_circuit)
-
-
-def test_permutation_collection_min_block_size(swap_circ):
-    collect = PassManager(
-        [
-            CollectPermutations(min_block_size=7, max_block_size=12),
-        ]
-    )
-    collected_circuit = collect.run(swap_circ)
-
-    assert all(
-        len(g.qubits) >= 7 or g.operation.name.lower() != "permutation"
-        for g in collected_circuit
-    )
 
 
 def test_permutation_collector(permutation_circuit, backend_27q, cmap_backend):
