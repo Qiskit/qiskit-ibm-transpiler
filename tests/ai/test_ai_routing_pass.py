@@ -24,20 +24,24 @@ from tests import brisbane_coupling_map, brisbane_coupling_map_list_format
 @pytest.mark.skip(
     reason="Unreliable. It passes most of the times with the timeout of 1 second for the current circuits used"
 )
-def test_ai_cloud_routing_pass_exceed_timeout(qv_circ, backend):
+def test_ai_cloud_routing_pass_exceed_timeout(qv_circ, brisbane_backend_name):
     ai_routing_pass = PassManager(
         [
-            AIRouting(backend_name=backend, timeout=1, local_mode=False),
+            AIRouting(backend_name=brisbane_backend_name, timeout=1, local_mode=False),
         ]
     )
     ai_optimized_circuit = ai_routing_pass.run(qv_circ)
     assert isinstance(ai_optimized_circuit, QuantumCircuit)
 
 
-def test_ai_cloud_routing_pass_wrong_token(qv_circ, backend):
+def test_ai_cloud_routing_pass_wrong_token(qv_circ, brisbane_backend_name):
     ai_routing_pass = PassManager(
         [
-            AIRouting(backend_name=backend, token="invented_token_2", local_mode=False),
+            AIRouting(
+                backend_name=brisbane_backend_name,
+                token="invented_token_2",
+                local_mode=False,
+            ),
         ]
     )
     try:
@@ -48,11 +52,13 @@ def test_ai_cloud_routing_pass_wrong_token(qv_circ, backend):
 
 
 @pytest.mark.disable_monkeypatch
-def test_ai_cloud_routing_pass_wrong_url(qv_circ, backend):
+def test_ai_cloud_routing_pass_wrong_url(qv_circ, brisbane_backend_name):
     ai_routing_pass = PassManager(
         [
             AIRouting(
-                backend_name=backend, base_url="https://ibm.com/", local_mode=False
+                backend_name=brisbane_backend_name,
+                base_url="https://ibm.com/",
+                local_mode=False,
             ),
         ]
     )
@@ -65,11 +71,11 @@ def test_ai_cloud_routing_pass_wrong_url(qv_circ, backend):
 
 
 @pytest.mark.disable_monkeypatch
-def test_ai_cloud_routing_pass_unexisting_url(qv_circ, backend):
+def test_ai_cloud_routing_pass_unexisting_url(qv_circ, brisbane_backend_name):
     ai_routing_pass = PassManager(
         [
             AIRouting(
-                backend_name=backend,
+                backend_name=brisbane_backend_name,
                 base_url="https://invented-domain-qiskit-ibm-transpiler-123.com/",
                 local_mode=False,
             ),
@@ -114,7 +120,7 @@ def test_ai_routing_pass_wrong_backend(
     ids=["local_mode", "cloud_mode"],
 )
 def test_ai_routing_pass_wrong_opt_level(
-    optimization_level, local_mode, backend, qv_circ
+    optimization_level, local_mode, brisbane_backend_name, qv_circ
 ):
     with pytest.raises(
         ValueError,
@@ -124,7 +130,7 @@ def test_ai_routing_pass_wrong_opt_level(
             [
                 AIRouting(
                     optimization_level=optimization_level,
-                    backend_name=backend,
+                    backend_name=brisbane_backend_name,
                     local_mode=local_mode,
                 )
             ]
@@ -141,14 +147,14 @@ def test_ai_routing_pass_wrong_opt_level(
 def test_ai_routing_pass_valid_opt_level(
     optimization_level,
     local_mode,
-    backend,
+    brisbane_backend_name,
     qv_circ,
 ):
     ai_routing_pass = PassManager(
         [
             AIRouting(
                 optimization_level=optimization_level,
-                backend_name=backend,
+                backend_name=brisbane_backend_name,
                 local_mode=local_mode,
             )
         ]
@@ -166,7 +172,7 @@ def test_ai_routing_pass_valid_opt_level(
     ids=["local_mode", "cloud_mode"],
 )
 def test_ai_routing_pass_wrong_opt_preferences(
-    optimization_preferences, local_mode, backend, qv_circ
+    optimization_preferences, local_mode, brisbane_backend_name, qv_circ
 ):
     with pytest.raises(
         ValueError,
@@ -176,7 +182,7 @@ def test_ai_routing_pass_wrong_opt_preferences(
             [
                 AIRouting(
                     optimization_preferences=optimization_preferences,
-                    backend_name=backend,
+                    backend_name=brisbane_backend_name,
                     local_mode=local_mode,
                 )
             ]
@@ -195,13 +201,13 @@ def test_ai_routing_pass_wrong_opt_preferences(
 def test_ai_routing_pass_valid_opt_preferences(
     optimization_preferences,
     local_mode,
-    backend,
+    brisbane_backend_name,
     qv_circ,
 ):
     ai_routing_pass = PassManager(
         [
             AIRouting(
-                backend_name=backend,
+                backend_name=brisbane_backend_name,
                 optimization_preferences=optimization_preferences,
                 local_mode=local_mode,
             )
@@ -219,12 +225,16 @@ def test_ai_routing_pass_valid_opt_preferences(
     ["true", "false"],
     ids=["local_mode", "cloud_mode"],
 )
-def test_ai_routing_pass_wrong_layout_mode(layout_mode, local_mode, backend):
+def test_ai_routing_pass_wrong_layout_mode(
+    layout_mode, local_mode, brisbane_backend_name
+):
     with pytest.raises(ValueError):
         PassManager(
             [
                 AIRouting(
-                    layout_mode=layout_mode, backend_name=backend, local_mode=local_mode
+                    layout_mode=layout_mode,
+                    backend_name=brisbane_backend_name,
+                    local_mode=local_mode,
                 )
             ]
         )
@@ -239,14 +249,14 @@ def test_ai_routing_pass_wrong_layout_mode(layout_mode, local_mode, backend):
 def test_ai_routing_pass_valid_layout_mode(
     layout_mode,
     local_mode,
-    backend,
+    brisbane_backend_name,
     qv_circ,
 ):
     ai_routing_pass = PassManager(
         [
             AIRouting(
                 layout_mode=layout_mode,
-                backend_name=backend,
+                backend_name=brisbane_backend_name,
                 local_mode=local_mode,
             )
         ]
@@ -264,13 +274,13 @@ def test_ai_routing_pass_valid_layout_mode(
 )
 def test_ai_routing_pass_with_backend_name(
     local_mode,
-    backend,
+    brisbane_backend_name,
     qv_circ,
 ):
     ai_routing_pass = PassManager(
         [
             AIRouting(
-                backend_name=backend,
+                backend_name=brisbane_backend_name,
                 local_mode=local_mode,
             )
         ]

@@ -162,14 +162,16 @@ def test_ai_cloud_synthesis_wrong_backend(
 )
 @customize_synthesis_type_with_basic_circuit()
 def test_ai_cloud_synthesis_exceed_timeout(
-    circuit, collector_pass, ai_synthesis_pass, backend, caplog, request
+    circuit, collector_pass, ai_synthesis_pass, brisbane_backend_name, caplog, request
 ):
     original_circuit = request.getfixturevalue(circuit)
 
     custom_ai_synthesis_pass = PassManager(
         [
             collector_pass(),
-            ai_synthesis_pass(backend_name=backend, timeout=1, local_mode=False),
+            ai_synthesis_pass(
+                backend_name=brisbane_backend_name, timeout=1, local_mode=False
+            ),
         ]
     )
 
