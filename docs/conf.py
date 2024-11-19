@@ -30,9 +30,17 @@ extensions = [
     "qiskit_sphinx_theme",
 ]
 
-# Move type hints from signatures to the parameter descriptions (except in overload cases, where
-# that's not possible).
+# Options for autodoc. These reflect the values from Qiskit SDK and Runtime.
+autosummary_generate = True
+autosummary_generate_overwrite = False
+autoclass_content = "both"
 autodoc_typehints = "description"
+autodoc_default_options = {
+    "inherited-members": None,
+    "show-inheritance": True,
+}
+napoleon_google_docstring = True
+napoleon_numpy_docstring = False
 
 templates_path = ["_templates"]
 exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
