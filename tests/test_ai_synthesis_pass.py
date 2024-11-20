@@ -28,9 +28,9 @@ from qiskit_ibm_transpiler.ai.synthesis import (
     AIPauliNetworkSynthesis,
 )
 
-from qiskit_ibm_transpiler.utils import (
-    create_random_linear_function,
-    random_clifford_from_linear_function,
+from tests.parametrize_functions import (
+    parametrize_local_mode,
+    parametrize_coupling_map_format,
 )
 
 
@@ -76,51 +76,6 @@ def parametrize_complex_circuit_collector_pass_and_ai_synthesis_pass():
         ],
         ids=["permutation", "linear_function", "clifford", "pauli_network"],
     )
-
-
-def parametrize_local_mode():
-    return pytest.mark.parametrize(
-        "local_mode",
-        [True, False],
-        ids=["local_mode", "cloud_mode"],
-    )
-
-
-@pytest.fixture
-def basic_swap_circuit():
-    circuit = QuantumCircuit(3)
-    circuit.swap(0, 1)
-    circuit.swap(1, 2)
-
-    return circuit
-
-
-# TODO: All the tests that use this circuit keeps the original circuit. Check if this is the better option
-# for doing those tests
-@pytest.fixture
-def linear_function_circuit():
-    circuit = QuantumCircuit(8)
-    linear_function = create_random_linear_function(8)
-    circuit.append(linear_function, range(8))
-    # Using decompose since we need a QuantumCircuit, not a LinearFunction. We created an empty
-    # circuit, so it contains only a LinearFunction
-    circuit = circuit.decompose(reps=1)
-
-    return circuit
-
-
-# TODO: All the tests that use this circuit keeps the original circuit. Check if this is the better option
-# for doing those tests
-@pytest.fixture
-def clifford_circuit():
-    circuit = QuantumCircuit(8)
-    clifford = random_clifford_from_linear_function(8)
-    circuit.append(clifford, range(8))
-    # Using decompose since we need a QuantumCircuit, not a Clifford. We created an empty
-    # circuit, so it contains only a Clifford
-    circuit = circuit.decompose(reps=1)
-
-    return circuit
 
 
 # TODO: When testing the synthesis with wrong backend, local and cloud behaves differently,
@@ -409,11 +364,7 @@ def test_ai_synthesis_pass_with_backend(
 # TODO: The tests pass but some errors are logged. Check this
 @parametrize_complex_circuit_collector_pass_and_ai_synthesis_pass()
 @parametrize_local_mode()
-@pytest.mark.parametrize(
-    "coupling_map",
-    ["brisbane_coupling_map", "brisbane_coupling_map_list_format"],
-    ids=["coupling_map_object", "coupling_map_list"],
-)
+@parametrize_coupling_map_format()
 def test_ai_synthesis_pass_with_coupling_map(
     circuit,
     collector_pass,

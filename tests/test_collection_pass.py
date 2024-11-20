@@ -39,16 +39,63 @@ def create_linear_circuit(n_qubits, gates):
     return circuit
 
 
-@pytest.mark.parametrize(
-    "collector_pass",
-    [
-        (CollectPermutations),
-        (CollectLinearFunctions),
-        (CollectCliffords),
-        (CollectPauliNetworks),
-    ],
-    ids=["permutation", "linear_function", "clifford", "pauli_network"],
-)
+def parametrize_collector_pass():
+    return pytest.mark.parametrize(
+        "collector_pass",
+        [
+            (CollectPermutations),
+            (CollectLinearFunctions),
+            (CollectCliffords),
+            (CollectPauliNetworks),
+        ],
+        ids=["permutation", "linear_function", "clifford", "pauli_network"],
+    )
+
+
+def parametrize_collectable_gates_collector_pass_operation_name():
+    return pytest.mark.parametrize(
+        "collectable_gates, collector_pass, operation_name",
+        [
+            ("swap", CollectPermutations, "permutation"),
+            ("cx", CollectLinearFunctions, "linear_function"),
+            ("cz", CollectCliffords, "clifford"),
+            ("swap", CollectPauliNetworks, "paulinetwork"),
+        ],
+        ids=["permutation", "linear_function", "clifford", "pauli_network"],
+    )
+
+
+def parametrize_collectable_gates_and_collector_pass():
+    return pytest.mark.parametrize(
+        "collectable_gates, collector_pass",
+        [
+            ("swap", CollectPermutations),
+            ("cx", CollectLinearFunctions),
+            ("cz", CollectCliffords),
+            ("swap", CollectPauliNetworks),
+        ],
+        ids=["permutation", "linear_function", "clifford", "pauli_network"],
+    )
+
+
+def parametrize_non_collectable_gates_collector_pass_operation_name():
+    return pytest.mark.parametrize(
+        "non_collectable_gates, collector_pass, operation_name",
+        [
+            ("rzz", CollectPermutations, "permutation"),
+            ("rzz", CollectLinearFunctions, "linear_function"),
+            ("rzz", CollectCliffords, "clifford"),
+            ("t", CollectPauliNetworks, "paulinetwork"),
+        ],
+        ids=["permutation", "linear_function", "clifford", "pauli_network"],
+    )
+
+
+def parametrize_n_qubits():
+    return pytest.mark.parametrize("n_qubits", [3, 10, 30])
+
+
+@parametrize_collector_pass()
 def test_collection_pass(random_circuit_transpiled, collector_pass):
     original_circuit = random_circuit_transpiled
 
@@ -59,21 +106,12 @@ def test_collection_pass(random_circuit_transpiled, collector_pass):
     assert isinstance(collected_circuit, QuantumCircuit)
 
 
-@pytest.mark.parametrize(
-    "circuit_gates, collector_pass, operation_name",
-    [
-        ("swap", CollectPermutations, "permutation"),
-        ("cx", CollectLinearFunctions, "linear_function"),
-        ("cz", CollectCliffords, "clifford"),
-        ("swap", CollectPauliNetworks, "paulinetwork"),
-    ],
-    ids=["permutation", "linear_function", "clifford", "pauli_network"],
-)
-@pytest.mark.parametrize("n_qubits", [3, 10, 30])
+@parametrize_collectable_gates_collector_pass_operation_name()
+@parametrize_n_qubits()
 def test_collection_pass_collect(
-    circuit_gates, collector_pass, operation_name, n_qubits
+    collectable_gates, collector_pass, operation_name, n_qubits
 ):
-    original_circuit = create_linear_circuit(n_qubits, circuit_gates)
+    original_circuit = create_linear_circuit(n_qubits, collectable_gates)
 
     custom_collector_pass = PassManager(
         [
@@ -86,21 +124,12 @@ def test_collection_pass_collect(
     assert any(g.operation.name.lower() == operation_name for g in collected_circuit)
 
 
-@pytest.mark.parametrize(
-    "circuit_gates, collector_pass, operation_name",
-    [
-        ("rzz", CollectPermutations, "permutation"),
-        ("rzz", CollectLinearFunctions, "linear_function"),
-        ("rzz", CollectCliffords, "clifford"),
-        ("t", CollectPauliNetworks, "paulinetwork"),
-    ],
-    ids=["permutation", "linear_function", "clifford", "pauli_network"],
-)
-@pytest.mark.parametrize("n_qubits", [3, 10, 30])
+@parametrize_non_collectable_gates_collector_pass_operation_name()
+@parametrize_n_qubits()
 def test_collection_pass_no_collect(
-    circuit_gates, collector_pass, operation_name, n_qubits
+    non_collectable_gates, collector_pass, operation_name, n_qubits
 ):
-    original_circuit = create_linear_circuit(n_qubits, circuit_gates)
+    original_circuit = create_linear_circuit(n_qubits, non_collectable_gates)
 
     custom_collector_pass = PassManager(
         [
@@ -113,19 +142,10 @@ def test_collection_pass_no_collect(
     assert all(g.operation.name.lower() != operation_name for g in collected_circuit)
 
 
-@pytest.mark.parametrize(
-    "circuit_gates, collector_pass",
-    [
-        ("swap", CollectPermutations),
-        ("cx", CollectLinearFunctions),
-        ("cz", CollectCliffords),
-        ("swap", CollectPauliNetworks),
-    ],
-    ids=["permutation", "linear_function", "clifford", "pauli_network"],
-)
-@pytest.mark.parametrize("n_qubits", [3, 10, 30])
-def test_collection_max_block_size(circuit_gates, collector_pass, n_qubits):
-    original_circuit = create_linear_circuit(n_qubits, circuit_gates)
+@parametrize_collectable_gates_and_collector_pass()
+@parametrize_n_qubits()
+def test_collection_max_block_size(collectable_gates, collector_pass, n_qubits):
+    original_circuit = create_linear_circuit(n_qubits, collectable_gates)
 
     custom_collector_pass = PassManager(
         [
@@ -137,21 +157,12 @@ def test_collection_max_block_size(circuit_gates, collector_pass, n_qubits):
     assert all(len(g.qubits) <= 7 for g in collected_circuit)
 
 
-@pytest.mark.parametrize(
-    "circuit_gates, collector_pass, operation_name",
-    [
-        ("swap", CollectPermutations, "permutation"),
-        ("cx", CollectLinearFunctions, "linear_function"),
-        ("cz", CollectCliffords, "clifford"),
-        ("swap", CollectPauliNetworks, "paulinetwork"),
-    ],
-    ids=["permutation", "linear_function", "clifford", "pauli_network"],
-)
-@pytest.mark.parametrize("n_qubits", [3, 10, 30])
+@parametrize_collectable_gates_collector_pass_operation_name()
+@parametrize_n_qubits()
 def test_collection_min_block_size(
-    circuit_gates, collector_pass, operation_name, n_qubits
+    collectable_gates, collector_pass, operation_name, n_qubits
 ):
-    original_circuit = create_linear_circuit(n_qubits, circuit_gates)
+    original_circuit = create_linear_circuit(n_qubits, collectable_gates)
 
     custom_collector_pass = PassManager(
         [
@@ -166,20 +177,11 @@ def test_collection_min_block_size(
     )
 
 
-@pytest.mark.parametrize(
-    "circuit_gates, collector_pass",
-    [
-        ("swap", CollectPermutations),
-        ("cx", CollectLinearFunctions),
-        ("cz", CollectCliffords),
-        ("swap", CollectPauliNetworks),
-    ],
-    ids=["permutation", "linear_function", "clifford", "pauli_network"],
-)
-@pytest.mark.parametrize("n_qubits", [3, 10, 30])
+@parametrize_collectable_gates_and_collector_pass()
+@parametrize_n_qubits()
 @pytest.mark.timeout(10)
-def test_collection_with_barrier(circuit_gates, collector_pass, n_qubits):
-    original_circuit = create_linear_circuit(n_qubits, circuit_gates)
+def test_collection_with_barrier(collectable_gates, collector_pass, n_qubits):
+    original_circuit = create_linear_circuit(n_qubits, collectable_gates)
 
     original_circuit.measure_all()
     collect = PassManager(

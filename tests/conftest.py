@@ -19,6 +19,11 @@ from qiskit.circuit.library import QuantumVolume
 from qiskit.quantum_info import random_clifford
 from qiskit.transpiler.preset_passmanagers import generate_preset_pass_manager
 
+from qiskit_ibm_transpiler.utils import (
+    create_random_linear_function,
+    random_clifford_from_linear_function,
+)
+
 from qiskit_ibm_runtime import QiskitRuntimeService
 
 
@@ -50,15 +55,6 @@ def env_set(monkeypatch, request):
             "https://cloud-transpiler-experimental.quantum-computing.ibm.com/",
         )
     logging.getLogger("qiskit_ibm_transpiler.ai.synthesis").setLevel(logging.DEBUG)
-
-
-@pytest.fixture(scope="module")
-def basic_cnot_circuit():
-    circuit = QuantumCircuit(3)
-    circuit.cx(0, 1)
-    circuit.cx(1, 2)
-
-    return circuit
 
 
 @pytest.fixture(scope="module")
@@ -128,9 +124,56 @@ def random_pauli_circuit_transpiled():
         "tests/test_files/pauli_circuit.qasm",
         custom_instructions=qasm2.LEGACY_CUSTOM_INSTRUCTIONS,
     )
+
     return circuit
 
 
 @pytest.fixture(scope="module")
 def qv_circ():
     return QuantumVolume(10, depth=3, seed=42).decompose(reps=1)
+
+
+@pytest.fixture(scope="module")
+def basic_cnot_circuit():
+    circuit = QuantumCircuit(3)
+    circuit.cx(0, 1)
+    circuit.cx(1, 2)
+
+    return circuit
+
+
+@pytest.fixture(scope="module")
+def basic_swap_circuit():
+    circuit = QuantumCircuit(3)
+    circuit.swap(0, 1)
+    circuit.swap(1, 2)
+
+    return circuit
+
+
+# TODO: All the tests that use this circuit keeps the original circuit. Check if this is the better option
+# for doing those tests
+@pytest.fixture(scope="module")
+def linear_function_circuit():
+    circuit = QuantumCircuit(8)
+    linear_function = create_random_linear_function(8)
+    circuit.append(linear_function, range(8))
+    # Using decompose since we need a QuantumCircuit, not a LinearFunction. We created an empty
+    # circuit, so it contains only a LinearFunction
+    circuit = circuit.decompose(reps=1)
+
+    return circuit
+
+
+# TODO: All the tests that use this circuit keeps the original circuit. Check if this is the better option
+# for doing those tests
+@pytest.fixture(scope="module")
+def clifford_circuit():
+    circuit = QuantumCircuit(8)
+    clifford = random_clifford_from_linear_function(8)
+    circuit.append(clifford, range(8))
+    # Using decompose since we need a QuantumCircuit, not a Clifford. We created an empty
+    # circuit, so it contains only a Clifford
+    circuit = circuit.decompose(reps=1)
+
+    return circuit

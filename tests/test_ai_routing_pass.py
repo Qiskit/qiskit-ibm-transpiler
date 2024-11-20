@@ -19,13 +19,10 @@ from qiskit.transpiler.exceptions import TranspilerError
 
 from qiskit_ibm_transpiler.ai.routing import AIRouting
 
-
-def parametrize_local_mode():
-    return pytest.mark.parametrize(
-        "local_mode",
-        [True, False],
-        ids=["local_mode", "cloud_mode"],
-    )
+from tests.parametrize_functions import (
+    parametrize_local_mode,
+    parametrize_coupling_map_format,
+)
 
 
 @pytest.mark.skip(
@@ -37,7 +34,9 @@ def test_ai_cloud_routing_pass_exceed_timeout(qv_circ, brisbane_backend_name):
             AIRouting(backend_name=brisbane_backend_name, timeout=1, local_mode=False),
         ]
     )
+
     ai_optimized_circuit = ai_routing_pass.run(qv_circ)
+
     assert isinstance(ai_optimized_circuit, QuantumCircuit)
 
 
@@ -51,8 +50,9 @@ def test_ai_cloud_routing_pass_wrong_token(qv_circ, brisbane_backend_name):
             ),
         ]
     )
+
     try:
-        ai_optimized_circuit = ai_routing_pass.run(qv_circ)
+        ai_routing_pass.run(qv_circ)
         pytest.fail("Error expected")
     except Exception as e:
         assert "Invalid authentication credentials" in str(e)
@@ -69,8 +69,9 @@ def test_ai_cloud_routing_pass_wrong_url(qv_circ, brisbane_backend_name):
             ),
         ]
     )
+
     try:
-        ai_optimized_circuit = ai_routing_pass.run(qv_circ)
+        ai_routing_pass.run(qv_circ)
         pytest.fail("Error expected")
     except Exception as e:
         assert "Internal error: 404 Client Error: Not Found for url" in str(e)
@@ -88,8 +89,9 @@ def test_ai_cloud_routing_pass_unexisting_url(qv_circ, brisbane_backend_name):
             ),
         ]
     )
+
     try:
-        ai_optimized_circuit = ai_routing_pass.run(qv_circ)
+        ai_routing_pass.run(qv_circ)
         pytest.fail("Error expected")
     except Exception as e:
         print(e)
@@ -138,6 +140,7 @@ def test_ai_routing_pass_wrong_opt_level(
                 )
             ]
         )
+
         ai_routing_pass.run(qv_circ)
 
 
@@ -182,6 +185,7 @@ def test_ai_routing_pass_wrong_opt_preferences(
                 )
             ]
         )
+
         ai_routing_pass.run(qv_circ)
 
 
@@ -290,11 +294,7 @@ def test_ai_routing_pass_with_backend(
     assert isinstance(circuit, QuantumCircuit)
 
 
-@pytest.mark.parametrize(
-    "coupling_map",
-    ["brisbane_coupling_map", "brisbane_coupling_map_list_format"],
-    ids=["coupling_map_object", "coupling_map_list"],
-)
+@parametrize_coupling_map_format()
 @parametrize_local_mode()
 def test_ai_routing_pass_with_coupling_map(
     coupling_map,
