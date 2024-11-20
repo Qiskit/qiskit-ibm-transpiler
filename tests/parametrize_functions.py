@@ -10,6 +10,8 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
+"""Common parametrize functions. The ones that are only used in one file are on that file"""
+
 import pytest
 
 

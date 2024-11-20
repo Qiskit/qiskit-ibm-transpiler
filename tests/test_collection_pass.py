@@ -10,17 +10,20 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-"""Unit-testing collection"""
+"""Tests for the collector pass"""
+
 import pytest
 
 from qiskit import QuantumCircuit
 from qiskit.transpiler import PassManager
 from qiskit.transpiler.preset_passmanagers import generate_preset_pass_manager
 
-from qiskit_ibm_transpiler.ai.collection import CollectPermutations
-from qiskit_ibm_transpiler.ai.collection import CollectLinearFunctions
-from qiskit_ibm_transpiler.ai.collection import CollectCliffords
-from qiskit_ibm_transpiler.ai.collection import CollectPauliNetworks
+from qiskit_ibm_transpiler.ai.collection import (
+    CollectPermutations,
+    CollectLinearFunctions,
+    CollectCliffords,
+    CollectPauliNetworks,
+)
 
 
 def create_linear_circuit(n_qubits, gates):

@@ -10,6 +10,8 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
+"""Fixtures used on the tests"""
+
 import logging
 import pytest
 import numpy as np

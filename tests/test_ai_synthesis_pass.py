@@ -10,9 +10,12 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-"""Unit-testing ai clifford syhtesis for both local and cloud modes"""
+"""Tests for the ai synthesis pass"""
+
 import pytest
+
 from qiskit import QuantumCircuit
+
 from qiskit.transpiler import PassManager
 
 from qiskit_ibm_transpiler.ai.collection import (
