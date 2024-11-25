@@ -25,21 +25,7 @@ from qiskit_ibm_transpiler.ai.collection import (
     CollectPauliNetworks,
 )
 
-
-def create_linear_circuit(n_qubits, gates):
-    circuit = QuantumCircuit(n_qubits)
-    for q in range(n_qubits - 1):
-        if gates == "cx":
-            circuit.cx(q, q + 1)
-        elif gates == "swap":
-            circuit.swap(q, q + 1)
-        elif gates == "cz":
-            circuit.cz(q, q + 1)
-        elif gates == "rzz":
-            circuit.rzz(1.23, q, q + 1)
-        elif gates == "t":
-            circuit.t(q)
-    return circuit
+from tests.utils import create_linear_circuit
 
 
 def parametrize_collector_pass():

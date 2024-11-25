@@ -14,17 +14,17 @@
 
 import logging
 import pytest
-import numpy as np
 
 from qiskit import QuantumCircuit
 from qiskit.circuit.library import QuantumVolume
-from qiskit.quantum_info import random_clifford
 from qiskit.transpiler.preset_passmanagers import generate_preset_pass_manager
 
 from qiskit_ibm_transpiler.utils import (
     create_random_linear_function,
     random_clifford_from_linear_function,
 )
+
+from tests.utils import create_random_circuit
 
 from qiskit_ibm_runtime import QiskitRuntimeService
 
@@ -94,19 +94,6 @@ def permutation_circuit_brisbane(brisbane_backend):
         starting_qubit = 75
         orig_qc.swap(i + starting_qubit, p + starting_qubit)
     return orig_qc
-
-
-def create_random_circuit(total_n_ubits, cliffords_n_qubits, clifford_num):
-    circuit = QuantumCircuit(total_n_ubits)
-    nq = cliffords_n_qubits
-    for c in range(clifford_num):
-        qs = np.random.choice(range(circuit.num_qubits), size=nq, replace=False)
-        circuit.compose(
-            random_clifford(nq, seed=42).to_circuit(), qubits=qs.tolist(), inplace=True
-        )
-        for q in qs:
-            circuit.t(q)
-    return circuit
 
 
 @pytest.fixture(scope="module")

@@ -209,8 +209,6 @@ class AIRouting(TransformationPass):
 
         self.optimization_level = optimization_level
 
-        backend_name = backend_name or (backend.name if backend else None)
-
         if layout_mode is not None and layout_mode.upper() not in [
             "KEEP",
             "OPTIMIZE",
