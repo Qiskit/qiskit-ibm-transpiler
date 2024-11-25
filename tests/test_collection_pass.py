@@ -18,70 +18,16 @@ from qiskit import QuantumCircuit
 from qiskit.transpiler import PassManager
 from qiskit.transpiler.preset_passmanagers import generate_preset_pass_manager
 
-from qiskit_ibm_transpiler.ai.collection import (
-    CollectPermutations,
-    CollectLinearFunctions,
-    CollectCliffords,
-    CollectPauliNetworks,
-)
+from qiskit_ibm_transpiler.ai.collection import CollectPermutations
 
 from tests.utils import create_linear_circuit
-
-
-def parametrize_collector_pass():
-    return pytest.mark.parametrize(
-        "collector_pass",
-        [
-            (CollectPermutations),
-            (CollectLinearFunctions),
-            (CollectCliffords),
-            (CollectPauliNetworks),
-        ],
-        ids=["permutation", "linear_function", "clifford", "pauli_network"],
-    )
-
-
-def parametrize_collectable_gates_collector_pass_operation_name():
-    return pytest.mark.parametrize(
-        "collectable_gates, collector_pass, operation_name",
-        [
-            ("swap", CollectPermutations, "permutation"),
-            ("cx", CollectLinearFunctions, "linear_function"),
-            ("cz", CollectCliffords, "clifford"),
-            ("swap", CollectPauliNetworks, "paulinetwork"),
-        ],
-        ids=["permutation", "linear_function", "clifford", "pauli_network"],
-    )
-
-
-def parametrize_collectable_gates_and_collector_pass():
-    return pytest.mark.parametrize(
-        "collectable_gates, collector_pass",
-        [
-            ("swap", CollectPermutations),
-            ("cx", CollectLinearFunctions),
-            ("cz", CollectCliffords),
-            ("swap", CollectPauliNetworks),
-        ],
-        ids=["permutation", "linear_function", "clifford", "pauli_network"],
-    )
-
-
-def parametrize_non_collectable_gates_collector_pass_operation_name():
-    return pytest.mark.parametrize(
-        "non_collectable_gates, collector_pass, operation_name",
-        [
-            ("rzz", CollectPermutations, "permutation"),
-            ("rzz", CollectLinearFunctions, "linear_function"),
-            ("rzz", CollectCliffords, "clifford"),
-            ("t", CollectPauliNetworks, "paulinetwork"),
-        ],
-        ids=["permutation", "linear_function", "clifford", "pauli_network"],
-    )
-
-
-def parametrize_n_qubits():
-    return pytest.mark.parametrize("n_qubits", [3, 10, 30])
+from tests.parametrize_functions import (
+    parametrize_collector_pass,
+    parametrize_collectable_gates_collector_pass_operation_name,
+    parametrize_collectable_gates_and_collector_pass,
+    parametrize_non_collectable_gates_collector_pass_operation_name,
+    parametrize_n_qubits,
+)
 
 
 @parametrize_collector_pass()

@@ -37,16 +37,19 @@ from qiskit_ibm_transpiler.utils import (
     to_qasm3_iterative_decomposition,
 )
 
+from tests.parametrize_functions import (
+    parametrize_valid_optimization_level,
+    parametrize_ai,
+    parametrize_qiskit_transpile_options,
+    parametrize_non_valid_use_fractional_gates,
+    parametrize_valid_use_fractional_gates,
+    parametrize_valid_optimization_preferences_without_noise,
+)
 
-@pytest.mark.parametrize(
-    "optimization_level", [1, 2, 3], ids=["opt_level_1", "opt_level_2", "opt_level_3"]
-)
-@pytest.mark.parametrize("ai", ["false", "true"], ids=["no_ai", "ai"])
-@pytest.mark.parametrize(
-    "qiskit_transpile_options",
-    [None, {"seed_transpiler": 0}],
-    ids=["no opt", "one option"],
-)
+
+@parametrize_valid_optimization_level()
+@parametrize_ai()
+@parametrize_qiskit_transpile_options()
 def test_rand_circ_backend_routing(optimization_level, ai, qiskit_transpile_options):
     backend_name = "ibm_brisbane"
     random_circ = random_circuit(5, depth=3, seed=42)
@@ -62,15 +65,9 @@ def test_rand_circ_backend_routing(optimization_level, ai, qiskit_transpile_opti
     assert isinstance(transpiled_circuit, QuantumCircuit)
 
 
-@pytest.mark.parametrize(
-    "optimization_level", [1, 2, 3], ids=["opt_level_1", "opt_level_2", "opt_level_3"]
-)
-@pytest.mark.parametrize("ai", ["false", "true"], ids=["no_ai", "ai"])
-@pytest.mark.parametrize(
-    "qiskit_transpile_options",
-    [None, {"seed_transpiler": 0}],
-    ids=["no opt", "one option"],
-)
+@parametrize_valid_optimization_level()
+@parametrize_ai()
+@parametrize_qiskit_transpile_options()
 def test_qv_backend_routing(optimization_level, ai, qiskit_transpile_options):
     backend_name = "ibm_brisbane"
     qv_circ = QuantumVolume(27, depth=3, seed=42).decompose(reps=3)
@@ -93,16 +90,16 @@ def test_qv_backend_routing(optimization_level, ai, qiskit_transpile_options):
         [[0, 1], [1, 2], [2, 3], [3, 4], [4, 5], [5, 6], [6, 7]],
     ],
 )
-@pytest.mark.parametrize("optimization_level", [1])
-@pytest.mark.parametrize("ai", ["false", "true"], ids=["no_ai", "ai"])
-@pytest.mark.parametrize("qiskit_transpile_options", [None, {"seed_transpiler": 0}])
-@pytest.mark.parametrize("optimization_preferences", [None, "n_cnots"])
+@parametrize_valid_optimization_level()
+@parametrize_ai()
+@parametrize_qiskit_transpile_options()
+@parametrize_valid_optimization_preferences_without_noise()
 def test_rand_circ_cmap_routing(
     coupling_map,
     optimization_level,
     ai,
     qiskit_transpile_options,
-    optimization_preferences,
+    valid_optimization_preferences_without_noise,
 ):
     random_circ = random_circuit(5, depth=3, seed=42).decompose(reps=3)
 
@@ -112,7 +109,7 @@ def test_rand_circ_cmap_routing(
         ai=ai,
         optimization_level=optimization_level,
         qiskit_transpile_options=qiskit_transpile_options,
-        optimization_preferences=optimization_preferences,
+        optimization_preferences=valid_optimization_preferences_without_noise,
     )
     transpiled_circuit = cloud_transpiler_service.run(random_circ)
 
@@ -148,7 +145,7 @@ def test_qv_circ_wrong_input_routing():
         cloud_transpiler_service.run(circ_dict)
 
 
-@pytest.mark.parametrize("ai", ["false", "true"], ids=["no_ai", "ai"])
+@parametrize_ai()
 def test_transpile_layout_reconstruction(ai):
     n_qubits = 27
 
@@ -447,16 +444,16 @@ def test_fix_ecr_ibm_strasbourg():
     assert any(isinstance(gate.operation, ECRGate) for gate in list(transpiled_circuit))
 
 
-@pytest.mark.parametrize("non_valid_use_fractional_gates_param", [8, "8", "foo"])
-def test_transpile_non_valid_use_fractional_gates_param(
-    non_valid_use_fractional_gates_param,
+@parametrize_non_valid_use_fractional_gates()
+def test_transpile_non_valid_use_fractional_gates(
+    non_valid_use_fractional_gates,
 ):
     circuit = random_circuit(5, depth=3, seed=42)
 
     transpiler_service = TranspilerService(
         backend_name="ibm_brisbane",
         optimization_level=1,
-        use_fractional_gates=non_valid_use_fractional_gates_param,
+        use_fractional_gates=non_valid_use_fractional_gates,
     )
 
     try:
@@ -466,17 +463,14 @@ def test_transpile_non_valid_use_fractional_gates_param(
         assert "Wrong input" in str(e)
 
 
-@pytest.mark.parametrize(
-    "valid_use_fractional_gates_param",
-    ["no", "n", "false", "f", "0", "yes", "y", "true", "t", "1"],
-)
-def test_transpile_valid_use_fractional_gates_param(valid_use_fractional_gates_param):
+@parametrize_valid_use_fractional_gates()
+def test_transpile_valid_use_fractional_gates_param(valid_use_fractional_gates):
     circuit = random_circuit(5, depth=3, seed=42)
 
     transpiler_service = TranspilerService(
         backend_name="ibm_brisbane",
         optimization_level=1,
-        use_fractional_gates=valid_use_fractional_gates_param,
+        use_fractional_gates=valid_use_fractional_gates,
     )
 
     transpiled_circuit = transpiler_service.run(circuit)

@@ -23,6 +23,8 @@ from qiskit_ibm_transpiler.ai.routing import AIRouting
 from tests.parametrize_functions import (
     parametrize_local_mode,
     parametrize_coupling_map_format,
+    parametrize_non_valid_optimization_preferences,
+    parametrize_valid_optimization_preferences,
 )
 
 
@@ -168,10 +170,10 @@ def test_ai_routing_pass_valid_opt_level(
     assert isinstance(circuit, QuantumCircuit)
 
 
-@pytest.mark.parametrize("optimization_preferences", ["foo"])
+@parametrize_non_valid_optimization_preferences()
 @parametrize_local_mode()
-def test_ai_routing_pass_wrong_opt_preferences(
-    optimization_preferences, local_mode, brisbane_backend_name, qv_circ
+def test_ai_routing_pass_non_valid_optimization_preferences(
+    non_valid_optimization_preferences, local_mode, brisbane_backend_name, qv_circ
 ):
     with pytest.raises(
         ValueError,
@@ -180,7 +182,7 @@ def test_ai_routing_pass_wrong_opt_preferences(
         ai_routing_pass = PassManager(
             [
                 AIRouting(
-                    optimization_preferences=optimization_preferences,
+                    optimization_preferences=non_valid_optimization_preferences,
                     backend_name=brisbane_backend_name,
                     local_mode=local_mode,
                 )
@@ -190,12 +192,10 @@ def test_ai_routing_pass_wrong_opt_preferences(
         ai_routing_pass.run(qv_circ)
 
 
-@pytest.mark.parametrize(
-    "optimization_preferences", [None, "noise", ["noise", "n_cnots"]]
-)
+@parametrize_valid_optimization_preferences()
 @parametrize_local_mode()
 def test_ai_routing_pass_valid_opt_preferences(
-    optimization_preferences,
+    valid_optimization_preferences,
     local_mode,
     brisbane_backend_name,
     qv_circ,
@@ -204,7 +204,7 @@ def test_ai_routing_pass_valid_opt_preferences(
         [
             AIRouting(
                 backend_name=brisbane_backend_name,
-                optimization_preferences=optimization_preferences,
+                optimization_preferences=valid_optimization_preferences,
                 local_mode=local_mode,
             )
         ]

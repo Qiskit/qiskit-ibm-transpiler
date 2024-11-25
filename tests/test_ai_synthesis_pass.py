@@ -18,67 +18,14 @@ from qiskit import QuantumCircuit
 
 from qiskit.transpiler import PassManager
 
-from qiskit_ibm_transpiler.ai.collection import (
-    CollectPermutations,
-    CollectLinearFunctions,
-    CollectCliffords,
-    CollectPauliNetworks,
-)
-from qiskit_ibm_transpiler.ai.synthesis import (
-    AIPermutationSynthesis,
-    AILinearFunctionSynthesis,
-    AICliffordSynthesis,
-    AIPauliNetworkSynthesis,
-)
+from qiskit_ibm_transpiler.ai.collection import CollectPauliNetworks
 
 from tests.parametrize_functions import (
+    parametrize_basic_circuit_collector_pass_and_ai_synthesis_pass,
+    parametrize_complex_circuit_collector_pass_and_ai_synthesis_pass,
     parametrize_local_mode,
     parametrize_coupling_map_format,
 )
-
-
-# TODO: For Permutations, the original circuit doesn't return a DAGCircuit with nodes. Decide how the code should behave on this case
-def parametrize_basic_circuit_collector_pass_and_ai_synthesis_pass():
-    return pytest.mark.parametrize(
-        "circuit, collector_pass, ai_synthesis_pass",
-        [
-            # ("basic_swap_circuit", CollectPermutations, AIPermutationSynthesis),
-            ("basic_cnot_circuit", CollectLinearFunctions, AILinearFunctionSynthesis),
-            ("basic_cnot_circuit", CollectCliffords, AICliffordSynthesis),
-            (
-                "random_circuit_transpiled",
-                CollectPauliNetworks,
-                AIPauliNetworkSynthesis,
-            ),
-        ],
-        # ids=["permutation", "linear_function", "clifford"],
-        ids=["linear_function", "clifford", "pauli_network"],
-    )
-
-
-def parametrize_complex_circuit_collector_pass_and_ai_synthesis_pass():
-    return pytest.mark.parametrize(
-        "circuit, collector_pass, ai_synthesis_pass",
-        [
-            (
-                "permutation_circuit_brisbane",
-                CollectPermutations,
-                AIPermutationSynthesis,
-            ),
-            (
-                "linear_function_circuit",
-                CollectLinearFunctions,
-                AILinearFunctionSynthesis,
-            ),
-            ("clifford_circuit", CollectCliffords, AICliffordSynthesis),
-            (
-                "random_pauli_circuit_transpiled",
-                CollectPauliNetworks,
-                AIPauliNetworkSynthesis,
-            ),
-        ],
-        ids=["permutation", "linear_function", "clifford", "pauli_network"],
-    )
 
 
 # TODO: When testing the synthesis with wrong backend, local and cloud behaves differently,
