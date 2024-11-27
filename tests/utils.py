@@ -45,21 +45,20 @@ def create_random_circuit_with_several_operators(
 
 
 def create_operator_circuit(operator: str, num_qubits: int):
-    match operator:
-        case "Permutation":
-            return Permutation(num_qubits, seed=42)
-        case "LinearFunction":
-            np.random.seed(42)
-            matrix = np.random.randint(2, size=(num_qubits, num_qubits))
-            circuit = QuantumCircuit(num_qubits)
-            circuit.append(LinearFunction(matrix), range(num_qubits))
-            return circuit
-        case "Clifford":
-            return random_clifford(num_qubits, seed=42).to_circuit()
-        case "PauliNetwork":
-            return random_pauli(num_qubits, seed=42)
-        case _:
-            raise ValueError(f"Unsopported operator {operator}")
+    if operator == "Permutation":
+        return Permutation(num_qubits, seed=42)
+    elif operator == "LinearFunction":
+        np.random.seed(42)
+        matrix = np.random.randint(2, size=(num_qubits, num_qubits))
+        circuit = QuantumCircuit(num_qubits)
+        circuit.append(LinearFunction(matrix), range(num_qubits))
+        return circuit
+    elif operator == "Clifford":
+        return random_clifford(num_qubits, seed=42).to_circuit()
+    elif operator == "PauliNetwork":
+        return random_pauli(num_qubits, seed=42)
+    else:
+        raise ValueError(f"Unsopported operator {operator}")
 
 
 def create_linear_circuit(n_qubits, gates):
