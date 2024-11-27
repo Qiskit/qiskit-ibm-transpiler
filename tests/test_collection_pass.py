@@ -22,7 +22,7 @@ from qiskit_ibm_transpiler.ai.collection import CollectPermutations
 
 from tests.utils import create_linear_circuit
 from tests.parametrize_functions import (
-    parametrize_collector_pass,
+    parametrize_circuit_collector_pass_and_operator_name,
     parametrize_collectable_gates_collector_pass_operation_name,
     parametrize_collectable_gates_and_collector_pass,
     parametrize_non_collectable_gates_collector_pass_operation_name,
@@ -30,15 +30,20 @@ from tests.parametrize_functions import (
 )
 
 
-@parametrize_collector_pass()
-def test_collection_pass(random_circuit_transpiled, collector_pass):
-    original_circuit = random_circuit_transpiled
+@parametrize_circuit_collector_pass_and_operator_name()
+def test_collection_pass(circuit, collector_pass, operator_name, request):
+    original_circuit = request.getfixturevalue(circuit)
 
     custom_collector_pass = PassManager([collector_pass()])
-
     collected_circuit = custom_collector_pass.run(original_circuit)
+    collected_circuit_instructions = collected_circuit.data
+    operators_count = 0
+    for circuit_instruction in collected_circuit_instructions:
+        if operator_name in circuit_instruction.name:
+            operators_count = operators_count + 1
 
     assert isinstance(collected_circuit, QuantumCircuit)
+    assert operators_count == 2
 
 
 @parametrize_collectable_gates_collector_pass_operation_name()

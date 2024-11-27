@@ -83,6 +83,8 @@ def test_qv_backend_routing(optimization_level, ai, qiskit_transpile_options):
     assert isinstance(transpiled_circuit, QuantumCircuit)
 
 
+# FIXME: Code only supports coupling map list format
+# @parametrize_coupling_map_format()
 @pytest.mark.parametrize(
     "coupling_map",
     [

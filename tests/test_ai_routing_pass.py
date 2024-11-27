@@ -110,9 +110,7 @@ def test_ai_cloud_routing_pass_unexisting_url(qv_circ, brisbane_backend_name):
     [(True, PermissionError), (False, TranspilerError)],
     ids=["local_mode", "cloud_mode"],
 )
-def test_ai_routing_pass_wrong_backend(
-    error_type, local_mode, random_circuit_transpiled
-):
+def test_ai_routing_pass_wrong_backend(error_type, local_mode, basic_cnot_circuit):
     with pytest.raises(
         error_type,
         match=r"User doesn\'t have access to the specified backend: \w+",
@@ -122,7 +120,7 @@ def test_ai_routing_pass_wrong_backend(
                 AIRouting(backend_name="wrong_backend", local_mode=local_mode),
             ]
         )
-        ai_routing_pass.run(random_circuit_transpiled)
+        ai_routing_pass.run(basic_cnot_circuit)
 
 
 @pytest.mark.parametrize("optimization_level", [0, 4])

@@ -12,22 +12,54 @@
 
 """Functions used on the tests"""
 import numpy as np
+from typing import Callable
 
 from qiskit import QuantumCircuit
-from qiskit.quantum_info import random_clifford
+from qiskit.circuit.library import Permutation, LinearFunction
+from qiskit.quantum_info import random_clifford, random_pauli
 
 
-def create_random_circuit(total_n_ubits, cliffords_n_qubits, clifford_num):
-    circuit = QuantumCircuit(total_n_ubits)
-    nq = cliffords_n_qubits
-    for c in range(clifford_num):
-        qs = np.random.choice(range(circuit.num_qubits), size=nq, replace=False)
+def create_random_circuit_with_several_operators(
+    operator: str,
+    n_qubits_circuit: int,
+    n_qubits_operator: int,
+    n_operator_circuits: int,
+):
+    circuit = QuantumCircuit(n_qubits_circuit)
+    np.random.seed(42)
+    for c in range(n_operator_circuits):
+        qs = np.random.choice(
+            range(n_qubits_circuit), size=n_qubits_operator, replace=False
+        )
+
+        operator_circuit = create_operator_circuit(operator, n_qubits_operator)
         circuit.compose(
-            random_clifford(nq, seed=42).to_circuit(), qubits=qs.tolist(), inplace=True
+            operator_circuit,
+            qubits=qs.tolist(),
+            inplace=True,
         )
         for q in qs:
             circuit.t(q)
+
     return circuit
+
+
+def create_operator_circuit(operator: str, num_qubits: int):
+    match operator:
+        case "Permutation":
+            return Permutation(num_qubits, seed=42)
+        case "LinearFunction":
+            np.random.seed(42)
+            matrix = np.random.randint(2, size=(num_qubits, num_qubits))
+            circuit = QuantumCircuit(num_qubits)
+            circuit.append(LinearFunction(matrix), range(num_qubits))
+            return circuit
+        case "Clifford":
+            return random_clifford(num_qubits, seed=42).to_circuit()
+        case "PauliNetwork":
+            return random_pauli(num_qubits, seed=42)
+        case _:
+            raise ValueError(f"Unsopported operator {operator}")
 
 
 def create_linear_circuit(n_qubits, gates):

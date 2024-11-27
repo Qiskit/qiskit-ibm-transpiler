@@ -16,15 +16,16 @@ import logging
 import pytest
 
 from qiskit import QuantumCircuit
-from qiskit.circuit.library import QuantumVolume
+from qiskit.circuit.library import QuantumVolume, Permutation, LinearFunction
 from qiskit.transpiler.preset_passmanagers import generate_preset_pass_manager
+from qiskit.quantum_info import random_clifford, random_pauli
 
 from qiskit_ibm_transpiler.utils import (
     create_random_linear_function,
     random_clifford_from_linear_function,
 )
 
-from tests.utils import create_random_circuit
+from tests.utils import create_random_circuit_with_several_operators
 
 from qiskit_ibm_runtime import QiskitRuntimeService
 
@@ -97,12 +98,43 @@ def permutation_circuit_brisbane(brisbane_backend):
 
 
 @pytest.fixture(scope="module")
-def random_circuit_transpiled(brisbane_coupling_map):
-    circuit = create_random_circuit(27, 4, 2)
-    qiskit_lvl3_transpiler = generate_preset_pass_manager(
-        optimization_level=3, coupling_map=brisbane_coupling_map
-    )
-    return qiskit_lvl3_transpiler.run(circuit)
+def random_circuit_with_several_cliffords_transpiled(brisbane_coupling_map):
+    circuit = create_random_circuit_with_several_operators("Clifford", 27, 4, 2)
+    # qiskit_lvl3_transpiler = generate_preset_pass_manager(
+    #     optimization_level=3, coupling_map=brisbane_coupling_map
+    # )
+    # return qiskit_lvl3_transpiler.run(circuit)
+    return circuit
+
+
+@pytest.fixture(scope="module")
+def random_circuit_with_several_linear_functions_transpiled(brisbane_coupling_map):
+    circuit = create_random_circuit_with_several_operators("LinearFunction", 27, 4, 2)
+    # qiskit_lvl3_transpiler = generate_preset_pass_manager(
+    #     optimization_level=3, coupling_map=brisbane_coupling_map
+    # )
+    # return qiskit_lvl3_transpiler.run(circuit)
+    return circuit
+
+
+@pytest.fixture(scope="module")
+def random_circuit_with_several_permutations_transpiled(brisbane_coupling_map):
+    circuit = create_random_circuit_with_several_operators("Permutation", 27, 4, 2)
+    # qiskit_lvl3_transpiler = generate_preset_pass_manager(
+    #     optimization_level=3, coupling_map=brisbane_coupling_map
+    # )
+    # return qiskit_lvl3_transpiler.run(circuit)
+    return circuit
+
+
+@pytest.fixture(scope="module")
+def random_circuit_with_several_paulis_transpiled(brisbane_coupling_map):
+    circuit = create_random_circuit_with_several_operators("PauliNetwork", 27, 4, 2)
+    # qiskit_lvl3_transpiler = generate_preset_pass_manager(
+    #     optimization_level=3, coupling_map=brisbane_coupling_map
+    # )
+    # return qiskit_lvl3_transpiler.run(circuit)
+    return circuit
 
 
 @pytest.fixture(scope="module")

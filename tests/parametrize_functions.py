@@ -104,14 +104,30 @@ def parametrize_coupling_map_format():
     )
 
 
-def parametrize_collector_pass():
+def parametrize_circuit_collector_pass_and_operator_name():
     return pytest.mark.parametrize(
-        "collector_pass",
+        "circuit, collector_pass, operator_name",
         [
-            (CollectPermutations),
-            (CollectLinearFunctions),
-            (CollectCliffords),
-            (CollectPauliNetworks),
+            (
+                "random_circuit_with_several_permutations_transpiled",
+                CollectPermutations,
+                "permutation",
+            ),
+            (
+                "random_circuit_with_several_linear_functions_transpiled",
+                CollectLinearFunctions,
+                "linear_function",
+            ),
+            (
+                "random_circuit_with_several_cliffords_transpiled",
+                CollectCliffords,
+                "Clifford",
+            ),
+            (
+                "random_circuit_with_several_paulis_transpiled",
+                CollectPauliNetworks,
+                "pauli",
+            ),
         ],
         ids=["permutation", "linear_function", "clifford", "pauli_network"],
     )
@@ -161,17 +177,20 @@ def parametrize_basic_circuit_collector_pass_and_ai_synthesis_pass():
     return pytest.mark.parametrize(
         "circuit, collector_pass, ai_synthesis_pass",
         [
-            # ("basic_swap_circuit", CollectPermutations, AIPermutationSynthesis),
+            (
+                "basic_swap_circuit",
+                CollectPermutations,
+                AIPermutationSynthesis,
+            ),
             ("basic_cnot_circuit", CollectLinearFunctions, AILinearFunctionSynthesis),
             ("basic_cnot_circuit", CollectCliffords, AICliffordSynthesis),
             (
-                "random_circuit_transpiled",
+                "basic_cnot_circuit",
                 CollectPauliNetworks,
                 AIPauliNetworkSynthesis,
             ),
         ],
-        # ids=["permutation", "linear_function", "clifford"],
-        ids=["linear_function", "clifford", "pauli_network"],
+        ids=["permutation", "linear_function", "clifford", "pauli_network"],
     )
 
 
