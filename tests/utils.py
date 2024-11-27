@@ -12,7 +12,6 @@
 
 """Functions used on the tests"""
 import numpy as np
-from typing import Callable
 
 from qiskit import QuantumCircuit
 from qiskit.circuit.library import Permutation, LinearFunction
@@ -24,15 +23,16 @@ def create_random_circuit_with_several_operators(
     n_qubits_circuit: int,
     n_qubits_operator: int,
     n_operator_circuits: int,
+    seed: int = 42,
 ):
     circuit = QuantumCircuit(n_qubits_circuit)
-    np.random.seed(42)
+    np.random.seed(seed)
     for c in range(n_operator_circuits):
         qs = np.random.choice(
             range(n_qubits_circuit), size=n_qubits_operator, replace=False
         )
 
-        operator_circuit = create_operator_circuit(operator, n_qubits_operator)
+        operator_circuit = create_operator_circuit(operator, n_qubits_operator, seed)
         circuit.compose(
             operator_circuit,
             qubits=qs.tolist(),
@@ -44,19 +44,19 @@ def create_random_circuit_with_several_operators(
     return circuit
 
 
-def create_operator_circuit(operator: str, num_qubits: int):
+def create_operator_circuit(operator: str, num_qubits: int, seed: int = 42):
     if operator == "Permutation":
-        return Permutation(num_qubits, seed=42)
+        return Permutation(num_qubits, seed=seed)
     elif operator == "LinearFunction":
-        np.random.seed(42)
+        np.random.seed(seed)
         matrix = np.random.randint(2, size=(num_qubits, num_qubits))
         circuit = QuantumCircuit(num_qubits)
         circuit.append(LinearFunction(matrix), range(num_qubits))
         return circuit
     elif operator == "Clifford":
-        return random_clifford(num_qubits, seed=42).to_circuit()
+        return random_clifford(num_qubits, seed=seed).to_circuit()
     elif operator == "PauliNetwork":
-        return random_pauli(num_qubits, seed=42)
+        return random_pauli(num_qubits, seed=seed)
     else:
         raise ValueError(f"Unsopported operator {operator}")
 
