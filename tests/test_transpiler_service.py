@@ -85,35 +85,29 @@ def test_qv_backend_routing(optimization_level, ai, qiskit_transpile_options):
 
 # FIXME: Code only supports coupling map list format
 # @parametrize_coupling_map_format()
-@pytest.mark.parametrize(
-    "coupling_map",
-    [
-        [[0, 1], [1, 2], [2, 3], [3, 4], [4, 5]],
-        [[0, 1], [1, 2], [2, 3], [3, 4], [4, 5], [5, 6], [6, 7]],
-    ],
-)
 @parametrize_valid_optimization_level()
 @parametrize_ai()
 @parametrize_qiskit_transpile_options()
 @parametrize_valid_optimization_preferences_without_noise()
 def test_rand_circ_cmap_routing(
-    coupling_map,
+    brisbane_coupling_map_list_format,
+    permutation_circuit_brisbane,
     optimization_level,
     ai,
     qiskit_transpile_options,
     valid_optimization_preferences_without_noise,
 ):
-    random_circ = random_circuit(5, depth=3, seed=42).decompose(reps=3)
+    # For this tests the circuit is no relevant, so we reuse one we already have
+    original_circuit = permutation_circuit_brisbane
 
-    coupling_map.extend([item[::-1] for item in coupling_map])
     cloud_transpiler_service = TranspilerService(
-        coupling_map=coupling_map,
+        coupling_map=brisbane_coupling_map_list_format,
         ai=ai,
         optimization_level=optimization_level,
         qiskit_transpile_options=qiskit_transpile_options,
         optimization_preferences=valid_optimization_preferences_without_noise,
     )
-    transpiled_circuit = cloud_transpiler_service.run(random_circ)
+    transpiled_circuit = cloud_transpiler_service.run(original_circuit)
 
     assert isinstance(transpiled_circuit, QuantumCircuit)
 
