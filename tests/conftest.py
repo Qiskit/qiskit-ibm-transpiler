@@ -16,9 +16,7 @@ import logging
 import pytest
 
 from qiskit import QuantumCircuit
-from qiskit.circuit.library import QuantumVolume, Permutation, LinearFunction
-from qiskit.transpiler.preset_passmanagers import generate_preset_pass_manager
-from qiskit.quantum_info import random_clifford, random_pauli
+from qiskit.circuit.library import QuantumVolume
 
 from qiskit_ibm_transpiler.utils import (
     create_random_linear_function,
@@ -105,7 +103,7 @@ def permutation_circuit_brisbane(brisbane_num_qubits):
 # TODO: All the tests that use this circuit keeps the original circuit. Check if this is the better option
 # for doing those tests
 @pytest.fixture(scope="module")
-def linear_function_circuit():
+def random_linear_function_circuit():
     circuit = QuantumCircuit(8)
     linear_function = create_random_linear_function(8)
     circuit.append(linear_function, range(8))
@@ -119,7 +117,7 @@ def linear_function_circuit():
 # TODO: All the tests that use this circuit keeps the original circuit. Check if this is the better option
 # for doing those tests
 @pytest.fixture(scope="module")
-def clifford_circuit():
+def random_clifford_circuit():
     circuit = QuantumCircuit(8)
     clifford = random_clifford_from_linear_function(8)
     circuit.append(clifford, range(8))
@@ -159,7 +157,7 @@ def random_brisbane_circuit_with_two_paulis(brisbane_num_qubits):
 
 
 @pytest.fixture(scope="module")
-def random_pauli_circuit_transpiled():
+def pauli_circuit_transpiled():
     from qiskit import qasm2
 
     circuit = qasm2.load(

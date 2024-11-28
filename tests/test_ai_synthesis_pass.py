@@ -15,7 +15,6 @@
 import pytest
 
 from qiskit import QuantumCircuit
-
 from qiskit.transpiler import PassManager
 
 from qiskit_ibm_transpiler.ai.collection import (

@@ -204,13 +204,13 @@ def parametrize_complex_circuit_collector_pass_and_ai_synthesis_pass():
                 AIPermutationSynthesis,
             ),
             (
-                "linear_function_circuit",
+                "random_linear_function_circuit",
                 CollectLinearFunctions,
                 AILinearFunctionSynthesis,
             ),
-            ("clifford_circuit", CollectCliffords, AICliffordSynthesis),
+            ("random_clifford_circuit", CollectCliffords, AICliffordSynthesis),
             (
-                "random_pauli_circuit_transpiled",
+                "pauli_circuit_transpiled",
                 CollectPauliNetworks,
                 AIPauliNetworkSynthesis,
             ),
