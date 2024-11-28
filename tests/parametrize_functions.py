@@ -109,22 +109,22 @@ def parametrize_circuit_collector_pass_and_operator_name():
         "circuit, collector_pass, operator_name",
         [
             (
-                "random_circuit_with_several_permutations_transpiled",
+                "random_brisbane_circuit_with_two_permutations",
                 CollectPermutations,
                 "permutation",
             ),
             (
-                "random_circuit_with_several_linear_functions_transpiled",
+                "random_brisbane_circuit_with_two_linear_functions",
                 CollectLinearFunctions,
                 "linear_function",
             ),
             (
-                "random_circuit_with_several_cliffords_transpiled",
+                "random_brisbane_circuit_with_two_cliffords",
                 CollectCliffords,
                 "Clifford",
             ),
             (
-                "random_circuit_with_several_paulis_transpiled",
+                "random_brisbane_circuit_with_two_paulis",
                 CollectPauliNetworks,
                 "pauli",
             ),

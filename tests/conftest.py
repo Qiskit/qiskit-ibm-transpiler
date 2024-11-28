@@ -83,8 +83,13 @@ def brisbane_coupling_map_list_format(brisbane_backend):
 
 
 @pytest.fixture(scope="module")
-def permutation_circuit_brisbane(brisbane_backend):
-    orig_qc = QuantumCircuit(brisbane_backend.num_qubits)
+def brisbane_num_qubits(brisbane_backend):
+    return brisbane_backend.num_qubits
+
+
+@pytest.fixture(scope="module")
+def permutation_circuit_brisbane(brisbane_num_qubits):
+    orig_qc = QuantumCircuit(brisbane_num_qubits)
     # Add 8qL permutation to find subgraph in current models
     for i, p in enumerate([6, 2, 3, 4, 0, 1, 7, 5]):
         orig_qc.swap(i, p)
@@ -97,44 +102,60 @@ def permutation_circuit_brisbane(brisbane_backend):
     return orig_qc
 
 
+# TODO: All the tests that use this circuit keeps the original circuit. Check if this is the better option
+# for doing those tests
 @pytest.fixture(scope="module")
-def random_circuit_with_several_cliffords_transpiled(brisbane_coupling_map):
-    circuit = create_random_circuit_with_several_operators("Clifford", 27, 4, 2)
-    # qiskit_lvl3_transpiler = generate_preset_pass_manager(
-    #     optimization_level=3, coupling_map=brisbane_coupling_map
-    # )
-    # return qiskit_lvl3_transpiler.run(circuit)
+def linear_function_circuit():
+    circuit = QuantumCircuit(8)
+    linear_function = create_random_linear_function(8)
+    circuit.append(linear_function, range(8))
+    # Using decompose since we need a QuantumCircuit, not a LinearFunction. We created an empty
+    # circuit, so it contains only a LinearFunction
+    circuit = circuit.decompose(reps=1)
+
+    return circuit
+
+
+# TODO: All the tests that use this circuit keeps the original circuit. Check if this is the better option
+# for doing those tests
+@pytest.fixture(scope="module")
+def clifford_circuit():
+    circuit = QuantumCircuit(8)
+    clifford = random_clifford_from_linear_function(8)
+    circuit.append(clifford, range(8))
+    # Using decompose since we need a QuantumCircuit, not a Clifford. We created an empty
+    # circuit, so it contains only a Clifford
+    circuit = circuit.decompose(reps=1)
+
     return circuit
 
 
 @pytest.fixture(scope="module")
-def random_circuit_with_several_linear_functions_transpiled(brisbane_coupling_map):
-    circuit = create_random_circuit_with_several_operators("LinearFunction", 27, 4, 2)
-    # qiskit_lvl3_transpiler = generate_preset_pass_manager(
-    #     optimization_level=3, coupling_map=brisbane_coupling_map
-    # )
-    # return qiskit_lvl3_transpiler.run(circuit)
-    return circuit
+def random_brisbane_circuit_with_two_cliffords(brisbane_num_qubits):
+    return create_random_circuit_with_several_operators(
+        "Clifford", brisbane_num_qubits, 4, 2
+    )
 
 
 @pytest.fixture(scope="module")
-def random_circuit_with_several_permutations_transpiled(brisbane_coupling_map):
-    circuit = create_random_circuit_with_several_operators("Permutation", 27, 4, 2)
-    # qiskit_lvl3_transpiler = generate_preset_pass_manager(
-    #     optimization_level=3, coupling_map=brisbane_coupling_map
-    # )
-    # return qiskit_lvl3_transpiler.run(circuit)
-    return circuit
+def random_brisbane_circuit_with_two_linear_functions(brisbane_num_qubits):
+    return create_random_circuit_with_several_operators(
+        "LinearFunction", brisbane_num_qubits, 4, 2
+    )
 
 
 @pytest.fixture(scope="module")
-def random_circuit_with_several_paulis_transpiled(brisbane_coupling_map):
-    circuit = create_random_circuit_with_several_operators("PauliNetwork", 27, 4, 2)
-    # qiskit_lvl3_transpiler = generate_preset_pass_manager(
-    #     optimization_level=3, coupling_map=brisbane_coupling_map
-    # )
-    # return qiskit_lvl3_transpiler.run(circuit)
-    return circuit
+def random_brisbane_circuit_with_two_permutations(brisbane_num_qubits):
+    return create_random_circuit_with_several_operators(
+        "Permutation", brisbane_num_qubits, 4, 2
+    )
+
+
+@pytest.fixture(scope="module")
+def random_brisbane_circuit_with_two_paulis(brisbane_num_qubits):
+    return create_random_circuit_with_several_operators(
+        "PauliNetwork", brisbane_num_qubits, 4, 2
+    )
 
 
 @pytest.fixture(scope="module")
@@ -168,33 +189,5 @@ def basic_swap_circuit():
     circuit = QuantumCircuit(3)
     circuit.swap(0, 1)
     circuit.swap(1, 2)
-
-    return circuit
-
-
-# TODO: All the tests that use this circuit keeps the original circuit. Check if this is the better option
-# for doing those tests
-@pytest.fixture(scope="module")
-def linear_function_circuit():
-    circuit = QuantumCircuit(8)
-    linear_function = create_random_linear_function(8)
-    circuit.append(linear_function, range(8))
-    # Using decompose since we need a QuantumCircuit, not a LinearFunction. We created an empty
-    # circuit, so it contains only a LinearFunction
-    circuit = circuit.decompose(reps=1)
-
-    return circuit
-
-
-# TODO: All the tests that use this circuit keeps the original circuit. Check if this is the better option
-# for doing those tests
-@pytest.fixture(scope="module")
-def clifford_circuit():
-    circuit = QuantumCircuit(8)
-    clifford = random_clifford_from_linear_function(8)
-    circuit.append(clifford, range(8))
-    # Using decompose since we need a QuantumCircuit, not a Clifford. We created an empty
-    # circuit, so it contains only a Clifford
-    circuit = circuit.decompose(reps=1)
 
     return circuit

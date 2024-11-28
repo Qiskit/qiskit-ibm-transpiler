@@ -157,7 +157,7 @@ def test_ai_cloud_synthesis_wrong_url(
     assert "Keeping the original circuit" in caplog.text
 
 
-# TODO: When using basic_swap_circuit it works, when using random_circuit_with_several_cliffords_transpiled doesn't. Check why
+# TODO: When using basic_swap_circuit it works, when using random_brisbane_circuit_with_two_cliffords doesn't. Check why
 @pytest.mark.disable_monkeypatch
 @parametrize_basic_circuit_collector_pass_and_ai_synthesis_pass()
 def test_ai_cloud_synthesis_unexisting_url(

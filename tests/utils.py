@@ -14,8 +14,10 @@
 import numpy as np
 
 from qiskit import QuantumCircuit
-from qiskit.circuit.library import Permutation, LinearFunction
+from qiskit.circuit.library import Permutation
 from qiskit.quantum_info import random_clifford, random_pauli
+
+from qiskit_ibm_transpiler.utils import create_random_linear_function
 
 
 def create_random_circuit_with_several_operators(
@@ -48,10 +50,9 @@ def create_operator_circuit(operator: str, num_qubits: int, seed: int = 42):
     if operator == "Permutation":
         return Permutation(num_qubits, seed=seed)
     elif operator == "LinearFunction":
-        np.random.seed(seed)
-        matrix = np.random.randint(2, size=(num_qubits, num_qubits))
         circuit = QuantumCircuit(num_qubits)
-        circuit.append(LinearFunction(matrix), range(num_qubits))
+        linear_function_circuit = create_random_linear_function(num_qubits, seed=seed)
+        circuit.append(linear_function_circuit, range(num_qubits))
         return circuit
     elif operator == "Clifford":
         return random_clifford(num_qubits, seed=seed).to_circuit()
