@@ -56,11 +56,12 @@ def validate_image(file_path: str) -> tuple[str, list[str]]:
 
         if image_found and is_option(line):
             options.append(line)
-            line_index += 1
-            continue
 
-        image_found = is_image(line) and not in_allowlist(file_path, line_index + 1)
-        image_line = line_index + 1
+        if is_image(line) and not in_allowlist(file_path, line_index + 1):
+            image_found = True
+            image_line = line_index + 1
+            options = []
+
         line_index += 1
 
     return (file_path, invalid_images)
