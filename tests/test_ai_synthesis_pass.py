@@ -326,7 +326,11 @@ def test_ai_synthesis_pass_with_backend(
     assert all(word in caplog.text for word in ["Running", "synthesis"])
 
 
-# TODO: The tests pass but some errors are logged. Check this
+# FIXME: Synthesis is not completed for Permutations. Error showed:
+# Qargs do not form a connected subgraph of the backend coupling map.
+# TODO: Continuing with the previous behavior: on cloud mode we show and
+# error and on local mode a warning, decide if we want this or if they should
+# have the same behavior
 @parametrize_complex_circuit_collector_pass_and_ai_synthesis_pass()
 @parametrize_local_mode()
 @parametrize_coupling_map_format()
