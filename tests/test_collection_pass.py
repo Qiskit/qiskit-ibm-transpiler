@@ -31,7 +31,9 @@ from tests.parametrize_functions import (
 
 
 @parametrize_circuit_collector_pass_and_operator_name()
-def test_collection_pass(circuit, collector_pass, operator_name, request):
+def test_collection_pass_collected_operators(
+    circuit, collector_pass, operator_name, request
+):
     original_circuit = request.getfixturevalue(circuit)
 
     custom_collector_pass = PassManager([collector_pass()])
@@ -48,7 +50,7 @@ def test_collection_pass(circuit, collector_pass, operator_name, request):
 
 @parametrize_collectable_gates_collector_pass_operation_name()
 @parametrize_n_qubits()
-def test_collection_pass_collect(
+def test_collection_pass_collectable_gates(
     collectable_gates, collector_pass, operation_name, n_qubits
 ):
     original_circuit = create_linear_circuit(n_qubits, collectable_gates)
@@ -66,7 +68,7 @@ def test_collection_pass_collect(
 
 @parametrize_non_collectable_gates_collector_pass_operation_name()
 @parametrize_n_qubits()
-def test_collection_pass_no_collect(
+def test_collection_pass_non_collectable_gates(
     non_collectable_gates, collector_pass, operation_name, n_qubits
 ):
     original_circuit = create_linear_circuit(n_qubits, non_collectable_gates)
@@ -84,7 +86,7 @@ def test_collection_pass_no_collect(
 
 @parametrize_collectable_gates_and_collector_pass()
 @parametrize_n_qubits()
-def test_collection_max_block_size(collectable_gates, collector_pass, n_qubits):
+def test_collection_pass_max_block_size(collectable_gates, collector_pass, n_qubits):
     original_circuit = create_linear_circuit(n_qubits, collectable_gates)
 
     custom_collector_pass = PassManager(
@@ -99,7 +101,7 @@ def test_collection_max_block_size(collectable_gates, collector_pass, n_qubits):
 
 @parametrize_collectable_gates_collector_pass_operation_name()
 @parametrize_n_qubits()
-def test_collection_min_block_size(
+def test_collection_pass_min_block_size(
     collectable_gates, collector_pass, operation_name, n_qubits
 ):
     original_circuit = create_linear_circuit(n_qubits, collectable_gates)
@@ -120,7 +122,7 @@ def test_collection_min_block_size(
 @parametrize_collectable_gates_and_collector_pass()
 @parametrize_n_qubits()
 @pytest.mark.timeout(10)
-def test_collection_with_barrier(collectable_gates, collector_pass, n_qubits):
+def test_collection_pass_with_barrier(collectable_gates, collector_pass, n_qubits):
     original_circuit = create_linear_circuit(n_qubits, collectable_gates)
 
     original_circuit.measure_all()
@@ -135,7 +137,9 @@ def test_collection_with_barrier(collectable_gates, collector_pass, n_qubits):
 
 # TODO: Waiting for clarifications on what this test do
 @pytest.mark.skip(reason="Commented asserts are not constant")
-def test_permutation_collector(permutation_circuit_brisbane, brisbane_coupling_map):
+def test_permutation_collector_pass(
+    permutation_circuit_brisbane, brisbane_coupling_map
+):
     qiskit_lvl3_transpiler = generate_preset_pass_manager(
         optimization_level=1, coupling_map=brisbane_coupling_map
     )
