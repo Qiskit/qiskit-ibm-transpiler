@@ -33,6 +33,12 @@ def parametrize_ai():
     return pytest.mark.parametrize("ai", ["false", "true"], ids=["no_ai", "ai"])
 
 
+def parametrize_include_ai_synthesis():
+    return pytest.mark.parametrize(
+        "include_ai_synthesis", [False, True], ids=["ai_synthesis", "no_ai_synthesis"]
+    )
+
+
 def parametrize_valid_optimization_level():
     return pytest.mark.parametrize(
         "optimization_level",
@@ -41,11 +47,31 @@ def parametrize_valid_optimization_level():
     )
 
 
+def parametrize_valid_ai_optimization_level():
+    return pytest.mark.parametrize(
+        "ai_optimization_level",
+        [1, 2, 3],
+        ids=["ai_opt_level_1", "ai_opt_level_2", "ai_opt_level_3"],
+    )
+
+
 def parametrize_qiskit_transpile_options():
     return pytest.mark.parametrize(
         "qiskit_transpile_options",
         [None, {"seed_transpiler": 0}],
         ids=["no opt", "one option"],
+    )
+
+
+def parametrize_ai_layout_mode():
+    return pytest.mark.parametrize(
+        "ai_layout_mode",
+        ["keep", "optimize", "improve"],
+        ids=[
+            "ai_layout_mode_keep",
+            "ai_layout_mode_optimize",
+            "ai_layout_mode_improve",
+        ],
     )
 
 

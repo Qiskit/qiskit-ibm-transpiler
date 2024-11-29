@@ -12,50 +12,38 @@
 
 """Unit-testing generate_ai_pass_manager"""
 
-import pytest
 from qiskit import QuantumCircuit
 from qiskit.circuit.library import EfficientSU2
 from qiskit_ibm_transpiler import generate_ai_pass_manager
 
-from qiskit_ibm_runtime import QiskitRuntimeService
 
-BACKEND = QiskitRuntimeService().backend("ibm_brisbane")
-COUPLING_MAP = BACKEND.coupling_map
+from tests.parametrize_functions import (
+    parametrize_valid_optimization_level,
+    parametrize_valid_ai_optimization_level,
+    parametrize_include_ai_synthesis,
+    parametrize_qiskit_transpile_options,
+    parametrize_ai_layout_mode,
+)
 
 
-@pytest.mark.parametrize(
-    "optimization_level", [1, 2, 3], ids=["opt_level_1", "opt_level_2", "opt_level_3"]
-)
-@pytest.mark.parametrize(
-    "ai_optimization_level",
-    [1, 2, 3],
-    ids=["ai_opt_level_1", "ai_opt_level_2", "ai_opt_level_3"],
-)
-@pytest.mark.parametrize(
-    "include_ai_synthesis", [False, True], ids=["ai_synthesis", "no_ai_synthesis"]
-)
-@pytest.mark.parametrize(
-    "ai_layout_mode",
-    ["keep", "optimize", "improve"],
-    ids=["ai_layout_mode_keep", "ai_layout_mode_optimize", "ai_layout_mode_improve"],
-)
-@pytest.mark.parametrize(
-    "qiskit_transpile_options",
-    [{}, {"seed_transpiler": 0}],
-    ids=["no opt", "one option"],
-)
-def test_rand_circ_ai_pm(
+@parametrize_valid_optimization_level()
+@parametrize_valid_ai_optimization_level()
+@parametrize_include_ai_synthesis()
+@parametrize_ai_layout_mode()
+@parametrize_qiskit_transpile_options()
+def test_ai_pass_manager(
     optimization_level,
     ai_optimization_level,
     include_ai_synthesis,
     ai_layout_mode,
     qiskit_transpile_options,
+    brisbane_coupling_map,
 ):
 
     su2_circuit = EfficientSU2(10, entanglement="circular", reps=1).decompose()
 
     ai_transpiler_pass_manager = generate_ai_pass_manager(
-        coupling_map=COUPLING_MAP,
+        coupling_map=brisbane_coupling_map,
         ai_optimization_level=ai_optimization_level,
         include_ai_synthesis=include_ai_synthesis,
         optimization_level=optimization_level,
