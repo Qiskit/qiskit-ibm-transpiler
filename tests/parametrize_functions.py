@@ -14,6 +14,8 @@
 
 import pytest
 
+from qiskit.transpiler.exceptions import TranspilerError
+
 from qiskit_ibm_transpiler.ai.collection import (
     CollectPermutations,
     CollectLinearFunctions,
@@ -47,6 +49,13 @@ def parametrize_valid_optimization_level():
     )
 
 
+def parametrize_non_valid_optimization_level():
+    return pytest.mark.parametrize(
+        "optimization_level",
+        [0, 4],
+    )
+
+
 def parametrize_valid_ai_optimization_level():
     return pytest.mark.parametrize(
         "ai_optimization_level",
@@ -72,6 +81,25 @@ def parametrize_ai_layout_mode():
             "ai_layout_mode_optimize",
             "ai_layout_mode_improve",
         ],
+    )
+
+
+def parametrize_valid_layout_mode():
+    return pytest.mark.parametrize(
+        "layout_mode",
+        ["KEEP", "OPTIMIZE", "IMPROVE"],
+        ids=[
+            "layout_mode_keep",
+            "layout_mode_optimize",
+            "layout_mode_improve",
+        ],
+    )
+
+
+def parametrize_non_valid_layout_mode():
+    return pytest.mark.parametrize(
+        "layout_mode",
+        ["RECREATE", "BOOST"],
     )
 
 
@@ -118,6 +146,14 @@ def parametrize_local_mode():
     return pytest.mark.parametrize(
         "local_mode",
         [True, False],
+        ids=["local_mode", "cloud_mode"],
+    )
+
+
+def parametrize_local_mode_and_error_type():
+    return pytest.mark.parametrize(
+        "local_mode, error_type",
+        [(True, PermissionError), (False, TranspilerError)],
         ids=["local_mode", "cloud_mode"],
     )
 

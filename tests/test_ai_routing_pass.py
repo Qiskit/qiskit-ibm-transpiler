@@ -25,6 +25,11 @@ from tests.parametrize_functions import (
     parametrize_coupling_map_format,
     parametrize_non_valid_optimization_preferences,
     parametrize_valid_optimization_preferences,
+    parametrize_local_mode_and_error_type,
+    parametrize_non_valid_optimization_level,
+    parametrize_valid_optimization_level,
+    parametrize_non_valid_layout_mode,
+    parametrize_valid_layout_mode,
 )
 
 
@@ -73,12 +78,13 @@ def test_ai_cloud_routing_pass_wrong_url(qv_circ, brisbane_backend_name):
         ]
     )
 
-    try:
+    with pytest.raises(TranspilerError) as exception_info:
         ai_routing_pass.run(qv_circ)
-        pytest.fail("Error expected")
-    except Exception as e:
-        assert "Internal error: 404 Client Error: Not Found for url" in str(e)
-        assert type(e).__name__ == "TranspilerError"
+
+        assert (
+            "Internal error: 404 Client Error: Not Found for url"
+            in exception_info.value
+        )
 
 
 @pytest.mark.disable_monkeypatch
@@ -93,23 +99,16 @@ def test_ai_cloud_routing_pass_unexisting_url(qv_circ, brisbane_backend_name):
         ]
     )
 
-    try:
+    with pytest.raises(TranspilerError) as exception_info:
         ai_routing_pass.run(qv_circ)
-        pytest.fail("Error expected")
-    except Exception as e:
-        print(e)
+
         assert (
             "Error: HTTPSConnectionPool(host=\\'invented-domain-qiskit-ibm-transpiler-123.com\\', port=443):"
-            in str(e)
+            in exception_info.value
         )
-        assert type(e).__name__ == "TranspilerError"
 
 
-@pytest.mark.parametrize(
-    "local_mode, error_type",
-    [(True, PermissionError), (False, TranspilerError)],
-    ids=["local_mode", "cloud_mode"],
-)
+@parametrize_local_mode_and_error_type()
 def test_ai_routing_pass_wrong_backend(error_type, local_mode, basic_cnot_circuit):
     with pytest.raises(
         error_type,
@@ -123,16 +122,17 @@ def test_ai_routing_pass_wrong_backend(error_type, local_mode, basic_cnot_circui
         ai_routing_pass.run(basic_cnot_circuit)
 
 
-@pytest.mark.parametrize("optimization_level", [0, 4])
+@parametrize_non_valid_optimization_level()
 @parametrize_local_mode()
-def test_ai_routing_pass_wrong_opt_level(
-    optimization_level, local_mode, brisbane_backend_name, qv_circ
+def test_ai_routing_pass_non_valid_optimization_level(
+    optimization_level, local_mode, brisbane_backend_name
 ):
     with pytest.raises(
         ValueError,
         match=r"ERROR. The optimization_level should be a value between 1 and 3.",
     ):
-        ai_routing_pass = PassManager(
+
+        PassManager(
             [
                 AIRouting(
                     optimization_level=optimization_level,
@@ -142,12 +142,10 @@ def test_ai_routing_pass_wrong_opt_level(
             ]
         )
 
-        ai_routing_pass.run(qv_circ)
 
-
-@pytest.mark.parametrize("optimization_level", [1, 2, 3])
+@parametrize_valid_optimization_level()
 @parametrize_local_mode()
-def test_ai_routing_pass_valid_opt_level(
+def test_ai_routing_pass_valid_optimization_level(
     optimization_level,
     local_mode,
     brisbane_backend_name,
@@ -171,13 +169,14 @@ def test_ai_routing_pass_valid_opt_level(
 @parametrize_non_valid_optimization_preferences()
 @parametrize_local_mode()
 def test_ai_routing_pass_non_valid_optimization_preferences(
-    non_valid_optimization_preferences, local_mode, brisbane_backend_name, qv_circ
+    non_valid_optimization_preferences, local_mode, brisbane_backend_name
 ):
     with pytest.raises(
         ValueError,
         match=r"'\w+' is not a valid optimization preference",
     ):
-        ai_routing_pass = PassManager(
+
+        PassManager(
             [
                 AIRouting(
                     optimization_preferences=non_valid_optimization_preferences,
@@ -187,12 +186,10 @@ def test_ai_routing_pass_non_valid_optimization_preferences(
             ]
         )
 
-        ai_routing_pass.run(qv_circ)
-
 
 @parametrize_valid_optimization_preferences()
 @parametrize_local_mode()
-def test_ai_routing_pass_valid_opt_preferences(
+def test_ai_routing_pass_valid_optimization_preferences(
     valid_optimization_preferences,
     local_mode,
     brisbane_backend_name,
@@ -213,9 +210,9 @@ def test_ai_routing_pass_valid_opt_preferences(
     assert isinstance(circuit, QuantumCircuit)
 
 
-@pytest.mark.parametrize("layout_mode", ["RECREATE", "BOOST"])
+@parametrize_non_valid_layout_mode()
 @parametrize_local_mode()
-def test_ai_routing_pass_wrong_layout_mode(
+def test_ai_routing_pass_non_valid_layout_mode(
     layout_mode, local_mode, brisbane_backend_name
 ):
     with pytest.raises(ValueError):
@@ -230,7 +227,7 @@ def test_ai_routing_pass_wrong_layout_mode(
         )
 
 
-@pytest.mark.parametrize("layout_mode", ["KEEP", "OPTIMIZE", "IMPROVE"])
+@parametrize_valid_layout_mode()
 @parametrize_local_mode()
 def test_ai_routing_pass_valid_layout_mode(
     layout_mode,
