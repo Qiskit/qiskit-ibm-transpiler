@@ -55,8 +55,10 @@ def test_ai_local_synthesis_wrong_backend(
         custom_ai_synthesis_pass.run(original_circuit)
 
 
-# TODO: Tests pass if we add min_block_size=2, max_block_size=27 to collector_pass. If not, tests failed. Confirm why this is happening
-@parametrize_basic_circuit_collector_pass_and_ai_synthesis_pass()
+# If we want to test with parametrize_basic_circuit_collector_pass_and_ai_synthesis_pass, we
+# should add min_block_size=2, max_block_size=27 as params to the collector_pass because of
+# the size of the circuit
+@parametrize_complex_circuit_collector_pass_and_ai_synthesis_pass()
 def test_ai_cloud_synthesis_wrong_backend(
     circuit, collector_pass, ai_synthesis_pass, caplog, request
 ):
@@ -64,7 +66,7 @@ def test_ai_cloud_synthesis_wrong_backend(
 
     custom_ai_synthesis_pass = PassManager(
         [
-            collector_pass(min_block_size=2, max_block_size=27),
+            collector_pass(),
             ai_synthesis_pass(backend_name="wrong_backend", local_mode=False),
         ]
     )
@@ -105,7 +107,10 @@ def test_ai_cloud_synthesis_exceed_timeout(
     assert isinstance(ai_optimized_circuit, QuantumCircuit)
 
 
-# TODO: Tests pass if we add min_block_size=2, max_block_size=27 to CollectPermutations. If not, tests failed. Confirm why this is happening
+# On the collector_pass, the defautl min_block_size is 4, so if we use the circuits on
+# parametrize_basic_circuit_collector_pass_and_ai_synthesis_pass (less than 4 qubits in
+# some cases), we should set min_block_size=2, max_block_size=27 as params in order to
+# make the test pass
 @parametrize_basic_circuit_collector_pass_and_ai_synthesis_pass()
 def test_ai_cloud_synthesis_wrong_token(
     circuit, collector_pass, ai_synthesis_pass, brisbane_backend_name, caplog, request
@@ -131,7 +136,10 @@ def test_ai_cloud_synthesis_wrong_token(
     assert isinstance(ai_optimized_circuit, QuantumCircuit)
 
 
-# TODO: Tests pass if we add min_block_size=2, max_block_size=27 to CollectPermutations. If not, tests failed. Confirm why this is happening
+# On the collector_pass, the defautl min_block_size is 4, so if we use the circuits on
+# parametrize_basic_circuit_collector_pass_and_ai_synthesis_pass (less than 4 qubits in
+# some cases), we should set min_block_size=2, max_block_size=27 as params in order to
+# make the test pass
 @pytest.mark.disable_monkeypatch
 @parametrize_basic_circuit_collector_pass_and_ai_synthesis_pass()
 def test_ai_cloud_synthesis_wrong_url(
