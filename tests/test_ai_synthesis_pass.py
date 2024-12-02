@@ -212,7 +212,7 @@ def test_ai_synthesis_always_replace_original_circuit(
 
     custom_ai_synthesis_pass = PassManager(
         [
-            collector_pass(min_block_size=2),
+            collector_pass(),
             ai_synthesis_pass(
                 backend=brisbane_backend,
                 replace_only_if_better=False,
