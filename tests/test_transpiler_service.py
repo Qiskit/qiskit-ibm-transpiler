@@ -50,12 +50,13 @@ from tests.parametrize_functions import (
 @parametrize_valid_optimization_level()
 @parametrize_ai()
 @parametrize_qiskit_transpile_options()
-def test_rand_circ_backend_routing(optimization_level, ai, qiskit_transpile_options):
-    backend_name = "ibm_brisbane"
+def test_transpiler_service_random_circuit(
+    optimization_level, ai, qiskit_transpile_options, brisbane_backend_name
+):
     random_circ = random_circuit(5, depth=3, seed=42)
 
     cloud_transpiler_service = TranspilerService(
-        backend_name=backend_name,
+        backend_name=brisbane_backend_name,
         ai=ai,
         optimization_level=optimization_level,
         qiskit_transpile_options=qiskit_transpile_options,
@@ -68,12 +69,11 @@ def test_rand_circ_backend_routing(optimization_level, ai, qiskit_transpile_opti
 @parametrize_valid_optimization_level()
 @parametrize_ai()
 @parametrize_qiskit_transpile_options()
-def test_qv_backend_routing(optimization_level, ai, qiskit_transpile_options):
-    backend_name = "ibm_brisbane"
-    qv_circ = QuantumVolume(27, depth=3, seed=42).decompose(reps=3)
-
+def test_transpiler_service_quantum_volume_circuit(
+    optimization_level, ai, qiskit_transpile_options, brisbane_backend_name, qv_circ
+):
     cloud_transpiler_service = TranspilerService(
-        backend_name=backend_name,
+        backend_name=brisbane_backend_name,
         ai=ai,
         optimization_level=optimization_level,
         qiskit_transpile_options=qiskit_transpile_options,
@@ -89,7 +89,7 @@ def test_qv_backend_routing(optimization_level, ai, qiskit_transpile_options):
 @parametrize_ai()
 @parametrize_qiskit_transpile_options()
 @parametrize_valid_optimization_preferences_without_noise()
-def test_rand_circ_cmap_routing(
+def test_transpiler_service_rand_circ_cmap_routing(
     brisbane_coupling_map_list_format,
     permutation_circuit_brisbane,
     optimization_level,
@@ -113,7 +113,7 @@ def test_rand_circ_cmap_routing(
 
 
 @pytest.mark.parametrize("num_circuits", [2, 5])
-def test_qv_circ_several_circuits_routing(num_circuits):
+def test_transpiler_service_qv_circ_several_circuits_routing(num_circuits):
     qv_circ = QuantumVolume(5, depth=3, seed=42).decompose(reps=3)
 
     cloud_transpiler_service = TranspilerService(
@@ -127,7 +127,7 @@ def test_qv_circ_several_circuits_routing(num_circuits):
         assert isinstance(circ, QuantumCircuit)
 
 
-def test_qv_circ_wrong_input_routing():
+def test_transpiler_service_qv_circ_wrong_input_routing():
     qv_circ = QuantumVolume(5, depth=3, seed=42).decompose(reps=3)
 
     cloud_transpiler_service = TranspilerService(
@@ -142,7 +142,7 @@ def test_qv_circ_wrong_input_routing():
 
 
 @parametrize_ai()
-def test_transpile_layout_reconstruction(ai):
+def test_transpiler_service_transpile_layout_reconstruction(ai):
     n_qubits = 27
 
     mat = np.real(random_hermitian(n_qubits, seed=1234))
@@ -164,7 +164,7 @@ def test_transpile_layout_reconstruction(ai):
         )
 
 
-def test_transpile_non_valid_backend():
+def test_transpiler_service_transpile_non_valid_backend():
     circuit = EfficientSU2(100, entanglement="circular", reps=1).decompose()
     non_valid_backend_name = "ibm_torin"
     transpiler_service = TranspilerService(
@@ -186,7 +186,7 @@ def test_transpile_non_valid_backend():
 @pytest.mark.skip(
     "Service accepts now 1e6 gates. Takes too much time to create that circuit."
 )
-def test_transpile_exceed_circuit_size():
+def test_transpiler_service_transpile_exceed_circuit_size():
     circuit = EfficientSU2(120, entanglement="full", reps=5).decompose()
     transpiler_service = TranspilerService(
         backend_name="ibm_brisbane",
@@ -201,7 +201,7 @@ def test_transpile_exceed_circuit_size():
         assert str(e) == "'Circuit has more gates than the allowed maximum of 30000.'"
 
 
-def test_transpile_exceed_timeout():
+def test_transpiler_service_transpile_exceed_timeout():
     circuit = EfficientSU2(100, entanglement="circular", reps=50).decompose()
     transpiler_service = TranspilerService(
         backend_name="ibm_brisbane",
@@ -220,7 +220,7 @@ def test_transpile_exceed_timeout():
         )
 
 
-def test_transpile_wrong_token():
+def test_transpiler_service_transpile_wrong_token():
     circuit = EfficientSU2(100, entanglement="circular", reps=1).decompose()
     transpiler_service = TranspilerService(
         backend_name="ibm_brisbane",
@@ -237,7 +237,7 @@ def test_transpile_wrong_token():
 
 
 @pytest.mark.disable_monkeypatch
-def test_transpile_wrong_url():
+def test_transpiler_service_transpile_wrong_url():
     circuit = EfficientSU2(100, entanglement="circular", reps=1).decompose()
     transpiler_service = TranspilerService(
         backend_name="ibm_brisbane",
@@ -258,7 +258,7 @@ def test_transpile_wrong_url():
 
 
 @pytest.mark.disable_monkeypatch
-def test_transpile_unexisting_url():
+def test_transpiler_service_transpile_unexisting_url():
     circuit = EfficientSU2(100, entanglement="circular", reps=1).decompose()
     transpiler_service = TranspilerService(
         backend_name="ibm_brisbane",
@@ -277,7 +277,7 @@ def test_transpile_unexisting_url():
         )
 
 
-def test_transpile_malformed_body():
+def test_transpiler_service_transpile_malformed_body():
     circuit = EfficientSU2(100, entanglement="circular", reps=1).decompose()
     transpiler_service = TranspilerService(
         backend_name="ibm_brisbane",
@@ -296,7 +296,7 @@ def test_transpile_malformed_body():
         )
 
 
-def test_transpile_failing_task():
+def test_transpiler_service_transpile_failing_task():
     qpy_circuit = "UUlTS0lUDAECAAAAAAAAAAABZXEAC2YACAAAAAMAAAAAAAAAAAAAAAIAAAABAAAAAAAAAAYAAAAAY2lyY3VpdC0xNjAAAAAAAAAAAHt9cQEAAAADAAEBcQAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAgAAAAAAAAABACRnAAAAAgAAAAABAAAAAAAAALsAAAAAAAAAAAAAAAAAAAAAZGN4X2ZkN2JlNTcxOTQ1OTRkZTY5ZDFlMTNmNmFmYmY1NmZjAAtmAAgAAAACAAAAAAAAAAAAAAACAAAAAAAAAAAAAAACAAAAAGNpcmN1aXQtMTYxAAAAAAAAAAB7fQAAAAAAAAAAAAYAAAAAAAAAAgAAAAAAAAAAAAAAAAAAAAAAAAEAAAABQ1hHYXRlcQAAAABxAAAAAQAGAAAAAAAAAAIAAAAAAAAAAAAAAAAAAAAAAAABAAAAAUNYR2F0ZXEAAAABcQAAAAAAAAD///////////////8AAAAAAAAAAAAGAAAAAAAAAAIAAAAAAAAAAAAAAAAAAAAAAAABAAAAAUNaR2F0ZXEAAAAAcQAAAAIABwAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABTZGdHYXRlcQAAAAEAJAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABkY3hfZmQ3YmU1NzE5NDU5NGRlNjlkMWUxM2Y2YWZiZjU2ZmNxAAAAAnEAAAABAAYAAAADAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAVTNHYXRlcQAAAABmAAAAAAAAAAiMHTg9AR8PQGYAAAAAAAAACH+xa3jilAtAZgAAAAAAAAAItmSFHpiI8j8ABwAAAAEAAAACAAAAAAAAAAAAAAAAAAAAAAAAAQAAAAFDUlhHYXRlcQAAAAFxAAAAAGYAAAAAAAAACI2Sd1JN3gJAAAUAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWUdhdGVxAAAAAgAAAP///////////////wAAAAAAAAAA"
     transpiler_service = TranspilerService(
         backend_name="ibm_brisbane",
@@ -317,7 +317,7 @@ def test_transpile_failing_task():
         assert "FAILED" in str(e)
 
 
-def test_transpile_wrong_circuits_format():
+def test_transpiler_service_transpile_wrong_circuits_format():
     circuit = random_circuit(5, depth=3, seed=42).decompose(reps=3)
 
     cloud_transpiler_service = TranspilerService(
@@ -329,7 +329,7 @@ def test_transpile_wrong_circuits_format():
         cloud_transpiler_service.run(wrong_input)
 
 
-def test_transpile_wrong_qpy_fallback():
+def test_transpiler_service_transpile_wrong_qpy_fallback():
     circuit = QuantumCircuit.from_qasm_file("tests/test_files/cc_n64.qasm")
     test_backend = GenericBackendV2(circuit.num_qubits)
 
@@ -391,7 +391,7 @@ def transpile_and_check_layout(cmap, circuit):
     compare_layouts(plugin_circ, non_ai_circ)
 
 
-def test_layout_construction_no_service(brisbane_coupling_map):
+def test_transpiler_service_layout_construction_no_service(brisbane_coupling_map):
     # FIXME: Test fail when uncommenting this code. The error msg is different each run.
     # for n_qubits in [5, 30, 60, 90, 120, 127]:
     #     circuit = random_circuit(n_qubits, 4, measure=True)
@@ -409,7 +409,7 @@ def test_layout_construction_no_service(brisbane_coupling_map):
         transpile_and_check_layout(brisbane_coupling_map, circuit)
 
 
-def test_fix_ecr_qasm2():
+def test_transpiler_service_fix_ecr_qasm2():
     qc = QuantumCircuit(5)
     qc.ecr(0, 2)
 
@@ -417,7 +417,7 @@ def test_fix_ecr_qasm2():
     assert isinstance(list(circuit_from_qasm)[0].operation, ECRGate)
 
 
-def test_fix_ecr_qasm3():
+def test_transpiler_service_fix_ecr_qasm3():
     qc = QuantumCircuit(5)
     qc.ecr(0, 2)
 
@@ -425,7 +425,7 @@ def test_fix_ecr_qasm3():
     assert isinstance(list(circuit_from_qasm)[0].operation, ECRGate)
 
 
-def test_fix_ecr_ibm_strasbourg():
+def test_transpiler_service_fix_ecr_ibm_strasbourg():
     num_qubits = 16
     circuit = QuantumCircuit(num_qubits)
     for i in range(num_qubits - 1):
@@ -441,7 +441,7 @@ def test_fix_ecr_ibm_strasbourg():
 
 
 @parametrize_non_valid_use_fractional_gates()
-def test_transpile_non_valid_use_fractional_gates(
+def test_transpiler_service_transpile_non_valid_use_fractional_gates(
     non_valid_use_fractional_gates,
 ):
     circuit = random_circuit(5, depth=3, seed=42)
@@ -460,7 +460,9 @@ def test_transpile_non_valid_use_fractional_gates(
 
 
 @parametrize_valid_use_fractional_gates()
-def test_transpile_valid_use_fractional_gates_param(valid_use_fractional_gates):
+def test_transpiler_service_transpile_valid_use_fractional_gates_param(
+    valid_use_fractional_gates,
+):
     circuit = random_circuit(5, depth=3, seed=42)
 
     transpiler_service = TranspilerService(
@@ -474,20 +476,20 @@ def test_transpile_valid_use_fractional_gates_param(valid_use_fractional_gates):
     assert isinstance(transpiled_circuit, QuantumCircuit)
 
 
-def test_qasm3_iterative_decomposition():
+def test_transpiler_service_qasm3_iterative_decomposition():
     feature_map = ZZFeatureMap(feature_dimension=3, reps=1, entanglement="full")
     qasm = input_to_qasm(feature_map)
     qc = get_circuit_from_qasm(qasm)
     assert isinstance(qc, QuantumCircuit)
 
 
-def test_qasm3_iterative_decomposition_limit():
+def test_transpiler_service_qasm3_iterative_decomposition_limit():
     feature_map = ZZFeatureMap(feature_dimension=3, reps=1, entanglement="full")
     with pytest.raises(qasm3.QASM3ExporterError):
         to_qasm3_iterative_decomposition(feature_map, n_iter=1)
 
 
-def test_transpile_with_barrier_on_circuit():
+def test_transpiler_service_transpile_with_barrier_on_circuit():
     circuit = QuantumCircuit(5)
     circuit.x(4)
     circuit.barrier()
