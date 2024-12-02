@@ -236,7 +236,7 @@ def get_qpy_from_circuit(
 ) -> str:
     if isinstance(input_circ, QuantumCircuit) or isinstance(input_circ, list):
         output_b = io.BytesIO()
-        qpy.dump(input_circ, output_b)
+        qpy.dump(programs=input_circ, file_obj=output_b, version=12)
         qpy_string = base64.b64encode(output_b.getvalue()).decode("utf-8")
     else:
         raise TypeError(
