@@ -201,7 +201,7 @@ def test_ai_synthesis_always_replace_original_circuit(
     collector_pass,
     ai_synthesis_pass,
     local_mode,
-    brisbane_backend_name,
+    brisbane_backend,
     caplog,
     request,
 ):
@@ -214,7 +214,7 @@ def test_ai_synthesis_always_replace_original_circuit(
         [
             collector_pass(min_block_size=2),
             ai_synthesis_pass(
-                backend_name=brisbane_backend_name,
+                backend=brisbane_backend,
                 replace_only_if_better=False,
                 local_mode=local_mode,
             ),
