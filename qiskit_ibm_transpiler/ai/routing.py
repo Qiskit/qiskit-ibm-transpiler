@@ -163,6 +163,12 @@ class AIRouting(TransformationPass):
 
         super().__init__()
 
+        backend_name = backend_name or getattr(backend, "name", None)
+
+        self.optimization_preferences = build_final_optimization_preferences(
+            optimization_preferences, backend_name
+        )
+
         if coupling_map:
             if isinstance(coupling_map, CouplingMap):
                 self.coupling_map = coupling_map
@@ -173,7 +179,21 @@ class AIRouting(TransformationPass):
                     f"ERROR. coupling_map should either be a list of int tuples or a Qiskit CouplingMap object."
                 )
         elif backend:
-            self.coupling_map = backend.coupling_map
+            is_noise_a_optimization_preference = (
+                self.optimization_preferences is not None
+                and (
+                    self.optimization_preferences == "noise"
+                    or "noise" in self.optimization_preferences
+                )
+            )
+            if is_noise_a_optimization_preference:
+                # AIRoutingAPI expects a backend_name when trying to optimize by noise
+                # TODO: Check if we need the backend for the local mode too
+                self.coupling_map = (
+                    backend_name if not local_mode else backend.coupling_map
+                )
+            else:
+                self.coupling_map = backend.coupling_map
         elif backend_name and local_mode:
             try:
                 runtime_service = QiskitRuntimeService()
@@ -188,12 +208,6 @@ class AIRouting(TransformationPass):
             self.coupling_map = backend_name
 
         self.optimization_level = optimization_level
-
-        backend_name = backend_name or (backend.name if backend else None)
-
-        self.optimization_preferences = build_final_optimization_preferences(
-            optimization_preferences, backend_name
-        )
 
         if layout_mode is not None and layout_mode.upper() not in [
             "KEEP",
