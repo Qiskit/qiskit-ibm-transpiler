@@ -111,6 +111,9 @@ class AISynthesis(TransformationPass):
 
         if backend:
             self.backend = backend
+            # TODO: Removes once we deprecate backend_name
+            if not local_mode:
+                self.backend_name = backend.name
         elif backend_name and local_mode:
             try:
                 runtime_service = QiskitRuntimeService()
