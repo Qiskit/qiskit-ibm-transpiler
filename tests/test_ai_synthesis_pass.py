@@ -194,6 +194,8 @@ def test_ai_cloud_synthesis_unexisting_url(
     assert isinstance(ai_optimized_circuit, QuantumCircuit)
 
 
+# TODO: Review why if I remove max_block_size=27 from the collector_pass, Permutation
+# test fails
 @parametrize_complex_circuit_collector_pass_and_ai_synthesis_pass()
 @parametrize_local_mode()
 def test_ai_synthesis_always_replace_original_circuit(

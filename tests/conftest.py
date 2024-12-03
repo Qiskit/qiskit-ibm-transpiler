@@ -21,6 +21,7 @@ from qiskit.circuit.library import QuantumVolume
 from qiskit_ibm_transpiler.utils import (
     create_random_linear_function,
     random_clifford_from_linear_function,
+    get_qpy_from_circuit,
 )
 
 from tests.utils import create_random_circuit_with_several_operators
@@ -59,6 +60,11 @@ def env_set(monkeypatch, request):
 
 
 @pytest.fixture(scope="module")
+def non_valid_backend_name():
+    return "ibm_torin"
+
+
+@pytest.fixture(scope="module")
 def brisbane_backend_name():
     return "ibm_brisbane"
 
@@ -83,6 +89,16 @@ def brisbane_coupling_map_list_format(brisbane_backend):
 @pytest.fixture(scope="module")
 def brisbane_num_qubits(brisbane_backend):
     return brisbane_backend.num_qubits
+
+
+@pytest.fixture(scope="module")
+def qpy_circuit_with_transpiling_error():
+    return "UUlTS0lUDAECAAAAAAAAAAABZXEAC2YACAAAAAMAAAAAAAAAAAAAAAIAAAABAAAAAAAAAAYAAAAAY2lyY3VpdC0xNjAAAAAAAAAAAHt9cQEAAAADAAEBcQAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAgAAAAAAAAABACRnAAAAAgAAAAABAAAAAAAAALsAAAAAAAAAAAAAAAAAAAAAZGN4X2ZkN2JlNTcxOTQ1OTRkZTY5ZDFlMTNmNmFmYmY1NmZjAAtmAAgAAAACAAAAAAAAAAAAAAACAAAAAAAAAAAAAAACAAAAAGNpcmN1aXQtMTYxAAAAAAAAAAB7fQAAAAAAAAAAAAYAAAAAAAAAAgAAAAAAAAAAAAAAAAAAAAAAAAEAAAABQ1hHYXRlcQAAAABxAAAAAQAGAAAAAAAAAAIAAAAAAAAAAAAAAAAAAAAAAAABAAAAAUNYR2F0ZXEAAAABcQAAAAAAAAD///////////////8AAAAAAAAAAAAGAAAAAAAAAAIAAAAAAAAAAAAAAAAAAAAAAAABAAAAAUNaR2F0ZXEAAAAAcQAAAAIABwAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABTZGdHYXRlcQAAAAEAJAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABkY3hfZmQ3YmU1NzE5NDU5NGRlNjlkMWUxM2Y2YWZiZjU2ZmNxAAAAAnEAAAABAAYAAAADAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAVTNHYXRlcQAAAABmAAAAAAAAAAiMHTg9AR8PQGYAAAAAAAAACH+xa3jilAtAZgAAAAAAAAAItmSFHpiI8j8ABwAAAAEAAAACAAAAAAAAAAAAAAAAAAAAAAAAAQAAAAFDUlhHYXRlcQAAAAFxAAAAAGYAAAAAAAAACI2Sd1JN3gJAAAUAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWUdhdGVxAAAAAgAAAP///////////////wAAAAAAAAAA"
+
+
+@pytest.fixture(scope="module")
+def non_valid_qpy_circuit(basic_cnot_circuit):
+    return [get_qpy_from_circuit(basic_cnot_circuit)] * 2
 
 
 @pytest.fixture(scope="module")
@@ -187,5 +203,16 @@ def basic_swap_circuit():
     circuit = QuantumCircuit(3)
     circuit.swap(0, 1)
     circuit.swap(1, 2)
+
+    return circuit
+
+
+@pytest.fixture(scope="module")
+def circuit_with_barrier():
+    circuit = QuantumCircuit(5)
+    circuit.x(4)
+    circuit.barrier()
+    circuit.z(3)
+    circuit.cx(3, 4)
 
     return circuit

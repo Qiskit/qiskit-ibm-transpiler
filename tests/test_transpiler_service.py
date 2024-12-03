@@ -18,7 +18,6 @@ from qiskit import QuantumCircuit, qasm2, qasm3
 from qiskit.circuit.library import (
     IQP,
     EfficientSU2,
-    QuantumVolume,
     ECRGate,
     ZZFeatureMap,
 )
@@ -26,6 +25,7 @@ from qiskit.circuit.random import random_circuit
 from qiskit.compiler import transpile
 from qiskit.quantum_info import SparsePauliOp, random_hermitian
 from qiskit.providers.fake_provider import GenericBackendV2
+from qiskit.transpiler.exceptions import TranspilerError
 
 from qiskit_ibm_transpiler.transpiler_service import TranspilerService
 from qiskit_ibm_transpiler.wrappers import _get_circuit_from_result
@@ -89,7 +89,7 @@ def test_transpiler_service_quantum_volume_circuit(
 @parametrize_ai()
 @parametrize_qiskit_transpile_options()
 @parametrize_valid_optimization_preferences_without_noise()
-def test_transpiler_service_rand_circ_cmap_routing(
+def test_transpiler_service_coupling_map(
     brisbane_coupling_map_list_format,
     permutation_circuit_brisbane,
     optimization_level,
@@ -113,11 +113,11 @@ def test_transpiler_service_rand_circ_cmap_routing(
 
 
 @pytest.mark.parametrize("num_circuits", [2, 5])
-def test_transpiler_service_qv_circ_several_circuits_routing(num_circuits):
-    qv_circ = QuantumVolume(5, depth=3, seed=42).decompose(reps=3)
-
+def test_transpiler_service_several_qv_circuits(
+    num_circuits, brisbane_backend_name, qv_circ
+):
     cloud_transpiler_service = TranspilerService(
-        backend_name="ibm_brisbane",
+        backend_name=brisbane_backend_name,
         ai="true",
         optimization_level=1,
     )
@@ -127,22 +127,21 @@ def test_transpiler_service_qv_circ_several_circuits_routing(num_circuits):
         assert isinstance(circ, QuantumCircuit)
 
 
-def test_transpiler_service_qv_circ_wrong_input_routing():
-    qv_circ = QuantumVolume(5, depth=3, seed=42).decompose(reps=3)
-
+def test_transpiler_service_wrong_input(brisbane_backend_name, qv_circ):
     cloud_transpiler_service = TranspilerService(
-        backend_name="ibm_brisbane",
+        backend_name=brisbane_backend_name,
         ai="true",
         optimization_level=1,
     )
 
     circ_dict = {"a": qv_circ}
+
     with pytest.raises(TypeError):
         cloud_transpiler_service.run(circ_dict)
 
 
 @parametrize_ai()
-def test_transpiler_service_transpile_layout_reconstruction(ai):
+def test_transpiler_service_layout_reconstruction(ai):
     n_qubits = 27
 
     mat = np.real(random_hermitian(n_qubits, seed=1234))
@@ -164,32 +163,29 @@ def test_transpiler_service_transpile_layout_reconstruction(ai):
         )
 
 
-def test_transpiler_service_transpile_non_valid_backend():
-    circuit = EfficientSU2(100, entanglement="circular", reps=1).decompose()
-    non_valid_backend_name = "ibm_torin"
+def test_transpiler_service_non_valid_backend_name(
+    non_valid_backend_name, basic_cnot_circuit
+):
     transpiler_service = TranspilerService(
         backend_name=non_valid_backend_name,
         ai="false",
         optimization_level=3,
     )
 
-    try:
-        transpiler_service.run(circuit)
-        pytest.fail("Error expected")
-    except Exception as e:
-        assert (
-            str(e)
-            == f'"User doesn\'t have access to the specified backend: {non_valid_backend_name}"'
-        )
+    with pytest.raises(
+        TranspilerError,
+        match=r"User doesn\'t have access to the specified backend: \w+",
+    ):
+        transpiler_service.run(basic_cnot_circuit)
 
 
 @pytest.mark.skip(
     "Service accepts now 1e6 gates. Takes too much time to create that circuit."
 )
-def test_transpiler_service_transpile_exceed_circuit_size():
+def test_transpiler_service_exceed_circuit_size(brisbane_backend_name):
     circuit = EfficientSU2(120, entanglement="full", reps=5).decompose()
     transpiler_service = TranspilerService(
-        backend_name="ibm_brisbane",
+        backend_name=brisbane_backend_name,
         ai="false",
         optimization_level=3,
     )
@@ -201,10 +197,10 @@ def test_transpiler_service_transpile_exceed_circuit_size():
         assert str(e) == "'Circuit has more gates than the allowed maximum of 30000.'"
 
 
-def test_transpiler_service_transpile_exceed_timeout():
+def test_transpiler_service_exceed_timeout(brisbane_backend_name):
     circuit = EfficientSU2(100, entanglement="circular", reps=50).decompose()
     transpiler_service = TranspilerService(
-        backend_name="ibm_brisbane",
+        backend_name=brisbane_backend_name,
         ai="false",
         optimization_level=3,
         timeout=1,
@@ -220,86 +216,77 @@ def test_transpiler_service_transpile_exceed_timeout():
         )
 
 
-def test_transpiler_service_transpile_wrong_token():
-    circuit = EfficientSU2(100, entanglement="circular", reps=1).decompose()
+def test_transpiler_service_wrong_token(brisbane_backend_name, basic_cnot_circuit):
     transpiler_service = TranspilerService(
-        backend_name="ibm_brisbane",
+        backend_name=brisbane_backend_name,
         ai="false",
         optimization_level=3,
         token="invented_token5",
     )
 
     try:
-        transpiler_service.run(circuit)
+        transpiler_service.run(basic_cnot_circuit)
         pytest.fail("Error expected")
     except Exception as e:
         assert str(e) == "'Invalid authentication credentials'"
 
 
 @pytest.mark.disable_monkeypatch
-def test_transpiler_service_transpile_wrong_url():
-    circuit = EfficientSU2(100, entanglement="circular", reps=1).decompose()
+def test_transpiler_service_wrong_url(brisbane_backend_name, basic_cnot_circuit):
     transpiler_service = TranspilerService(
-        backend_name="ibm_brisbane",
+        backend_name=brisbane_backend_name,
         ai="false",
         optimization_level=3,
         base_url="https://ibm.com/",
     )
 
-    try:
-        transpiler_service.run(circuit)
-        pytest.fail("Error expected")
-    except Exception as e:
-        assert (
-            "Internal error: 404 Client Error: Not Found for url: https://www.ibm.com/transpile"
-            in str(e)
-        )
-        assert type(e).__name__ == "TranspilerError"
+    with pytest.raises(
+        TranspilerError,
+        match=r"Internal error: 404 Client Error: Not Found for url: https://www.ibm.com/transpile",
+    ):
+        transpiler_service.run(basic_cnot_circuit)
 
 
 @pytest.mark.disable_monkeypatch
-def test_transpiler_service_transpile_unexisting_url():
-    circuit = EfficientSU2(100, entanglement="circular", reps=1).decompose()
+def test_transpiler_service_unexisting_url(brisbane_backend_name, basic_cnot_circuit):
     transpiler_service = TranspilerService(
-        backend_name="ibm_brisbane",
+        backend_name=brisbane_backend_name,
         ai="false",
         optimization_level=3,
         base_url="https://invented-domain-qiskit-ibm-transpiler-123.com/",
     )
 
-    try:
-        transpiler_service.run(circuit)
-        pytest.fail("Error expected")
-    except Exception as e:
+    with pytest.raises(TranspilerError) as exception_info:
+        transpiler_service.run(basic_cnot_circuit)
+
         assert (
             "Error: HTTPSConnectionPool(host=\\'invented-domain-qiskit-ibm-transpiler-123.com\\', port=443)"
-            in str(e)
+            in exception_info.value
         )
 
 
-def test_transpiler_service_transpile_malformed_body():
-    circuit = EfficientSU2(100, entanglement="circular", reps=1).decompose()
+def test_transpiler_service_malformed_body(brisbane_backend_name, basic_cnot_circuit):
     transpiler_service = TranspilerService(
-        backend_name="ibm_brisbane",
+        backend_name=brisbane_backend_name,
         ai="false",
         optimization_level=3,
         qiskit_transpile_options={"failing_option": 0},
     )
 
-    try:
-        transpiler_service.run(circuit)
-        pytest.fail("Error expected")
-    except Exception as e:
+    with pytest.raises(TranspilerError) as exception_info:
+        transpiler_service.run(basic_cnot_circuit)
+
         assert (
-            str(e)
-            == "\"Error transpiling with Qiskit and qiskit_transpile_options: transpile() got an unexpected keyword argument 'failing_option'\""
+            "\"Error transpiling with Qiskit and qiskit_transpile_options: transpile() got an unexpected keyword argument 'failing_option'\""
+            in exception_info.value
         )
 
 
-def test_transpiler_service_transpile_failing_task():
-    qpy_circuit = "UUlTS0lUDAECAAAAAAAAAAABZXEAC2YACAAAAAMAAAAAAAAAAAAAAAIAAAABAAAAAAAAAAYAAAAAY2lyY3VpdC0xNjAAAAAAAAAAAHt9cQEAAAADAAEBcQAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAgAAAAAAAAABACRnAAAAAgAAAAABAAAAAAAAALsAAAAAAAAAAAAAAAAAAAAAZGN4X2ZkN2JlNTcxOTQ1OTRkZTY5ZDFlMTNmNmFmYmY1NmZjAAtmAAgAAAACAAAAAAAAAAAAAAACAAAAAAAAAAAAAAACAAAAAGNpcmN1aXQtMTYxAAAAAAAAAAB7fQAAAAAAAAAAAAYAAAAAAAAAAgAAAAAAAAAAAAAAAAAAAAAAAAEAAAABQ1hHYXRlcQAAAABxAAAAAQAGAAAAAAAAAAIAAAAAAAAAAAAAAAAAAAAAAAABAAAAAUNYR2F0ZXEAAAABcQAAAAAAAAD///////////////8AAAAAAAAAAAAGAAAAAAAAAAIAAAAAAAAAAAAAAAAAAAAAAAABAAAAAUNaR2F0ZXEAAAAAcQAAAAIABwAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABTZGdHYXRlcQAAAAEAJAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABkY3hfZmQ3YmU1NzE5NDU5NGRlNjlkMWUxM2Y2YWZiZjU2ZmNxAAAAAnEAAAABAAYAAAADAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAVTNHYXRlcQAAAABmAAAAAAAAAAiMHTg9AR8PQGYAAAAAAAAACH+xa3jilAtAZgAAAAAAAAAItmSFHpiI8j8ABwAAAAEAAAACAAAAAAAAAAAAAAAAAAAAAAAAAQAAAAFDUlhHYXRlcQAAAAFxAAAAAGYAAAAAAAAACI2Sd1JN3gJAAAUAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWUdhdGVxAAAAAgAAAP///////////////wAAAAAAAAAA"
+def test_transpiler_service_failing_task(
+    brisbane_backend_name, qpy_circuit_with_transpiling_error
+):
     transpiler_service = TranspilerService(
-        backend_name="ibm_brisbane",
+        backend_name=brisbane_backend_name,
         ai="false",
         optimization_level=3,
         coupling_map=[[1, 2], [2, 1]],
@@ -309,27 +296,25 @@ def test_transpiler_service_transpile_failing_task():
         },
     )
 
-    try:
-        transpiler_service.run(get_circuit_from_qpy(qpy_circuit))
-        pytest.fail("Error expected")
-    except Exception as e:
-        assert "The background task" in str(e)
-        assert "FAILED" in str(e)
+    with pytest.raises(TranspilerError) as exception_info:
+        transpiler_service.run(get_circuit_from_qpy(qpy_circuit_with_transpiling_error))
+
+        assert "The background task" in exception_info.value
+        assert "FAILED" in exception_info.value
 
 
-def test_transpiler_service_transpile_wrong_circuits_format():
-    circuit = random_circuit(5, depth=3, seed=42).decompose(reps=3)
-
+def test_transpiler_service_non_valid_circuits_format(
+    brisbane_backend_name, non_valid_qpy_circuit
+):
     cloud_transpiler_service = TranspilerService(
-        backend_name="ibm_brisbane", optimization_level=1
+        backend_name=brisbane_backend_name, optimization_level=1
     )
 
-    wrong_input = [get_qpy_from_circuit(circuit)] * 2
     with pytest.raises(TypeError):
-        cloud_transpiler_service.run(wrong_input)
+        cloud_transpiler_service.run(non_valid_qpy_circuit)
 
 
-def test_transpiler_service_transpile_wrong_qpy_fallback():
+def test_transpiler_service_wrong_qpy_fallback():
     circuit = QuantumCircuit.from_qasm_file("tests/test_files/cc_n64.qasm")
     test_backend = GenericBackendV2(circuit.num_qubits)
 
@@ -338,6 +323,7 @@ def test_transpiler_service_transpile_wrong_qpy_fallback():
     )
 
     transpiled_circuit = cloud_transpiler_service.run(circuit)
+
     assert isinstance(transpiled_circuit, QuantumCircuit)
 
 
@@ -441,37 +427,32 @@ def test_transpiler_service_fix_ecr_ibm_strasbourg():
 
 
 @parametrize_non_valid_use_fractional_gates()
-def test_transpiler_service_transpile_non_valid_use_fractional_gates(
-    non_valid_use_fractional_gates,
+def test_transpiler_service_non_valid_use_fractional_gates(
+    non_valid_use_fractional_gates, brisbane_backend_name, basic_cnot_circuit
 ):
-    circuit = random_circuit(5, depth=3, seed=42)
-
     transpiler_service = TranspilerService(
-        backend_name="ibm_brisbane",
+        backend_name=brisbane_backend_name,
         optimization_level=1,
         use_fractional_gates=non_valid_use_fractional_gates,
     )
 
-    try:
-        transpiler_service.run(circuit)
-        pytest.fail("Error expected")
-    except Exception as e:
-        assert "Wrong input" in str(e)
+    with pytest.raises(TranspilerError) as exception_info:
+        transpiler_service.run(basic_cnot_circuit)
+
+        assert "Wrong input" in exception_info.value
 
 
 @parametrize_valid_use_fractional_gates()
 def test_transpiler_service_transpile_valid_use_fractional_gates_param(
-    valid_use_fractional_gates,
+    valid_use_fractional_gates, brisbane_backend_name, basic_cnot_circuit
 ):
-    circuit = random_circuit(5, depth=3, seed=42)
-
     transpiler_service = TranspilerService(
-        backend_name="ibm_brisbane",
+        backend_name=brisbane_backend_name,
         optimization_level=1,
         use_fractional_gates=valid_use_fractional_gates,
     )
 
-    transpiled_circuit = transpiler_service.run(circuit)
+    transpiled_circuit = transpiler_service.run(basic_cnot_circuit)
 
     assert isinstance(transpiled_circuit, QuantumCircuit)
 
@@ -489,18 +470,14 @@ def test_transpiler_service_qasm3_iterative_decomposition_limit():
         to_qasm3_iterative_decomposition(feature_map, n_iter=1)
 
 
-def test_transpiler_service_transpile_with_barrier_on_circuit():
-    circuit = QuantumCircuit(5)
-    circuit.x(4)
-    circuit.barrier()
-    circuit.z(3)
-    circuit.cx(3, 4)
-
+def test_transpiler_service_barrier_on_circuit(
+    brisbane_backend_name, circuit_with_barrier
+):
     transpiler_service = TranspilerService(
-        backend_name="ibm_brisbane",
+        backend_name=brisbane_backend_name,
         optimization_level=1,
     )
 
-    transpiled_circuit = transpiler_service.run(circuit)
+    transpiled_circuit = transpiler_service.run(circuit_with_barrier)
 
     assert isinstance(transpiled_circuit, QuantumCircuit)
