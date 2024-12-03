@@ -19,8 +19,7 @@ import sys
 import glob
 
 # List of allowlist files that the checker will not verify
-ALLOWLIST_MISSING_ALT_TEXT = [
-]
+ALLOWLIST_MISSING_ALT_TEXT = []
 
 
 def is_image(line: str) -> bool:
@@ -65,7 +64,9 @@ def validate_image(file_path: str) -> tuple[str, list[str]]:
             # might be the start of a new image.
             if not is_valid_image(options):
                 image_line = line_index - len(options)
-                invalid_images.append(f"- Error in line {image_line}: {lines[image_line-1].strip()}")
+                invalid_images.append(
+                    f"- Error in line {image_line}: {lines[image_line-1].strip()}"
+                )
 
         image_found = is_image(line)
         options = []
@@ -79,7 +80,9 @@ def main() -> None:
     with multiprocessing.Pool() as pool:
         results = pool.map(validate_image, files)
 
-    failed_files = {file: image_errors for file, image_errors in results if image_errors}
+    failed_files = {
+        file: image_errors for file, image_errors in results if image_errors
+    }
 
     if not len(failed_files):
         print("✅ All images have alt text")
