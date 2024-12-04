@@ -244,12 +244,10 @@ def get_qpy_from_circuit(
         output_b = io.BytesIO()
         if qiskit_version is not None:
             qpy.dump(
-                programs=input_circ,
-                file_obj=output_b,
-                version=QPY_QISKIT_VERSION_MAPPING[qiskit_version],
+                input_circ, output_b, version=QPY_QISKIT_VERSION_MAPPING[qiskit_version]
             )
         else:
-            qpy.dump(programs=input_circ, file_obj=output_b)
+            qpy.dump(input_circ, output_b)
         qpy_string = base64.b64encode(output_b.getvalue()).decode("utf-8")
     else:
         raise TypeError(
