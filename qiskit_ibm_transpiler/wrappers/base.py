@@ -102,7 +102,7 @@ class QiskitTranspilerService:
         return resp
 
     def get_qiskit_version(self):
-        return self.get_versions()["qiskit"]
+        return self.get_versions().get("qiskit")
 
     def get_supported_backends(self):
         url = f"{self.url}/backends"
