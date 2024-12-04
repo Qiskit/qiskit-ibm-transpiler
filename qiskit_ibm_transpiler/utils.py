@@ -26,20 +26,19 @@ Functions
 
 """
 
-from typing import Dict, Union, List, Tuple
-from enum import Enum
-
-import numpy as np
-import logging
 import base64
 import io
+import logging
 import struct
+from enum import Enum
+from typing import Dict, List, Tuple, Union
 
+import numpy as np
 from qiskit import QuantumCircuit, qasm2, qasm3, qpy
+from qiskit.circuit import QuantumCircuit, library
 from qiskit.circuit.library import LinearFunction
 from qiskit.quantum_info import Clifford
 from qiskit.synthesis.linear.linear_matrix_utils import random_invertible_binary_matrix
-from qiskit.circuit import QuantumCircuit, library
 from qiskit.transpiler.basepasses import TransformationPass
 
 logger = logging.getLogger(__name__)
@@ -62,7 +61,7 @@ def random_permutation(n_qubits):
 
 
 def create_random_linear_function(n_qubits: int, seed: int = 123) -> LinearFunction:
-    rand_lin = lambda seed: LinearFunction(
+    rand_lin = lambda seed: LinearFunction(  # noqa:E731
         random_invertible_binary_matrix(n_qubits, seed=seed)
     )
 
@@ -72,7 +71,7 @@ def create_random_linear_function(n_qubits: int, seed: int = 123) -> LinearFunct
 def random_clifford_from_linear_function(n_qubits: int, seed: int = 123):
     """Generate a random clifford from a random linear function of n_qubits qubits."""
 
-    random_linear = lambda seed: LinearFunction(
+    random_linear = lambda seed: LinearFunction(  # noqa:E731
         random_invertible_binary_matrix(n_qubits, seed=seed)
     )
     random_clifford = Clifford(random_linear(seed))

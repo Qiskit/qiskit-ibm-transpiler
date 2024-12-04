@@ -15,31 +15,29 @@ import logging
 import os
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from multiprocessing import cpu_count
-from typing import Dict, Union, List
+from typing import Dict, List, Union
 
 from qiskit.circuit.exceptions import CircuitError
 from qiskit.converters import circuit_to_dag
 from qiskit.dagcircuit.dagcircuit import DAGCircuit
+from qiskit.providers.backend import BackendV2 as Backend
 from qiskit.quantum_info import Clifford
 from qiskit.transpiler import CouplingMap
 from qiskit.transpiler.basepasses import TransformationPass
 from qiskit.transpiler.exceptions import TranspilerError
-from qiskit.providers.backend import BackendV2 as Backend
 from qiskit_ibm_runtime import QiskitRuntimeService
 
 from qiskit_ibm_transpiler.wrappers import (
     AICliffordAPI,
     AILinearFunctionAPI,
-    AIPermutationAPI,
     AIPauliNetworkAPI,
+    AIPermutationAPI,
 )
-
 from qiskit_ibm_transpiler.wrappers.ai_local_synthesis import (
+    AILocalCliffordSynthesis,
     AILocalLinearFunctionSynthesis,
     AILocalPermutationSynthesis,
-    AILocalCliffordSynthesis,
 )
-
 
 logger = logging.getLogger(__name__)
 
@@ -383,7 +381,7 @@ class AIPauliNetworkSynthesis(AISynthesis):
         local_mode: bool = False,
         **kwargs,
     ) -> None:
-        if local_mode == True:
+        if local_mode == True:  # noqa:E712
             raise Exception(
                 "Pauli Network is not available locally, only in the Qiskit Transpiler Service"
             )

@@ -13,21 +13,19 @@
 """Tests for the collector pass"""
 
 import pytest
-
 from qiskit import QuantumCircuit
 from qiskit.transpiler import PassManager
 from qiskit.transpiler.preset_passmanagers import generate_preset_pass_manager
 
 from qiskit_ibm_transpiler.ai.collection import CollectPermutations
-
-from tests.utils import create_linear_circuit
 from tests.parametrize_functions import (
     parametrize_circuit_collector_pass_and_operator_name,
-    parametrize_collectable_gates_collector_pass_operation_name,
     parametrize_collectable_gates_and_collector_pass,
-    parametrize_non_collectable_gates_collector_pass_operation_name,
+    parametrize_collectable_gates_collector_pass_operation_name,
     parametrize_n_qubits,
+    parametrize_non_collectable_gates_collector_pass_operation_name,
 )
+from tests.utils import create_linear_circuit
 
 
 @parametrize_circuit_collector_pass_and_operator_name()

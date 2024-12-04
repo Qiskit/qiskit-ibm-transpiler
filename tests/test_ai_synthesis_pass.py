@@ -13,7 +13,6 @@
 """Tests for the ai synthesis pass"""
 
 import pytest
-
 from qiskit import QuantumCircuit
 from qiskit.transpiler import PassManager
 
@@ -21,12 +20,11 @@ from qiskit_ibm_transpiler.ai.collection import (
     CollectPauliNetworks,
     CollectPermutations,
 )
-
 from tests.parametrize_functions import (
     parametrize_basic_circuit_collector_pass_and_ai_synthesis_pass,
     parametrize_complex_circuit_collector_pass_and_ai_synthesis_pass,
-    parametrize_local_mode,
     parametrize_coupling_map_format,
+    parametrize_local_mode,
 )
 
 

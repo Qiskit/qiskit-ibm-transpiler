@@ -27,7 +27,7 @@ Classes
 """
 
 import logging
-from typing import Dict, List, Union, Literal
+from typing import Dict, List, Literal, Union
 
 from qiskit import QuantumCircuit
 

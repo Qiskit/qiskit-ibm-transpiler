@@ -13,21 +13,19 @@
 """Parametrize functions"""
 
 import pytest
-
 from qiskit.transpiler.exceptions import TranspilerError
 
 from qiskit_ibm_transpiler.ai.collection import (
-    CollectPermutations,
-    CollectLinearFunctions,
     CollectCliffords,
+    CollectLinearFunctions,
     CollectPauliNetworks,
+    CollectPermutations,
 )
-
 from qiskit_ibm_transpiler.ai.synthesis import (
-    AIPermutationSynthesis,
-    AILinearFunctionSynthesis,
     AICliffordSynthesis,
+    AILinearFunctionSynthesis,
     AIPauliNetworkSynthesis,
+    AIPermutationSynthesis,
 )
 
 

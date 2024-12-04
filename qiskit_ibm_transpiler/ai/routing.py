@@ -16,19 +16,19 @@
 # torch.set_num_threads(1)
 
 import importlib
-import numpy as np
 import logging
+from typing import List, Literal, Union
+
+import numpy as np
 from qiskit import ClassicalRegister, QuantumCircuit
 from qiskit.converters import circuit_to_dag, dag_to_circuit
+from qiskit.providers.backend import BackendV2 as Backend
 from qiskit.transpiler import CouplingMap, TranspilerError
 from qiskit.transpiler.basepasses import TransformationPass
 from qiskit.transpiler.layout import Layout
-from qiskit.providers.backend import BackendV2 as Backend
 from qiskit_ibm_runtime import QiskitRuntimeService
 
-from qiskit_ibm_transpiler.wrappers import AIRoutingAPI, AILocalRouting
-
-from typing import List, Union, Literal
+from qiskit_ibm_transpiler.wrappers import AILocalRouting, AIRoutingAPI
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)

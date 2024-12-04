@@ -31,6 +31,7 @@ jobs:
       - name: Run lint
         run: |
           python -m black --check .
+          python -m ruff check
           python tools/verify_images.py
       - name: Build documentation
         uses: ./.github/actions/build-docs

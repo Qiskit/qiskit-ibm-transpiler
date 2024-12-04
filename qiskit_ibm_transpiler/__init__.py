@@ -10,12 +10,12 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
+import logging
+
 from .ai import AIRouting
+from .ai_passmanager import generate_ai_pass_manager
 from .transpiler_service import TranspilerService
 from .utils import create_random_linear_function, get_metrics
-from .ai_passmanager import generate_ai_pass_manager
-
-import logging
 
 logging.basicConfig()
 logging.getLogger(__name__).addHandler(logging.NullHandler())
