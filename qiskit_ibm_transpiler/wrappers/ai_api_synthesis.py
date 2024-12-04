@@ -11,18 +11,18 @@
 # that they have been altered from the originals.
 
 import logging
-from typing import Union, List
+from typing import List, Union
 
 from qiskit import QuantumCircuit
 from qiskit.circuit.library import LinearFunction
-from qiskit.quantum_info import Clifford
 from qiskit.providers.backend import BackendV2 as Backend
+from qiskit.quantum_info import Clifford
 
-from .base import QiskitTranspilerService
 from ..utils import (
-    serialize_circuits_to_qpy_or_qasm,
     deserialize_circuit_from_qpy_or_qasm,
+    serialize_circuits_to_qpy_or_qasm,
 )
+from .base import QiskitTranspilerService
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)

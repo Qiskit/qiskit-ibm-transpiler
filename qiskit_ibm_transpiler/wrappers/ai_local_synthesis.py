@@ -12,6 +12,7 @@
 
 import importlib
 import logging
+
 import networkx as nx
 from networkx.exception import NetworkXError
 
@@ -70,14 +71,14 @@ CLIFFORD_COUPLING_MAPS_BY_HASHES_DICT = getattr(
     "CLIFFORD_COUPLING_MAPS_BY_HASHES_DICT not found",
 )
 
-from typing import Union, List
+from typing import List, Union
 
 import numpy as np
 from qiskit import QuantumCircuit
-from qiskit.transpiler import CouplingMap
 from qiskit.circuit.library import LinearFunction
-from qiskit.quantum_info import Clifford
 from qiskit.providers.backend import BackendV2 as Backend
+from qiskit.quantum_info import Clifford
+from qiskit.transpiler import CouplingMap
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)

@@ -13,23 +13,21 @@
 """Tests for the ai routing pass"""
 
 import pytest
-
 from qiskit import QuantumCircuit
 from qiskit.transpiler import PassManager
 from qiskit.transpiler.exceptions import TranspilerError
 
 from qiskit_ibm_transpiler.ai.routing import AIRouting
-
 from tests.parametrize_functions import (
-    parametrize_local_mode,
     parametrize_coupling_map_format,
-    parametrize_non_valid_optimization_preferences,
-    parametrize_valid_optimization_preferences,
+    parametrize_local_mode,
     parametrize_local_mode_and_error_type,
-    parametrize_non_valid_optimization_level,
-    parametrize_valid_optimization_level,
     parametrize_non_valid_layout_mode,
+    parametrize_non_valid_optimization_level,
+    parametrize_non_valid_optimization_preferences,
     parametrize_valid_layout_mode,
+    parametrize_valid_optimization_level,
+    parametrize_valid_optimization_preferences,
 )
 
 

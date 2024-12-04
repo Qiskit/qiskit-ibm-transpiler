@@ -26,20 +26,19 @@ Functions
 
 """
 
-from typing import Dict, Union, List, Tuple
-from enum import Enum
-
-import numpy as np
-import logging
 import base64
 import io
+import logging
 import struct
+from enum import Enum
+from typing import Dict, List, Tuple, Union
 
+import numpy as np
 from qiskit import QuantumCircuit, qasm2, qasm3, qpy
+from qiskit.circuit import QuantumCircuit, library
 from qiskit.circuit.library import LinearFunction
 from qiskit.quantum_info import Clifford
 from qiskit.synthesis.linear.linear_matrix_utils import random_invertible_binary_matrix
-from qiskit.circuit import QuantumCircuit, library
 from qiskit.transpiler.basepasses import TransformationPass
 
 logger = logging.getLogger(__name__)

@@ -11,10 +11,12 @@
 # that they have been altered from the originals.
 
 import importlib
+from typing import List, Literal, Union
+
 from qiskit import QuantumCircuit
-from qiskit_ibm_transpiler.utils import get_circuit_from_qasm, input_to_qasm
-from typing import List, Union, Literal
 from qiskit.transpiler import CouplingMap
+
+from qiskit_ibm_transpiler.utils import get_circuit_from_qasm, input_to_qasm
 
 ai_local_package = "qiskit_ibm_ai_local_transpiler"
 qiskit_ibm_ai_local_transpiler = (

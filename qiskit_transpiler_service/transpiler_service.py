@@ -27,7 +27,7 @@ Classes
 """
 
 import logging
-from typing import Dict, List, Union, Literal
+from typing import Dict, List, Literal, Union
 
 from qiskit_ibm_transpiler import TranspilerService as NewTranspilerService
 

@@ -11,13 +11,14 @@
 # that they have been altered from the originals.
 
 import logging
-from typing import Dict, List, Union, Literal
+from typing import Dict, List, Literal, Union
 
 import numpy as np
 from qiskit import QuantumCircuit, QuantumRegister
 from qiskit.circuit import QuantumCircuit, QuantumRegister, Qubit
 from qiskit.transpiler import TranspileLayout
 from qiskit.transpiler.layout import Layout
+
 from qiskit_ibm_transpiler.utils import (
     deserialize_circuit_from_qpy_or_qasm,
     get_circuit_from_qpy,
