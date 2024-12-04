@@ -224,7 +224,9 @@ class AIPauliNetworkAPI(QiskitTranspilerService):
         # backend is not used yet, but probably it will replace backend_name
         backend: Union[Backend, None] = None,
     ):
-        qpy, qasm = serialize_circuits_to_qpy_or_qasm(circuits)
+        qpy, qasm = serialize_circuits_to_qpy_or_qasm(
+            circuits, self.get_qiskit_version()
+        )
         if coupling_map is not None:
             logger.info("Running synthesis against the Qiskit Transpiler Service")
             transpile_resps = self.request_and_wait(
