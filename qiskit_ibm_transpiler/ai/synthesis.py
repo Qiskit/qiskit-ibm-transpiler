@@ -381,7 +381,7 @@ class AIPauliNetworkSynthesis(AISynthesis):
         local_mode: bool = False,
         **kwargs,
     ) -> None:
-        if local_mode == True:
+        if local_mode == True:  # noqa:E712
             raise Exception(
                 "Pauli Network is not available locally, only in the Qiskit Transpiler Service"
             )

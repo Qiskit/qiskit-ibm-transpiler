@@ -12,9 +12,19 @@
 
 import importlib
 import logging
+from typing import List, Union
 
 import networkx as nx
+import numpy as np
 from networkx.exception import NetworkXError
+from qiskit import QuantumCircuit
+from qiskit.circuit.library import LinearFunction
+from qiskit.providers.backend import BackendV2 as Backend
+from qiskit.quantum_info import Clifford
+from qiskit.transpiler import CouplingMap
+
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
 
 ai_local_package = "qiskit_ibm_ai_local_transpiler"
 qiskit_ibm_ai_local_transpiler = (
@@ -70,18 +80,6 @@ CLIFFORD_COUPLING_MAPS_BY_HASHES_DICT = getattr(
     "CLIFFORD_COUPLING_MAPS_BY_HASHES_DICT",
     "CLIFFORD_COUPLING_MAPS_BY_HASHES_DICT not found",
 )
-
-from typing import List, Union
-
-import numpy as np
-from qiskit import QuantumCircuit
-from qiskit.circuit.library import LinearFunction
-from qiskit.providers.backend import BackendV2 as Backend
-from qiskit.quantum_info import Clifford
-from qiskit.transpiler import CouplingMap
-
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.INFO)
 
 
 def validate_coupling_map_source(coupling_map, backend):
