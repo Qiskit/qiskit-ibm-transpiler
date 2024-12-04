@@ -102,7 +102,11 @@ class QiskitTranspilerService:
         return resp
 
     def get_qiskit_version(self):
-        return self.get_versions().get("qiskit")
+        try:
+            return self.get_versions().get("qiskit")
+        except Exception as exc:
+            logger.warning(f"Exception requesting qiskit version: {exc}")
+            return None
 
     def get_supported_backends(self):
         url = f"{self.url}/backends"
