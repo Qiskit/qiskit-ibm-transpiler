@@ -242,12 +242,10 @@ def get_qpy_from_circuit(
 ) -> str:
     if isinstance(input_circ, QuantumCircuit) or isinstance(input_circ, list):
         output_b = io.BytesIO()
+        qpy_dump_args = {"programs": input_circuit, "file_obj": output_b}
         if qiskit_version is not None:
-            qpy.dump(
-                input_circ, output_b, version=QPY_QISKIT_VERSION_MAPPING[qiskit_version]
-            )
-        else:
-            qpy.dump(input_circ, output_b)
+            qpy_dump_args["version"] = QPY_QISKIT_VERSION_MAPPING[qiskit_version]
+        qpy.dump(**qpy_dump_args)
         qpy_string = base64.b64encode(output_b.getvalue()).decode("utf-8")
     else:
         raise TypeError(
