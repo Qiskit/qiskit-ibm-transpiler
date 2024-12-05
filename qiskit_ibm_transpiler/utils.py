@@ -44,6 +44,11 @@ from qiskit.transpiler.basepasses import TransformationPass
 
 logger = logging.getLogger(__name__)
 
+QPY_QISKIT_VERSION_MAPPING = {
+    "1.3.0": 13,
+    "1.2.4": 12,
+}
+
 
 def get_metrics(qc: QuantumCircuit) -> Dict[str, int]:
     """Returns a dict with metrics from a QuantumCircuit"""
@@ -232,11 +237,15 @@ def check_topology_synthesized_circuit(
 
 
 def get_qpy_from_circuit(
-    input_circ: Union[QuantumCircuit, List[QuantumCircuit]]
+    input_circ: Union[QuantumCircuit, List[QuantumCircuit]],
+    qiskit_version: Union[str, None] = None,
 ) -> str:
     if isinstance(input_circ, QuantumCircuit) or isinstance(input_circ, list):
         output_b = io.BytesIO()
-        qpy.dump(input_circ, output_b)
+        qpy_dump_args = {"programs": input_circ, "file_obj": output_b}
+        if qiskit_version is not None:
+            qpy_dump_args["version"] = QPY_QISKIT_VERSION_MAPPING[qiskit_version]
+        qpy.dump(**qpy_dump_args)
         qpy_string = base64.b64encode(output_b.getvalue()).decode("utf-8")
     else:
         raise TypeError(
@@ -255,11 +264,12 @@ def get_circuits_from_qpy(qpy_string: str) -> List[QuantumCircuit]:
 
 def serialize_circuit_to_qpy_or_qasm(
     input_circuit: QuantumCircuit,
+    qiskit_version: Union[str, None] = None,
 ) -> Tuple[Union[str, None], Union[str, None]]:
     qpy_result = None
     qasm_result = None
     try:
-        qpy_result = get_qpy_from_circuit(input_circuit)
+        qpy_result = get_qpy_from_circuit(input_circuit, qiskit_version)
     except struct.error:
         qasm_result = input_to_qasm(input_circuit).replace("\n", " ")
 
@@ -267,12 +277,12 @@ def serialize_circuit_to_qpy_or_qasm(
 
 
 def serialize_circuits_to_qpy_or_qasm(
-    input_circuits: List[QuantumCircuit],
+    input_circuits: List[QuantumCircuit], qiskit_version: Union[str, None] = None
 ) -> Tuple[Union[str, None], Union[List[str], None]]:
     qpy_result = None
     qasm_result = None
     try:
-        qpy_result = get_qpy_from_circuit(input_circuits)
+        qpy_result = get_qpy_from_circuit(input_circuits, qiskit_version)
     except struct.error:
         qasm_result = [
             input_to_qasm(the_circ).replace("\n", " ") for the_circ in input_circuits

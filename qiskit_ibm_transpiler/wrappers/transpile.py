@@ -56,7 +56,9 @@ class TranspileAPI(QiskitTranspilerService):
         use_fractional_gates: bool = False,
     ):
         circuits = [circuits] if isinstance(circuits, QuantumCircuit) else circuits
-        qpy_circuits, qasm_circuits = serialize_circuits_to_qpy_or_qasm(circuits)
+        qpy_circuits, qasm_circuits = serialize_circuits_to_qpy_or_qasm(
+            circuits, self.get_qiskit_version()
+        )
 
         body_params = {
             "qasm_circuits": qasm_circuits,

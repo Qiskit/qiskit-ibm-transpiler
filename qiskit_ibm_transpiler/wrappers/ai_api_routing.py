@@ -43,7 +43,7 @@ class AIRoutingAPI(QiskitTranspilerService):
             OptimizationOptions, List[OptimizationOptions], None
         ] = None,
     ):
-        qpy, qasm = serialize_circuit_to_qpy_or_qasm(circuit)
+        qpy, qasm = serialize_circuit_to_qpy_or_qasm(circuit, self.get_qiskit_version())
         body_params = {
             "qasm": qasm,
             "qpy": qpy,
