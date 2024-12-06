@@ -1,0 +1,4 @@
+Bug fixes
+---------
+
+Fixes permutation notebook example by updating the coupling map used
