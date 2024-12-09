@@ -14,15 +14,14 @@
 
 from qiskit import QuantumCircuit
 from qiskit.circuit.library import EfficientSU2
+
 from qiskit_ibm_transpiler import generate_ai_pass_manager
-
-
 from tests.parametrize_functions import (
-    parametrize_valid_optimization_level,
-    parametrize_valid_ai_optimization_level,
+    parametrize_ai_layout_mode,
     parametrize_include_ai_synthesis,
     parametrize_qiskit_transpile_options,
-    parametrize_ai_layout_mode,
+    parametrize_valid_ai_optimization_level,
+    parametrize_valid_optimization_level,
 )
 
 

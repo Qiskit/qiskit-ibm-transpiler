@@ -19,6 +19,7 @@ from qiskit.circuit import Instruction
 from qiskit.circuit.barrier import Barrier
 from qiskit.circuit.library import LinearFunction, PermutationGate
 from qiskit.converters import circuit_to_dag, dag_to_dagdependency, dagdependency_to_dag
+from qiskit.dagcircuit.collect_blocks import BlockCollector
 from qiskit.dagcircuit.dagcircuit import DAGCircuit
 from qiskit.quantum_info.operators import Clifford
 from qiskit.transpiler.basepasses import TransformationPass
@@ -103,8 +104,6 @@ _flatten_cliffords = Flatten(("clifford", "Clifford"))
 _flatten_linearfunctions = Flatten(("linear_function", "Linear_function"))
 _flatten_permutations = Flatten(("permutation", "Permutation"))
 _flatten_paulinetworks = Flatten(("paulinetwork", "PauliNetwork"))
-
-from qiskit.dagcircuit.collect_blocks import BlockCollector
 
 
 class GreedyBlockCollector(BlockCollector):
@@ -212,7 +211,7 @@ class RepeatedCollectAndCollapse(CollectAndCollapse):
         collect_from_back=False,
         num_reps=10,
     ):
-        collect_function = lambda dag: GreedyBlockCollector(
+        collect_function = lambda dag: GreedyBlockCollector(  # noqa:E731
             dag, max_block_size
         ).collect_all_matching_blocks(
             filter_fn=block_checker.select,

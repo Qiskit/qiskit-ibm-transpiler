@@ -13,25 +13,23 @@
 """Fixtures used on the tests"""
 
 import logging
-import pytest
 
+import pytest
 from qiskit import QuantumCircuit
 from qiskit.circuit.library import QuantumVolume
+from qiskit_ibm_runtime import QiskitRuntimeService
 
 from qiskit_ibm_transpiler.utils import (
     create_random_linear_function,
-    random_clifford_from_linear_function,
     get_qpy_from_circuit,
+    random_clifford_from_linear_function,
 )
-
 from tests.utils import create_random_circuit_with_several_operators
-
-from qiskit_ibm_runtime import QiskitRuntimeService
 
 
 @pytest.fixture(autouse=True)
 def env_set(monkeypatch, request):
-    if not "disable_monkeypatch" in request.keywords:
+    if "disable_monkeypatch" not in request.keywords:
         monkeypatch.setenv(
             "QISKIT_IBM_TRANSPILER_PERMUTATIONS_URL",
             "https://cloud-transpiler-experimental.quantum-computing.ibm.com/permutations",

@@ -12,7 +12,6 @@
 
 """Functions used on the tests"""
 import numpy as np
-
 from qiskit import QuantumCircuit
 from qiskit.circuit.library import Permutation
 from qiskit.quantum_info import random_clifford, random_pauli
