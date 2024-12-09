@@ -61,21 +61,14 @@ def random_permutation(n_qubits):
 
 
 def create_random_linear_function(n_qubits: int, seed: int = 123) -> LinearFunction:
-    rand_lin = lambda seed: LinearFunction(  # noqa:E731
-        random_invertible_binary_matrix(n_qubits, seed=seed)
-    )
-
-    return LinearFunction(rand_lin(seed))
+    return LinearFunction(random_invertible_binary_matrix(n_qubits, seed=seed))
 
 
 def random_clifford_from_linear_function(n_qubits: int, seed: int = 123):
     """Generate a random clifford from a random linear function of n_qubits qubits."""
 
-    random_linear = lambda seed: LinearFunction(  # noqa:E731
-        random_invertible_binary_matrix(n_qubits, seed=seed)
-    )
-    random_clifford = Clifford(random_linear(seed))
-    return random_clifford
+    random_linear = LinearFunction(random_invertible_binary_matrix(n_qubits, seed=seed))
+    return Clifford(random_linear)
 
 
 def to_qasm3_iterative_decomposition(circuit: QuantumCircuit, n_iter: int = 10):
