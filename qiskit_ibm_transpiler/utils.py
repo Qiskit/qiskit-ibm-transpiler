@@ -37,6 +37,7 @@ import struct
 
 from qiskit import QuantumCircuit, qasm2, qasm3, qpy
 from qiskit.circuit.library import LinearFunction
+from qiskit.qpy import common
 from qiskit.quantum_info import Clifford
 from qiskit.synthesis.linear.linear_matrix_utils import random_invertible_binary_matrix
 from qiskit.circuit import QuantumCircuit, library
@@ -242,10 +243,11 @@ def get_qpy_from_circuit(
 ) -> str:
     if isinstance(input_circ, QuantumCircuit) or isinstance(input_circ, list):
         output_b = io.BytesIO()
-        qpy_dump_args = {"programs": input_circ, "file_obj": output_b}
-        if qiskit_version is not None:
-            qpy_dump_args["version"] = QPY_QISKIT_VERSION_MAPPING[qiskit_version]
-        qpy.dump(**qpy_dump_args)
+        qpy.dump(
+            input_circ,
+            output_b,
+            version=QPY_QISKIT_VERSION_MAPPING.get(qiskit_version, common.QPY_VERSION),
+        )
         qpy_string = base64.b64encode(output_b.getvalue()).decode("utf-8")
     else:
         raise TypeError(
