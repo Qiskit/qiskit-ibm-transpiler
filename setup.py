@@ -58,7 +58,7 @@ setup(
     install_requires=requirements,
     extras_require={
         "ai-local-mode": [
-            "qiskit-ibm-ai-local-transpiler",
+            "qiskit_ibm_ai_local_transpiler==0.1.3",
             "qiskit-ibm-runtime>=0.23.0",
         ],
     },
