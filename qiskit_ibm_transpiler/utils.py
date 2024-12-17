@@ -50,6 +50,14 @@ QPY_QISKIT_VERSION_MAPPING = {
 }
 
 
+def _get_qpy_version(qiskit_version: str):
+    service_qpy_version = QPY_QISKIT_VERSION_MAPPING.get(
+        qiskit_version, common.QPY_VERSION
+    )
+    # Return lower version between local qiskit and service to keep compatibility
+    return min(common.QPY_VERSION, service_qpy_version)
+
+
 def get_metrics(qc: QuantumCircuit) -> Dict[str, int]:
     """Returns a dict with metrics from a QuantumCircuit"""
     qcd = qc.decompose(reps=3)
@@ -238,7 +246,7 @@ def get_qpy_from_circuit(
         qpy.dump(
             input_circ,
             output_b,
-            version=QPY_QISKIT_VERSION_MAPPING.get(qiskit_version, common.QPY_VERSION),
+            version=_get_qpy_version(qiskit_version),
         )
         qpy_string = base64.b64encode(output_b.getvalue()).decode("utf-8")
     else:
