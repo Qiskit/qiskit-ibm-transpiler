@@ -1,0 +1,1 @@
+Pin qiskit_ibm_ai_local_transpiler version to 0.1.4 and Qiskit to <1.3
