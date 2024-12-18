@@ -1,0 +1,7 @@
+0.9.3 (2024-12-18)
+==================
+
+Other notes
+-----------
+
+- Pin qiskit_ibm_ai_local_transpiler version to 0.1.4 and Qiskit to <1.3 (`149 <https://github.com/Qiskit/qiskit-ibm-transpiler/pull/149>`__)
