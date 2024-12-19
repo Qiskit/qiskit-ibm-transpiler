@@ -324,10 +324,10 @@ def copy_dag_metadata(dag, target_dag):
         DAGCircuit: An empty copy of self.
     """
     target_dag.name = dag.name
-    target_dag._global_phase = dag._global_phase
+    target_dag.global_phase = dag.global_phase
     target_dag.duration = dag.duration
     target_dag.unit = dag.unit
     target_dag.metadata = dag.metadata
-    target_dag._key_cache = dag._key_cache
+    # target_dag._key_cache = dag._key_cache
 
     return target_dag
