@@ -31,7 +31,7 @@ requirements = [
 
 setup(
     name="qiskit-ibm-transpiler",
-    version="0.9.1",
+    version="0.9.3",
     description="A library to use Qiskit IBM Transpiler (https://docs.quantum.ibm.com/transpile/qiskit-ibm-transpiler) and the AI transpiler passes (https://docs.quantum.ibm.com/transpile/ai-transpiler-passes)",
     long_description=README,
     long_description_content_type="text/markdown",
@@ -58,7 +58,7 @@ setup(
     install_requires=requirements,
     extras_require={
         "ai-local-mode": [
-            "qiskit-ibm-ai-local-transpiler",
+            "qiskit_ibm_ai_local_transpiler==0.1.3",
             "qiskit-ibm-runtime>=0.23.0",
         ],
     },

@@ -17,9 +17,9 @@ from qiskit.providers.backend import BackendV2 as Backend
 from qiskit.transpiler import CouplingMap, PassManager
 from qiskit.transpiler.preset_passmanagers import generate_preset_pass_manager
 
+from .ai.collection import CollectLinearFunctions
 from .ai.routing import AIRouting
 from .ai.synthesis import AILinearFunctionSynthesis
-from .ai.collection import CollectLinearFunctions
 
 
 def generate_ai_pass_manager(

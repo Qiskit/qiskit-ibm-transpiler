@@ -10,17 +10,19 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
+from typing import List, Literal, Union
+
 from qiskit import QuantumCircuit
+from qiskit.transpiler import CouplingMap
+
 from qiskit_ibm_transpiler.utils import (
     deserialize_circuit_from_qpy_or_qasm,
     get_circuit_from_qpy,
     get_qpy_from_circuit,
     serialize_circuit_to_qpy_or_qasm,
 )
-from .base import QiskitTranspilerService
-from typing import List, Union, Literal
-from qiskit.transpiler import CouplingMap
 
+from .base import QiskitTranspilerService
 
 # TODO: Reuse this code, it's repeated several times
 OptimizationOptions = Literal["n_cnots", "n_gates", "cnot_layers", "layers", "noise"]
@@ -43,7 +45,7 @@ class AIRoutingAPI(QiskitTranspilerService):
             OptimizationOptions, List[OptimizationOptions], None
         ] = None,
     ):
-        qpy, qasm = serialize_circuit_to_qpy_or_qasm(circuit)
+        qpy, qasm = serialize_circuit_to_qpy_or_qasm(circuit, self.get_qiskit_version())
         body_params = {
             "qasm": qasm,
             "qpy": qpy,

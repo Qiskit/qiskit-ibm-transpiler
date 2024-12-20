@@ -11,17 +11,17 @@
 # that they have been altered from the originals.
 
 import logging
-from typing import Union, List
+from typing import List, Union
 
 from qiskit import QuantumCircuit
 from qiskit.circuit.library import LinearFunction
-from qiskit.quantum_info import Clifford
 from qiskit.providers.backend import BackendV2 as Backend
+from qiskit.quantum_info import Clifford
 
-from .base import QiskitTranspilerService
 from ..utils import (
     serialize_circuits_to_qpy_or_qasm,
 )
+from .base import QiskitTranspilerService
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -225,13 +225,12 @@ class AIPauliNetworkAPI(QiskitTranspilerService):
         # backend is not used yet, but probably it will replace backend_name
         backend: Union[Backend, None] = None,
     ):
-
         if not coupling_map and not backend_name:
             raise ValueError(
                 "ERROR. Either a 'coupling_map' or a 'backend_name' must be provided."
             )
 
-        qpy, qasm = serialize_circuits_to_qpy_or_qasm(circuits)
+        qpy, qasm = serialize_circuits_to_qpy_or_qasm(circuits, self.get_qiskit_version())
         body_params = {
             "qasm": qasm,
             "qpy": qpy,

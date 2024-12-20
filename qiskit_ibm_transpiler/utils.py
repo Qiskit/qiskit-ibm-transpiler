@@ -26,23 +26,28 @@ Functions
 
 """
 
-from typing import Dict, Union, List, Tuple
-from enum import Enum
-
-import numpy as np
-import logging
 import base64
 import io
+import logging
 import struct
+from enum import Enum
+from typing import Dict, List, Tuple, Union
 
+import numpy as np
 from qiskit import QuantumCircuit, qasm2, qasm3, qpy
+from qiskit.circuit import QuantumCircuit, library
 from qiskit.circuit.library import LinearFunction
+from qiskit.qpy import common
 from qiskit.quantum_info import Clifford
 from qiskit.synthesis.linear.linear_matrix_utils import random_invertible_binary_matrix
-from qiskit.circuit import QuantumCircuit, library
 from qiskit.transpiler.basepasses import TransformationPass
 
 logger = logging.getLogger(__name__)
+
+QPY_QISKIT_VERSION_MAPPING = {
+    "1.3.0": 13,
+    "1.2.4": 12,
+}
 
 
 def get_metrics(qc: QuantumCircuit) -> Dict[str, int]:
@@ -62,21 +67,14 @@ def random_permutation(n_qubits):
 
 
 def create_random_linear_function(n_qubits: int, seed: int = 123) -> LinearFunction:
-    rand_lin = lambda seed: LinearFunction(
-        random_invertible_binary_matrix(n_qubits, seed=seed)
-    )
-
-    return LinearFunction(rand_lin(seed))
+    return LinearFunction(random_invertible_binary_matrix(n_qubits, seed=seed))
 
 
 def random_clifford_from_linear_function(n_qubits: int, seed: int = 123):
     """Generate a random clifford from a random linear function of n_qubits qubits."""
 
-    random_linear = lambda seed: LinearFunction(
-        random_invertible_binary_matrix(n_qubits, seed=seed)
-    )
-    random_clifford = Clifford(random_linear(seed))
-    return random_clifford
+    random_linear = LinearFunction(random_invertible_binary_matrix(n_qubits, seed=seed))
+    return Clifford(random_linear)
 
 
 def to_qasm3_iterative_decomposition(circuit: QuantumCircuit, n_iter: int = 10):
@@ -232,11 +230,16 @@ def check_topology_synthesized_circuit(
 
 
 def get_qpy_from_circuit(
-    input_circ: Union[QuantumCircuit, List[QuantumCircuit]]
+    input_circ: Union[QuantumCircuit, List[QuantumCircuit]],
+    qiskit_version: Union[str, None] = None,
 ) -> str:
     if isinstance(input_circ, QuantumCircuit) or isinstance(input_circ, list):
         output_b = io.BytesIO()
-        qpy.dump(input_circ, output_b)
+        qpy.dump(
+            input_circ,
+            output_b,
+            version=QPY_QISKIT_VERSION_MAPPING.get(qiskit_version, common.QPY_VERSION),
+        )
         qpy_string = base64.b64encode(output_b.getvalue()).decode("utf-8")
     else:
         raise TypeError(
@@ -255,11 +258,12 @@ def get_circuits_from_qpy(qpy_string: str) -> List[QuantumCircuit]:
 
 def serialize_circuit_to_qpy_or_qasm(
     input_circuit: QuantumCircuit,
+    qiskit_version: Union[str, None] = None,
 ) -> Tuple[Union[str, None], Union[str, None]]:
     qpy_result = None
     qasm_result = None
     try:
-        qpy_result = get_qpy_from_circuit(input_circuit)
+        qpy_result = get_qpy_from_circuit(input_circuit, qiskit_version)
     except struct.error:
         qasm_result = input_to_qasm(input_circuit).replace("\n", " ")
 
@@ -267,12 +271,12 @@ def serialize_circuit_to_qpy_or_qasm(
 
 
 def serialize_circuits_to_qpy_or_qasm(
-    input_circuits: List[QuantumCircuit],
+    input_circuits: List[QuantumCircuit], qiskit_version: Union[str, None] = None
 ) -> Tuple[Union[str, None], Union[List[str], None]]:
     qpy_result = None
     qasm_result = None
     try:
-        qpy_result = get_qpy_from_circuit(input_circuits)
+        qpy_result = get_qpy_from_circuit(input_circuits, qiskit_version)
     except struct.error:
         qasm_result = [
             input_to_qasm(the_circ).replace("\n", " ") for the_circ in input_circuits
