@@ -230,7 +230,9 @@ class AIPauliNetworkAPI(QiskitTranspilerService):
                 "ERROR. Either a 'coupling_map' or a 'backend_name' must be provided."
             )
 
-        qpy, qasm = serialize_circuits_to_qpy_or_qasm(circuits, self.get_qiskit_version())
+        qpy, qasm = serialize_circuits_to_qpy_or_qasm(
+            circuits, self.get_qiskit_version()
+        )
         body_params = {
             "qasm": qasm,
             "qpy": qpy,
