@@ -21,7 +21,6 @@ from qiskit.providers.backend import BackendV2 as Backend
 from .base import QiskitTranspilerService
 from ..utils import (
     serialize_circuits_to_qpy_or_qasm,
-    deserialize_circuit_from_qpy_or_qasm,
 )
 
 logger = logging.getLogger(__name__)
@@ -84,14 +83,7 @@ class AICliffordAPI(QiskitTranspilerService):
             params=query_params,
         )
 
-        synthesized_circuits = []
-        for response_element in transpile_response:
-            synthesized_circuit = None
-            if response_element.get("success"):
-                synthesized_circuit = deserialize_circuit_from_qpy_or_qasm(
-                    response_element.get("qpy"), response_element.get("qasm")
-                )
-            synthesized_circuits.append(synthesized_circuit)
+        synthesized_circuits = self._handle_response(transpile_response)
 
         return synthesized_circuits
 
@@ -152,14 +144,7 @@ class AILinearFunctionAPI(QiskitTranspilerService):
             params=query_params,
         )
 
-        synthesized_circuits = []
-        for response_element in transpile_response:
-            synthesized_circuit = None
-            if response_element.get("success"):
-                synthesized_circuit = deserialize_circuit_from_qpy_or_qasm(
-                    response_element.get("qpy"), response_element.get("qasm")
-                )
-            synthesized_circuits.append(synthesized_circuit)
+        synthesized_circuits = self._handle_response(transpile_response)
 
         return synthesized_circuits
 
@@ -220,14 +205,7 @@ class AIPermutationAPI(QiskitTranspilerService):
             params=query_params,
         )
 
-        synthesized_circuits = []
-        for response_element in transpile_response:
-            synthesized_circuit = None
-            if response_element.get("success"):
-                synthesized_circuit = deserialize_circuit_from_qpy_or_qasm(
-                    response_element.get("qpy"), response_element.get("qasm")
-                )
-            synthesized_circuits.append(synthesized_circuit)
+        synthesized_circuits = self._handle_response(transpile_response)
 
         return synthesized_circuits
 
@@ -247,43 +225,34 @@ class AIPauliNetworkAPI(QiskitTranspilerService):
         # backend is not used yet, but probably it will replace backend_name
         backend: Union[Backend, None] = None,
     ):
-        qpy, qasm = serialize_circuits_to_qpy_or_qasm(circuits)
-        if coupling_map is not None:
-            logger.info("Running synthesis against the Qiskit Transpiler Service")
-            transpile_resps = self.request_and_wait(
-                endpoint="transpile",
-                body={
-                    "qasm": qasm,
-                    "qpy": qpy,
-                    "qargs": qargs,
-                    "backend_coupling_map": coupling_map,
-                },
-                params={"backend": ""},
-            )
-        elif backend_name is not None:
-            logger.info("Running synthesis against the Qiskit Transpiler Service")
-            transpile_resps = self.request_and_wait(
-                endpoint="transpile",
-                body={
-                    "qasm": qasm,
-                    "qpy": qpy,
-                    "qargs": qargs,
-                },
-                params={"backend": backend_name},
-            )
-        else:
+
+        if not coupling_map and not backend_name:
             raise ValueError(
-                f"ERROR. Either a 'coupling_map' or a 'backend_name' must be provided."
+                "ERROR. Either a 'coupling_map' or a 'backend_name' must be provided."
             )
 
-        results = []
-        for transpile_resp in transpile_resps:
-            if transpile_resp.get("success"):
-                results.append(
-                    deserialize_circuit_from_qpy_or_qasm(
-                        transpile_resp.get("qpy"), transpile_resp.get("qasm")
-                    )
-                )
-            else:
-                results.append(None)
-        return results
+        qpy, qasm = serialize_circuits_to_qpy_or_qasm(circuits)
+        body_params = {
+            "qasm": qasm,
+            "qpy": qpy,
+            "qargs": qargs,
+        }
+
+        query_params = dict()
+
+        if coupling_map is not None:
+            body_params["backend_coupling_map"] = coupling_map
+        elif backend_name is not None:
+            query_params["backend"] = backend_name
+
+        logger.info("Running synthesis against the Qiskit Transpiler Service")
+
+        transpile_response = self.request_and_wait(
+            endpoint="transpile",
+            body=body_params,
+            params=query_params,
+        )
+
+        synthesized_circuits = self._handle_response(transpile_response)
+
+        return synthesized_circuits
