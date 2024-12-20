@@ -13,19 +13,17 @@
 import itertools
 import json
 import logging
-import backoff
 import os
-import requests
-
 from pathlib import Path
-from typing import Dict, Union, List
+from typing import Dict, List, Union
 from urllib.parse import urljoin
 
+import backoff
+import requests
 from qiskit import QuantumCircuit
 from qiskit.transpiler.exceptions import TranspilerError
-from ..utils import (
-    deserialize_circuit_from_qpy_or_qasm,
-)
+
+from ..utils import deserialize_circuit_from_qpy_or_qasm
 
 logger = logging.getLogger(__name__)
 
