@@ -46,6 +46,7 @@ logger = logging.getLogger(__name__)
 
 QPY_QISKIT_VERSION_MAPPING = {
     "1.3.0": 13,
+    "1.3.1": 13,
     "1.2.4": 12,
 }
 
