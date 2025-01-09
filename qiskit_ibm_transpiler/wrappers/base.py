@@ -14,14 +14,16 @@ import itertools
 import json
 import logging
 import os
-from http import HTTPStatus
 from pathlib import Path
-from typing import Dict
+from typing import Dict, List, Union
 from urllib.parse import urljoin
 
 import backoff
 import requests
+from qiskit import QuantumCircuit
 from qiskit.transpiler.exceptions import TranspilerError
+
+from ..utils import deserialize_circuit_from_qpy_or_qasm
 
 logger = logging.getLogger(__name__)
 
@@ -194,6 +196,21 @@ class QiskitTranspilerService:
             raise result
         else:
             return result
+
+    def _handle_response(
+        self, transpile_response: List[dict]
+    ) -> List[Union[QuantumCircuit, None]]:
+        """Handle the transpile response from the server."""
+        synthesized_circuits = []
+        for response_element in transpile_response:
+            if response_element.get("success"):
+                circuit = deserialize_circuit_from_qpy_or_qasm(
+                    response_element.get("qpy"), response_element.get("qasm")
+                )
+                synthesized_circuits.append(circuit)
+            else:
+                synthesized_circuits.append(None)
+        return synthesized_circuits
 
 
 def _raise_transpiler_error_and_log(msg: str):
