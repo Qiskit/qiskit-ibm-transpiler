@@ -19,7 +19,6 @@ from qiskit.providers.backend import BackendV2 as Backend
 from qiskit.quantum_info import Clifford
 
 from ..utils import (
-    deserialize_circuit_from_qpy_or_qasm,
     serialize_circuits_to_qpy_or_qasm,
 )
 from .base import QiskitTranspilerService
@@ -42,48 +41,51 @@ class AICliffordAPI(QiskitTranspilerService):
         backend_name: Union[str, None] = None,
         # backend is not used yet, but probably it will replace backend_name
         backend: Union[Backend, None] = None,
-    ):
-        if coupling_map is not None:
-            logger.info("Running synthesis against the Qiskit Transpiler Service")
-            transpile_resps = self.request_and_wait(
-                endpoint="transpile",
-                body={
-                    "clifford_dict": [
-                        Clifford(circuit).to_dict() for circuit in circuits
-                    ],
-                    "qargs": qargs,
-                    "backend_coupling_map": coupling_map,
-                },
-                params=dict(),
-            )
-        elif backend_name is not None:
-            logger.info("Running synthesis against the Qiskit Transpiler Service")
-            transpile_resps = self.request_and_wait(
-                endpoint="transpile",
-                body={
-                    "clifford_dict": [
-                        Clifford(circuit).to_dict() for circuit in circuits
-                    ],
-                    "qargs": qargs,
-                },
-                params={"backend": backend_name},
-            )
-        else:
+    ) -> List[Union[QuantumCircuit, None]]:
+        """Synthetize one or more quantum circuits into an optimized equivalent. It differs from a standard synthesis process in that it takes into account where the cliffords are (qargs)
+        and respects it on the synthesized circuit.
+
+        Args:
+            circuits (List[Union[QuantumCircuit, Clifford]]): A list of quantum circuits to be synthesized.
+            qargs (List[List[int]]): A list of lists of qubit indices for each circuit. Each list of qubits indices represent where the cliffors circuit is.
+            coupling_map (Union[List[List[int]], None]): A coupling map representing the connectivity of the quantum computer.
+            backend_name (Union[str, None]): The name of the backend to use for the synthesis.
+
+        Returns:
+            List[Union[QuantumCircuit, None]]: A list of synthesized quantum circuits. If the synthesis fails for any circuit, the corresponding element in the list will be None.
+        """
+
+        # Although this function is called `transpile`, it does a synthesis. It has this name because the synthesis
+        # is made as a pass on the Qiskit Pass Manager which is used in the transpilation process.
+
+        if not coupling_map and not backend_name:
             raise ValueError(
                 "ERROR. Either a 'coupling_map' or a 'backend_name' must be provided."
             )
 
-        results = []
-        for transpile_resp in transpile_resps:
-            if transpile_resp.get("success"):
-                results.append(
-                    deserialize_circuit_from_qpy_or_qasm(
-                        transpile_resp.get("qpy"), transpile_resp.get("qasm")
-                    )
-                )
-            else:
-                results.append(None)
-        return results
+        body_params = {
+            "clifford_dict": [Clifford(circuit).to_dict() for circuit in circuits],
+            "qargs": qargs,
+        }
+
+        query_params = dict()
+
+        if coupling_map is not None:
+            body_params["backend_coupling_map"] = coupling_map
+        elif backend_name is not None:
+            query_params["backend"] = backend_name
+
+        logger.info("Running synthesis against the Qiskit Transpiler Service")
+
+        transpile_response = self.request_and_wait(
+            endpoint="transpile",
+            body=body_params,
+            params=query_params,
+        )
+
+        synthesized_circuits = self._handle_response(transpile_response)
+
+        return synthesized_circuits
 
 
 class AILinearFunctionAPI(QiskitTranspilerService):
@@ -142,14 +144,7 @@ class AILinearFunctionAPI(QiskitTranspilerService):
             params=query_params,
         )
 
-        synthesized_circuits = []
-        for response_element in transpile_response:
-            synthesized_circuit = None
-            if response_element.get("success"):
-                synthesized_circuit = deserialize_circuit_from_qpy_or_qasm(
-                    response_element.get("qpy"), response_element.get("qasm")
-                )
-            synthesized_circuits.append(synthesized_circuit)
+        synthesized_circuits = self._handle_response(transpile_response)
 
         return synthesized_circuits
 
@@ -168,45 +163,51 @@ class AIPermutationAPI(QiskitTranspilerService):
         backend_name: Union[str, None] = None,
         # backend is not used yet, but probably it will replace backend_name
         backend: Union[Backend, None] = None,
-    ):
+    ) -> List[Union[QuantumCircuit, None]]:
+        """Synthetize one or more permutation arrays into an optimized circuit equivalent. It differs from a standard synthesis process in that it takes into account where the permutations are (qargs)
+        and respects it on the synthesized circuit.
 
-        if coupling_map is not None:
-            logger.info("Running synthesis against the Qiskit Transpiler Service")
-            transpile_resps = self.request_and_wait(
-                endpoint="transpile",
-                body={
-                    "permutation": patterns,
-                    "qargs": qargs,
-                    "backend_coupling_map": coupling_map,
-                },
-                params=dict(),
-            )
-        elif backend_name is not None:
-            logger.info("Running synthesis against the Qiskit Transpiler Service")
-            transpile_resps = self.request_and_wait(
-                endpoint="transpile",
-                body={
-                    "permutation": patterns,
-                    "qargs": qargs,
-                },
-                params={"backend": backend_name},
-            )
-        else:
+        Args:
+            patterns: List[List[int]]: A list of permutation arrays to be synthesized.
+            qargs (List[List[int]]): A list of lists of qubit indices for each permutation array. Each list of qubits indices represent where the permutation array is.
+            coupling_map (Union[List[List[int]], None]): A coupling map representing the connectivity of the quantum computer.
+            backend_name (Union[str, None]): The name of the backend to use for the synthesis.
+
+        Returns:
+            List[Union[QuantumCircuit, None]]: A list of synthesized quantum circuits. If the synthesis fails for any circuit, the corresponding element in the list will be None.
+        """
+
+        # Although this function is called `transpile`, it does a synthesis. It has this name because the synthesis
+        # is made as a pass on the Qiskit Pass Manager which is used in the transpilation process.
+
+        if not coupling_map and not backend_name:
             raise ValueError(
                 "ERROR. Either a 'coupling_map' or a 'backend_name' must be provided."
             )
 
-        results = []
-        for transpile_resp in transpile_resps:
-            if transpile_resp.get("success"):
-                results.append(
-                    deserialize_circuit_from_qpy_or_qasm(
-                        transpile_resp.get("qpy"), transpile_resp.get("qasm")
-                    )
-                )
-            else:
-                results.append(None)
-        return results
+        body_params = {
+            "permutation": patterns,
+            "qargs": qargs,
+        }
+
+        query_params = dict()
+
+        if coupling_map is not None:
+            body_params["backend_coupling_map"] = coupling_map
+        elif backend_name is not None:
+            query_params["backend"] = backend_name
+
+        logger.info("Running synthesis against the Qiskit Transpiler Service")
+
+        transpile_response = self.request_and_wait(
+            endpoint="transpile",
+            body=body_params,
+            params=query_params,
+        )
+
+        synthesized_circuits = self._handle_response(transpile_response)
+
+        return synthesized_circuits
 
 
 class AIPauliNetworkAPI(QiskitTranspilerService):
@@ -224,45 +225,35 @@ class AIPauliNetworkAPI(QiskitTranspilerService):
         # backend is not used yet, but probably it will replace backend_name
         backend: Union[Backend, None] = None,
     ):
+        if not coupling_map and not backend_name:
+            raise ValueError(
+                "ERROR. Either a 'coupling_map' or a 'backend_name' must be provided."
+            )
+
         qpy, qasm = serialize_circuits_to_qpy_or_qasm(
             circuits, self.get_qiskit_version()
         )
-        if coupling_map is not None:
-            logger.info("Running synthesis against the Qiskit Transpiler Service")
-            transpile_resps = self.request_and_wait(
-                endpoint="transpile",
-                body={
-                    "qasm": qasm,
-                    "qpy": qpy,
-                    "qargs": qargs,
-                    "backend_coupling_map": coupling_map,
-                },
-                params={"backend": ""},
-            )
-        elif backend_name is not None:
-            logger.info("Running synthesis against the Qiskit Transpiler Service")
-            transpile_resps = self.request_and_wait(
-                endpoint="transpile",
-                body={
-                    "qasm": qasm,
-                    "qpy": qpy,
-                    "qargs": qargs,
-                },
-                params={"backend": backend_name},
-            )
-        else:
-            raise ValueError(
-                f"ERROR. Either a 'coupling_map' or a 'backend_name' must be provided."
-            )
+        body_params = {
+            "qasm": qasm,
+            "qpy": qpy,
+            "qargs": qargs,
+        }
 
-        results = []
-        for transpile_resp in transpile_resps:
-            if transpile_resp.get("success"):
-                results.append(
-                    deserialize_circuit_from_qpy_or_qasm(
-                        transpile_resp.get("qpy"), transpile_resp.get("qasm")
-                    )
-                )
-            else:
-                results.append(None)
-        return results
+        query_params = dict()
+
+        if coupling_map is not None:
+            body_params["backend_coupling_map"] = coupling_map
+        elif backend_name is not None:
+            query_params["backend"] = backend_name
+
+        logger.info("Running synthesis against the Qiskit Transpiler Service")
+
+        transpile_response = self.request_and_wait(
+            endpoint="transpile",
+            body=body_params,
+            params=query_params,
+        )
+
+        synthesized_circuits = self._handle_response(transpile_response)
+
+        return synthesized_circuits
