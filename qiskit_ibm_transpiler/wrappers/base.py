@@ -79,6 +79,7 @@ class QiskitTranspilerService:
         url_env_param = f"{path_param.upper()}_" if path_param else ""
         url_env_var = f"QISKIT_IBM_TRANSPILER_{url_env_param}URL"
 
+        self.base_url = base_url
         self.url = os.environ.get(url_env_var, url_with_path).rstrip("/")
 
         token = token if token else _get_token_from_system()
@@ -93,7 +94,7 @@ class QiskitTranspilerService:
         }
 
     def get_versions(self):
-        url = f"{self.url}/version"
+        url = f"{self.base_url}/version"
         resp = requests.get(
             url,
             headers=self.headers,
