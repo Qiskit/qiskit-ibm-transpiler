@@ -39,7 +39,7 @@ def test_ai_pass_manager(
     ai_layout_mode,
     qiskit_transpile_options,
     backend_and_coupling_map,
-    request
+    request,
 ):
 
     su2_circuit = EfficientSU2(10, entanglement="circular", reps=1).decompose()

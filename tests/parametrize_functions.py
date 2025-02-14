@@ -53,11 +53,20 @@ def parametrize_non_valid_optimization_level():
         [0, 4],
     )
 
+
 def parametrize_backend_and_coupling_map():
     return pytest.mark.parametrize(
         "backend_and_coupling_map",
-        [(None, "brisbane_coupling_map"), ("brisbane_backend", None), ("brisbane_backend", "brisbane_coupling_map")],
-        ids=["None-brisbane_coupling_map", "brisbane_backend-None", "brisbane_backend-brisbane_coupling_map"],
+        [
+            (None, "brisbane_coupling_map"),
+            ("brisbane_backend", None),
+            ("brisbane_backend", "brisbane_coupling_map"),
+        ],
+        ids=[
+            "None-brisbane_coupling_map",
+            "brisbane_backend-None",
+            "brisbane_backend-brisbane_coupling_map",
+        ],
     )
 
 
