@@ -32,27 +32,27 @@ def env_set(monkeypatch, request):
     if "disable_monkeypatch" not in request.keywords:
         monkeypatch.setenv(
             "QISKIT_IBM_TRANSPILER_PERMUTATIONS_URL",
-            "https://cloud-transpiler-experimental.quantum-computing.ibm.com/permutations",
+            "https://cloud-transpiler.quantum-computing.ibm.com/permutations",
         )
         monkeypatch.setenv(
             "QISKIT_IBM_TRANSPILER_LINEAR_FUNCTIONS_URL",
-            "https://cloud-transpiler-experimental.quantum-computing.ibm.com/linear_functions",
+            "https://cloud-transpiler.quantum-computing.ibm.com/linear_functions",
         )
         monkeypatch.setenv(
             "QISKIT_IBM_TRANSPILER_CLIFFORD_URL",
-            "https://cloud-transpiler-experimental.quantum-computing.ibm.com/clifford",
+            "https://cloud-transpiler.quantum-computing.ibm.com/clifford",
         )
         monkeypatch.setenv(
             "QISKIT_IBM_TRANSPILER_ROUTING_URL",
-            "https://cloud-transpiler-experimental.quantum-computing.ibm.com/routing",
+            "https://cloud-transpiler.quantum-computing.ibm.com/routing",
         )
         monkeypatch.setenv(
             "QISKIT_IBM_TRANSPILER_PAULI_NETWORK_URL",
-            "https://cloud-transpiler-experimental.quantum-computing.ibm.com/pauli_network",
+            "https://cloud-transpiler.quantum-computing.ibm.com/pauli_network",
         )
         monkeypatch.setenv(
             "QISKIT_IBM_TRANSPILER_URL",
-            "https://cloud-transpiler-experimental.quantum-computing.ibm.com/",
+            "https://cloud-transpiler.quantum-computing.ibm.com/",
         )
     logging.getLogger("qiskit_ibm_transpiler.ai.synthesis").setLevel(logging.DEBUG)
 
