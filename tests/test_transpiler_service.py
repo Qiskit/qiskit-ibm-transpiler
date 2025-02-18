@@ -50,12 +50,12 @@ from tests.parametrize_functions import (
 @parametrize_ai()
 @parametrize_qiskit_transpile_options()
 def test_transpiler_service_random_circuit(
-    optimization_level, ai, qiskit_transpile_options, brisbane_backend_name
+    optimization_level, ai, qiskit_transpile_options, test_eagle_backend_name
 ):
     random_circ = random_circuit(5, depth=3, seed=42)
 
     cloud_transpiler_service = TranspilerService(
-        backend_name=brisbane_backend_name,
+        backend_name=test_eagle_backend_name,
         ai=ai,
         optimization_level=optimization_level,
         qiskit_transpile_options=qiskit_transpile_options,
@@ -69,10 +69,10 @@ def test_transpiler_service_random_circuit(
 @parametrize_ai()
 @parametrize_qiskit_transpile_options()
 def test_transpiler_service_quantum_volume_circuit(
-    optimization_level, ai, qiskit_transpile_options, brisbane_backend_name, qv_circ
+    optimization_level, ai, qiskit_transpile_options, test_eagle_backend_name, qv_circ
 ):
     cloud_transpiler_service = TranspilerService(
-        backend_name=brisbane_backend_name,
+        backend_name=test_eagle_backend_name,
         ai=ai,
         optimization_level=optimization_level,
         qiskit_transpile_options=qiskit_transpile_options,
@@ -89,18 +89,18 @@ def test_transpiler_service_quantum_volume_circuit(
 @parametrize_qiskit_transpile_options()
 @parametrize_valid_optimization_preferences_without_noise()
 def test_transpiler_service_coupling_map(
-    brisbane_coupling_map_list_format,
-    permutation_circuit_brisbane,
+    test_eagle_coupling_map_list_format,
+    permutation_circuit_test_eagle,
     optimization_level,
     ai,
     qiskit_transpile_options,
     valid_optimization_preferences_without_noise,
 ):
     # For this tests the circuit is no relevant, so we reuse one we already have
-    original_circuit = permutation_circuit_brisbane
+    original_circuit = permutation_circuit_test_eagle
 
     cloud_transpiler_service = TranspilerService(
-        coupling_map=brisbane_coupling_map_list_format,
+        coupling_map=test_eagle_coupling_map_list_format,
         ai=ai,
         optimization_level=optimization_level,
         qiskit_transpile_options=qiskit_transpile_options,
@@ -113,10 +113,10 @@ def test_transpiler_service_coupling_map(
 
 @pytest.mark.parametrize("num_circuits", [2, 5])
 def test_transpiler_service_several_qv_circuits(
-    num_circuits, brisbane_backend_name, qv_circ
+    num_circuits, test_eagle_backend_name, qv_circ
 ):
     cloud_transpiler_service = TranspilerService(
-        backend_name=brisbane_backend_name,
+        backend_name=test_eagle_backend_name,
         ai="true",
         optimization_level=1,
     )
@@ -126,9 +126,9 @@ def test_transpiler_service_several_qv_circuits(
         assert isinstance(circ, QuantumCircuit)
 
 
-def test_transpiler_service_wrong_input(brisbane_backend_name, qv_circ):
+def test_transpiler_service_wrong_input(test_eagle_backend_name, qv_circ):
     cloud_transpiler_service = TranspilerService(
-        backend_name=brisbane_backend_name,
+        backend_name=test_eagle_backend_name,
         ai="true",
         optimization_level=1,
     )
@@ -148,7 +148,7 @@ def test_transpiler_service_layout_reconstruction(ai):
     observable = SparsePauliOp("Z" * n_qubits)
 
     cloud_transpiler_service = TranspilerService(
-        backend_name="ibm_brisbane",
+        backend_name="test_eagle",
         ai=ai,
         optimization_level=1,
     )
@@ -181,10 +181,10 @@ def test_transpiler_service_non_valid_backend_name(
 @pytest.mark.skip(
     "Service accepts now 1e6 gates. Takes too much time to create that circuit."
 )
-def test_transpiler_service_exceed_circuit_size(brisbane_backend_name):
+def test_transpiler_service_exceed_circuit_size(test_eagle_backend_name):
     circuit = EfficientSU2(120, entanglement="full", reps=5).decompose()
     transpiler_service = TranspilerService(
-        backend_name=brisbane_backend_name,
+        backend_name=test_eagle_backend_name,
         ai="false",
         optimization_level=3,
     )
@@ -196,10 +196,10 @@ def test_transpiler_service_exceed_circuit_size(brisbane_backend_name):
         assert str(e) == "'Circuit has more gates than the allowed maximum of 30000.'"
 
 
-def test_transpiler_service_exceed_timeout(brisbane_backend_name):
+def test_transpiler_service_exceed_timeout(test_eagle_backend_name):
     circuit = EfficientSU2(100, entanglement="circular", reps=50).decompose()
     transpiler_service = TranspilerService(
-        backend_name=brisbane_backend_name,
+        backend_name=test_eagle_backend_name,
         ai="false",
         optimization_level=3,
         timeout=1,
@@ -215,9 +215,9 @@ def test_transpiler_service_exceed_timeout(brisbane_backend_name):
         )
 
 
-def test_transpiler_service_wrong_token(brisbane_backend_name, basic_cnot_circuit):
+def test_transpiler_service_wrong_token(test_eagle_backend_name, basic_cnot_circuit):
     transpiler_service = TranspilerService(
-        backend_name=brisbane_backend_name,
+        backend_name=test_eagle_backend_name,
         ai="false",
         optimization_level=3,
         token="invented_token5",
@@ -231,9 +231,9 @@ def test_transpiler_service_wrong_token(brisbane_backend_name, basic_cnot_circui
 
 
 @pytest.mark.disable_monkeypatch
-def test_transpiler_service_wrong_url(brisbane_backend_name, basic_cnot_circuit):
+def test_transpiler_service_wrong_url(test_eagle_backend_name, basic_cnot_circuit):
     transpiler_service = TranspilerService(
-        backend_name=brisbane_backend_name,
+        backend_name=test_eagle_backend_name,
         ai="false",
         optimization_level=3,
         base_url="https://ibm.com/",
@@ -247,9 +247,9 @@ def test_transpiler_service_wrong_url(brisbane_backend_name, basic_cnot_circuit)
 
 
 @pytest.mark.disable_monkeypatch
-def test_transpiler_service_unexisting_url(brisbane_backend_name, basic_cnot_circuit):
+def test_transpiler_service_unexisting_url(test_eagle_backend_name, basic_cnot_circuit):
     transpiler_service = TranspilerService(
-        backend_name=brisbane_backend_name,
+        backend_name=test_eagle_backend_name,
         ai="false",
         optimization_level=3,
         base_url="https://invented-domain-qiskit-ibm-transpiler-123.com/",
@@ -264,9 +264,9 @@ def test_transpiler_service_unexisting_url(brisbane_backend_name, basic_cnot_cir
         )
 
 
-def test_transpiler_service_malformed_body(brisbane_backend_name, basic_cnot_circuit):
+def test_transpiler_service_malformed_body(test_eagle_backend_name, basic_cnot_circuit):
     transpiler_service = TranspilerService(
-        backend_name=brisbane_backend_name,
+        backend_name=test_eagle_backend_name,
         ai="false",
         optimization_level=3,
         qiskit_transpile_options={"failing_option": 0},
@@ -282,10 +282,10 @@ def test_transpiler_service_malformed_body(brisbane_backend_name, basic_cnot_cir
 
 
 def test_transpiler_service_failing_task(
-    brisbane_backend_name, qpy_circuit_with_transpiling_error
+    test_eagle_backend_name, qpy_circuit_with_transpiling_error
 ):
     transpiler_service = TranspilerService(
-        backend_name=brisbane_backend_name,
+        backend_name=test_eagle_backend_name,
         ai="false",
         optimization_level=3,
         coupling_map=[[1, 2], [2, 1]],
@@ -303,10 +303,10 @@ def test_transpiler_service_failing_task(
 
 
 def test_transpiler_service_non_valid_circuits_format(
-    brisbane_backend_name, non_valid_qpy_circuit
+    test_eagle_backend_name, non_valid_qpy_circuit
 ):
     cloud_transpiler_service = TranspilerService(
-        backend_name=brisbane_backend_name, optimization_level=1
+        backend_name=test_eagle_backend_name, optimization_level=1
     )
 
     with pytest.raises(TypeError):
@@ -376,22 +376,22 @@ def transpile_and_check_layout(cmap, circuit):
     compare_layouts(plugin_circ, non_ai_circ)
 
 
-def test_transpiler_service_layout_construction_no_service(brisbane_coupling_map):
+def test_transpiler_service_layout_construction_no_service(test_eagle_coupling_map):
     # FIXME: Test fail when uncommenting this code. The error msg is different each run.
     # for n_qubits in [5, 30, 60, 90, 120, 127]:
     #     circuit = random_circuit(n_qubits, 4, measure=True)
-    #     transpile_and_check_layout(brisbane_coupling_map, circuit)
+    #     transpile_and_check_layout(test_eagle_coupling_map, circuit)
 
     for n_qubits in [5, 30, 60, 90, 120, 127]:
         circuit = EfficientSU2(n_qubits, entanglement="circular", reps=1).decompose()
-        transpile_and_check_layout(brisbane_coupling_map, circuit)
+        transpile_and_check_layout(test_eagle_coupling_map, circuit)
 
     for n_qubits in [5, 30, 60, 90, 120, 127]:
         circuit = QuantumCircuit(n_qubits)
         circuit.cx(0, 1)
         circuit.cx(1, 2)
         circuit.h(4)
-        transpile_and_check_layout(brisbane_coupling_map, circuit)
+        transpile_and_check_layout(test_eagle_coupling_map, circuit)
 
 
 def test_transpiler_service_fix_ecr_qasm2():
@@ -427,10 +427,10 @@ def test_transpiler_service_fix_ecr_ibm_strasbourg():
 
 @parametrize_non_valid_use_fractional_gates()
 def test_transpiler_service_non_valid_use_fractional_gates(
-    non_valid_use_fractional_gates, brisbane_backend_name, basic_cnot_circuit
+    non_valid_use_fractional_gates, test_eagle_backend_name, basic_cnot_circuit
 ):
     transpiler_service = TranspilerService(
-        backend_name=brisbane_backend_name,
+        backend_name=test_eagle_backend_name,
         optimization_level=1,
         use_fractional_gates=non_valid_use_fractional_gates,
     )
@@ -443,10 +443,10 @@ def test_transpiler_service_non_valid_use_fractional_gates(
 
 @parametrize_valid_use_fractional_gates()
 def test_transpiler_service_transpile_valid_use_fractional_gates_param(
-    valid_use_fractional_gates, brisbane_backend_name, basic_cnot_circuit
+    valid_use_fractional_gates, test_eagle_backend_name, basic_cnot_circuit
 ):
     transpiler_service = TranspilerService(
-        backend_name=brisbane_backend_name,
+        backend_name=test_eagle_backend_name,
         optimization_level=1,
         use_fractional_gates=valid_use_fractional_gates,
     )
@@ -470,10 +470,10 @@ def test_transpiler_service_qasm3_iterative_decomposition_limit():
 
 
 def test_transpiler_service_barrier_on_circuit(
-    brisbane_backend_name, circuit_with_barrier
+    test_eagle_backend_name, circuit_with_barrier
 ):
     transpiler_service = TranspilerService(
-        backend_name=brisbane_backend_name,
+        backend_name=test_eagle_backend_name,
         optimization_level=1,
     )
 

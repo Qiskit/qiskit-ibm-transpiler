@@ -13,6 +13,7 @@
 """Fixtures used on the tests"""
 
 import logging
+import os
 
 import pytest
 from qiskit import QuantumCircuit
@@ -63,30 +64,34 @@ def non_valid_backend_name():
 
 
 @pytest.fixture(scope="module")
-def brisbane_backend_name():
-    return "ibm_brisbane"
+def test_eagle_backend_name():
+    return "test_eagle"
 
 
 @pytest.fixture(scope="module")
-def brisbane_backend(brisbane_backend_name):
-    backend = QiskitRuntimeService().backend(brisbane_backend_name)
+def test_eagle_backend(test_eagle_backend_name):
+    backend = QiskitRuntimeService(
+        channel=os.getenv("QISKIT_IBM_CHANNEL"),
+        token=os.getenv("QISKIT_IBM_TOKEN"),
+        url=os.getenv("QISKIT_IBM_RUNTIME_API_URL"),
+    ).backend(test_eagle_backend_name)
 
     return backend
 
 
 @pytest.fixture(scope="module")
-def brisbane_coupling_map(brisbane_backend):
-    return brisbane_backend.coupling_map
+def test_eagle_coupling_map(test_eagle_backend):
+    return test_eagle_backend.coupling_map
 
 
 @pytest.fixture(scope="module")
-def brisbane_coupling_map_list_format(brisbane_backend):
-    return list(brisbane_backend.coupling_map.get_edges())
+def test_eagle_coupling_map_list_format(test_eagle_backend):
+    return list(test_eagle_backend.coupling_map.get_edges())
 
 
 @pytest.fixture(scope="module")
-def brisbane_num_qubits(brisbane_backend):
-    return brisbane_backend.num_qubits
+def test_eagle_num_qubits(test_eagle_backend):
+    return test_eagle_backend.num_qubits
 
 
 @pytest.fixture(scope="module")
@@ -100,8 +105,8 @@ def non_valid_qpy_circuit(basic_cnot_circuit):
 
 
 @pytest.fixture(scope="module")
-def permutation_circuit_brisbane(brisbane_num_qubits):
-    orig_qc = QuantumCircuit(brisbane_num_qubits)
+def permutation_circuit_test_eagle(test_eagle_num_qubits):
+    orig_qc = QuantumCircuit(test_eagle_num_qubits)
     # Add 8qL permutation to find subgraph in current models
     for i, p in enumerate([6, 2, 3, 4, 0, 1, 7, 5]):
         orig_qc.swap(i, p)
@@ -143,30 +148,30 @@ def random_clifford_circuit():
 
 
 @pytest.fixture(scope="module")
-def random_brisbane_circuit_with_two_cliffords(brisbane_num_qubits):
+def random_test_eagle_circuit_with_two_cliffords(test_eagle_num_qubits):
     return create_random_circuit_with_several_operators(
-        "Clifford", brisbane_num_qubits, 4, 2
+        "Clifford", test_eagle_num_qubits, 4, 2
     )
 
 
 @pytest.fixture(scope="module")
-def random_brisbane_circuit_with_two_linear_functions(brisbane_num_qubits):
+def random_test_eagle_circuit_with_two_linear_functions(test_eagle_num_qubits):
     return create_random_circuit_with_several_operators(
-        "LinearFunction", brisbane_num_qubits, 4, 2
+        "LinearFunction", test_eagle_num_qubits, 4, 2
     )
 
 
 @pytest.fixture(scope="module")
-def random_brisbane_circuit_with_two_permutations(brisbane_num_qubits):
+def random_test_eagle_circuit_with_two_permutations(test_eagle_num_qubits):
     return create_random_circuit_with_several_operators(
-        "Permutation", brisbane_num_qubits, 4, 2
+        "Permutation", test_eagle_num_qubits, 4, 2
     )
 
 
 @pytest.fixture(scope="module")
-def random_brisbane_circuit_with_two_paulis(brisbane_num_qubits):
+def random_test_eagle_circuit_with_two_paulis(test_eagle_num_qubits):
     return create_random_circuit_with_several_operators(
-        "PauliNetwork", brisbane_num_qubits, 4, 2
+        "PauliNetwork", test_eagle_num_qubits, 4, 2
     )
 
 
