@@ -197,11 +197,14 @@ class AIRouting(TransformationPass):
                 self.coupling_map = backend.coupling_map
         elif backend_name and local_mode:
             try:
-                runtime_service = QiskitRuntimeService(
-                    channel=os.getenv("QISKIT_IBM_CHANNEL"),
-                    token=os.getenv("QISKIT_IBM_TOKEN"),
-                    url=os.getenv("QISKIT_IBM_RUNTIME_API_URL"),
-                )
+                args = {}
+                if os.getenv("QISKIT_IBM_RUNTIME_API_URL") is not None:
+                    args = {
+                        channel: os.getenv("QISKIT_IBM_CHANNEL"),
+                        token: os.getenv("QISKIT_IBM_TOKEN"),
+                        url: os.getenv("QISKIT_IBM_RUNTIME_API_URL"),
+                    }
+                runtime_service = QiskitRuntimeService(args)
                 backend_info = runtime_service.backend(name=backend_name)
                 self.coupling_map = backend_info.coupling_map
             except Exception:

@@ -114,11 +114,14 @@ class AISynthesis(TransformationPass):
                 self.backend_name = backend.name
         elif backend_name and local_mode:
             try:
-                runtime_service = QiskitRuntimeService(
-                    channel=os.getenv("QISKIT_IBM_CHANNEL"),
-                    token=os.getenv("QISKIT_IBM_TOKEN"),
-                    url=os.getenv("QISKIT_IBM_RUNTIME_API_URL"),
-                )
+                args = {}
+                if os.getenv("QISKIT_IBM_RUNTIME_API_URL") is not None:
+                    args = {
+                        channel: os.getenv("QISKIT_IBM_CHANNEL"),
+                        token: os.getenv("QISKIT_IBM_TOKEN"),
+                        url: os.getenv("QISKIT_IBM_RUNTIME_API_URL"),
+                    }
+                runtime_service = QiskitRuntimeService(args)
                 self.backend = runtime_service.backend(name=backend_name)
             except Exception:
                 raise PermissionError(
