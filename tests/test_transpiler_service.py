@@ -410,14 +410,14 @@ def test_transpiler_service_fix_ecr_qasm3():
     assert isinstance(list(circuit_from_qasm)[0].operation, ECRGate)
 
 
-def test_transpiler_service_fix_ecr_ibm_strasbourg():
+def test_transpiler_service_fix_ecr_test_eagle():
     num_qubits = 16
     circuit = QuantumCircuit(num_qubits)
     for i in range(num_qubits - 1):
         circuit.ecr(i, i + 1)
 
     cloud_transpiler_service = TranspilerService(
-        backend_name="ibm_strasbourg",
+        backend_name="test_eagle",
         ai="false",
         optimization_level=3,
     )
