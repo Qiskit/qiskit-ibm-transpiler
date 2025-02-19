@@ -34,10 +34,12 @@ from tests.parametrize_functions import (
 @pytest.mark.skip(
     reason="Unreliable. It passes most of the times with the timeout of 1 second for the current circuits used"
 )
-def test_ai_cloud_routing_pass_exceed_timeout(qv_circ, brisbane_backend_name):
+def test_ai_cloud_routing_pass_exceed_timeout(qv_circ, test_eagle_backend_name):
     ai_routing_pass = PassManager(
         [
-            AIRouting(backend_name=brisbane_backend_name, timeout=1, local_mode=False),
+            AIRouting(
+                backend_name=test_eagle_backend_name, timeout=1, local_mode=False
+            ),
         ]
     )
 
@@ -46,11 +48,11 @@ def test_ai_cloud_routing_pass_exceed_timeout(qv_circ, brisbane_backend_name):
     assert isinstance(ai_optimized_circuit, QuantumCircuit)
 
 
-def test_ai_cloud_routing_pass_wrong_token(qv_circ, brisbane_backend_name):
+def test_ai_cloud_routing_pass_wrong_token(qv_circ, test_eagle_backend_name):
     ai_routing_pass = PassManager(
         [
             AIRouting(
-                backend_name=brisbane_backend_name,
+                backend_name=test_eagle_backend_name,
                 token="invented_token_2",
                 local_mode=False,
             ),
@@ -65,11 +67,11 @@ def test_ai_cloud_routing_pass_wrong_token(qv_circ, brisbane_backend_name):
 
 
 @pytest.mark.disable_monkeypatch
-def test_ai_cloud_routing_pass_wrong_url(qv_circ, brisbane_backend_name):
+def test_ai_cloud_routing_pass_wrong_url(qv_circ, test_eagle_backend_name):
     ai_routing_pass = PassManager(
         [
             AIRouting(
-                backend_name=brisbane_backend_name,
+                backend_name=test_eagle_backend_name,
                 base_url="https://ibm.com/",
                 local_mode=False,
             ),
@@ -86,11 +88,11 @@ def test_ai_cloud_routing_pass_wrong_url(qv_circ, brisbane_backend_name):
 
 
 @pytest.mark.disable_monkeypatch
-def test_ai_cloud_routing_pass_unexisting_url(qv_circ, brisbane_backend_name):
+def test_ai_cloud_routing_pass_unexisting_url(qv_circ, test_eagle_backend_name):
     ai_routing_pass = PassManager(
         [
             AIRouting(
-                backend_name=brisbane_backend_name,
+                backend_name=test_eagle_backend_name,
                 base_url="https://invented-domain-qiskit-ibm-transpiler-123.com/",
                 local_mode=False,
             ),
@@ -123,7 +125,7 @@ def test_ai_routing_pass_wrong_backend(error_type, local_mode, basic_cnot_circui
 @parametrize_non_valid_optimization_level()
 @parametrize_local_mode()
 def test_ai_routing_pass_non_valid_optimization_level(
-    optimization_level, local_mode, brisbane_backend_name
+    optimization_level, local_mode, test_eagle_backend_name
 ):
     with pytest.raises(
         ValueError,
@@ -134,7 +136,7 @@ def test_ai_routing_pass_non_valid_optimization_level(
             [
                 AIRouting(
                     optimization_level=optimization_level,
-                    backend_name=brisbane_backend_name,
+                    backend_name=test_eagle_backend_name,
                     local_mode=local_mode,
                 )
             ]
@@ -146,14 +148,14 @@ def test_ai_routing_pass_non_valid_optimization_level(
 def test_ai_routing_pass_valid_optimization_level(
     optimization_level,
     local_mode,
-    brisbane_backend_name,
+    test_eagle_backend_name,
     qv_circ,
 ):
     ai_routing_pass = PassManager(
         [
             AIRouting(
                 optimization_level=optimization_level,
-                backend_name=brisbane_backend_name,
+                backend_name=test_eagle_backend_name,
                 local_mode=local_mode,
             )
         ]
@@ -167,7 +169,7 @@ def test_ai_routing_pass_valid_optimization_level(
 @parametrize_non_valid_optimization_preferences()
 @parametrize_local_mode()
 def test_ai_routing_pass_non_valid_optimization_preferences(
-    non_valid_optimization_preferences, local_mode, brisbane_backend_name
+    non_valid_optimization_preferences, local_mode, test_eagle_backend_name
 ):
     with pytest.raises(
         ValueError,
@@ -178,7 +180,7 @@ def test_ai_routing_pass_non_valid_optimization_preferences(
             [
                 AIRouting(
                     optimization_preferences=non_valid_optimization_preferences,
-                    backend_name=brisbane_backend_name,
+                    backend_name=test_eagle_backend_name,
                     local_mode=local_mode,
                 )
             ]
@@ -190,13 +192,13 @@ def test_ai_routing_pass_non_valid_optimization_preferences(
 def test_ai_routing_pass_valid_optimization_preferences(
     valid_optimization_preferences,
     local_mode,
-    brisbane_backend_name,
+    test_eagle_backend_name,
     qv_circ,
 ):
     ai_routing_pass = PassManager(
         [
             AIRouting(
-                backend_name=brisbane_backend_name,
+                backend_name=test_eagle_backend_name,
                 optimization_preferences=valid_optimization_preferences,
                 local_mode=local_mode,
             )
@@ -211,14 +213,14 @@ def test_ai_routing_pass_valid_optimization_preferences(
 @parametrize_non_valid_layout_mode()
 @parametrize_local_mode()
 def test_ai_routing_pass_non_valid_layout_mode(
-    layout_mode, local_mode, brisbane_backend_name
+    layout_mode, local_mode, test_eagle_backend_name
 ):
     with pytest.raises(ValueError):
         PassManager(
             [
                 AIRouting(
                     layout_mode=layout_mode,
-                    backend_name=brisbane_backend_name,
+                    backend_name=test_eagle_backend_name,
                     local_mode=local_mode,
                 )
             ]
@@ -230,14 +232,14 @@ def test_ai_routing_pass_non_valid_layout_mode(
 def test_ai_routing_pass_valid_layout_mode(
     layout_mode,
     local_mode,
-    brisbane_backend_name,
+    test_eagle_backend_name,
     qv_circ,
 ):
     ai_routing_pass = PassManager(
         [
             AIRouting(
                 layout_mode=layout_mode,
-                backend_name=brisbane_backend_name,
+                backend_name=test_eagle_backend_name,
                 local_mode=local_mode,
             )
         ]
@@ -251,13 +253,13 @@ def test_ai_routing_pass_valid_layout_mode(
 @parametrize_local_mode()
 def test_ai_routing_pass_with_backend_name(
     local_mode,
-    brisbane_backend_name,
+    test_eagle_backend_name,
     qv_circ,
 ):
     ai_routing_pass = PassManager(
         [
             AIRouting(
-                backend_name=brisbane_backend_name,
+                backend_name=test_eagle_backend_name,
                 local_mode=local_mode,
             )
         ]
@@ -271,13 +273,13 @@ def test_ai_routing_pass_with_backend_name(
 @parametrize_local_mode()
 def test_ai_routing_pass_with_backend(
     local_mode,
-    brisbane_backend,
+    test_eagle_backend,
     qv_circ,
 ):
     ai_routing_pass = PassManager(
         [
             AIRouting(
-                backend=brisbane_backend,
+                backend=test_eagle_backend,
                 local_mode=local_mode,
             )
         ]

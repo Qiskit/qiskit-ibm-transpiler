@@ -36,13 +36,13 @@ def test_ai_pass_manager(
     include_ai_synthesis,
     ai_layout_mode,
     qiskit_transpile_options,
-    brisbane_coupling_map,
+    test_eagle_coupling_map,
 ):
 
     su2_circuit = EfficientSU2(10, entanglement="circular", reps=1).decompose()
 
     ai_transpiler_pass_manager = generate_ai_pass_manager(
-        coupling_map=brisbane_coupling_map,
+        coupling_map=test_eagle_coupling_map,
         ai_optimization_level=ai_optimization_level,
         include_ai_synthesis=include_ai_synthesis,
         optimization_level=optimization_level,

@@ -136,12 +136,12 @@ def test_collection_pass_with_barrier(collectable_gates, collector_pass, n_qubit
 # TODO: Waiting for clarifications on what this test do
 @pytest.mark.skip(reason="Commented asserts are not constant")
 def test_permutation_collector_pass(
-    permutation_circuit_brisbane, brisbane_coupling_map
+    permutation_circuit_test_eagle, test_eagle_coupling_map
 ):
     qiskit_lvl3_transpiler = generate_preset_pass_manager(
-        optimization_level=1, coupling_map=brisbane_coupling_map
+        optimization_level=1, coupling_map=test_eagle_coupling_map
     )
-    permutation_circuit = qiskit_lvl3_transpiler.run(permutation_circuit_brisbane)
+    permutation_circuit = qiskit_lvl3_transpiler.run(permutation_circuit_test_eagle)
 
     pm = PassManager(
         [
