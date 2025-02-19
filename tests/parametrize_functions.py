@@ -54,6 +54,22 @@ def parametrize_non_valid_optimization_level():
     )
 
 
+def parametrize_backend_and_coupling_map():
+    return pytest.mark.parametrize(
+        "backend_and_coupling_map",
+        [
+            (None, "test_eagle_coupling_map"),
+            ("test_eagle_backend", None),
+            ("test_eagle_backend", "test_eagle_coupling_map"),
+        ],
+        ids=[
+            "None-test_eagle_coupling_map",
+            "test_eagle_backend-None",
+            "test_eagle_backend-test_eagle_coupling_map",
+        ],
+    )
+
+
 def parametrize_valid_ai_optimization_level():
     return pytest.mark.parametrize(
         "ai_optimization_level",

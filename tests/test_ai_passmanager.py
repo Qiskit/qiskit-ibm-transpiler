@@ -18,6 +18,7 @@ from qiskit.circuit.library import EfficientSU2
 from qiskit_ibm_transpiler import generate_ai_pass_manager
 from tests.parametrize_functions import (
     parametrize_ai_layout_mode,
+    parametrize_backend_and_coupling_map,
     parametrize_include_ai_synthesis,
     parametrize_qiskit_transpile_options,
     parametrize_valid_ai_optimization_level,
@@ -30,19 +31,29 @@ from tests.parametrize_functions import (
 @parametrize_include_ai_synthesis()
 @parametrize_ai_layout_mode()
 @parametrize_qiskit_transpile_options()
+@parametrize_backend_and_coupling_map()
 def test_ai_pass_manager(
     optimization_level,
     ai_optimization_level,
     include_ai_synthesis,
     ai_layout_mode,
     qiskit_transpile_options,
-    test_eagle_coupling_map,
+    backend_and_coupling_map,
+    request,
 ):
 
     su2_circuit = EfficientSU2(10, entanglement="circular", reps=1).decompose()
 
+    backend, coupling_map = backend_and_coupling_map
+    if coupling_map:
+        coupling_map = request.getfixturevalue(coupling_map)
+
+    if backend:
+        backend = request.getfixturevalue(backend)
+
     ai_transpiler_pass_manager = generate_ai_pass_manager(
-        coupling_map=test_eagle_coupling_map,
+        backend=backend,
+        coupling_map=coupling_map,
         ai_optimization_level=ai_optimization_level,
         include_ai_synthesis=include_ai_synthesis,
         optimization_level=optimization_level,
