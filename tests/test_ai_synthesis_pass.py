@@ -85,7 +85,7 @@ def test_ai_cloud_synthesis_wrong_backend(
 )
 @parametrize_basic_circuit_collector_pass_and_ai_synthesis_pass()
 def test_ai_cloud_synthesis_exceed_timeout(
-    circuit, collector_pass, ai_synthesis_pass, brisbane_backend_name, caplog, request
+    circuit, collector_pass, ai_synthesis_pass, test_eagle_backend_name, caplog, request
 ):
     original_circuit = request.getfixturevalue(circuit)
 
@@ -93,7 +93,7 @@ def test_ai_cloud_synthesis_exceed_timeout(
         [
             collector_pass(),
             ai_synthesis_pass(
-                backend_name=brisbane_backend_name, timeout=1, local_mode=False
+                backend_name=test_eagle_backend_name, timeout=1, local_mode=False
             ),
         ]
     )
@@ -111,7 +111,7 @@ def test_ai_cloud_synthesis_exceed_timeout(
 # make the test pass
 @parametrize_basic_circuit_collector_pass_and_ai_synthesis_pass()
 def test_ai_cloud_synthesis_wrong_token(
-    circuit, collector_pass, ai_synthesis_pass, brisbane_backend_name, caplog, request
+    circuit, collector_pass, ai_synthesis_pass, test_eagle_backend_name, caplog, request
 ):
     original_circuit = request.getfixturevalue(circuit)
 
@@ -119,7 +119,7 @@ def test_ai_cloud_synthesis_wrong_token(
         [
             collector_pass(min_block_size=2, max_block_size=27),
             ai_synthesis_pass(
-                backend_name=brisbane_backend_name,
+                backend_name=test_eagle_backend_name,
                 token="invented_token_2",
                 local_mode=False,
             ),
@@ -141,7 +141,7 @@ def test_ai_cloud_synthesis_wrong_token(
 @pytest.mark.disable_monkeypatch
 @parametrize_basic_circuit_collector_pass_and_ai_synthesis_pass()
 def test_ai_cloud_synthesis_wrong_url(
-    circuit, collector_pass, ai_synthesis_pass, brisbane_backend_name, caplog, request
+    circuit, collector_pass, ai_synthesis_pass, test_eagle_backend_name, caplog, request
 ):
     original_circuit = request.getfixturevalue(circuit)
 
@@ -149,7 +149,7 @@ def test_ai_cloud_synthesis_wrong_url(
         [
             collector_pass(min_block_size=2, max_block_size=27),
             ai_synthesis_pass(
-                backend_name=brisbane_backend_name,
+                backend_name=test_eagle_backend_name,
                 base_url="https://ibm.com/",
                 local_mode=False,
             ),
@@ -162,11 +162,11 @@ def test_ai_cloud_synthesis_wrong_url(
     assert "Keeping the original circuit" in caplog.text
 
 
-# TODO: When using basic_swap_circuit it works, when using random_brisbane_circuit_with_two_cliffords doesn't. Check why
+# TODO: When using basic_swap_circuit it works, when using random_test_eagle_circuit_with_two_cliffords doesn't. Check why
 @pytest.mark.disable_monkeypatch
 @parametrize_basic_circuit_collector_pass_and_ai_synthesis_pass()
 def test_ai_cloud_synthesis_unexisting_url(
-    circuit, collector_pass, ai_synthesis_pass, brisbane_backend_name, caplog, request
+    circuit, collector_pass, ai_synthesis_pass, test_eagle_backend_name, caplog, request
 ):
     original_circuit = request.getfixturevalue(circuit)
 
@@ -174,7 +174,7 @@ def test_ai_cloud_synthesis_unexisting_url(
         [
             collector_pass(min_block_size=2, max_block_size=27),
             ai_synthesis_pass(
-                backend_name=brisbane_backend_name,
+                backend_name=test_eagle_backend_name,
                 base_url="https://invented-domain-qiskit-ibm-transpiler-123.com/",
                 local_mode=False,
             ),
@@ -201,7 +201,7 @@ def test_ai_synthesis_always_replace_original_circuit(
     collector_pass,
     ai_synthesis_pass,
     local_mode,
-    brisbane_backend,
+    test_eagle_backend,
     caplog,
     request,
 ):
@@ -214,7 +214,7 @@ def test_ai_synthesis_always_replace_original_circuit(
         [
             collector_pass(max_block_size=27),
             ai_synthesis_pass(
-                backend=brisbane_backend,
+                backend=test_eagle_backend,
                 replace_only_if_better=False,
                 local_mode=local_mode,
             ),
@@ -235,7 +235,7 @@ def test_ai_synthesis_keep_original_if_better(
     collector_pass,
     ai_synthesis_pass,
     local_mode,
-    brisbane_backend_name,
+    test_eagle_backend_name,
     caplog,
     request,
 ):
@@ -253,7 +253,7 @@ def test_ai_synthesis_keep_original_if_better(
         [
             collector_pass(min_block_size=2),
             ai_synthesis_pass(
-                backend_name=brisbane_backend_name, local_mode=local_mode
+                backend_name=test_eagle_backend_name, local_mode=local_mode
             ),
         ]
     )
@@ -273,7 +273,7 @@ def test_ai_synthesis_pass_with_backend_name(
     collector_pass,
     ai_synthesis_pass,
     local_mode,
-    brisbane_backend_name,
+    test_eagle_backend_name,
     caplog,
     request,
 ):
@@ -286,7 +286,7 @@ def test_ai_synthesis_pass_with_backend_name(
         [
             collector_pass(),
             ai_synthesis_pass(
-                backend_name=brisbane_backend_name, local_mode=local_mode
+                backend_name=test_eagle_backend_name, local_mode=local_mode
             ),
         ]
     )
@@ -304,7 +304,7 @@ def test_ai_synthesis_pass_with_backend(
     collector_pass,
     ai_synthesis_pass,
     local_mode,
-    brisbane_backend,
+    test_eagle_backend,
     caplog,
     request,
 ):
@@ -316,7 +316,7 @@ def test_ai_synthesis_pass_with_backend(
     custom_ai_synthesis_pass = PassManager(
         [
             collector_pass(),
-            ai_synthesis_pass(backend=brisbane_backend, local_mode=local_mode),
+            ai_synthesis_pass(backend=test_eagle_backend, local_mode=local_mode),
         ]
     )
 
