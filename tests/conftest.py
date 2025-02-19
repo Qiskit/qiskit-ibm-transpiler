@@ -18,10 +18,10 @@ import os
 import pytest
 from qiskit import QuantumCircuit
 from qiskit.circuit.library import QuantumVolume
-from qiskit_ibm_runtime import QiskitRuntimeService
 
 from qiskit_ibm_transpiler.utils import (
     create_random_linear_function,
+    get_qiskit_runtime_service,
     get_qpy_from_circuit,
     random_clifford_from_linear_function,
 )
@@ -70,11 +70,7 @@ def test_eagle_backend_name():
 
 @pytest.fixture(scope="module")
 def test_eagle_backend(test_eagle_backend_name):
-    backend = QiskitRuntimeService(
-        channel=os.getenv("QISKIT_IBM_CHANNEL"),
-        token=os.getenv("QISKIT_IBM_TOKEN"),
-        url=os.getenv("QISKIT_IBM_RUNTIME_API_URL"),
-    ).backend(test_eagle_backend_name)
+    backend = get_qiskit_runtime_service().backend(test_eagle_backend_name)
 
     return backend
 

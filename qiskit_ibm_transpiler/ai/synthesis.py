@@ -25,8 +25,8 @@ from qiskit.quantum_info import Clifford
 from qiskit.transpiler import CouplingMap
 from qiskit.transpiler.basepasses import TransformationPass
 from qiskit.transpiler.exceptions import TranspilerError
-from qiskit_ibm_runtime import QiskitRuntimeService
 
+from qiskit_ibm_transpiler.utils import get_qiskit_runtime_service
 from qiskit_ibm_transpiler.wrappers import (
     AICliffordAPI,
     AILinearFunctionAPI,
@@ -114,14 +114,7 @@ class AISynthesis(TransformationPass):
                 self.backend_name = backend.name
         elif backend_name and local_mode:
             try:
-                args = {}
-                if os.getenv("QISKIT_IBM_RUNTIME_API_URL") is not None:
-                    args = {
-                        "channel": os.getenv("QISKIT_IBM_CHANNEL"),
-                        "token": os.getenv("QISKIT_IBM_TOKEN"),
-                        "url": os.getenv("QISKIT_IBM_RUNTIME_API_URL"),
-                    }
-                runtime_service = QiskitRuntimeService(**args)
+                runtime_service = get_qiskit_runtime_service()
                 self.backend = runtime_service.backend(name=backend_name)
             except Exception:
                 raise PermissionError(

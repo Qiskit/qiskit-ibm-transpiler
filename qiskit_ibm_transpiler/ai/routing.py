@@ -27,8 +27,8 @@ from qiskit.providers.backend import BackendV2 as Backend
 from qiskit.transpiler import CouplingMap, TranspilerError
 from qiskit.transpiler.basepasses import TransformationPass
 from qiskit.transpiler.layout import Layout
-from qiskit_ibm_runtime import QiskitRuntimeService
 
+from qiskit_ibm_transpiler.utils import get_qiskit_runtime_service
 from qiskit_ibm_transpiler.wrappers import AILocalRouting, AIRoutingAPI
 
 logger = logging.getLogger(__name__)
@@ -197,14 +197,7 @@ class AIRouting(TransformationPass):
                 self.coupling_map = backend.coupling_map
         elif backend_name and local_mode:
             try:
-                args = {}
-                if os.getenv("QISKIT_IBM_RUNTIME_API_URL") is not None:
-                    args = {
-                        "channel": os.getenv("QISKIT_IBM_CHANNEL"),
-                        "token": os.getenv("QISKIT_IBM_TOKEN"),
-                        "url": os.getenv("QISKIT_IBM_RUNTIME_API_URL"),
-                    }
-                runtime_service = QiskitRuntimeService(**args)
+                runtime_service = get_qiskit_runtime_service()
                 backend_info = runtime_service.backend(name=backend_name)
                 self.coupling_map = backend_info.coupling_map
             except Exception:

@@ -41,6 +41,7 @@ from qiskit.qpy import common
 from qiskit.quantum_info import Clifford
 from qiskit.synthesis.linear.linear_matrix_utils import random_invertible_binary_matrix
 from qiskit.transpiler.basepasses import TransformationPass
+from qiskit_ibm_runtime import QiskitRuntimeService
 
 logger = logging.getLogger(__name__)
 
@@ -303,3 +304,14 @@ def deserialize_circuit_from_qpy_or_qasm(
         return get_circuit_from_qasm(qasm_input)
     else:
         return None
+
+
+def get_qiskit_runtime_service():
+    args = {}
+    if os.getenv("QISKIT_IBM_RUNTIME_API_URL") is not None:
+        args = {
+            "channel": os.getenv("QISKIT_IBM_CHANNEL"),
+            "token": os.getenv("QISKIT_IBM_TOKEN"),
+            "url": os.getenv("QISKIT_IBM_RUNTIME_API_URL"),
+        }
+    return QiskitRuntimeService(**args)
