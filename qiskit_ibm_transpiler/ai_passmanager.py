@@ -108,6 +108,8 @@ def generate_ai_pass_manager(
 
     if include_ai_synthesis and optimization_level > 1:
         synth_pm = None
+        if coupling_map is None:
+            coupling_map = backend.coupling_map
         synth_lf = AILinearFunctionSynthesis(coupling_map=coupling_map, local_mode=True)
 
         if optimization_level == 2:
