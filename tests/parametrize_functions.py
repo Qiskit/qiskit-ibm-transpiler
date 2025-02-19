@@ -58,14 +58,14 @@ def parametrize_backend_and_coupling_map():
     return pytest.mark.parametrize(
         "backend_and_coupling_map",
         [
-            (None, "brisbane_coupling_map"),
-            ("brisbane_backend", None),
-            ("brisbane_backend", "brisbane_coupling_map"),
+            (None, "test_eagle_coupling_map"),
+            ("test_eagle_backend", None),
+            ("test_eagle_backend", "test_eagle_coupling_map"),
         ],
         ids=[
-            "None-brisbane_coupling_map",
-            "brisbane_backend-None",
-            "brisbane_backend-brisbane_coupling_map",
+            "None-test_eagle_coupling_map",
+            "test_eagle_backend-None",
+            "test_eagle_backend-test_eagle_coupling_map",
         ],
     )
 
