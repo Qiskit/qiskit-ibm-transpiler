@@ -29,6 +29,7 @@ Functions
 import base64
 import io
 import logging
+import os
 import struct
 from enum import Enum
 from typing import Dict, List, Tuple, Union
