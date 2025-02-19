@@ -58,5 +58,6 @@ jobs:
         env:
           QISKIT_IBM_TOKEN: ${{ secrets.QISKIT_IBM_TOKEN }}
           QISKIT_IBM_CHANNEL: "ibm_quantum"
+          QISKIT_IBM_RUNTIME_API_URL: "https://auth-dev.quantum-computing.ibm.com/api"
         run: |
           python -m pytest .

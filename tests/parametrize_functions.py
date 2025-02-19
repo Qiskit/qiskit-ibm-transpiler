@@ -159,7 +159,7 @@ def parametrize_local_mode_and_error_type():
 def parametrize_coupling_map_format():
     return pytest.mark.parametrize(
         "coupling_map",
-        ["brisbane_coupling_map", "brisbane_coupling_map_list_format"],
+        ["test_eagle_coupling_map", "test_eagle_coupling_map_list_format"],
         ids=["coupling_map_object", "coupling_map_list"],
     )
 
@@ -169,22 +169,22 @@ def parametrize_circuit_collector_pass_and_operator_name():
         "circuit, collector_pass, operator_name",
         [
             (
-                "random_brisbane_circuit_with_two_permutations",
+                "random_test_eagle_circuit_with_two_permutations",
                 CollectPermutations,
                 "permutation",
             ),
             (
-                "random_brisbane_circuit_with_two_linear_functions",
+                "random_test_eagle_circuit_with_two_linear_functions",
                 CollectLinearFunctions,
                 "linear_function",
             ),
             (
-                "random_brisbane_circuit_with_two_cliffords",
+                "random_test_eagle_circuit_with_two_cliffords",
                 CollectCliffords,
                 "Clifford",
             ),
             (
-                "random_brisbane_circuit_with_two_paulis",
+                "random_test_eagle_circuit_with_two_paulis",
                 CollectPauliNetworks,
                 "pauli",
             ),
@@ -259,7 +259,7 @@ def parametrize_complex_circuit_collector_pass_and_ai_synthesis_pass():
         "circuit, collector_pass, ai_synthesis_pass",
         [
             (
-                "permutation_circuit_brisbane",
+                "permutation_circuit_test_eagle",
                 CollectPermutations,
                 AIPermutationSynthesis,
             ),
