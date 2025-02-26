@@ -1,0 +1,7 @@
+0.10.2 (2025-02-26)
+===================
+
+Upgrade notes
+-------------
+
+- Support qiskit 1.4.0 (`159 <https://github.com/Qiskit/qiskit-ibm-transpiler/pull/159>`__)
