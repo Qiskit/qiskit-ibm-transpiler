@@ -1,6 +1,7 @@
 import os
 import subprocess
 from importlib.metadata import PackageNotFoundError, version
+from typing import Union
 
 ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
 
@@ -54,7 +55,7 @@ def _get_version_from_metadata():
         return "Unknown"
 
 
-def _get_git_commit_hash() -> str | None:
+def _get_git_commit_hash() -> Union[str, None]:
     """
     Get the latest Git commit hash.
     Returns:
