@@ -23,7 +23,7 @@ with open(README_PATH) as readme_file:
 # putting multiple requirements on the same line will prevent qiskit-bot
 # from correctly updating the versions for the qiskit packages.
 requirements = [
-    "qiskit~=1.3",
+    "qiskit>=1.3,<2.0",
     "backoff~=2.0",
     "qiskit-qasm3-import~=0.4",
     "requests~=2.0",
