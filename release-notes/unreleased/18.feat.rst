@@ -1,0 +1,22 @@
+Added a `__version__` attribute to `qiskit_ibm_transpiler` to enable version retrieval.
+
+**What changed?**
+- Introduced `qiskit_ibm_transpiler/version.py` for dynamically retrieving the package version.
+- Exposed `__version__` in `__init__.py`, allowing users to access the installed package version.
+- If the package is installed normally, it will return the version as defined in `importlib.metadata.version()`.
+- If the package is being used from a Git repository **without a release tag**, it appends the commit hash.
+
+**How to use the new feature?**
+Users can now check the installed version by running:
+
+.. code:: python
+
+    import qiskit_ibm_transpiler
+    print(qiskit_ibm_transpiler.__version__)
+
+**Example outputs:**
+- Installed via `pip install qiskit-ibm-transpiler`: ``0.10.1``
+- Running from Git with a release tag: ``0.10.1``
+- Running from Git **without a release tag**: ``0.10.1.dev0+a1b2c3d``
+
+Fixes `#18 <https://github.com/Qiskit/qiskit-ibm-transpiler/issues/18>`.
