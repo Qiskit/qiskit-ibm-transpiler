@@ -28,7 +28,6 @@ from qiskit.transpiler import CouplingMap, TranspilerError
 from qiskit.transpiler.basepasses import TransformationPass
 from qiskit.transpiler.layout import Layout
 
-from qiskit_ibm_transpiler.utils import get_qiskit_runtime_service
 from qiskit_ibm_transpiler.wrappers import AILocalRouting, AIRoutingAPI
 
 logger = logging.getLogger(__name__)
@@ -99,14 +98,14 @@ def build_final_optimization_preferences(
 
 
 class AIRouting(TransformationPass):
-    """AIRouting(backend_name: str | None = None, coupling_map: list[list[int]] | None = None, optimization_level: int = 2, layout_mode: str = "OPTIMIZE")
+    """AIRouting(coupling_map: list[list[int]] | None = None, backend: Backend | None = None, optimization_level: int = 2, layout_mode: str = "OPTIMIZE")
 
     The `AIRouting` pass acts both as a layout stage and a routing stage.
 
-    :param backend_name: Name of the backend used for doing the transpilation.
-    :type backend_name: str, optional
     :param coupling_map: A list of pairs that represents physical links between qubits.
     :type coupling_map: list[list[int]], optional
+    :param backend: Backend used for doing the transpilation.
+    :type backend: Backend, optional
     :param optimization_level: With a range from 1 to 3, determines the computational effort to spend in the process (higher usually gives better results but takes longer), defaults to 2.
     :type optimization_level: int
     :param layout_mode: Specifies how to handle the layout selection. There are 3 layout modes: keep (respects the layout set by the previous transpiler passes), improve (uses the layout set by the previous transpiler passes as a starting point) and optimize (ignores previous layout selections), defaults to `OPTIMIZE`.
@@ -116,7 +115,6 @@ class AIRouting(TransformationPass):
     def __init__(
         self,
         coupling_map: Union[List[List[int]], CouplingMap, None] = None,
-        backend_name: Union[str, None] = None,
         backend: Union[Backend, None] = None,
         optimization_level: int = 2,
         layout_mode: str = "OPTIMIZE",
@@ -133,28 +131,14 @@ class AIRouting(TransformationPass):
                     f"For using the local mode you need to install the package '{ai_local_package}'. Read the installation guide for more information"
                 )
 
-        if backend_name:
-            # TODO: Updates with the final date
-            logger.warning(
-                "backend_name will be deprecated in February 2025, please use a backend object instead."
-            )
-
-        # TODO: Removes once we deprecate backend_name
-        if backend_name and coupling_map:
-            raise ValueError(
-                f"ERROR. Both backend_name and coupling_map were specified as options. Please just use one of them."
-            )
-
         if backend and coupling_map:
             raise ValueError(
                 f"ERROR. Both backend and coupling_map were specified as options. Please just use one of them."
             )
 
-        # TODO: Removes backend_name option once we deprecate backend_name. Update the error
-        # message too.
-        if not backend and not coupling_map and not backend_name:
+        if not backend and not coupling_map:
             raise ValueError(
-                f"ERROR. One of these options must be set: backend, coupling_map or backend_name."
+                f"ERROR. One of these options must be set: backend or coupling_map."
             )
 
         if optimization_level <= 0 or optimization_level > 3:
@@ -164,7 +148,7 @@ class AIRouting(TransformationPass):
 
         super().__init__()
 
-        backend_name = backend_name or getattr(backend, "name", None)
+        backend_name = getattr(backend, "name", None)
 
         self.optimization_preferences = build_final_optimization_preferences(
             optimization_preferences, backend_name
@@ -195,18 +179,6 @@ class AIRouting(TransformationPass):
                 )
             else:
                 self.coupling_map = backend.coupling_map
-        elif backend_name and local_mode:
-            try:
-                runtime_service = get_qiskit_runtime_service()
-                backend_info = runtime_service.backend(name=backend_name)
-                self.coupling_map = backend_info.coupling_map
-            except Exception:
-                raise PermissionError(
-                    f"User doesn't have access to the specified backend: {backend_name}"
-                )
-        else:
-            # AIRoutingAPI expects that coupling_map has or a coupling_map or a backend_name
-            self.coupling_map = backend_name
 
         self.optimization_level = optimization_level
 

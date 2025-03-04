@@ -28,73 +28,19 @@ from tests.parametrize_functions import (
 )
 
 
-# TODO: When testing the synthesis with wrong backend, local and cloud behaves differently,
-# so we should decide if this is correct or if we want to unify them
-@parametrize_basic_circuit_collector_pass_and_ai_synthesis_pass()
-def test_ai_local_synthesis_wrong_backend(
-    circuit, collector_pass, ai_synthesis_pass, request
-):
-    if collector_pass == CollectPauliNetworks:
-        pytest.skip("Skipping test for pauli network on local mode")
-
-    original_circuit = request.getfixturevalue(circuit)
-
-    with pytest.raises(
-        PermissionError,
-        match=r"User doesn\'t have access to the specified backend: \w+",
-    ):
-        custom_ai_synthesis_pass = PassManager(
-            [
-                collector_pass(min_block_size=2),
-                ai_synthesis_pass(backend_name="wrong_backend"),
-            ]
-        )
-
-        custom_ai_synthesis_pass.run(original_circuit)
-
-
-# If we want to test with parametrize_basic_circuit_collector_pass_and_ai_synthesis_pass, we
-# should add min_block_size=2, max_block_size=27 as params to the collector_pass because of
-# the size of the circuit
-@parametrize_complex_circuit_collector_pass_and_ai_synthesis_pass()
-def test_ai_cloud_synthesis_wrong_backend(
-    circuit, collector_pass, ai_synthesis_pass, caplog, request
-):
-    original_circuit = request.getfixturevalue(circuit)
-
-    custom_ai_synthesis_pass = PassManager(
-        [
-            collector_pass(),
-            ai_synthesis_pass(backend_name="wrong_backend", local_mode=False),
-        ]
-    )
-
-    ai_optimized_circuit = custom_ai_synthesis_pass.run(original_circuit)
-
-    assert "couldn't synthesize the circuit" in caplog.text
-    assert "Keeping the original circuit" in caplog.text
-    assert (
-        "User doesn't have access to the specified backend: wrong_backend"
-        in caplog.text
-    )
-    assert isinstance(ai_optimized_circuit, QuantumCircuit)
-
-
 @pytest.mark.skip(
     reason="Unreliable. It passes most of the times with the timeout of 1 second for the current circuits used"
 )
 @parametrize_basic_circuit_collector_pass_and_ai_synthesis_pass()
 def test_ai_cloud_synthesis_exceed_timeout(
-    circuit, collector_pass, ai_synthesis_pass, test_eagle_backend_name, caplog, request
+    circuit, collector_pass, ai_synthesis_pass, test_eagle_backend, caplog, request
 ):
     original_circuit = request.getfixturevalue(circuit)
 
     custom_ai_synthesis_pass = PassManager(
         [
             collector_pass(),
-            ai_synthesis_pass(
-                backend_name=test_eagle_backend_name, timeout=1, local_mode=False
-            ),
+            ai_synthesis_pass(backend=test_eagle_backend, timeout=1, local_mode=False),
         ]
     )
 
@@ -111,7 +57,7 @@ def test_ai_cloud_synthesis_exceed_timeout(
 # make the test pass
 @parametrize_basic_circuit_collector_pass_and_ai_synthesis_pass()
 def test_ai_cloud_synthesis_wrong_token(
-    circuit, collector_pass, ai_synthesis_pass, test_eagle_backend_name, caplog, request
+    circuit, collector_pass, ai_synthesis_pass, test_eagle_backend, caplog, request
 ):
     original_circuit = request.getfixturevalue(circuit)
 
@@ -119,7 +65,7 @@ def test_ai_cloud_synthesis_wrong_token(
         [
             collector_pass(min_block_size=2, max_block_size=27),
             ai_synthesis_pass(
-                backend_name=test_eagle_backend_name,
+                backend=test_eagle_backend,
                 token="invented_token_2",
                 local_mode=False,
             ),
@@ -141,7 +87,7 @@ def test_ai_cloud_synthesis_wrong_token(
 @pytest.mark.disable_monkeypatch
 @parametrize_basic_circuit_collector_pass_and_ai_synthesis_pass()
 def test_ai_cloud_synthesis_wrong_url(
-    circuit, collector_pass, ai_synthesis_pass, test_eagle_backend_name, caplog, request
+    circuit, collector_pass, ai_synthesis_pass, test_eagle_backend, caplog, request
 ):
     original_circuit = request.getfixturevalue(circuit)
 
@@ -149,7 +95,7 @@ def test_ai_cloud_synthesis_wrong_url(
         [
             collector_pass(min_block_size=2, max_block_size=27),
             ai_synthesis_pass(
-                backend_name=test_eagle_backend_name,
+                backend=test_eagle_backend,
                 base_url="https://ibm.com/",
                 local_mode=False,
             ),
@@ -166,7 +112,7 @@ def test_ai_cloud_synthesis_wrong_url(
 @pytest.mark.disable_monkeypatch
 @parametrize_basic_circuit_collector_pass_and_ai_synthesis_pass()
 def test_ai_cloud_synthesis_unexisting_url(
-    circuit, collector_pass, ai_synthesis_pass, test_eagle_backend_name, caplog, request
+    circuit, collector_pass, ai_synthesis_pass, test_eagle_backend, caplog, request
 ):
     original_circuit = request.getfixturevalue(circuit)
 
@@ -174,7 +120,7 @@ def test_ai_cloud_synthesis_unexisting_url(
         [
             collector_pass(min_block_size=2, max_block_size=27),
             ai_synthesis_pass(
-                backend_name=test_eagle_backend_name,
+                backend=test_eagle_backend,
                 base_url="https://invented-domain-qiskit-ibm-transpiler-123.com/",
                 local_mode=False,
             ),
@@ -235,7 +181,7 @@ def test_ai_synthesis_keep_original_if_better(
     collector_pass,
     ai_synthesis_pass,
     local_mode,
-    test_eagle_backend_name,
+    test_eagle_backend,
     caplog,
     request,
 ):
@@ -252,9 +198,7 @@ def test_ai_synthesis_keep_original_if_better(
     custom_ai_synthesis_pass = PassManager(
         [
             collector_pass(min_block_size=2),
-            ai_synthesis_pass(
-                backend_name=test_eagle_backend_name, local_mode=local_mode
-            ),
+            ai_synthesis_pass(backend=test_eagle_backend, local_mode=local_mode),
         ]
     )
 
@@ -264,37 +208,6 @@ def test_ai_synthesis_keep_original_if_better(
     assert ai_optimized_circuit == original_circuit
     assert all(word in caplog.text for word in ["Running", "synthesis"])
     assert "Keeping the original circuit" in caplog.text
-
-
-@parametrize_complex_circuit_collector_pass_and_ai_synthesis_pass()
-@parametrize_local_mode()
-def test_ai_synthesis_pass_with_backend_name(
-    circuit,
-    collector_pass,
-    ai_synthesis_pass,
-    local_mode,
-    test_eagle_backend_name,
-    caplog,
-    request,
-):
-    if collector_pass == CollectPauliNetworks and local_mode:
-        pytest.skip("Skipping test for pauli network on local mode")
-
-    original_circuit = request.getfixturevalue(circuit)
-
-    custom_ai_synthesis_pass = PassManager(
-        [
-            collector_pass(),
-            ai_synthesis_pass(
-                backend_name=test_eagle_backend_name, local_mode=local_mode
-            ),
-        ]
-    )
-
-    ai_optimized_circuit = custom_ai_synthesis_pass.run(original_circuit)
-
-    assert isinstance(ai_optimized_circuit, QuantumCircuit)
-    assert all(word in caplog.text for word in ["Running", "synthesis"])
 
 
 @parametrize_complex_circuit_collector_pass_and_ai_synthesis_pass()

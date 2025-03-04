@@ -26,7 +26,6 @@ from qiskit.transpiler import CouplingMap
 from qiskit.transpiler.basepasses import TransformationPass
 from qiskit.transpiler.exceptions import TranspilerError
 
-from qiskit_ibm_transpiler.utils import get_qiskit_runtime_service
 from qiskit_ibm_transpiler.wrappers import (
     AICliffordAPI,
     AILinearFunctionAPI,
@@ -59,7 +58,6 @@ class AISynthesis(TransformationPass):
             AILocalPermutationSynthesis,
         ],
         coupling_map: Union[List[List[int]], CouplingMap, None] = None,
-        backend_name: Union[str, None] = None,
         backend: Union[Backend, None] = None,
         replace_only_if_better: bool = True,
         max_threads: Union[int, None] = None,
@@ -73,28 +71,14 @@ class AISynthesis(TransformationPass):
                     f"For using the local mode you need to install the package '{ai_local_package}'. Read the installation guide for more information"
                 )
 
-        if backend_name:
-            # TODO: Updates with the final date
-            logger.warning(
-                "backend_name will be deprecated in February 2025, please use a backend object instead."
-            )
-
-        # TODO: Removes once we deprecate backend_name
-        if backend_name and coupling_map:
-            raise ValueError(
-                f"ERROR. Both backend_name and coupling_map were specified as options. Please just use one of them."
-            )
-
         if backend and coupling_map:
             raise ValueError(
                 f"ERROR. Both backend and coupling_map were specified as options. Please just use one of them."
             )
 
-        # TODO: Removes backend_name option once we deprecate backend_name. Update the error
-        # message too.
-        if not backend and not coupling_map and not backend_name:
+        if not backend and not coupling_map:
             raise ValueError(
-                f"ERROR. One of these options must be set: backend, coupling_map or backend_name."
+                f"ERROR. One of these options must be set: backend or coupling_map."
             )
 
         if coupling_map:
@@ -109,19 +93,7 @@ class AISynthesis(TransformationPass):
 
         if backend:
             self.backend = backend
-            # TODO: Removes once we deprecate backend_name
-            if not local_mode:
-                self.backend_name = backend.name
-        elif backend_name and local_mode:
-            try:
-                runtime_service = get_qiskit_runtime_service()
-                self.backend = runtime_service.backend(name=backend_name)
-            except Exception:
-                raise PermissionError(
-                    f"User doesn't have access to the specified backend: {backend_name}"
-                )
-        else:
-            self.backend_name = backend_name
+            self.backend_name = backend.name
 
         self.replace_only_if_better = replace_only_if_better
         self.synth_service = synth_service
@@ -205,12 +177,14 @@ class AISynthesis(TransformationPass):
 
 
 class AICliffordSynthesis(AISynthesis):
-    """AICliffordSynthesis(backend_name: str, replace_only_if_better: bool = True, max_threads: Union[int, None] = None)
+    """AICliffordSynthesis(coupling_map: list[list[int]] | None = None, backend: Backend | None = None, replace_only_if_better: bool = True, max_threads: Union[int, None] = None)
 
     Synthesis for `Clifford` circuits (blocks of `H`, `S` and `CX` gates). Currently up to 9 qubit blocks.
 
-    :param backend_name: Name of the backend used for doing the AI Clifford synthesis.
-    :type backend_name: str
+    :param coupling_map: A list of pairs that represents physical links between qubits.
+    :type coupling_map: list[list[int]], optional
+    :param backend: Backend used for doing the AI Clifford synthesis.
+    :type backend: Backend, optional
     :param replace_only_if_better: Determine if replace the original circuit with the synthesized one if it's better, defaults to True.
     :type replace_only_if_better: bool, optional
     :param max_threads: Set the number of requests to send in parallel.
@@ -220,7 +194,6 @@ class AICliffordSynthesis(AISynthesis):
     def __init__(
         self,
         coupling_map: Union[List[List[int]], CouplingMap, None] = None,
-        backend_name: Union[str, None] = None,
         backend: Union[Backend, None] = None,
         replace_only_if_better: bool = True,
         max_threads: Union[int, None] = None,
@@ -234,7 +207,6 @@ class AICliffordSynthesis(AISynthesis):
         super().__init__(
             synth_service=ai_synthesis_provider,
             coupling_map=coupling_map,
-            backend_name=backend_name,
             backend=backend,
             replace_only_if_better=replace_only_if_better,
             max_threads=max_threads,
@@ -259,12 +231,14 @@ class AICliffordSynthesis(AISynthesis):
 
 
 class AILinearFunctionSynthesis(AISynthesis):
-    """AILinearFunctionSynthesis(backend_name: str, replace_only_if_better: bool = True, max_threads: Union[int, None] = None)
+    """AILinearFunctionSynthesis(coupling_map: list[list[int]] | None = None, backend: Backend | None = None, replace_only_if_better: bool = True, max_threads: Union[int, None] = None)
 
     Synthesis for `Linear Function` circuits (blocks of `CX` and `SWAP` gates). Currently up to 9 qubit blocks.
 
-    :param backend_name: Name of the backend used for doing the AI Linear Function synthesis.
-    :type backend_name: str
+    :param coupling_map: A list of pairs that represents physical links between qubits.
+    :type coupling_map: list[list[int]], optional
+    :param backend: Backend used for doing the AI Linear Function synthesis
+    :type backend: Backend, optional
     :param replace_only_if_better: Determine if replace the original circuit with the synthesized one if it's better, defaults to True.
     :type replace_only_if_better: bool, optional
     :param max_threads: Set the number of requests to send in parallel.
@@ -274,7 +248,6 @@ class AILinearFunctionSynthesis(AISynthesis):
     def __init__(
         self,
         coupling_map: Union[List[List[int]], CouplingMap, None] = None,
-        backend_name: Union[str, None] = None,
         backend: Union[Backend, None] = None,
         replace_only_if_better: bool = True,
         max_threads: Union[int, None] = None,
@@ -290,7 +263,6 @@ class AILinearFunctionSynthesis(AISynthesis):
         super().__init__(
             synth_service=ai_synthesis_provider,
             coupling_map=coupling_map,
-            backend_name=backend_name,
             backend=backend,
             replace_only_if_better=replace_only_if_better,
             max_threads=max_threads,
@@ -312,12 +284,14 @@ class AILinearFunctionSynthesis(AISynthesis):
 
 
 class AIPermutationSynthesis(AISynthesis):
-    """AIPermutationSynthesis(backend_name: str, replace_only_if_better: bool = True, max_threads: Union[int, None] = None)
+    """AIPermutationSynthesis(coupling_map: list[list[int]] | None = None, backend: Backend | None = None, replace_only_if_better: bool = True, max_threads: Union[int, None] = None)
 
     Synthesis for `Permutation` circuits (blocks of `SWAP` gates). Currently available for 65, 33, and 27 qubit blocks.
 
-    :param backend_name: Name of the backend used for doing the AI Linear Function synthesis.
-    :type backend_name: str
+    :param coupling_map: A list of pairs that represents physical links between qubits.
+    :type coupling_map: list[list[int]], optional
+    :param backend: Backend used for doing the AI Permutation synthesis.
+    :type backend: Backend, optional
     :param replace_only_if_better: Determine if replace the original circuit with the synthesized one if it's better, defaults to True.
     :type replace_only_if_better: bool, optional
     :param max_threads: Set the number of requests to send in parallel.
@@ -327,7 +301,6 @@ class AIPermutationSynthesis(AISynthesis):
     def __init__(
         self,
         coupling_map: Union[List[List[int]], CouplingMap, None] = None,
-        backend_name: Union[str, None] = None,
         backend: Union[Backend, None] = None,
         replace_only_if_better: bool = True,
         max_threads: Union[int, None] = None,
@@ -341,7 +314,6 @@ class AIPermutationSynthesis(AISynthesis):
         super().__init__(
             synth_service=ai_synthesis_provider,
             coupling_map=coupling_map,
-            backend_name=backend_name,
             backend=backend,
             replace_only_if_better=replace_only_if_better,
             max_threads=max_threads,
@@ -359,12 +331,14 @@ class AIPermutationSynthesis(AISynthesis):
 
 
 class AIPauliNetworkSynthesis(AISynthesis):
-    """AIPauliNetworkSynthesis(backend_name: str, replace_only_if_better: bool = True, max_threads: Union[int, None] = None)
+    """AIPauliNetworkSynthesis(coupling_map: list[list[int]] | None = None, backend: Backend | None = None, replace_only_if_better: bool = True, max_threads: Union[int, None] = None)
 
     Synthesis for `Pauli Networks` circuits (blocks of `H`, `S`, `SX`, `CX`, `RX`, `RY` and `RZ` gates). Currently up to 6 qubit blocks.
 
-    :param backend_name: Name of the backend used for doing the AI Pauli Network synthesis.
-    :type backend_name: str
+    :param coupling_map: A list of pairs that represents physical links between qubits.
+    :type coupling_map: list[list[int]], optional
+    :param backend: Backend used for doing the AI Pauli Network synthesis.
+    :type backend: Backend, optional
     :param replace_only_if_better: Determine if replace the original circuit with the synthesized one if it's better, defaults to True.
     :type replace_only_if_better: bool, optional
     :param max_threads: Set the number of requests to send in parallel.
@@ -374,7 +348,6 @@ class AIPauliNetworkSynthesis(AISynthesis):
     def __init__(
         self,
         coupling_map: Union[List[List[int]], CouplingMap, None] = None,
-        backend_name: Union[str, None] = None,
         backend: Union[Backend, None] = None,
         replace_only_if_better: bool = True,
         max_threads: Union[int, None] = None,
@@ -388,7 +361,6 @@ class AIPauliNetworkSynthesis(AISynthesis):
         super().__init__(
             synth_service=AIPauliNetworkAPI(**kwargs),
             coupling_map=coupling_map,
-            backend_name=backend_name,
             backend=backend,
             replace_only_if_better=replace_only_if_better,
             max_threads=max_threads,
