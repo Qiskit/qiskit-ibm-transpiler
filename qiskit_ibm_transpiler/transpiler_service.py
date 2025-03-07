@@ -31,12 +31,10 @@ from typing import Dict, List, Literal, Union
 
 from qiskit import QuantumCircuit
 
+from .types import OptimizationOptions
 from .wrappers.transpile import TranspileAPI
 
 logger = logging.getLogger(__name__)
-
-# TODO: Reuse this code, it's repeated several times
-OptimizationOptions = Literal["n_cnots", "n_gates", "cnot_layers", "layers", "noise"]
 
 
 class TranspilerService:

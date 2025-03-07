@@ -15,6 +15,7 @@ from typing import List, Literal, Union
 from qiskit import QuantumCircuit
 from qiskit.transpiler import CouplingMap
 
+from qiskit_ibm_transpiler.types import OptimizationOptions
 from qiskit_ibm_transpiler.utils import (
     deserialize_circuit_from_qpy_or_qasm,
     get_circuit_from_qpy,
@@ -23,9 +24,6 @@ from qiskit_ibm_transpiler.utils import (
 )
 
 from .base import QiskitTranspilerService
-
-# TODO: Reuse this code, it's repeated several times
-OptimizationOptions = Literal["n_cnots", "n_gates", "cnot_layers", "layers", "noise"]
 
 
 class AIRoutingAPI(QiskitTranspilerService):

@@ -16,6 +16,7 @@ from typing import List, Literal, Union
 from qiskit import QuantumCircuit
 from qiskit.transpiler import CouplingMap
 
+from qiskit_ibm_transpiler.types import OptimizationOptions
 from qiskit_ibm_transpiler.utils import get_circuit_from_qasm, input_to_qasm
 
 ai_local_package = "qiskit_ibm_ai_local_transpiler"
@@ -28,9 +29,6 @@ AIRoutingInference = getattr(
     qiskit_ibm_ai_local_transpiler, "AIRoutingInference", "AIRoutingInference not found"
 )
 
-
-# TODO: Reuse this code, it's repeated several times
-OptimizationOptions = Literal["n_cnots", "n_gates", "cnot_layers", "layers", "noise"]
 
 OP_LEVELS = {
     1: {"full_its": 8, "its": 2, "reps": 2, "runs": 1, "max_time": 30},
