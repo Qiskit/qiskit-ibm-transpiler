@@ -1,0 +1,20 @@
+Refactored type definitions by centralizing `OptimizationOptions` in `qiskit_ibm_transpiler/types.py`.
+
+**What changed?**
+- Introduced `qiskit_ibm_transpiler/types.py` to store shared type definitions.
+- Moved the `OptimizationOptions` type alias to `types.py`, eliminating redundancy.
+- Updated all relevant imports to use the centralized definition.
+- Ensured compliance with **PEP 484** recommendations for type aliasing.
+
+**How does this affect users?**
+- No breaking changes; this is an internal refactor.
+- Any direct references to `OptimizationOptions` in multiple files now import it from `types.py`.
+
+**Updated import path:**
+.. code:: python
+
+    from qiskit_ibm_transpiler.types import OptimizationOptions
+
+This improves code maintainability and makes future type updates easier.
+
+Fixes `#166 <https://github.com/Qiskit/qiskit-ibm-transpiler/issues/166>`.
