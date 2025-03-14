@@ -23,7 +23,7 @@ with open(README_PATH) as readme_file:
 # putting multiple requirements on the same line will prevent qiskit-bot
 # from correctly updating the versions for the qiskit packages.
 requirements = [
-    "qiskit>=1.3,<2.0",
+    "qiskit==2.0.0rc1",
     "backoff~=2.0",
     "qiskit-qasm3-import~=0.4",
     "requests~=2.0",
@@ -59,7 +59,7 @@ setup(
     extras_require={
         "ai-local-mode": [
             "qiskit_ibm_ai_local_transpiler~=0.2",
-            "qiskit-ibm-runtime>=0.23.0",
+            "qiskit-ibm-runtime>=0.37.0",
         ],
     },
     project_urls={
