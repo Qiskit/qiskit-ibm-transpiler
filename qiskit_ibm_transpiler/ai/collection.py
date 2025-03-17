@@ -13,6 +13,7 @@
 """Replace each sequence of Clifford, Linear Function or Permutation gates by a single block of these types of gate."""
 
 from functools import partial
+from typing import Callable
 
 from qiskit import QuantumCircuit
 from qiskit.circuit import Instruction
@@ -20,6 +21,7 @@ from qiskit.circuit.barrier import Barrier
 from qiskit.circuit.library import LinearFunction, PermutationGate
 from qiskit.converters import circuit_to_dag, dag_to_dagdependency, dagdependency_to_dag
 from qiskit.dagcircuit.collect_blocks import BlockCollector
+from qiskit.dagcircuit import DAGOpNode, DAGDepNode
 from qiskit.dagcircuit.dagcircuit import DAGCircuit
 from qiskit.quantum_info.operators import Clifford
 from qiskit.transpiler.basepasses import TransformationPass
@@ -107,19 +109,25 @@ _flatten_paulinetworks = Flatten(("paulinetwork", "PauliNetwork"))
 
 
 class GreedyBlockCollector(BlockCollector):
-    def __init__(self, dag, max_block_size):
+    def __init__(self, dag):
         super().__init__(dag)
-        self.max_block_size = max_block_size
 
-    def collect_matching_block(self, filter_fn):
+    def collect_matching_block(
+        self, filter_fn: Callable, max_block_width: int | None
+    ) -> list[DAGOpNode | DAGDepNode]:
         """Iteratively collects the largest block of input nodes (that is, nodes with
-        ``_in_degree`` equal to 0) that match a given filtering function, limiting the
-        maximum size of the block.
+        ``_in_degree`` equal to 0) that match a given filtering function.
+        Examples of this include collecting blocks of swap gates,
+        blocks of linear gates (CXs and SWAPs), blocks of Clifford gates, blocks of single-qubit gates,
+        blocks of two-qubit gates, etc.  Here 'iteratively' means that once a node is collected,
+        the ``_in_degree`` of each of its immediate successor is decreased by 1, allowing more nodes
+        to become input and to be eligible for collecting into the current block.
+        Returns the block of collected nodes.
         """
         current_block = []
+        current_block_qargs = set()
         unprocessed_pending_nodes = self._pending_nodes
         self._pending_nodes = []
-        block_qargs = set()
 
         # Iteratively process unprocessed_pending_nodes:
         # - any node that does not match filter_fn is added to pending_nodes
@@ -130,13 +138,18 @@ class GreedyBlockCollector(BlockCollector):
             if isinstance(node.op, Barrier):
                 continue
 
-            new_qargs = block_qargs.copy()
-            for q in node.qargs:
-                new_qargs.add(q)
+            if max_block_width is not None:
+                # for efficiency, only update new_qargs when max_block_width is specified
+                new_qargs = current_block_qargs.copy()
+                new_qargs.update(node.qargs)
+                width_within_budget = len(new_qargs) <= max_block_width
+            else:
+                new_qargs = set()
+                width_within_budget = True
 
-            if filter_fn(node) and len(new_qargs) <= self.max_block_size:
+            if filter_fn(node) and width_within_budget:
                 current_block.append(node)
-                block_qargs = new_qargs
+                current_block_qargs = new_qargs
 
                 # update the _in_degree of node's successors
                 for suc in self._direct_succs(node):
@@ -212,13 +225,14 @@ class RepeatedCollectAndCollapse(CollectAndCollapse):
         num_reps=10,
     ):
         collect_function = lambda dag: GreedyBlockCollector(  # noqa:E731
-            dag, max_block_size
+            dag
         ).collect_all_matching_blocks(
             filter_fn=block_checker.select,
             split_blocks=split_blocks,
             min_block_size=min_block_size,
             split_layers=split_layers,
             collect_from_back=collect_from_back,
+            max_block_width=max_block_size,
         )
         collapse_function = partial(
             collapse_to_operation, collapse_function=block_checker.collapse
