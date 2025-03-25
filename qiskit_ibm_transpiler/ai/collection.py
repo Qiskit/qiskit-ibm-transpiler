@@ -20,8 +20,8 @@ from qiskit.circuit import Instruction
 from qiskit.circuit.barrier import Barrier
 from qiskit.circuit.library import LinearFunction, PermutationGate
 from qiskit.converters import circuit_to_dag, dag_to_dagdependency, dagdependency_to_dag
+from qiskit.dagcircuit import DAGDepNode, DAGOpNode
 from qiskit.dagcircuit.collect_blocks import BlockCollector
-from qiskit.dagcircuit import DAGOpNode, DAGDepNode
 from qiskit.dagcircuit.dagcircuit import DAGCircuit
 from qiskit.quantum_info.operators import Clifford
 from qiskit.transpiler.basepasses import TransformationPass
