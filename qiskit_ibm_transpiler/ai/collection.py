@@ -13,7 +13,7 @@
 """Replace each sequence of Clifford, Linear Function or Permutation gates by a single block of these types of gate."""
 
 from functools import partial
-from typing import Callable
+from typing import Callable, Union
 
 from qiskit import QuantumCircuit
 from qiskit.circuit import Instruction
@@ -115,7 +115,7 @@ class GreedyBlockCollector(BlockCollector):
         self.max_block_size = max_block_size
 
     def collect_matching_block(
-        self, filter_fn: Callable, max_block_width: int | None = None
+        self, filter_fn: Callable, max_block_width: Union[int, None] = None
     ) -> list[DAGOpNode | DAGDepNode]:
         """Iteratively collects the largest block of input nodes (that is, nodes with
         ``_in_degree`` equal to 0) that match a given filtering function.
