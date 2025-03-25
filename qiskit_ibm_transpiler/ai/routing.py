@@ -28,14 +28,12 @@ from qiskit.transpiler import CouplingMap, TranspilerError
 from qiskit.transpiler.basepasses import TransformationPass
 from qiskit.transpiler.layout import Layout
 
+from qiskit_ibm_transpiler.types import OptimizationOptions
 from qiskit_ibm_transpiler.utils import get_qiskit_runtime_service
 from qiskit_ibm_transpiler.wrappers import AILocalRouting, AIRoutingAPI
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
-
-# TODO: Reuse this code, it's repeated several times
-OptimizationOptions = Literal["n_cnots", "n_gates", "cnot_layers", "layers", "noise"]
 
 
 def build_final_optimization_preferences(

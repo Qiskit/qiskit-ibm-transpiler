@@ -19,6 +19,7 @@ from qiskit.circuit import QuantumCircuit, QuantumRegister, Qubit
 from qiskit.transpiler import TranspileLayout
 from qiskit.transpiler.layout import Layout
 
+from qiskit_ibm_transpiler.types import OptimizationOptions
 from qiskit_ibm_transpiler.utils import (
     deserialize_circuit_from_qpy_or_qasm,
     get_circuit_from_qpy,
@@ -31,9 +32,6 @@ from qiskit_ibm_transpiler.wrappers import QiskitTranspilerService
 # setting backoff logger to error level to avoid too much logging
 logging.getLogger("backoff").setLevel(logging.ERROR)
 logger = logging.getLogger(__name__)
-
-# TODO: Reuse this code, it's repeated several times
-OptimizationOptions = Literal["n_cnots", "n_gates", "cnot_layers", "layers", "noise"]
 
 
 class TranspileAPI(QiskitTranspilerService):
