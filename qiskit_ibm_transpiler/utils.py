@@ -47,7 +47,10 @@ from qiskit_ibm_runtime import QiskitRuntimeService
 logger = logging.getLogger(__name__)
 
 QPY_QISKIT_VERSION_MAPPING = {
+    "2.0.0": 14,
     "1.4.0": 13,
+    "1.4.1": 13,
+    "1.4.2": 13,
     "1.3.0": 13,
     "1.3.1": 13,
     "1.3.2": 13,
