@@ -116,7 +116,7 @@ class GreedyBlockCollector(BlockCollector):
 
     def collect_matching_block(
         self, filter_fn: Callable, max_block_width: Union[int, None] = None
-    ) -> list[DAGOpNode | DAGDepNode]:
+    ) -> list[Union[DAGOpNode, DAGDepNode]]:
         """Iteratively collects the largest block of input nodes (that is, nodes with
         ``_in_degree`` equal to 0) that match a given filtering function.
         Examples of this include collecting blocks of swap gates,
