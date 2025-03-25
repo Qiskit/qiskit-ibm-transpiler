@@ -109,11 +109,13 @@ _flatten_paulinetworks = Flatten(("paulinetwork", "PauliNetwork"))
 
 
 class GreedyBlockCollector(BlockCollector):
-    def __init__(self, dag):
+    def __init__(self, dag, max_block_size):
         super().__init__(dag)
+        # TODO: remove once requirement is set to qiskit>=2
+        self.max_block_size = max_block_size
 
     def collect_matching_block(
-        self, filter_fn: Callable, max_block_width: int | None
+        self, filter_fn: Callable, max_block_width: int | None = None
     ) -> list[DAGOpNode | DAGDepNode]:
         """Iteratively collects the largest block of input nodes (that is, nodes with
         ``_in_degree`` equal to 0) that match a given filtering function.
@@ -124,6 +126,10 @@ class GreedyBlockCollector(BlockCollector):
         to become input and to be eligible for collecting into the current block.
         Returns the block of collected nodes.
         """
+        # TODO: remove once requirement is set to qiskit>=2
+        if max_block_width is None:
+            max_block_width = self.max_block_size
+
         current_block = []
         current_block_qargs = set()
         unprocessed_pending_nodes = self._pending_nodes
@@ -225,14 +231,15 @@ class RepeatedCollectAndCollapse(CollectAndCollapse):
         num_reps=10,
     ):
         collect_function = lambda dag: GreedyBlockCollector(  # noqa:E731
-            dag
+            dag,
+            max_block_size,  # TODO: remove max_block_size once requirement is set to qiskit>=2
         ).collect_all_matching_blocks(
             filter_fn=block_checker.select,
             split_blocks=split_blocks,
             min_block_size=min_block_size,
             split_layers=split_layers,
             collect_from_back=collect_from_back,
-            max_block_width=max_block_size,
+            # max_block_width=max_block_size, # TODO: uncomment once requirement is set to qiskit>=2
         )
         collapse_function = partial(
             collapse_to_operation, collapse_function=block_checker.collapse
