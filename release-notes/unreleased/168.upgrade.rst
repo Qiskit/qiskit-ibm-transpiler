@@ -1,1 +1,0 @@
-Prepare compatibility to Qiskit to v2.0.0 (minimum required 1.4.2)
