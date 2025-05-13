@@ -27,6 +27,7 @@ requirements = [
     "backoff~=2.0",
     "qiskit-qasm3-import~=0.4",
     "requests~=2.0",
+    "networkx==2.8.5",
 ]
 
 setup(
