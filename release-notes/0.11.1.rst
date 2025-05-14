@@ -1,0 +1,7 @@
+0.11.1 (2025-05-14)
+===================
+
+Bug fixes
+---------
+
+- Add Networkx package missing from the requirements (`172 <https://github.com/Qiskit/qiskit-ibm-transpiler/pull/172>`__)
