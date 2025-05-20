@@ -47,9 +47,9 @@ exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
 
 intersphinx_mapping = {
     "rustworkx": ("https://www.rustworkx.org/", None),
-    "qiskit": ("https://docs.quantum.ibm.com/api/qiskit/", None),
+    "qiskit": ("https://quantum.cloud.ibm.com/docs/api/qiskit/", None),
     "qiskit-ibm-runtime": (
-        "https://docs.quantum.ibm.com/api/qiskit-ibm-runtime/",
+        "https://quantum.cloud.ibm.com/docs/api/qiskit-ibm-runtime/",
         None,
     ),
     "qiskit-aer": ("https://qiskit.github.io/qiskit-aer/", None),
