@@ -1,6 +1,6 @@
 # qiskit_ibm_transpiler
 
-A library to use [Qiskit Transpiler Service](https://docs.quantum.ibm.com/guides/qiskit-transpiler-service) and the [AI transpiler passes](https://docs.quantum.ibm.com/transpile/ai-transpiler-passes).
+A library to use [Qiskit Transpiler Service](https://quantum.cloud.ibm.com/docs/guides/qiskit-transpiler-service) and the [AI transpiler passes](https://quantum.cloud.ibm.com/docs/guides/ai-transpiler-passes).
 
 **Note** The Qiskit Transpiler Service and the AI transpiler passes use different experimental services that are only available for IBM Quantum Premium Plan users. This library and the releated services are an alpha release, subject to change.
 
@@ -120,9 +120,9 @@ The synthesis respects the coupling map of the device: it can be run safely afte
 
 The following synthesis passes are available from `qiskit_ibm_transpiler.ai.synthesis`:
 
-- _AICliffordSynthesis_: Synthesis for [Clifford](https://docs.quantum.ibm.com/api/qiskit/qiskit.quantum_info.Clifford) circuits (blocks of `H`, `S` and `CX` gates). Currently up to 9 qubit blocks.
-- _AILinearFunctionSynthesis_: Synthesis for [Linear Function](https://docs.quantum.ibm.com/api/qiskit/qiskit.circuit.library.LinearFunction) circuits (blocks of `CX` and `SWAP` gates). Currently up to 9 qubit blocks.
-- _AIPermutationSynthesis_: Synthesis for [Permutation](https://docs.quantum.ibm.com/api/qiskit/qiskit.circuit.library.Permutation#permutation) circuits (blocks of `SWAP` gates). Currently available for 65, 33, and 27 qubit blocks.
+- _AICliffordSynthesis_: Synthesis for [Clifford](https://quantum.cloud.ibm.com/docs/api/qiskit/qiskit.quantum_info.Clifford) circuits (blocks of `H`, `S` and `CX` gates). Currently up to 9 qubit blocks.
+- _AILinearFunctionSynthesis_: Synthesis for [Linear Function](https://quantum.cloud.ibm.com/docs/api/qiskit/qiskit.circuit.library.LinearFunction) circuits (blocks of `CX` and `SWAP` gates). Currently up to 9 qubit blocks.
+- _AIPermutationSynthesis_: Synthesis for [Permutation](https://quantum.cloud.ibm.com/docs/api/qiskit/qiskit.circuit.library.Permutation#permutation) circuits (blocks of `SWAP` gates). Currently available for 65, 33, and 27 qubit blocks.
 - _AIPauliNetworkSynthesis_: Synthesis for [Pauli Network](/api/qiskit/qiskit.circuit.library.PauliNetwork) circuits (blocks of `H`, `S`, `SX`, `CX`, `RX`, `RY` and `RZ` gates). Currently up to six qubit blocks.
 
 We expect to gradually increase the size of the supported blocks.
