@@ -1,6 +1,6 @@
 # Changelog
 
-> ⚠️ This file is not maintained anymore. Please go to: https://docs.quantum.ibm.com/api/qiskit-ibm-transpiler/release-notes
+> ⚠️ This file is not maintained anymore. Please go to: https://quantum.cloud.ibm.com/docs/api/qiskit-ibm-transpiler/release-notes
 
 All notable changes to this project will be documented in this file.
 

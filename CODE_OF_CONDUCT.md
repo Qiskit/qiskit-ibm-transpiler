@@ -2,4 +2,4 @@
 
 # Code of Conduct
 
-All members of this project agree to adhere to the IBM Quantum Code of Conduct listed [here](https://docs.quantum.ibm.com/open-source/code-of-conduct)
+All members of this project agree to adhere to the IBM Quantum Code of Conduct listed [here](https://quantum.cloud.ibm.com/docs/open-source/code-of-conduct)

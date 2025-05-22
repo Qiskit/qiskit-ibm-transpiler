@@ -140,7 +140,7 @@ Then, build the docs:
 scripts/docs
 ```
 
-You can then view the documentation by opening up `docs/_build/index.html`. Note that this is just a preview, the final documentation content is pulled into [Qiskit/documentation](https://github.com/qiskit/documentation) and re-rendered into <https://docs.quantum.ibm.com>.
+You can then view the documentation by opening up `docs/_build/index.html`. Note that this is just a preview, the final documentation content is pulled into [Qiskit/documentation](https://github.com/qiskit/documentation) and re-rendered into <https://quantum.cloud.ibm.com/docs>.
 
 If you run into Sphinx issues, try running `scripts/docs-clean` to reset the cache state.
 
@@ -194,4 +194,4 @@ After the release, you need to cherry-pick the release notes prep from `stable/*
 * After that tag is pushed, GitHub actions will automatically release that new version to [pypi](https://pypi.org/project/qiskit-ibm-transpiler/)
 * Only for minor releases, create the ``stable/x.x`` branch from tagged commit in ``main``
 * Go to https://github.com/Qiskit/qiskit-ibm-transpiler/tags and click on the three dots next to the tag you just created and select "Create release"
-* Name: "x.x.x" and Description: "Refer to https://docs.quantum.ibm.com/api/qiskit-ibm-transpiler/release-notes for release notes". Click on "Set as the latest release" only if that's the case, for patches in previous release keep that field unselected
+* Name: "x.x.x" and Description: "Refer to https://quantum.cloud.ibm.com/docs/api/qiskit-ibm-transpiler/release-notes for release notes". Click on "Set as the latest release" only if that's the case, for patches in previous release keep that field unselected
