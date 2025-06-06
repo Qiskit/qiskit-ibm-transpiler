@@ -32,10 +32,6 @@ from qiskit.transpiler.passes.optimization.collect_and_collapse import (
 from qiskit.transpiler.passes.utils import control_flow
 from qiskit.dagcircuit.dagdependency import DAGDependency
 from collections import deque, defaultdict
-import rustworkx as rx
-import logging
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.INFO)
 
 CLIFFORD_MAX_BLOCK_SIZE = 9
 LINEAR_MAX_BLOCK_SIZE = 9
@@ -153,7 +149,7 @@ class GreedyBlockCollector(BlockCollector):
         
         # Precompute adjacency structures for better performance
         self._successors_cache = defaultdict(list)
-        self._predecessors_cache = defaultdict(list)
+        # self._predecessors_cache = defaultdict(list)
         
         if self.is_dag_dependency:
             self._precompute_from_dag_dependency()
@@ -169,10 +165,10 @@ class GreedyBlockCollector(BlockCollector):
         for node_id in node_indices:
             if self._collect_from_back:
                 self._successors_cache[node_id] = self.dag.direct_successors(node_id)
-                self._predecessors_cache[node_id] = self.dag.direct_predecessors(node_id)
+                #self._predecessors_cache[node_id] = self.dag.direct_predecessors(node_id)
             else:
                 self._successors_cache[node_id] = self.dag.direct_predecessors(node_id)
-                self._predecessors_cache[node_id] = self.dag.direct_successors(node_id)
+                #self._predecessors_cache[node_id] = self.dag.direct_successors(node_id)
 
     def _precompute_from_dag_circuit(self):
         """Precompute from regular DAGCircuit using standard methods"""
@@ -186,16 +182,6 @@ class GreedyBlockCollector(BlockCollector):
                 succs = [succ for succ in self.dag.successors(node) if isinstance(succ, DAGOpNode)]
             
             self._successors_cache[node] = succs
-            for succ in succs:
-                self._predecessors_cache[succ].append(node)
-
-    # def _direct_preds(self, node):
-    #     """Returns direct predecessors of a node using precomputed cache."""
-    #     return self._predecessors_cache.get(node, [])
-
-    # def _direct_succs(self, node):
-    #     """Returns direct successors of a node using precomputed cache."""
-    #     return self._successors_cache.get(node, [])
 
     def collect_matching_block(
         self, filter_fn: Callable, max_block_width: Union[int, None] = None
