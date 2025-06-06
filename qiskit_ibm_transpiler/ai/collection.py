@@ -152,58 +152,27 @@ class GreedyBlockCollector(BlockCollector):
         self.max_block_size = max_block_size
         
         # Precompute adjacency structures for better performance
-        self._precompute_adjacencies()
-
-    def _precompute_adjacencies(self):
-        """Precompute predecessor and successor relationships based on DAG type"""
         self._successors_cache = defaultdict(list)
         self._predecessors_cache = defaultdict(list)
         
         if self.is_dag_dependency:
-            # DAG dependency - has _multi_graph and precomputed dependencies
             self._precompute_from_dag_dependency()
         else:
-            # Regular DAGCircuit - no _multi_graph, needs standard traversal
             self._precompute_from_dag_circuit()
+
 
     def _precompute_from_dag_dependency(self):
         """Precompute from DAG dependency using rustworkx on _multi_graph"""
         graph = self.dag._multi_graph
-        all_edges = set()
-        
         node_indices = graph.node_indices()
-        visited_nodes = set()
 
-        # for node_id in node_indices:
-        #     if node_id not in visited_nodes:
-        #         visited_nodes.add(node_id)
-        #         if self._collect_from_back:
-        #             self._successors_cache[node_id] = self.dag.direct_successors(node_id)
-        #             self._predecessors_cache[node_id] = self.dag.direct_predecessors(node_id)
-        #         else:
-        #             self._successors_cache[node_id] = self.dag.direct_predecessors(node_id)
-        #             self._predecessors_cache[node_id] = self.dag.direct_successors(node_id)
-        
         for node_id in node_indices:
-            if node_id not in visited_nodes:
-                edges_from_node = rx.dfs_edges(graph, node_id)
-                for source_id, target_id in edges_from_node:
-                    all_edges.add((source_id, target_id))
-                    visited_nodes.add(source_id)
-                    visited_nodes.add(target_id)
-        
-        # Build cache from edges
-        for source_id, target_id in all_edges:
-            source_node = self.dag.get_node(source_id)
-            target_node = self.dag.get_node(target_id)
-            
-        if self._collect_from_back:
-            self._successors_cache[target_node].append(source_node)  # REVERSED
-            self._predecessors_cache[source_node].append(target_node)  # REVERSED
-        else:
-            # Normal forward direction
-            self._successors_cache[source_node].append(target_node)
-            self._predecessors_cache[target_node].append(source_node)
+            if self._collect_from_back:
+                self._successors_cache[node_id] = self.dag.direct_successors(node_id)
+                self._predecessors_cache[node_id] = self.dag.direct_predecessors(node_id)
+            else:
+                self._successors_cache[node_id] = self.dag.direct_predecessors(node_id)
+                self._predecessors_cache[node_id] = self.dag.direct_successors(node_id)
 
     def _precompute_from_dag_circuit(self):
         """Precompute from regular DAGCircuit using standard methods"""
@@ -220,13 +189,13 @@ class GreedyBlockCollector(BlockCollector):
             for succ in succs:
                 self._predecessors_cache[succ].append(node)
 
-    def _direct_preds(self, node):
-        """Returns direct predecessors of a node using precomputed cache."""
-        return self._predecessors_cache.get(node, [])
+    # def _direct_preds(self, node):
+    #     """Returns direct predecessors of a node using precomputed cache."""
+    #     return self._predecessors_cache.get(node, [])
 
-    def _direct_succs(self, node):
-        """Returns direct successors of a node using precomputed cache."""
-        return self._successors_cache.get(node, [])
+    # def _direct_succs(self, node):
+    #     """Returns direct successors of a node using precomputed cache."""
+    #     return self._successors_cache.get(node, [])
 
     def collect_matching_block(
         self, filter_fn: Callable, max_block_width: Union[int, None] = None
