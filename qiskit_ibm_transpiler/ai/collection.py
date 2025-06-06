@@ -30,6 +30,12 @@ from qiskit.transpiler.passes.optimization.collect_and_collapse import (
     collapse_to_operation,
 )
 from qiskit.transpiler.passes.utils import control_flow
+from qiskit.dagcircuit.dagdependency import DAGDependency
+from collections import deque, defaultdict
+import rustworkx as rx
+import logging
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
 
 CLIFFORD_MAX_BLOCK_SIZE = 9
 LINEAR_MAX_BLOCK_SIZE = 9
@@ -84,22 +90,53 @@ pn_gate_names = [
 
 
 class Flatten(TransformationPass):
-    """Replaces all instructions that contain a circuit with their circuit"""
+    """Optimized version that pre-filters and batches operations"""
 
     def __init__(self, node_names):
         super().__init__()
-        self.node_names = node_names
+        self.node_names = frozenset(node_names)
+        self._circuit_dag_cache = {}
 
     def run(self, dag: DAGCircuit):
-        for node in dag.named_nodes(*self.node_names):
-            if (
-                hasattr(node.op, "params")
-                and len(node.op.params) > 1
-                and isinstance(node.op.params[1], QuantumCircuit)
-            ):
-                dag.substitute_node_with_dag(node, circuit_to_dag(node.op.params[1]))
+        # Pre-filter nodes by name efficiently
+        candidate_nodes = []
+        for name in self.node_names:
+            candidate_nodes.extend(dag.named_nodes(name))
+        
+        if not candidate_nodes:
+            return dag  # Early exit if no candidates
+        
+        # Batch process: collect all substitutions
+        substitutions = []
+        unique_circuits = {}  # Map circuit_id -> (circuit, dag)
+        
+        for node in candidate_nodes:
+            circuit = self._extract_circuit_from_node(node)
+            if circuit is not None:
+                circuit_id = id(circuit)
+                
+                # Cache unique circuits
+                if circuit_id not in unique_circuits:
+                    if circuit_id not in self._circuit_dag_cache:
+                        self._circuit_dag_cache[circuit_id] = circuit_to_dag(circuit)
+                    unique_circuits[circuit_id] = (circuit, self._circuit_dag_cache[circuit_id])
+                
+                substitutions.append((node, unique_circuits[circuit_id][1]))
+        
+        # Apply all substitutions
+        for node, substitute_dag in substitutions:
+            dag.substitute_node_with_dag(node, substitute_dag)
 
         return dag
+
+    def _extract_circuit_from_node(self, node):
+        """Extract QuantumCircuit from node with minimal overhead"""
+        try:
+            params = node.op.params
+            # Direct index access is faster than len() check for expected case
+            return params[1] if len(params) > 1 and isinstance(params[1], QuantumCircuit) else None
+        except (AttributeError, IndexError):
+            return None
 
 
 _flatten_cliffords = Flatten(("clifford", "Clifford"))
@@ -113,6 +150,83 @@ class GreedyBlockCollector(BlockCollector):
         super().__init__(dag)
         # TODO: remove once requirement is set to qiskit>=2
         self.max_block_size = max_block_size
+        
+        # Precompute adjacency structures for better performance
+        self._precompute_adjacencies()
+
+    def _precompute_adjacencies(self):
+        """Precompute predecessor and successor relationships based on DAG type"""
+        self._successors_cache = defaultdict(list)
+        self._predecessors_cache = defaultdict(list)
+        
+        if self.is_dag_dependency:
+            # DAG dependency - has _multi_graph and precomputed dependencies
+            self._precompute_from_dag_dependency()
+        else:
+            # Regular DAGCircuit - no _multi_graph, needs standard traversal
+            self._precompute_from_dag_circuit()
+
+    def _precompute_from_dag_dependency(self):
+        """Precompute from DAG dependency using rustworkx on _multi_graph"""
+        graph = self.dag._multi_graph
+        all_edges = set()
+        
+        node_indices = graph.node_indices()
+        visited_nodes = set()
+
+        # for node_id in node_indices:
+        #     if node_id not in visited_nodes:
+        #         visited_nodes.add(node_id)
+        #         if self._collect_from_back:
+        #             self._successors_cache[node_id] = self.dag.direct_successors(node_id)
+        #             self._predecessors_cache[node_id] = self.dag.direct_predecessors(node_id)
+        #         else:
+        #             self._successors_cache[node_id] = self.dag.direct_predecessors(node_id)
+        #             self._predecessors_cache[node_id] = self.dag.direct_successors(node_id)
+        
+        for node_id in node_indices:
+            if node_id not in visited_nodes:
+                edges_from_node = rx.dfs_edges(graph, node_id)
+                for source_id, target_id in edges_from_node:
+                    all_edges.add((source_id, target_id))
+                    visited_nodes.add(source_id)
+                    visited_nodes.add(target_id)
+        
+        # Build cache from edges
+        for source_id, target_id in all_edges:
+            source_node = self.dag.get_node(source_id)
+            target_node = self.dag.get_node(target_id)
+            
+        if self._collect_from_back:
+            self._successors_cache[target_node].append(source_node)  # REVERSED
+            self._predecessors_cache[source_node].append(target_node)  # REVERSED
+        else:
+            # Normal forward direction
+            self._successors_cache[source_node].append(target_node)
+            self._predecessors_cache[target_node].append(source_node)
+
+    def _precompute_from_dag_circuit(self):
+        """Precompute from regular DAGCircuit using standard methods"""
+        # Get all DAGOpNodes
+        all_nodes = [node for node in self.dag.nodes() if isinstance(node, DAGOpNode)]
+        
+        for node in all_nodes:
+            if self._collect_from_back:
+                succs = [pred for pred in self.dag.predecessors(node) if isinstance(pred, DAGOpNode)]
+            else:
+                succs = [succ for succ in self.dag.successors(node) if isinstance(succ, DAGOpNode)]
+            
+            self._successors_cache[node] = succs
+            for succ in succs:
+                self._predecessors_cache[succ].append(node)
+
+    def _direct_preds(self, node):
+        """Returns direct predecessors of a node using precomputed cache."""
+        return self._predecessors_cache.get(node, [])
+
+    def _direct_succs(self, node):
+        """Returns direct successors of a node using precomputed cache."""
+        return self._successors_cache.get(node, [])
 
     def collect_matching_block(
         self, filter_fn: Callable, max_block_width: Union[int, None] = None
@@ -132,36 +246,46 @@ class GreedyBlockCollector(BlockCollector):
 
         current_block = []
         current_block_qargs = set()
-        unprocessed_pending_nodes = self._pending_nodes
+        
+        # Use deque for O(1) popleft operations
+        unprocessed_pending_nodes = deque(self._pending_nodes)
         self._pending_nodes = []
 
-        # Iteratively process unprocessed_pending_nodes:
-        # - any node that does not match filter_fn is added to pending_nodes
-        # - any node that match filter_fn is added to the current_block,
-        #   and some of its successors may be moved to unprocessed_pending_nodes.
+        # Pre-allocate sets to avoid repeated allocations
+        new_qargs = set()
+        
         while unprocessed_pending_nodes:
-            node = unprocessed_pending_nodes.pop()
+            node = unprocessed_pending_nodes.popleft()
+            
+            # Early continue for barriers
             if isinstance(node.op, Barrier):
                 continue
 
+            # Optimize width checking when max_block_width is specified
             if max_block_width is not None:
-                # for efficiency, only update new_qargs when max_block_width is specified
-                new_qargs = current_block_qargs.copy()
+                new_qargs.clear()
+                new_qargs.update(current_block_qargs)
                 new_qargs.update(node.qargs)
                 width_within_budget = len(new_qargs) <= max_block_width
             else:
-                new_qargs = set()
                 width_within_budget = True
 
             if filter_fn(node) and width_within_budget:
                 current_block.append(node)
-                current_block_qargs = new_qargs
+                
+                # Only update current_block_qargs when we actually add the node
+                if max_block_width is not None:
+                    current_block_qargs = new_qargs.copy()
 
-                # update the _in_degree of node's successors
-                for suc in self._direct_succs(node):
+                # Batch process successors using precomputed cache
+                successors_to_add = []
+                for suc in self._successors_cache.get(node, []):
                     self._in_degree[suc] -= 1
                     if self._in_degree[suc] == 0:
-                        unprocessed_pending_nodes.append(suc)
+                        successors_to_add.append(suc)
+                
+                # Add all ready successors at once
+                unprocessed_pending_nodes.extend(successors_to_add)
             else:
                 self._pending_nodes.append(node)
 
@@ -250,6 +374,7 @@ class RepeatedCollectAndCollapse(CollectAndCollapse):
             do_commutative_analysis=do_commutative_analysis,
         )
         self.num_reps = num_reps
+        self.collect_from_back = collect_from_back
 
     @control_flow.trivial_recurse
     def run(self, dag):
