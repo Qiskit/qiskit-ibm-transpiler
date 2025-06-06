@@ -13,8 +13,11 @@
 """Functions used on the tests"""
 import numpy as np
 from qiskit import QuantumCircuit
+from qiskit.circuit.equivalence_library import SessionEquivalenceLibrary
 from qiskit.circuit.library import Permutation
 from qiskit.quantum_info import random_clifford, random_pauli
+from qiskit.transpiler import PassManager
+from qiskit.transpiler.passes import BasisTranslator
 
 from qiskit_ibm_transpiler.utils import create_random_linear_function
 
@@ -42,7 +45,11 @@ def create_random_circuit_with_several_operators(
         for q in qs:
             circuit.t(q)
 
-    return circuit
+    basis_gates = ['rz', 'x', 'y', 'z', 't', 'cx']
+    basis_translator = BasisTranslator(SessionEquivalenceLibrary, basis_gates)
+    pm = PassManager([basis_translator])
+    circuit_in_base_gates = pm.run(circuit.decompose())
+    return circuit_in_base_gates
 
 
 def create_operator_circuit(operator: str, num_qubits: int, seed: int = 42):
