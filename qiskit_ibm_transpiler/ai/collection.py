@@ -12,6 +12,7 @@
 
 """Replace each sequence of Clifford, Linear Function or Permutation gates by a single block of these types of gate."""
 
+from collections import defaultdict, deque
 from functools import partial
 from typing import Callable, Union
 
@@ -23,6 +24,7 @@ from qiskit.converters import circuit_to_dag, dag_to_dagdependency, dagdependenc
 from qiskit.dagcircuit import DAGDepNode, DAGOpNode
 from qiskit.dagcircuit.collect_blocks import BlockCollector
 from qiskit.dagcircuit.dagcircuit import DAGCircuit
+from qiskit.dagcircuit.dagdependency import DAGDependency
 from qiskit.quantum_info.operators import Clifford
 from qiskit.transpiler.basepasses import TransformationPass
 from qiskit.transpiler.passes.optimization.collect_and_collapse import (
@@ -30,8 +32,6 @@ from qiskit.transpiler.passes.optimization.collect_and_collapse import (
     collapse_to_operation,
 )
 from qiskit.transpiler.passes.utils import control_flow
-from qiskit.dagcircuit.dagdependency import DAGDependency
-from collections import deque, defaultdict
 
 CLIFFORD_MAX_BLOCK_SIZE = 9
 LINEAR_MAX_BLOCK_SIZE = 9
