@@ -98,27 +98,30 @@ class Flatten(TransformationPass):
         candidate_nodes = []
         for name in self.node_names:
             candidate_nodes.extend(dag.named_nodes(name))
-        
+
         if not candidate_nodes:
             return dag  # Early exit if no candidates
-        
+
         # Batch process: collect all substitutions
         substitutions = []
         unique_circuits = {}  # Map circuit_id -> (circuit, dag)
-        
+
         for node in candidate_nodes:
             circuit = self._extract_circuit_from_node(node)
             if circuit is not None:
                 circuit_id = id(circuit)
-                
+
                 # Cache unique circuits
                 if circuit_id not in unique_circuits:
                     if circuit_id not in self._circuit_dag_cache:
                         self._circuit_dag_cache[circuit_id] = circuit_to_dag(circuit)
-                    unique_circuits[circuit_id] = (circuit, self._circuit_dag_cache[circuit_id])
-                
+                    unique_circuits[circuit_id] = (
+                        circuit,
+                        self._circuit_dag_cache[circuit_id],
+                    )
+
                 substitutions.append((node, unique_circuits[circuit_id][1]))
-        
+
         # Apply all substitutions
         for node, substitute_dag in substitutions:
             dag.substitute_node_with_dag(node, substitute_dag)
@@ -130,7 +133,11 @@ class Flatten(TransformationPass):
         try:
             params = node.op.params
             # Direct index access is faster than len() check for expected case
-            return params[1] if len(params) > 1 and isinstance(params[1], QuantumCircuit) else None
+            return (
+                params[1]
+                if len(params) > 1 and isinstance(params[1], QuantumCircuit)
+                else None
+            )
         except (AttributeError, IndexError):
             return None
 
@@ -146,16 +153,15 @@ class GreedyBlockCollector(BlockCollector):
         super().__init__(dag)
         # TODO: remove once requirement is set to qiskit>=2
         self.max_block_size = max_block_size
-        
+
         # Precompute adjacency structures for better performance
         self._successors_cache = defaultdict(list)
         # self._predecessors_cache = defaultdict(list)
-        
+
         if self.is_dag_dependency:
             self._precompute_from_dag_dependency()
         else:
             self._precompute_from_dag_circuit()
-
 
     def _precompute_from_dag_dependency(self):
         """Precompute from DAG dependency using rustworkx on _multi_graph"""
@@ -165,22 +171,30 @@ class GreedyBlockCollector(BlockCollector):
         for node_id in node_indices:
             if self._collect_from_back:
                 self._successors_cache[node_id] = self.dag.direct_successors(node_id)
-                #self._predecessors_cache[node_id] = self.dag.direct_predecessors(node_id)
+                # self._predecessors_cache[node_id] = self.dag.direct_predecessors(node_id)
             else:
                 self._successors_cache[node_id] = self.dag.direct_predecessors(node_id)
-                #self._predecessors_cache[node_id] = self.dag.direct_successors(node_id)
+                # self._predecessors_cache[node_id] = self.dag.direct_successors(node_id)
 
     def _precompute_from_dag_circuit(self):
         """Precompute from regular DAGCircuit using standard methods"""
         # Get all DAGOpNodes
         all_nodes = [node for node in self.dag.nodes() if isinstance(node, DAGOpNode)]
-        
+
         for node in all_nodes:
             if self._collect_from_back:
-                succs = [pred for pred in self.dag.predecessors(node) if isinstance(pred, DAGOpNode)]
+                succs = [
+                    pred
+                    for pred in self.dag.predecessors(node)
+                    if isinstance(pred, DAGOpNode)
+                ]
             else:
-                succs = [succ for succ in self.dag.successors(node) if isinstance(succ, DAGOpNode)]
-            
+                succs = [
+                    succ
+                    for succ in self.dag.successors(node)
+                    if isinstance(succ, DAGOpNode)
+                ]
+
             self._successors_cache[node] = succs
 
     def collect_matching_block(
@@ -201,17 +215,17 @@ class GreedyBlockCollector(BlockCollector):
 
         current_block = []
         current_block_qargs = set()
-        
+
         # Use deque for O(1) popleft operations
         unprocessed_pending_nodes = deque(self._pending_nodes)
         self._pending_nodes = []
 
         # Pre-allocate sets to avoid repeated allocations
         new_qargs = set()
-        
+
         while unprocessed_pending_nodes:
             node = unprocessed_pending_nodes.popleft()
-            
+
             # Early continue for barriers
             if isinstance(node.op, Barrier):
                 continue
@@ -227,7 +241,7 @@ class GreedyBlockCollector(BlockCollector):
 
             if filter_fn(node) and width_within_budget:
                 current_block.append(node)
-                
+
                 # Only update current_block_qargs when we actually add the node
                 if max_block_width is not None:
                     current_block_qargs = new_qargs.copy()
@@ -238,7 +252,7 @@ class GreedyBlockCollector(BlockCollector):
                     self._in_degree[suc] -= 1
                     if self._in_degree[suc] == 0:
                         successors_to_add.append(suc)
-                
+
                 # Add all ready successors at once
                 unprocessed_pending_nodes.extend(successors_to_add)
             else:
