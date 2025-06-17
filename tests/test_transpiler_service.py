@@ -105,6 +105,7 @@ def test_transpiler_service_coupling_map(
         optimization_level=optimization_level,
         qiskit_transpile_options=qiskit_transpile_options,
         optimization_preferences=valid_optimization_preferences_without_noise,
+        timeout=600,
     )
     transpiled_circuit = cloud_transpiler_service.run(original_circuit)
 
@@ -119,6 +120,7 @@ def test_transpiler_service_several_qv_circuits(
         backend_name=test_eagle_backend_name,
         ai="true",
         optimization_level=1,
+        timeout=900,
     )
 
     transpiled_circuit = cloud_transpiler_service.run([qv_circ] * num_circuits)
