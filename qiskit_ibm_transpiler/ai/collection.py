@@ -14,7 +14,7 @@
 
 from collections import defaultdict
 from functools import partial
-from typing import Callable, Union, List
+from typing import Callable, List, Union
 
 from qiskit import QuantumCircuit
 from qiskit.circuit import Instruction
