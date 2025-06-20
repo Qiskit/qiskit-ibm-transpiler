@@ -1,0 +1,7 @@
+0.12.0 (2025-06-20)
+===================
+
+New features
+------------
+
+- Improve Collection Pass Performance via Precomputed Siblings and Queue Optimization #UnitaryHack2025 (`177 <https://github.com/Qiskit/qiskit-ibm-transpiler/pull/177>`__)
