@@ -364,23 +364,23 @@ def get_synthesized_pauli_circuits(
     return synthesized_circuits
 
 
-class AILocalPauliSynthesis:
-    """A helper class that covers some basic funcionality from the Linear Function AI Local Synthesis"""
+class AILocalPauliNetworkSynthesis:
+    """A helper class that covers some basic funcionality from the Pauli Netowrks AI Local Synthesis"""
 
     def transpile(
         self,
-        circuits: List[Union[QuantumCircuit, Clifford]],
+        circuits: List[QuantumCircuit],
         qargs: List[List[int]],
         coupling_map: Union[List[List[int]], CouplingMap, None] = None,
         # backend_name is not used here but is maintained until we deprecate it to not break the code
         backend_name=None,
         backend: Union[Backend, None] = None,
     ) -> List[Union[QuantumCircuit, None]]:
-        """Synthetize one or more quantum circuits into an optimized equivalent. It differs from a standard synthesis process in that it takes into account where the linear functions are (qargs)
+        """Synthetize one or more quantum circuits into an optimized equivalent. It differs from a standard synthesis process in that it takes into account where the pauli network are (qargs)
         and respects it on the synthesized circuit.
 
         Args:
-            circuits (List[Union[QuantumCircuit, Clifford]]): A list of quantum circuits to be synthesized.
+            circuits (List[QuantumCircuit]): A list of quantum circuits to be synthesized.
             qargs (List[List[int]]): A list of lists of qubit indices for each circuit. Each list of qubits indices represent where the linear function circuit is.
             coupling_map (Union[List[List[int]], None]): A coupling map representing the connectivity of the quantum computer.
             backend_name (Union[str, None]): The name of the backend to use for the synthesis.

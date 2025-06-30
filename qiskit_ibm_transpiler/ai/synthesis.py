@@ -36,6 +36,7 @@ from qiskit_ibm_transpiler.wrappers.ai_local_synthesis import (
     AILocalCliffordSynthesis,
     AILocalLinearFunctionSynthesis,
     AILocalPermutationSynthesis,
+    AILocalPauliNetworkSynthesis,
 )
 
 logger = logging.getLogger(__name__)
@@ -56,6 +57,7 @@ class AISynthesis(TransformationPass):
             AILocalCliffordSynthesis,
             AILocalLinearFunctionSynthesis,
             AILocalPermutationSynthesis,
+            AILocalPauliNetworkSynthesis
         ],
         coupling_map: Union[List[List[int]], CouplingMap, None] = None,
         backend: Union[Backend, None] = None,
@@ -354,8 +356,12 @@ class AIPauliNetworkSynthesis(AISynthesis):
         local_mode: bool = False,
         **kwargs,
     ) -> None:
+        ai_synthesis_provider = (
+            AILocalPauliNetworkSynthesis() if local_mode else AIPauliNetworkAPI(**kwargs)
+        )
+
         super().__init__(
-            synth_service=AIPauliNetworkAPI(**kwargs),
+            synth_service=ai_synthesis_provider,
             coupling_map=coupling_map,
             backend=backend,
             replace_only_if_better=replace_only_if_better,
