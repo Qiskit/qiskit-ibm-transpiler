@@ -35,8 +35,8 @@ from qiskit_ibm_transpiler.wrappers import (
 from qiskit_ibm_transpiler.wrappers.ai_local_synthesis import (
     AILocalCliffordSynthesis,
     AILocalLinearFunctionSynthesis,
-    AILocalPermutationSynthesis,
     AILocalPauliNetworkSynthesis,
+    AILocalPermutationSynthesis,
 )
 
 logger = logging.getLogger(__name__)
