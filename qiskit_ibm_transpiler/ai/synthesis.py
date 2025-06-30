@@ -57,7 +57,7 @@ class AISynthesis(TransformationPass):
             AILocalCliffordSynthesis,
             AILocalLinearFunctionSynthesis,
             AILocalPermutationSynthesis,
-            AILocalPauliNetworkSynthesis
+            AILocalPauliNetworkSynthesis,
         ],
         coupling_map: Union[List[List[int]], CouplingMap, None] = None,
         backend: Union[Backend, None] = None,
@@ -357,7 +357,9 @@ class AIPauliNetworkSynthesis(AISynthesis):
         **kwargs,
     ) -> None:
         ai_synthesis_provider = (
-            AILocalPauliNetworkSynthesis() if local_mode else AIPauliNetworkAPI(**kwargs)
+            AILocalPauliNetworkSynthesis()
+            if local_mode
+            else AIPauliNetworkAPI(**kwargs)
         )
 
         super().__init__(
