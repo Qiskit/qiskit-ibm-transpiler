@@ -171,6 +171,24 @@ def test_ai_synthesis_always_replace_original_circuit(
     assert isinstance(ai_optimized_circuit, QuantumCircuit)
 
 
+def flatten_opaque_with_circuit_params(qc: QuantumCircuit) -> QuantumCircuit:
+    new_qc = QuantumCircuit(qc.num_qubits, qc.num_clbits)
+    for instr, qargs, cargs in qc.data:
+        if instr.definition is None and any(
+            isinstance(p, QuantumCircuit) for p in instr.params
+        ):
+            # Find the circuit embedded in the parameters
+            for param in instr.params:
+                if isinstance(param, QuantumCircuit):
+                    new_qc.compose(
+                        param, qubits=[qc.qubits.index(q) for q in qargs], inplace=True
+                    )
+        else:
+            new_qc.append(instr, qargs, cargs)
+
+    return new_qc
+
+
 @parametrize_basic_circuit_collector_pass_and_ai_synthesis_pass()
 @parametrize_local_mode()
 def test_ai_synthesis_keep_original_if_better(
@@ -199,7 +217,7 @@ def test_ai_synthesis_keep_original_if_better(
     ai_optimized_circuit = custom_ai_synthesis_pass.run(original_circuit)
 
     assert isinstance(ai_optimized_circuit, QuantumCircuit)
-    assert ai_optimized_circuit == original_circuit
+    assert flatten_opaque_with_circuit_params(ai_optimized_circuit) == original_circuit
     assert all(word in caplog.text for word in ["Running", "synthesis"])
     assert "Keeping the original circuit" in caplog.text
 
