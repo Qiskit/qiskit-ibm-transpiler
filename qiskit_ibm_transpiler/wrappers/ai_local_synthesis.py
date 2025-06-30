@@ -98,6 +98,7 @@ PAULI_COUPLING_MAPS_BY_HASHES_DICT = getattr(
     "PAULI_COUPLING_MAPS_BY_HASHES_DICT not found",
 )
 
+
 def validate_coupling_map_source(coupling_map, backend):
     if not coupling_map and not backend:
         raise ValueError(
@@ -277,6 +278,7 @@ def get_synthesized_clifford_circuits(
 
     return synthesized_circuits
 
+
 class AILocalCliffordSynthesis:
     """A helper class that covers some basic funcionality from the Linear Function AI Local Synthesis"""
 
@@ -323,7 +325,9 @@ class AILocalCliffordSynthesis:
 
         return synthesized_circuits
 
-def get_synthesized_pauli_circuits(coupling_map: nx.Graph, circuits: List[QuantumCircuit], qargs: List[List[int]]
+
+def get_synthesized_pauli_circuits(
+    coupling_map: nx.Graph, circuits: List[QuantumCircuit], qargs: List[List[int]]
 ) -> list[QuantumCircuit]:
     synthesized_circuits = []
 
@@ -338,23 +342,27 @@ def get_synthesized_pauli_circuits(coupling_map: nx.Graph, circuits: List[Quantu
             logger.warning(e)
             continue
 
-
-        input_circuit_dec = circuits[index].decompose(["swap", "rxx", "ryy", "rzz", "rzx", "rzy", "ryx"])
-        input_circuit_perm = QuantumCircuit(input_circuit_dec.num_qubits).compose(input_circuit_dec, qubits=np.argsort(subgraph_perm))
+        input_circuit_dec = circuits[index].decompose(
+            ["swap", "rxx", "ryy", "rzz", "rzx", "rzy", "ryx"]
+        )
+        input_circuit_perm = QuantumCircuit(input_circuit_dec.num_qubits).compose(
+            input_circuit_dec, qubits=np.argsort(subgraph_perm)
+        )
 
         synthesized_pauli = AIPauliInference().synthesize(
             circuit=input_circuit_perm, coupling_map_hash=cmap_hash
         )
 
         # Permute the circuit back
-        synthesized_circuit = QuantumCircuit(
-            synthesized_pauli.num_qubits
-        ).compose(synthesized_pauli, qubits=subgraph_perm)
+        synthesized_circuit = QuantumCircuit(synthesized_pauli.num_qubits).compose(
+            synthesized_pauli, qubits=subgraph_perm
+        )
 
         # synthesized_circuit could be None or have a value, we return it in both cases
         synthesized_circuits.append(synthesized_circuit)
 
     return synthesized_circuits
+
 
 class AILocalPauliSynthesis:
     """A helper class that covers some basic funcionality from the Linear Function AI Local Synthesis"""
@@ -399,6 +407,8 @@ class AILocalPauliSynthesis:
         )
 
         return synthesized_circuits
+
+
 class AILocalLinearFunctionSynthesis:
     """A helper class that covers some basic funcionality from the Linear Function AI Local Synthesis"""
 
