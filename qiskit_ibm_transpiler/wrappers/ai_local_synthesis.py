@@ -93,7 +93,6 @@ if qiskit_ibm_ai_local_transpiler:
     from qiskit_ibm_ai_local_transpiler.pauli import PAULI_COUPLING_MAPS_BY_HASHES_DICT
 
 
-
 def validate_coupling_map_source(coupling_map, backend):
     if not coupling_map and not backend:
         raise ValueError(
