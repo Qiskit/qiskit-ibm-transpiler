@@ -22,6 +22,7 @@ from qiskit.circuit.library import LinearFunction
 from qiskit.providers.backend import BackendV2 as Backend
 from qiskit.quantum_info import Clifford
 from qiskit.transpiler import CouplingMap
+from qiskit.transpiler.exceptions import TranspilerError
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -47,11 +48,6 @@ AIPermutationInference = getattr(
     qiskit_ibm_ai_local_transpiler,
     "AIPermutationInference",
     "AIPermutationInference not found",
-)
-AIPauliInference = getattr(
-    qiskit_ibm_ai_local_transpiler,
-    "PauliInference",
-    "AIPauliInference not found",
 )
 
 qiskit_ibm_ai_local_transpiler_linear_function = getattr(
@@ -92,11 +88,10 @@ CLIFFORD_COUPLING_MAPS_BY_HASHES_DICT = getattr(
     "CLIFFORD_COUPLING_MAPS_BY_HASHES_DICT not found",
 )
 
-PAULI_COUPLING_MAPS_BY_HASHES_DICT = getattr(
-    qiskit_ibm_ai_local_transpiler_pauli,
-    "PAULI_COUPLING_MAPS_BY_HASHES_DICT",
-    "PAULI_COUPLING_MAPS_BY_HASHES_DICT not found",
-)
+if qiskit_ibm_ai_local_transpiler:
+    from qiskit_ibm_ai_local_transpiler.pauli import PauliInference as AIPauliInference
+    from qiskit_ibm_ai_local_transpiler.pauli import PAULI_COUPLING_MAPS_BY_HASHES_DICT
+
 
 
 def validate_coupling_map_source(coupling_map, backend):
@@ -340,7 +335,7 @@ def get_synthesized_pauli_circuits(
             )
         except BaseException as e:
             logger.warning(e)
-            continue
+            raise TranspilerError(e)
 
         input_circuit_dec = circuits[index].decompose(
             ["swap", "rxx", "ryy", "rzz", "rzx", "rzy", "ryx"]
@@ -350,7 +345,7 @@ def get_synthesized_pauli_circuits(
         )
 
         synthesized_pauli = AIPauliInference().synthesize(
-            circuit=input_circuit_perm, coupling_map_hash=cmap_hash
+            input_qc=input_circuit_perm, coupling_map_hash=cmap_hash
         )
 
         # Permute the circuit back
