@@ -334,7 +334,7 @@ def get_synthesized_pauli_circuits(
             )
         except BaseException as e:
             logger.warning(e)
-            raise TranspilerError(e)
+            raise TranspilerError(f"{e}")
 
         input_circuit_dec = circuits[index].decompose(
             ["swap", "rxx", "ryy", "rzz", "rzx", "rzy", "ryx"]

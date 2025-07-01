@@ -217,7 +217,7 @@ def test_ai_synthesis_keep_original_if_better(
     ai_optimized_circuit = custom_ai_synthesis_pass.run(original_circuit)
 
     assert isinstance(ai_optimized_circuit, QuantumCircuit)
-    assert flatten_opaque_with_circuit_params(ai_optimized_circuit) == original_circuit
+    assert ai_optimized_circuit == original_circuit
     assert all(word in caplog.text for word in ["Running", "synthesis"])
     assert "Keeping the original circuit" in caplog.text
 
