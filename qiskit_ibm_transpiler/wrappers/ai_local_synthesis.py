@@ -89,8 +89,8 @@ CLIFFORD_COUPLING_MAPS_BY_HASHES_DICT = getattr(
 )
 
 if qiskit_ibm_ai_local_transpiler:
-    from qiskit_ibm_ai_local_transpiler.pauli import PAULI_COUPLING_MAPS_BY_HASHES_DICT
     from qiskit_ibm_ai_local_transpiler import AIPauliInference
+    from qiskit_ibm_ai_local_transpiler.pauli import PAULI_COUPLING_MAPS_BY_HASHES_DICT
 
 
 def validate_coupling_map_source(coupling_map, backend):
