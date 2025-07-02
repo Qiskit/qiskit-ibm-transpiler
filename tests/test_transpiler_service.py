@@ -47,6 +47,7 @@ from tests.parametrize_functions import (
 
 pytestmark = pytest.mark.skip(reason="Skipping temporarily service tests")
 
+
 @parametrize_valid_optimization_level()
 @parametrize_ai()
 @parametrize_qiskit_transpile_options()
