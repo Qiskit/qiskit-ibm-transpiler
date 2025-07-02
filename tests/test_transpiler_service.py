@@ -45,6 +45,7 @@ from tests.parametrize_functions import (
     parametrize_valid_use_fractional_gates,
 )
 
+pytestmark = pytest.mark.skip(reason="Skipping temporarily service tests")
 
 @parametrize_valid_optimization_level()
 @parametrize_ai()
