@@ -45,6 +45,7 @@ def test_ai_cloud_routing_pass_exceed_timeout(qv_circ, test_eagle_backend):
 
     assert isinstance(ai_optimized_circuit, QuantumCircuit)
 
+
 @pytest.mark.skip(reason="Disabling cloud tests for now")
 def test_ai_cloud_routing_pass_wrong_token(qv_circ, test_eagle_backend):
     ai_routing_pass = PassManager(
@@ -62,6 +63,7 @@ def test_ai_cloud_routing_pass_wrong_token(qv_circ, test_eagle_backend):
         pytest.fail("Error expected")
     except Exception as e:
         assert "Invalid authentication credentials" in str(e)
+
 
 @pytest.mark.skip(reason="Disabling cloud tests for now")
 @pytest.mark.disable_monkeypatch
