@@ -55,6 +55,7 @@ def test_ai_cloud_synthesis_exceed_timeout(
 # parametrize_basic_circuit_collector_pass_and_ai_synthesis_pass (less than 4 qubits in
 # some cases), we should set min_block_size=2, max_block_size=27 as params in order to
 # make the test pass
+@pytest.mark.skip(reason="Disabling cloud tests for now")
 @parametrize_basic_circuit_collector_pass_and_ai_synthesis_pass()
 def test_ai_cloud_synthesis_wrong_token(
     circuit, collector_pass, ai_synthesis_pass, test_eagle_backend, caplog, request
@@ -84,6 +85,7 @@ def test_ai_cloud_synthesis_wrong_token(
 # parametrize_basic_circuit_collector_pass_and_ai_synthesis_pass (less than 4 qubits in
 # some cases), we should set min_block_size=2, max_block_size=27 as params in order to
 # make the test pass
+@pytest.mark.skip(reason="Disabling cloud tests for now")
 @pytest.mark.disable_monkeypatch
 @parametrize_basic_circuit_collector_pass_and_ai_synthesis_pass()
 def test_ai_cloud_synthesis_wrong_url(
@@ -109,6 +111,7 @@ def test_ai_cloud_synthesis_wrong_url(
 
 
 # TODO: When using basic_swap_circuit it works, when using random_test_eagle_circuit_with_two_cliffords doesn't. Check why
+@pytest.mark.skip(reason="Disabling cloud tests for now")
 @pytest.mark.disable_monkeypatch
 @parametrize_basic_circuit_collector_pass_and_ai_synthesis_pass()
 def test_ai_cloud_synthesis_unexisting_url(
