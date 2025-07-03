@@ -22,6 +22,7 @@ from qiskit.circuit.library import LinearFunction
 from qiskit.providers.backend import BackendV2 as Backend
 from qiskit.quantum_info import Clifford
 from qiskit.transpiler import CouplingMap
+from qiskit.transpiler.exceptions import TranspilerError
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -65,6 +66,12 @@ qiskit_ibm_ai_local_transpiler_clifford = getattr(
     "clifford module on qiskit_ibm_ai_local_transpiler not found",
 )
 
+qiskit_ibm_ai_local_transpiler_pauli = getattr(
+    qiskit_ibm_ai_local_transpiler,
+    "pauli",
+    "pauli module on qiskit_ibm_ai_local_transpiler not found",
+)
+
 LINEAR_FUNCTION_COUPLING_MAPS_BY_HASHES_DICT = getattr(
     qiskit_ibm_ai_local_transpiler_linear_function,
     "LINEAR_FUNCTION_COUPLING_MAPS_BY_HASHES_DICT",
@@ -80,6 +87,10 @@ CLIFFORD_COUPLING_MAPS_BY_HASHES_DICT = getattr(
     "CLIFFORD_COUPLING_MAPS_BY_HASHES_DICT",
     "CLIFFORD_COUPLING_MAPS_BY_HASHES_DICT not found",
 )
+
+if qiskit_ibm_ai_local_transpiler:
+    from qiskit_ibm_ai_local_transpiler import AIPauliInference
+    from qiskit_ibm_ai_local_transpiler.pauli import PAULI_COUPLING_MAPS_BY_HASHES_DICT
 
 
 def validate_coupling_map_source(coupling_map, backend):
@@ -304,6 +315,89 @@ class AILocalCliffordSynthesis:
 
         synthesized_circuits = get_synthesized_clifford_circuits(
             coupling_map_graph, clifford_dict, qargs
+        )
+
+        return synthesized_circuits
+
+
+def get_synthesized_pauli_circuits(
+    coupling_map: nx.Graph, circuits: List[QuantumCircuit], qargs: List[List[int]]
+) -> list[QuantumCircuit]:
+    synthesized_circuits = []
+
+    for index, circuit_qargs in enumerate(qargs):
+        try:
+            subgraph_perm, cmap_hash = get_mapping_perm(
+                coupling_map,
+                circuit_qargs,
+                PAULI_COUPLING_MAPS_BY_HASHES_DICT,
+            )
+        except BaseException as e:
+            logger.warning(e)
+            raise TranspilerError(f"{e}")
+
+        input_circuit_dec = circuits[index].decompose(
+            ["swap", "rxx", "ryy", "rzz", "rzx", "rzy", "ryx"]
+        )
+        input_circuit_perm = QuantumCircuit(input_circuit_dec.num_qubits).compose(
+            input_circuit_dec, qubits=np.argsort(subgraph_perm)
+        )
+
+        synthesized_pauli = AIPauliInference().synthesize(
+            input_qc=input_circuit_perm, coupling_map_hash=cmap_hash
+        )
+
+        # Permute the circuit back
+        synthesized_circuit = QuantumCircuit(synthesized_pauli.num_qubits).compose(
+            synthesized_pauli, qubits=subgraph_perm
+        )
+
+        # synthesized_circuit could be None or have a value, we return it in both cases
+        synthesized_circuits.append(synthesized_circuit)
+
+    return synthesized_circuits
+
+
+class AILocalPauliNetworkSynthesis:
+    """A helper class that covers some basic funcionality from the Pauli Netowrks AI Local Synthesis"""
+
+    def transpile(
+        self,
+        circuits: List[QuantumCircuit],
+        qargs: List[List[int]],
+        coupling_map: Union[List[List[int]], CouplingMap, None] = None,
+        # backend_name is not used here but is maintained until we deprecate it to not break the code
+        backend_name=None,
+        backend: Union[Backend, None] = None,
+    ) -> List[Union[QuantumCircuit, None]]:
+        """Synthetize one or more quantum circuits into an optimized equivalent. It differs from a standard synthesis process in that it takes into account where the pauli network are (qargs)
+        and respects it on the synthesized circuit.
+
+        Args:
+            circuits (List[QuantumCircuit]): A list of quantum circuits to be synthesized.
+            qargs (List[List[int]]): A list of lists of qubit indices for each circuit. Each list of qubits indices represent where the linear function circuit is.
+            coupling_map (Union[List[List[int]], None]): A coupling map representing the connectivity of the quantum computer.
+            backend_name (Union[str, None]): The name of the backend to use for the synthesis.
+
+        Returns:
+            List[Union[QuantumCircuit, None]]: A list of synthesized quantum circuits. If the synthesis fails for any circuit, the corresponding element in the list will be None.
+        """
+
+        # Although this function is called `transpile`, it does a synthesis. It has this name because the synthesis
+        # is made as a pass on the Qiskit Pass Manager which is used in the transpilation process.
+
+        validate_coupling_map_source(coupling_map, backend)
+
+        formatted_coupling_map = get_formatted_coupling_map(coupling_map)
+
+        validate_circuits_and_qargs_lengths(circuits, qargs)
+
+        coupling_map_graph = get_coupling_map_graph(backend, formatted_coupling_map)
+
+        logger.info("Running Pauli Network AI synthesis on local mode")
+
+        synthesized_circuits = get_synthesized_pauli_circuits(
+            coupling_map_graph, circuits, qargs
         )
 
         return synthesized_circuits
