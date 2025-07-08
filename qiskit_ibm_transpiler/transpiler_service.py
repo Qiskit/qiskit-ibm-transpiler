@@ -33,6 +33,7 @@ from qiskit import QuantumCircuit
 
 from .types import OptimizationOptions
 from .wrappers.transpile import TranspileAPI
+from .wrappers.function_transpile import QiskitTranspilerFunction
 
 logger = logging.getLogger(__name__)
 
@@ -71,8 +72,10 @@ class TranspilerService:
         **kwargs,
     ) -> None:
         """Initializes the instance."""
-
-        self.transpiler_service = TranspileAPI(**kwargs)
+        if ai == 'false':
+            self.transpiler_service = QiskitTranspilerFunction(**kwargs)
+        else:
+            self.transpiler_service = TranspileAPI(**kwargs)
 
         self.backend_name = backend_name
         self.coupling_map = coupling_map
