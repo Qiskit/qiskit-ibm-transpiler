@@ -1,0 +1,7 @@
+0.13.0 (2025-07-03)
+===================
+
+New features
+------------
+
+- Enable Pauli Network inference in local mode (`184 <https://github.com/Qiskit/qiskit-ibm-transpiler/pull/184>`__)

@@ -154,9 +154,6 @@ def test_ai_synthesis_always_replace_original_circuit(
     caplog,
     request,
 ):
-    if collector_pass == CollectPauliNetworks and local_mode:
-        pytest.skip("Skipping test for pauli network on local mode")
-
     original_circuit = request.getfixturevalue(circuit)
 
     custom_ai_synthesis_pass = PassManager(
@@ -177,6 +174,24 @@ def test_ai_synthesis_always_replace_original_circuit(
     assert isinstance(ai_optimized_circuit, QuantumCircuit)
 
 
+def flatten_opaque_with_circuit_params(qc: QuantumCircuit) -> QuantumCircuit:
+    new_qc = QuantumCircuit(qc.num_qubits, qc.num_clbits)
+    for instr, qargs, cargs in qc.data:
+        if instr.definition is None and any(
+            isinstance(p, QuantumCircuit) for p in instr.params
+        ):
+            # Find the circuit embedded in the parameters
+            for param in instr.params:
+                if isinstance(param, QuantumCircuit):
+                    new_qc.compose(
+                        param, qubits=[qc.qubits.index(q) for q in qargs], inplace=True
+                    )
+        else:
+            new_qc.append(instr, qargs, cargs)
+
+    return new_qc
+
+
 @parametrize_basic_circuit_collector_pass_and_ai_synthesis_pass()
 @parametrize_local_mode()
 def test_ai_synthesis_keep_original_if_better(
@@ -188,9 +203,6 @@ def test_ai_synthesis_keep_original_if_better(
     caplog,
     request,
 ):
-    if collector_pass == CollectPauliNetworks and local_mode:
-        pytest.skip("Skipping test for pauli network on local mode")
-
     # FIXME: It looks like when the optimized circuit is worse than the original one, we
     # return a modified version of the original circuit that come from the permutation collection
     if collector_pass == CollectPermutations:
@@ -224,9 +236,6 @@ def test_ai_synthesis_pass_with_backend(
     caplog,
     request,
 ):
-    if collector_pass == CollectPauliNetworks and local_mode:
-        pytest.skip("Skipping test for pauli network on local mode")
-
     original_circuit = request.getfixturevalue(circuit)
 
     custom_ai_synthesis_pass = PassManager(
@@ -259,9 +268,6 @@ def test_ai_synthesis_pass_with_coupling_map(
     caplog,
     request,
 ):
-    if collector_pass == CollectPauliNetworks and local_mode:
-        pytest.skip("Skipping test for pauli network on local mode")
-
     original_circuit = request.getfixturevalue(circuit)
     coupling_map = request.getfixturevalue(coupling_map)
 

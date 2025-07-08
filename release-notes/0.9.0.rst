@@ -5,3 +5,8 @@ New features
 ------------
 
 - Adding local mode for routing, permutations, linear functions and cliffords. (`125 <https://github.com/Qiskit/qiskit-ibm-transpiler/pull/125>`__)
+
+Deprecated
+----------
+
+- Deprecate Python 3.8 support
