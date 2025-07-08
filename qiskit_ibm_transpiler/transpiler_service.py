@@ -32,8 +32,8 @@ from typing import Dict, List, Literal, Union
 from qiskit import QuantumCircuit
 
 from .types import OptimizationOptions
-from .wrappers.transpile import TranspileAPI
 from .wrappers.function_transpile import QiskitTranspilerFunction
+from .wrappers.transpile import TranspileAPI
 
 logger = logging.getLogger(__name__)
 
@@ -72,7 +72,7 @@ class TranspilerService:
         **kwargs,
     ) -> None:
         """Initializes the instance."""
-        if ai == 'false':
+        if ai == "false":
             self.transpiler_service = QiskitTranspilerFunction(**kwargs)
         else:
             self.transpiler_service = TranspileAPI(**kwargs)
