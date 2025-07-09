@@ -57,7 +57,7 @@ jobs:
       - name: Run tests
         env:
           QISKIT_IBM_TOKEN: ${{ secrets.QISKIT_IBM_TOKEN }}
-          QISKIT_IBM_CHANNEL: "ibm_quantum"
-          QISKIT_IBM_RUNTIME_API_URL: "https://auth-dev.quantum-computing.ibm.com/api"
+          QISKIT_IBM_CHANNEL: "ibm_quantum_platform"
+          QISKIT_IBM_RUNTIME_API_URL: "https://qiskit-serverless-dev.quantum.ibm.com"
         run: |
           python -m pytest .
