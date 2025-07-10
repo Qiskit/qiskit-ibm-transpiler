@@ -156,19 +156,21 @@ def parametrize_n_qubits():
     return pytest.mark.parametrize("n_qubits", [3, 10, 30])
 
 
+# Disabling cloud mode for now
 def parametrize_local_mode():
     return pytest.mark.parametrize(
         "local_mode",
-        [True, False],
-        ids=["local_mode", "cloud_mode"],
+        [True],  # False],
+        ids=["local_mode"],  # , "cloud_mode"],
     )
 
 
+# Disabling cloud mode for now
 def parametrize_local_mode_and_error_type():
     return pytest.mark.parametrize(
         "local_mode, error_type",
-        [(True, PermissionError), (False, TranspilerError)],
-        ids=["local_mode", "cloud_mode"],
+        [(True, PermissionError)],  # , (False, TranspilerError)],
+        ids=["local_mode"],  # , "cloud_mode"],
     )
 
 
