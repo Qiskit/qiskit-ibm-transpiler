@@ -65,7 +65,7 @@ def non_valid_backend_name():
 
 @pytest.fixture(scope="module")
 def test_eagle_backend_name():
-    return "test_eagle"
+    return "ibm_brisbane"
 
 
 @pytest.fixture(scope="module")
