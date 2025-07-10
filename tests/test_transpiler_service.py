@@ -45,8 +45,6 @@ from tests.parametrize_functions import (
     parametrize_valid_use_fractional_gates,
 )
 
-pytestmark = pytest.mark.skip(reason="Skipping service tests temporarily")
-
 
 @parametrize_valid_optimization_level()
 @parametrize_ai()
@@ -67,6 +65,7 @@ def test_transpiler_service_random_circuit(
     assert isinstance(transpiled_circuit, QuantumCircuit)
 
 
+@pytest.mark.skip("Test later")
 @parametrize_valid_optimization_level()
 @parametrize_ai()
 @parametrize_qiskit_transpile_options()
@@ -114,6 +113,7 @@ def test_transpiler_service_coupling_map(
     assert isinstance(transpiled_circuit, QuantumCircuit)
 
 
+@pytest.mark.skip("Test later")
 @pytest.mark.parametrize("num_circuits", [2, 5])
 def test_transpiler_service_several_qv_circuits(
     num_circuits, test_eagle_backend_name, qv_circ
@@ -234,6 +234,7 @@ def test_transpiler_service_wrong_token(test_eagle_backend_name, basic_cnot_circ
         assert str(e) == "'Invalid authentication credentials'"
 
 
+@pytest.mark.skip("Test later")
 @pytest.mark.disable_monkeypatch
 def test_transpiler_service_wrong_url(test_eagle_backend_name, basic_cnot_circuit):
     transpiler_service = TranspilerService(
@@ -250,6 +251,7 @@ def test_transpiler_service_wrong_url(test_eagle_backend_name, basic_cnot_circui
         transpiler_service.run(basic_cnot_circuit)
 
 
+@pytest.mark.skip("Test later")
 @pytest.mark.disable_monkeypatch
 def test_transpiler_service_unexisting_url(test_eagle_backend_name, basic_cnot_circuit):
     transpiler_service = TranspilerService(
@@ -268,6 +270,7 @@ def test_transpiler_service_unexisting_url(test_eagle_backend_name, basic_cnot_c
         )
 
 
+@pytest.mark.skip("Test later")
 def test_transpiler_service_malformed_body(test_eagle_backend_name, basic_cnot_circuit):
     transpiler_service = TranspilerService(
         backend_name=test_eagle_backend_name,
@@ -285,6 +288,7 @@ def test_transpiler_service_malformed_body(test_eagle_backend_name, basic_cnot_c
         )
 
 
+@pytest.mark.skip("Test later")
 def test_transpiler_service_failing_task(
     test_eagle_backend_name, qpy_circuit_with_transpiling_error
 ):
@@ -306,6 +310,7 @@ def test_transpiler_service_failing_task(
         assert "FAILED" in exception_info.value
 
 
+@pytest.mark.skip("Test later")
 def test_transpiler_service_non_valid_circuits_format(
     test_eagle_backend_name, non_valid_qpy_circuit
 ):
@@ -317,6 +322,7 @@ def test_transpiler_service_non_valid_circuits_format(
         cloud_transpiler_service.run(non_valid_qpy_circuit)
 
 
+@pytest.mark.skip("Test later")
 def test_transpiler_service_wrong_qpy_fallback():
     circuit = QuantumCircuit.from_qasm_file("tests/test_files/cc_n64.qasm")
     test_backend = GenericBackendV2(circuit.num_qubits)
@@ -429,6 +435,7 @@ def test_transpiler_service_fix_ecr_test_eagle():
     assert any(isinstance(gate.operation, ECRGate) for gate in list(transpiled_circuit))
 
 
+@pytest.mark.skip("Test later")
 @parametrize_non_valid_use_fractional_gates()
 def test_transpiler_service_non_valid_use_fractional_gates(
     non_valid_use_fractional_gates, test_eagle_backend_name, basic_cnot_circuit
@@ -445,6 +452,7 @@ def test_transpiler_service_non_valid_use_fractional_gates(
         assert "Wrong input" in exception_info.value
 
 
+@pytest.mark.skip("Test later")
 @parametrize_valid_use_fractional_gates()
 def test_transpiler_service_transpile_valid_use_fractional_gates_param(
     valid_use_fractional_gates, test_eagle_backend_name, basic_cnot_circuit
@@ -473,6 +481,7 @@ def test_transpiler_service_qasm3_iterative_decomposition_limit():
         to_qasm3_iterative_decomposition(feature_map, n_iter=1)
 
 
+@pytest.mark.skip("Test later")
 def test_transpiler_service_barrier_on_circuit(
     test_eagle_backend_name, circuit_with_barrier
 ):
