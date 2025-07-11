@@ -44,14 +44,17 @@ from tests.parametrize_functions import (
     parametrize_valid_optimization_preferences_without_noise,
     parametrize_valid_use_fractional_gates,
 )
+from tests.utils import mock_serverless_function_result
 
 
 @parametrize_valid_optimization_level()
 @parametrize_ai()
 @parametrize_qiskit_transpile_options()
 def test_transpiler_service_random_circuit(
-    optimization_level, ai, qiskit_transpile_options, test_eagle_backend_name
+    mocker, optimization_level, ai, qiskit_transpile_options, test_eagle_backend_name
 ):
+    mock_serverless_function_result(mocker, [random_circuit(5, 3)])
+
     random_circ = random_circuit(5, depth=3, seed=42)
 
     cloud_transpiler_service = TranspilerService(
@@ -65,7 +68,7 @@ def test_transpiler_service_random_circuit(
     assert isinstance(transpiled_circuit, QuantumCircuit)
 
 
-@pytest.mark.skip("Test later")
+@pytest.mark.skip("Still useful after migrating to functions?")
 @parametrize_valid_optimization_level()
 @parametrize_ai()
 @parametrize_qiskit_transpile_options()
@@ -90,6 +93,7 @@ def test_transpiler_service_quantum_volume_circuit(
 @parametrize_qiskit_transpile_options()
 @parametrize_valid_optimization_preferences_without_noise()
 def test_transpiler_service_coupling_map(
+    mocker,
     test_eagle_coupling_map_list_format,
     permutation_circuit_test_eagle,
     optimization_level,
@@ -97,6 +101,8 @@ def test_transpiler_service_coupling_map(
     qiskit_transpile_options,
     valid_optimization_preferences_without_noise,
 ):
+    mock_serverless_function_result(mocker, permutation_circuit_test_eagle)
+
     # For this tests the circuit is no relevant, so we reuse one we already have
     original_circuit = permutation_circuit_test_eagle
 
@@ -113,7 +119,7 @@ def test_transpiler_service_coupling_map(
     assert isinstance(transpiled_circuit, QuantumCircuit)
 
 
-@pytest.mark.skip("Test later")
+@pytest.mark.skip("Still useful after migrating to functions?")
 @pytest.mark.parametrize("num_circuits", [2, 5])
 def test_transpiler_service_several_qv_circuits(
     num_circuits, test_eagle_backend_name, qv_circ
@@ -144,8 +150,10 @@ def test_transpiler_service_wrong_input(test_eagle_backend_name, qv_circ):
 
 
 @parametrize_ai()
-def test_transpiler_service_layout_reconstruction(ai):
+def test_transpiler_service_layout_reconstruction(mocker, ai):
     n_qubits = 27
+
+    mock_serverless_function_result(mocker, [QuantumCircuit(n_qubits)])
 
     mat = np.real(random_hermitian(n_qubits, seed=1234))
     circuit = IQP(mat)
@@ -166,6 +174,7 @@ def test_transpiler_service_layout_reconstruction(ai):
         )
 
 
+@pytest.mark.skip("Still useful after migrating to functions?")
 def test_transpiler_service_non_valid_backend_name(
     non_valid_backend_name, basic_cnot_circuit
 ):
@@ -200,6 +209,7 @@ def test_transpiler_service_exceed_circuit_size(test_eagle_backend_name):
         assert str(e) == "'Circuit has more gates than the allowed maximum of 30000.'"
 
 
+@pytest.mark.skip("Still useful after migrating to functions?")
 def test_transpiler_service_exceed_timeout(test_eagle_backend_name):
     circuit = EfficientSU2(100, entanglement="circular", reps=50).decompose()
     transpiler_service = TranspilerService(
@@ -219,6 +229,7 @@ def test_transpiler_service_exceed_timeout(test_eagle_backend_name):
         )
 
 
+@pytest.mark.skip("Still useful after migrating to functions?")
 def test_transpiler_service_wrong_token(test_eagle_backend_name, basic_cnot_circuit):
     transpiler_service = TranspilerService(
         backend_name=test_eagle_backend_name,
@@ -234,7 +245,7 @@ def test_transpiler_service_wrong_token(test_eagle_backend_name, basic_cnot_circ
         assert str(e) == "'Invalid authentication credentials'"
 
 
-@pytest.mark.skip("Test later")
+@pytest.mark.skip("Still useful after migrating to functions?")
 @pytest.mark.disable_monkeypatch
 def test_transpiler_service_wrong_url(test_eagle_backend_name, basic_cnot_circuit):
     transpiler_service = TranspilerService(
@@ -251,7 +262,7 @@ def test_transpiler_service_wrong_url(test_eagle_backend_name, basic_cnot_circui
         transpiler_service.run(basic_cnot_circuit)
 
 
-@pytest.mark.skip("Test later")
+@pytest.mark.skip("Still useful after migrating to functions?")
 @pytest.mark.disable_monkeypatch
 def test_transpiler_service_unexisting_url(test_eagle_backend_name, basic_cnot_circuit):
     transpiler_service = TranspilerService(
@@ -270,7 +281,7 @@ def test_transpiler_service_unexisting_url(test_eagle_backend_name, basic_cnot_c
         )
 
 
-@pytest.mark.skip("Test later")
+@pytest.mark.skip("Still useful after migrating to functions?")
 def test_transpiler_service_malformed_body(test_eagle_backend_name, basic_cnot_circuit):
     transpiler_service = TranspilerService(
         backend_name=test_eagle_backend_name,
@@ -288,7 +299,7 @@ def test_transpiler_service_malformed_body(test_eagle_backend_name, basic_cnot_c
         )
 
 
-@pytest.mark.skip("Test later")
+@pytest.mark.skip("Still useful after migrating to functions?")
 def test_transpiler_service_failing_task(
     test_eagle_backend_name, qpy_circuit_with_transpiling_error
 ):
@@ -310,7 +321,7 @@ def test_transpiler_service_failing_task(
         assert "FAILED" in exception_info.value
 
 
-@pytest.mark.skip("Test later")
+@pytest.mark.skip("Still useful after migrating to functions?")
 def test_transpiler_service_non_valid_circuits_format(
     test_eagle_backend_name, non_valid_qpy_circuit
 ):
@@ -322,7 +333,7 @@ def test_transpiler_service_non_valid_circuits_format(
         cloud_transpiler_service.run(non_valid_qpy_circuit)
 
 
-@pytest.mark.skip("Test later")
+@pytest.mark.skip("Still useful after migrating to functions?")
 def test_transpiler_service_wrong_qpy_fallback():
     circuit = QuantumCircuit.from_qasm_file("tests/test_files/cc_n64.qasm")
     test_backend = GenericBackendV2(circuit.num_qubits)
@@ -420,6 +431,7 @@ def test_transpiler_service_fix_ecr_qasm3():
     assert isinstance(list(circuit_from_qasm)[0].operation, ECRGate)
 
 
+@pytest.mark.skip("Still useful after migrating to functions?")
 def test_transpiler_service_fix_ecr_test_eagle():
     num_qubits = 16
     circuit = QuantumCircuit(num_qubits)
@@ -435,7 +447,7 @@ def test_transpiler_service_fix_ecr_test_eagle():
     assert any(isinstance(gate.operation, ECRGate) for gate in list(transpiled_circuit))
 
 
-@pytest.mark.skip("Test later")
+@pytest.mark.skip("Still useful after migrating to functions?")
 @parametrize_non_valid_use_fractional_gates()
 def test_transpiler_service_non_valid_use_fractional_gates(
     non_valid_use_fractional_gates, test_eagle_backend_name, basic_cnot_circuit
@@ -452,7 +464,7 @@ def test_transpiler_service_non_valid_use_fractional_gates(
         assert "Wrong input" in exception_info.value
 
 
-@pytest.mark.skip("Test later")
+@pytest.mark.skip("Still useful after migrating to functions?")
 @parametrize_valid_use_fractional_gates()
 def test_transpiler_service_transpile_valid_use_fractional_gates_param(
     valid_use_fractional_gates, test_eagle_backend_name, basic_cnot_circuit
@@ -481,7 +493,7 @@ def test_transpiler_service_qasm3_iterative_decomposition_limit():
         to_qasm3_iterative_decomposition(feature_map, n_iter=1)
 
 
-@pytest.mark.skip("Test later")
+@pytest.mark.skip("Still useful after migrating to functions?")
 def test_transpiler_service_barrier_on_circuit(
     test_eagle_backend_name, circuit_with_barrier
 ):
