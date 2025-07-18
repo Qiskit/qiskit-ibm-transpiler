@@ -72,11 +72,13 @@ class TranspilerService:
         **kwargs,
     ) -> None:
         """Initializes the instance."""
-        if ai == "false":
-            self.transpiler_service = QiskitTranspilerFunction(**kwargs)
-        else:
-            self.transpiler_service = TranspileAPI(**kwargs)
+        if ai == "true":
+            raise ValueError(
+                f"AI transpilation on the cloud is currently not available. You can use AI transpilation locally. "
+                "More info can be found here: https://quantum.cloud.ibm.com/docs/en/guides/ai-transpiler-passes#run-the-ai-transpiler-passes-locally-or-on-the-cloud"
+            )
 
+        self.transpiler_service = QiskitTranspilerFunction(**kwargs)
         self.backend_name = backend_name
         self.coupling_map = coupling_map
         self.optimization_level = optimization_level
@@ -115,9 +117,7 @@ class TranspilerService:
             coupling_map=self.coupling_map,
             optimization_level=self.optimization_level,
             optimization_preferences=self.optimization_preferences,
-            ai=self.ai,
             qiskit_transpile_options=self.qiskit_transpile_options,
-            ai_layout_mode=self.ai_layout_mode,
             use_fractional_gates=self.use_fractional_gates,
         )
         if transpile_result is None:

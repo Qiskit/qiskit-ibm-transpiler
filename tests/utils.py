@@ -11,11 +11,12 @@
 # that they have been altered from the originals.
 
 """Functions used on the tests"""
+from unittest.mock import MagicMock, Mock
+
 import numpy as np
 from qiskit import QuantumCircuit
 from qiskit.circuit.library import Permutation
 from qiskit.quantum_info import random_clifford, random_pauli
-from unittest.mock import MagicMock, Mock
 
 from qiskit_ibm_transpiler.utils import create_random_linear_function
 

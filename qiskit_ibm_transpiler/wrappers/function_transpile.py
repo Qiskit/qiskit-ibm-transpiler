@@ -12,6 +12,7 @@
 """Transpilation via the transpiler qiskit function"""
 
 import logging
+import re
 from typing import Dict, List, Union
 
 from qiskit import QuantumCircuit
@@ -49,11 +50,20 @@ class QiskitTranspilerFunction:
         if channel is None:
             channel = self.DEFAULT_CHANNEL
         self.instance = instance
+        logger.debug(
+            f"Attempting to get serverless with parameters:\nhost={url}\nchannel={channel}"
+        )
         self.serverless = ServerlessClient(
             host=url, channel=channel, token=token, instance=self.instance
         )
+        logger.debug(
+            f"Attempting to get the transpiler function {self.TRANSPILER_FUNCTION_NAME}"
+        )
         self.function = self.serverless.get(self.TRANSPILER_FUNCTION_NAME)
         self.timeout = timeout
+        logger.info(
+            "QiskitTranspilerFunction initialized successfully, got connection to serverless and the transpilation function"
+        )
 
     def transpile(
         self,
@@ -66,12 +76,25 @@ class QiskitTranspilerFunction:
         ] = None,
         qiskit_transpile_options: Dict = None,
         use_fractional_gates: bool = False,
-        **kwargs
+        **kwargs,
     ):
         """Calls the transpiler function with the given inputs"""
         # TODO: are optimization_preferences supported in the transpiler function?
         # should they be merged with qiskit_transpile_options?
         # if backend is None, get a default one using the serverless client
+        if optimization_preferences is not None:
+            logger.warning(
+                "The `optimization_preferences` parameter is deprecated and will be removed"
+            )
+        if len(kwargs) > 0:
+            logger.warning(
+                f"{len(kwargs)} additional parameters are ignored: {kwargs.keys()}"
+            )
+        logger.info("About to call the transpilation function")
+        logger.debug(f"optimization_level={optimization_level}")
+        logger.debug(f"backend_name={backend}")
+        logger.debug(f"transpile_options={qiskit_transpile_options}")
+        logger.debug(f"use_fractional_gates={use_fractional_gates}")
         job = self.function.run(
             circuits=circuits,
             optimization_level=optimization_level,
@@ -81,8 +104,10 @@ class QiskitTranspilerFunction:
             use_fractional_gates=use_fractional_gates,
             instance=self.instance,
         )
+        logger.debug("Job submitted successfully")
         # TODO: catch exceptions, fail gracefully
         job_result = job.result(maxwait=self.timeout)
+        logger.debug(f"Job result obtained: {job_result}")
         if isinstance(job_result, dict) and "transpiled_circuits" in job_result:
             transpiled_circuits = job_result["transpiled_circuits"]
             # TODO: we follow suit with the old service which returns the circuit when there's only one
@@ -93,5 +118,19 @@ class QiskitTranspilerFunction:
                 else transpiled_circuits[0]
             )
         # TODO: can be more specific; if job_result is a dict but transpilation failed
-        # then job_result['exceptions'] might be informative
-        raise TranspilerError("Transpilation failed")
+        # then job_result['exception'] might be informative
+        msg = "Unknown error"
+        if isinstance(job_result, dict) and "exception" in job_result:
+            msg = self.analyze_error_msg(job_result["exception"])
+        raise TranspilerError(f"Transpilation failed. Error: {msg}")
+
+    def analyze_error_msg(self, msg):
+        try:
+            MISSING_BACKEND_ERROR = "QiskitBackendNotFoundError"
+            MISSING_BACKEND_REGEX = "IBMBackend\(\\'(\w+)\\'\)"
+            if re.search(MISSING_BACKEND_ERROR, msg):
+                backends = re.findall(MISSING_BACKEND_REGEX, msg)
+                return f"The requested backend was not found. Available backends: {backends}"
+            return msg
+        except Exception:
+            return msg
