@@ -136,11 +136,14 @@ def test_transpiler_service_several_qv_circuits(
         assert isinstance(circ, QuantumCircuit)
 
 
-def test_transpiler_service_wrong_input(test_eagle_backend_name, qv_circ):
+def test_transpiler_service_wrong_input(
+    test_eagle_backend_name, test_instance, qv_circ
+):
     cloud_transpiler_service = TranspilerService(
         backend_name=test_eagle_backend_name,
-        ai="true",
+        ai="auto",
         optimization_level=1,
+        instance=test_instance,
     )
 
     circ_dict = {"a": qv_circ}
