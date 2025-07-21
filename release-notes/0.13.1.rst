@@ -1,0 +1,7 @@
+0.13.1 (2025-07-21)
+===================
+
+Other notes
+------------
+
+- Updating the README to reflect the latest changes & updates (`184 <https://github.com/Qiskit/qiskit-ibm-transpiler/pull/191>`__)
