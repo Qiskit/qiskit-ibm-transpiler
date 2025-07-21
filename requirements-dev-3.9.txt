@@ -1,0 +1,17 @@
+qiskit>=1.4.2
+backoff~=2.0
+qiskit_ibm_runtime>=0.37.0
+qiskit-serverless>=0.25.0
+qiskit-qasm3-import~=0.4
+black==24.1.1
+black[jupyter]==24.1.1
+ruff==0.8.0
+pytest==8.0.0
+pytest-timeout~=2.3.1
+pytest-mock==3.14.1
+sphinx==7.1.2; python_version < '3.9'
+sphinx==7.2.6; python_version >= '3.9'
+qiskit-sphinx-theme==1.16.1
+sphinxcontrib-katex==0.9.9
+networkx==2.8.5
+qiskit_ibm_ai_local_transpiler~=0.4
