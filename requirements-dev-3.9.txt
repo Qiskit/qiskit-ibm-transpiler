@@ -48,8 +48,8 @@ google-api-core==2.25.1
 google-auth==2.40.3
 googleapis-common-protos==1.70.0
 grpcio==1.73.1
-ibm-cloud-sdk-core==3.18
-ibm-platform-services==0.48.0
+ibm-cloud-sdk-core==3.18.0
+ibm-platform-services==0.22.6
 idna==3.10
 importlib_metadata==8.4.0
 ipython==8.18.0
@@ -119,7 +119,7 @@ tqdm==4.67.1
 traitlets==5.14.3
 typing-inspection==0.4.1
 typing_extensions==4.14.1
-urllib3==1.26.18
+urllib3==1.26.20
 virtualenv==20.32.0
 wcwidth==0.2.13
 widgetsnbextension==4.0.14
