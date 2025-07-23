@@ -1,7 +1,7 @@
 qiskit>=1.4.2
 backoff~=2.0
 qiskit_ibm_runtime>=0.37.0
-qiskit-serverless>=0.25.0
+qiskit-serverless @ git+https://github.com/Qiskit/qiskit-serverless.git@s3fs-deprecation#subdirectory=client
 qiskit-qasm3-import~=0.4
 black==24.1.1
 black[jupyter]==24.1.1
@@ -15,7 +15,3 @@ qiskit-sphinx-theme==1.16.1
 sphinxcontrib-katex==0.9.9
 networkx==2.8.5
 qiskit_ibm_ai_local_transpiler~=0.4
-
-# Pinned versions for Python 3.9
-ibm-cloud-sdk-core==3.18.0
-ibm-platform-services==0.48.0
