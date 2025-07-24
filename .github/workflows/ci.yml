@@ -69,4 +69,4 @@ jobs:
           QISKIT_IBM_CHANNEL: "ibm_quantum_platform"
           QISKIT_IBM_RUNTIME_API_URL: "https://cloud.ibm.com"
         run: |
-          python -m pytest .
+          python -m pytest --reruns 3 --only-rerun "qiskit.transpiler.exceptions.TranspilerError" .

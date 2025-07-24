@@ -9,6 +9,7 @@ ruff==0.8.0
 pytest==8.0.0
 pytest-timeout~=2.3.1
 pytest-mock==3.14.1
+pytest-rerunfailures~=15.1
 sphinx==7.1.2; python_version < '3.9'
 sphinx==7.2.6; python_version >= '3.9'
 qiskit-sphinx-theme==1.16.1
