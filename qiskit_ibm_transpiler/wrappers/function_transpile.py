@@ -129,8 +129,8 @@ class QiskitTranspilerFunction:
             if re.search(MISSING_BACKEND_ERROR, msg):
                 backends = re.findall(MISSING_BACKEND_REGEX, msg)
                 return f"The requested backend was not found. Available backends: {backends}"
-            
+
             return msg
-        
+
         except Exception:
             return msg

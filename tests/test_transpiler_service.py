@@ -513,19 +513,17 @@ def test_transpiler_service_barrier_on_circuit(
 
     assert isinstance(transpiled_circuit, QuantumCircuit)
 
-def test_transpiler_service_standard_flow(
-    test_eagle_backend_name, test_instance
-):
+
+def test_transpiler_service_standard_flow(test_eagle_backend_name, test_instance):
     qc = QuantumCircuit(2)
     qc.h(0)
-    qc.cx(0,1)
+    qc.cx(0, 1)
     cloud_transpiler_service = TranspilerService(
-        backend_name = test_eagle_backend_name,
+        backend_name=test_eagle_backend_name,
         ai="false",
         optimization_level=1,
         instance=test_instance,
     )
     transpiled_circuit = cloud_transpiler_service.run(qc)
     assert isinstance(transpiled_circuit, QuantumCircuit)
-    assert(qc != transpiled_circuit) # transpilation should change the circuit
-
+    assert qc != transpiled_circuit  # transpilation should change the circuit
