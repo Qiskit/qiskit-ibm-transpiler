@@ -117,8 +117,6 @@ class QiskitTranspilerFunction:
                 if len(transpiled_circuits) > 1
                 else transpiled_circuits[0]
             )
-        # TODO: can be more specific; if job_result is a dict but transpilation failed
-        # then job_result['exception'] might be informative
         msg = "Unknown error"
         if isinstance(job_result, dict) and "exception" in job_result:
             msg = self.analyze_error_msg(job_result["exception"])
@@ -126,11 +124,13 @@ class QiskitTranspilerFunction:
 
     def analyze_error_msg(self, msg):
         try:
-            MISSING_BACKEND_ERROR = "QiskitBackendNotFoundError"
-            MISSING_BACKEND_REGEX = "IBMBackend\(\\'(\w+)\\'\)"
+            MISSING_BACKEND_ERROR = "The requested backend was not found"
+            MISSING_BACKEND_REGEX = "'(\w+)'"
             if re.search(MISSING_BACKEND_ERROR, msg):
                 backends = re.findall(MISSING_BACKEND_REGEX, msg)
                 return f"The requested backend was not found. Available backends: {backends}"
+            
             return msg
+        
         except Exception:
             return msg
