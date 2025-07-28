@@ -54,7 +54,6 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           python -m pip install -r ./requirements-dev-3.9.txt
-          python -m pip install --force-reinstall 'urllib3>=1.27'
 
       - name: Install dependencies (Other versions)
         if: matrix.python-version != '3.9'
