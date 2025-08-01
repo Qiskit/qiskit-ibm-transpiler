@@ -58,6 +58,6 @@ jobs:
           QISKIT_IBM_TOKEN: ${{ secrets.QISKIT_IBM_TOKEN }}
           QISKIT_IBM_INSTANCE: ${{ secrets.QISKIT_IBM_INSTANCE }}
           QISKIT_IBM_CHANNEL: "ibm_quantum_platform"
-          QISKIT_IBM_RUNTIME_API_URL: "https://cloud.ibm.com"
+          QISKIT_IBM_RUNTIME_API_URL: "https://test.cloud.ibm.com"
         run: |
           python -m pytest --reruns 3 --only-rerun "qiskit.transpiler.exceptions.TranspilerError" .
