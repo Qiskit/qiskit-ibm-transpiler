@@ -31,7 +31,7 @@ class QiskitTranspilerFunction:
     """A helper class that used the qiskit runtime function interface for transpilation"""
 
     SERVERLESS_URL = "https://qiskit-serverless.quantum.ibm.com"
-    DEFAULT_CHANNEL = "ibm_cloud"
+    DEFAULT_CHANNEL = "ibm_quantum_platform"
     TRANSPILER_FUNCTION_NAME = "ibm/transpiler-function"
 
     def __init__(

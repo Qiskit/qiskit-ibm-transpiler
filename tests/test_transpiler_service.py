@@ -523,6 +523,7 @@ def test_transpiler_service_standard_flow(test_eagle_backend_name, test_instance
         ai="false",
         optimization_level=1,
         instance=test_instance,
+        url="https://qiskit-serverless-dev.quantum.ibm.com"
     )
     transpiled_circuit = cloud_transpiler_service.run(qc)
     assert isinstance(transpiled_circuit, QuantumCircuit)
