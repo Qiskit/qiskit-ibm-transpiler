@@ -12,6 +12,7 @@
 
 """Unit-testing Transpiler Service"""
 
+import os
 import numpy as np
 import pytest
 from qiskit import QuantumCircuit, qasm2, qasm3
@@ -523,7 +524,7 @@ def test_transpiler_service_standard_flow(test_eagle_backend_name, test_instance
         ai="false",
         optimization_level=1,
         instance=test_instance,
-        url="https://qiskit-serverless-dev.quantum.ibm.com",
+        url=os.getenv("QISKIT_SERVERLESS_API_URL", None),
     )
     transpiled_circuit = cloud_transpiler_service.run(qc)
     assert isinstance(transpiled_circuit, QuantumCircuit)
