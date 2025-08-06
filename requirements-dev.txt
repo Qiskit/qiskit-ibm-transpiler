@@ -1,7 +1,7 @@
 qiskit>=1.4.2
 backoff~=2.0
 qiskit_ibm_runtime~=0.40.1
-qiskit-serverless>=0.25.3
+qiskit-serverless~=0.25.3
 qiskit-qasm3-import~=0.4
 black==24.1.1
 black[jupyter]==24.1.1
