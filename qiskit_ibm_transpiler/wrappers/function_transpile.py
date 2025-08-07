@@ -92,6 +92,10 @@ class QiskitTranspilerFunction:
             logger.warning(
                 f"{len(kwargs)} additional parameters are ignored: {kwargs.keys()}"
             )
+        if ai_layout_mode:
+            logger.warning(
+                f"ai_layout_mode ignored in current version. It will be used in future versions"
+            )
         logger.info("About to call the transpilation function")
         logger.debug(f"optimization_level={optimization_level}")
         logger.debug(f"ai={ai}")
