@@ -13,7 +13,7 @@
 
 import logging
 import re
-from typing import Dict, List, Union
+from typing import Dict, List, Literal, Union
 
 from qiskit import QuantumCircuit
 from qiskit.transpiler.exceptions import TranspilerError
@@ -74,7 +74,9 @@ class QiskitTranspilerFunction:
         optimization_preferences: Union[
             OptimizationOptions, List[OptimizationOptions], None
         ] = None,
+        ai: Literal["true", "false", "auto"] = "true",
         qiskit_transpile_options: Dict = None,
+        ai_layout_mode: str = None,
         use_fractional_gates: bool = False,
         **kwargs,
     ):
@@ -92,6 +94,8 @@ class QiskitTranspilerFunction:
             )
         logger.info("About to call the transpilation function")
         logger.debug(f"optimization_level={optimization_level}")
+        logger.debug(f"ai={ai}")
+        logger.debug(f"ai_layout_mode={ai_layout_mode}")
         logger.debug(f"backend_name={backend}")
         logger.debug(f"transpile_options={qiskit_transpile_options}")
         logger.debug(f"use_fractional_gates={use_fractional_gates}")
