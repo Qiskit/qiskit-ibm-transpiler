@@ -138,10 +138,6 @@ def test_transpiler_service_several_qv_circuits(
         assert isinstance(circ, QuantumCircuit)
 
 
-@pytest.mark.skip(
-    "Correct token + instance combination needed. "
-    "Throws qiskit_serverless.exception.QiskitServerlessException: Credentials couldn't be verified"
-)
 def test_transpiler_service_wrong_input(
     test_eagle_backend_name, test_instance, qv_circ
 ):
@@ -150,11 +146,12 @@ def test_transpiler_service_wrong_input(
         ai="auto",
         optimization_level=1,
         instance=test_instance,
+        url=os.getenv("QISKIT_SERVERLESS_API_URL", None),
     )
 
     circ_dict = {"a": qv_circ}
 
-    with pytest.raises(TypeError):
+    with pytest.raises(TranspilerError):
         cloud_transpiler_service.run(circ_dict)
 
 
