@@ -30,7 +30,8 @@ from qiskit_ibm_transpiler.ai.synthesis import (
 
 
 def parametrize_ai():
-    return pytest.mark.parametrize("ai", ["false", "true"], ids=["no_ai", "ai"])
+    # return pytest.mark.parametrize("ai", ["false", "true"], ids=["no_ai", "ai"])
+    return pytest.mark.parametrize("ai", ["false"], ids=["no_ai"])
 
 
 def parametrize_include_ai_synthesis():

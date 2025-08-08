@@ -11,6 +11,8 @@
 # that they have been altered from the originals.
 
 """Functions used on the tests"""
+from unittest.mock import MagicMock, Mock
+
 import numpy as np
 from qiskit import QuantumCircuit
 from qiskit.circuit.library import Permutation
@@ -75,3 +77,19 @@ def create_linear_circuit(n_qubits, gates):
         elif gates == "t":
             circuit.t(q)
     return circuit
+
+
+def mock_serverless_function_result(mocker, result_circuits):
+    serverless_job_mock = Mock()
+    serverless_job_mock.result.return_value = {"transpiled_circuits": result_circuits}
+
+    serverless_function_mock = MagicMock()
+    serverless_function_mock.run.return_value = serverless_job_mock
+
+    serverless_mock = MagicMock()
+    serverless_mock.get.return_value = serverless_function_mock
+
+    mocker.patch(
+        "qiskit_ibm_transpiler.wrappers.function_transpile.ServerlessClient",
+        return_value=serverless_mock,
+    )

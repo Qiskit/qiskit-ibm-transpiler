@@ -69,6 +69,11 @@ def test_eagle_backend_name():
 
 
 @pytest.fixture(scope="module")
+def test_instance():
+    return os.getenv("QISKIT_IBM_INSTANCE")
+
+
+@pytest.fixture(scope="module")
 def test_eagle_backend(test_eagle_backend_name):
     backend = get_qiskit_runtime_service().backend(test_eagle_backend_name)
 
