@@ -33,7 +33,6 @@ from qiskit import QuantumCircuit
 
 from .types import OptimizationOptions
 from .wrappers.function_transpile import QiskitTranspilerFunction
-from .wrappers.transpile import TranspileAPI
 
 logger = logging.getLogger(__name__)
 
