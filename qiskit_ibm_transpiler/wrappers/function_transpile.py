@@ -84,9 +84,9 @@ class QiskitTranspilerFunction:
         # TODO: are optimization_preferences supported in the transpiler function?
         # should they be merged with qiskit_transpile_options?
         # if backend is None, get a default one using the serverless client
-        if optimization_preferences is not None:
+        if ai is "false" and optimization_preferences is not None:
             logger.warning(
-                "The `optimization_preferences` parameter is deprecated and will be removed"
+                "The `optimization_preferences` parameter is only available for `ai` transpilation"
             )
         if len(kwargs) > 0:
             logger.warning(
