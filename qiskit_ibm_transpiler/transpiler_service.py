@@ -32,7 +32,7 @@ from typing import Dict, List, Literal, Union
 from qiskit import QuantumCircuit
 
 from .types import OptimizationOptions
-from .wrappers.transpile import TranspileAPI
+from .wrappers.function_transpile import QiskitTranspilerFunction
 
 logger = logging.getLogger(__name__)
 
@@ -71,9 +71,13 @@ class TranspilerService:
         **kwargs,
     ) -> None:
         """Initializes the instance."""
+        if ai == "true":
+            raise ValueError(
+                f"AI transpilation on the cloud is currently not available. You can use AI transpilation locally. "
+                "More info can be found here: https://quantum.cloud.ibm.com/docs/en/guides/ai-transpiler-passes#run-the-ai-transpiler-passes-locally-or-on-the-cloud"
+            )
 
-        self.transpiler_service = TranspileAPI(**kwargs)
-
+        self.transpiler_service = QiskitTranspilerFunction(**kwargs)
         self.backend_name = backend_name
         self.coupling_map = coupling_map
         self.optimization_level = optimization_level

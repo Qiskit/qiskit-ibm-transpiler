@@ -29,7 +29,6 @@ Classes
    AIPauliNetworkAPI
    QiskitTranspilerService
    BackendTaskError
-   TranspileAPI
 """
 
 from .ai_api_routing import AIRoutingAPI
@@ -41,4 +40,4 @@ from .ai_api_synthesis import (
 )
 from .ai_local_routing import AILocalRouting
 from .base import BackendTaskError, QiskitTranspilerService
-from .transpile import TranspileAPI, _get_circuit_from_result
+from .transpile import _get_circuit_from_result

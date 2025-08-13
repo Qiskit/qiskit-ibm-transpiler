@@ -28,6 +28,8 @@ requirements = [
     "qiskit-qasm3-import~=0.4",
     "requests~=2.0",
     "networkx==2.8.5",
+    "qiskit_ibm_runtime~=0.40.1",
+    "qiskit-serverless~=0.25.3",
 ]
 
 setup(
@@ -60,7 +62,6 @@ setup(
     extras_require={
         "ai-local-mode": [
             "qiskit_ibm_ai_local_transpiler~=0.4",
-            "qiskit-ibm-runtime>=0.37.0",
         ],
     },
     project_urls={
