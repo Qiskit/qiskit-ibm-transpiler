@@ -14,12 +14,14 @@
 
 import pytest
 from qiskit import QuantumCircuit
-from qiskit.transpiler import PassManager
+from qiskit.transpiler import CouplingMap, PassManager
 
 from qiskit_ibm_transpiler.ai.collection import (
     CollectPauliNetworks,
     CollectPermutations,
 )
+from qiskit_ibm_transpiler.ai.synthesis import AIPermutationSynthesis
+
 from tests.parametrize_functions import (
     parametrize_basic_circuit_collector_pass_and_ai_synthesis_pass,
     parametrize_complex_circuit_collector_pass_and_ai_synthesis_pass,
@@ -282,3 +284,31 @@ def test_ai_synthesis_pass_with_coupling_map(
 
     assert isinstance(ai_optimized_circuit, QuantumCircuit)
     assert all(word in caplog.text for word in ["Running", "synthesis"])
+
+
+def test_ai_synthesis_keep_old_circuit():
+    orig_qc = QuantumCircuit(127)
+    # Add 8qL permutation to find subgraph in current models
+    for i, p in enumerate([6, 2, 3, 4, 0, 1, 7, 5]):
+        orig_qc.swap(i, p)
+    for i, p in enumerate([7, 3, 4, 6, 0, 1, 2, 5]):
+        starting_qubit = 37
+        orig_qc.swap(i + starting_qubit, p + starting_qubit)
+    for i, p in enumerate([5, 0, 4, 2, 6, 3, 1]):
+        starting_qubit = 75
+        orig_qc.swap(i + starting_qubit, p + starting_qubit)
+
+    cmap_edge_list = [(0, 1), (0, 14), (1, 2), (3, 2), (3, 4), (4, 15), (5, 4), (6, 5), (6, 7), (7, 8), (8, 16), (9, 8), (9, 10), (10, 11), (12, 11), (13, 12), (15, 22), (17, 12), (17, 30), (18, 14), (18, 19), (20, 19), (20, 21), (20, 33), (21, 22), (23, 22), (24, 23), (25, 24), (25, 26), (26, 16), (27, 26), (27, 28), (28, 29), (28, 35), (30, 29), (30, 31), (32, 31), (32, 36), (33, 39), (34, 24), (34, 43), (36, 51), (37, 38), (37, 52), (38, 39), (40, 39), (40, 41), (41, 42), (41, 53), (42, 43), (43, 44), (45, 44), (45, 46), (46, 47), (47, 35), (48, 47), (49, 48), (50, 49), (50, 51), (54, 45), (55, 49), (56, 52), (56, 57), (58, 57), (58, 59), (60, 53), (60, 59), (61, 60), (62, 61), (63, 62), (64, 54), (64, 63), (64, 65), (66, 65), (66, 67), (66, 73), (67, 68), (68, 55), (69, 68), (70, 69), (70, 74), (71, 58), (71, 77), (72, 62), (72, 81), (73, 85), (74, 89), (75, 76), (75, 90), (76, 77), (77, 78), (78, 79), (80, 79), (80, 81), (81, 82), (82, 83), (83, 84), (85, 84), (85, 86), (86, 87), (87, 88), (88, 89), (91, 79), (91, 98), (92, 83), (92, 102), (93, 87), (93, 106), (94, 90), (95, 94), (96, 95), (96, 97), (97, 98), (99, 98), (100, 99), (100, 110), (101, 100), (102, 101), (103, 102), (103, 104), (104, 105), (104, 111), (105, 106), (107, 106), (107, 108), (109, 96), (111, 122), (112, 108), (113, 114), (114, 109), (115, 114), (116, 115), (116, 117), (118, 110), (118, 117), (119, 118), (119, 120), (120, 121), (122, 121), (122, 123), (123, 124), (125, 124), (126, 112), (126, 125)]
+    coupling_map = CouplingMap(cmap_edge_list)
+
+    custom_ai_synthesis_pass = PassManager(
+        [
+            CollectPermutations(min_block_size=2),
+            AIPermutationSynthesis(coupling_map=coupling_map, local_mode=True, max_threads=1),
+        ]
+    )
+
+    ai_optimized_circuit = custom_ai_synthesis_pass.run(orig_qc)
+
+    for inst in ai_optimized_circuit:
+        assert inst.operation.name != "permutation"
