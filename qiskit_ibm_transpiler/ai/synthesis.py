@@ -25,6 +25,8 @@ from qiskit.quantum_info import Clifford
 from qiskit.transpiler import CouplingMap
 from qiskit.transpiler.basepasses import TransformationPass
 from qiskit.transpiler.exceptions import TranspilerError
+from qiskit.circuit.quantumcircuit import QuantumCircuit 
+from qiskit.circuit.library import PermutationGate       
 
 from qiskit_ibm_transpiler.wrappers import (
     AICliffordAPI,
@@ -322,8 +324,15 @@ class AIPermutationSynthesis(AISynthesis):
             local_mode=local_mode,
         )
 
+    #Adding the original circuit creation
     def _get_synth_input_and_original(self, node):
-        return node.op.params[0].tolist(), None
+        permutation = PermutationGate(node.op.params[0].tolist())       
+        len_perm = len(node.op.params[0].tolist())                      
+        qubits = [i for i in range(0, len_perm)]                        
+        circuit_orig = QuantumCircuit(len_perm)                         
+        circuit_orig.append(permutation, qubits)                        
+        circuit_orig = circuit_orig.decompose("permutation")            
+        return node.op.params[0].tolist(), circuit_orig                 
 
     def _get_nodes(self, dag):
         return dag.named_nodes("permutation", "Permutation")
