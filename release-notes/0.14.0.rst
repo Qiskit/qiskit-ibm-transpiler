@@ -1,0 +1,7 @@
+0.14.0 (2025-08-21)
+===================
+
+New features
+------------
+
+- Migrate Transpiler Service to Qiskit Function (`189 <https://github.com/Qiskit/qiskit-ibm-transpiler/pull/189>`__)
