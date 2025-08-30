@@ -35,84 +35,27 @@ The package automatically authenticates using your [IBM Quantum Platform credent
 - Environment variable: `QISKIT_IBM_TOKEN`
 - Configuration file: `~/.qiskit/qiskit-ibm.json` (section: `default-ibm-quantum`)
 
-## 🚀 Quick Start Guide
+## 🚀 Getting Started
 
-### Using the Qiskit Transpiler Service
+### Tutorial and Examples
 
-> **Note**: The Qiskit Transpiler Service is currently being migrated. We recommend using local mode instead.
+For a comprehensive introduction to the qiskit-ibm-transpiler library, start here:
 
-#### Standard Transpilation
-```python
-from qiskit.circuit.library import EfficientSU2
-from qiskit_ibm_transpiler.transpiler_service import TranspilerService
+- **📖 [AI Transpiling Tutorial](ai-transpiling-tutorial.ipynb)** - Complete walkthrough of the library's features and capabilities
+- **📁 [Examples Directory](examples/)** - Collection of Jupyter notebooks demonstrating specific use cases:
+  - [AI Transpiler Demo](examples/ai-transpiler-demo.ipynb) - Basic transpilation examples
+  - [AI Clifford Synthesis Demo](examples/ai-clifford-synthesis-demo.ipynb) - Clifford circuit optimization
+  - [AI Linear Function Synthesis Demo](examples/ai-linear-function-synthesis-demo.ipynb) - Linear function synthesis
+  - [AI Permutation Synthesis Demo](examples/ai-permutation-synthesis-demo.ipynb) - Permutation circuit synthesis
+  - [AI Large Circuit Speed Test](examples/ai-large-circuit-speed-test.ipynb) - Performance benchmarking
 
-# Create your circuit
-circuit = EfficientSU2(101, entanglement="circular", reps=1).decompose()
+These notebooks provide hands-on examples and detailed explanations to help you get the most out of the AI-powered transpilation capabilities.
 
-# Transpile using cloud service
-service = TranspilerService(
-    backend_name="ibm_torino",  # or any backend you have access to
-    ai="false",
-    optimization_level=3,
-)
-transpiled_circuit = service.run(circuit)
-```
+### Quick Start
 
-#### AI-Enhanced Transpiler Passes via Service
-```python
-from qiskit.circuit.library import EfficientSU2
-from qiskit_ibm_transpiler.transpiler_service import TranspilerService
+#### Using AI-powered Transpiler Passes Locally (Recommended)
 
-circuit = EfficientSU2(101, entanglement="circular", reps=1).decompose()
-
-# Enable AI optimization for superior results
-service = TranspilerService(
-    backend_name="ibm_torino",
-    ai="true",              # Enable AI passes
-    optimization_level=3,
-)
-optimized_circuit = service.run(circuit)
-```
-
-#### Auto AI Mode
-
-```python
-from qiskit.circuit.library import EfficientSU2
-from qiskit_ibm_transpiler.transpiler_service import TranspilerService
-
-circuit = EfficientSU2(101, entanglement="circular", reps=1).decompose()
-
-# Let the service decide the best transpilation approach
-service = TranspilerService(
-    backend_name="ibm_torino",
-    ai="auto",              # Service decides: AI passes vs standard Qiskit
-    optimization_level=3,
-)
-optimized_circuit = service.run(circuit)
-```
-
-With `ai="auto"`, the service intelligently decides whether to apply standard Qiskit heuristic passes or AI-powered passes based on your circuit characteristics.
-
-
-#### Service Configuration Options
-
-| Parameter | Values | Description |
-|-----------|--------|-------------|
-| `ai` | `"true"`, `"false"`, `"auto"` | AI transpilation mode |
-| `optimization_level` | `1`, `2`, `3` | Optimization intensity |
-| `backend_name` | Backend string | Target quantum device |
-| `coupling_map` | List of tuples | Custom connectivity |
-
-**Service Limits**:
-- Max 1M two-qubit gates per job
-- 30-minute transpilation timeout
-- 20-minute result retrieval window
-
-> **Note**: Only backends accessible through your IBM Quantum account can be used. Alternatively, specify the `coupling_map` parameter directly.
-
-### Using AI Passes Manually
-
-#### AI Routing Pass
+**AI Routing Pass**
 
 The `AIRouting` pass provides intelligent layout selection and circuit routing using reinforcement learning:
 
@@ -145,7 +88,7 @@ routed_circuit = ai_routing.run(circuit)
 | | `keep` | Respects previous layout selection |
 | `local_mode` | `True/False` | Run locally or on cloud |
 
-#### AI Circuit Synthesis Passes
+**AI Circuit Synthesis Passes**
 
 Optimize specific circuit blocks using AI-powered synthesis for superior gate count reduction:
 
@@ -177,7 +120,7 @@ circuit = EfficientSU2(10, entanglement="full", reps=1).decompose()
 optimized_circuit = ai_pm.run(circuit)
 ```
 
-#### Available Synthesis Passes
+**Available Synthesis Passes**
 
 | Pass | Circuit Type | Max Qubits | Local Mode |
 |------|-------------|------------|------------|
@@ -186,6 +129,37 @@ optimized_circuit = ai_pm.run(circuit)
 | `AIPermutationSynthesis` | SWAP gates | 65, 33, 27 | ✅ |
 | `AIPauliNetworkSynthesis` | H, S, SX, CX, RX, RY, RZ | 6 | ✅ |
 
+
+#### Using the Transpiler Service (Cloud)
+
+> **Note**: The Qiskit Transpiler Service is currently being migrated. We recommend using local mode instead.
+
+```python
+from qiskit.circuit.library import EfficientSU2
+from qiskit_ibm_transpiler.transpiler_service import TranspilerService
+
+# Create your circuit
+circuit = EfficientSU2(101, entanglement="circular", reps=1).decompose()
+
+# Enable AI optimization for superior results
+service = TranspilerService(
+    backend_name="ibm_torino",
+    ai="auto",              # Service decides: AI passes vs standard Qiskit
+    optimization_level=3,
+)
+optimized_circuit = service.run(circuit)
+```
+
+**Service Configuration Options:**
+
+| Parameter | Values | Description |
+|-----------|--------|-------------|
+| `ai` | `"true"`, `"false"`, `"auto"` | AI transpilation mode |
+| `optimization_level` | `1`, `2`, `3` | Optimization intensity |
+| `backend_name` | Backend string | Target quantum device |
+| `coupling_map` | List of tuples | Custom connectivity |
+
+**Service Limits**: Max 1M two-qubit gates per job, 30-minute transpilation timeout, 20-minute result retrieval window.
 
 #### Hybrid Heuristic-AI Circuit Transpilation
 
@@ -218,7 +192,7 @@ ai_su2_transpiled_circuit = ai_hybrid_pass_manager.run(su2_circuit)
 - `ai_layout_mode`: How the AI routing handles layout (see AI routing pass section for options)
 
 
-#### Performance Tuning
+### Performance Tuning
 
 **Thread Pool Configuration**:
 ```python
