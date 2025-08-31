@@ -22,7 +22,6 @@ from qiskit.circuit.library import LinearFunction
 from qiskit.providers.backend import BackendV2 as Backend
 from qiskit.quantum_info import Clifford
 from qiskit.transpiler import CouplingMap
-from qiskit.transpiler.exceptions import TranspilerError
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -334,7 +333,7 @@ def get_synthesized_pauli_circuits(
             )
         except BaseException as e:
             logger.warning(e)
-            raise TranspilerError(f"{e}")
+            continue
 
         input_circuit_dec = circuits[index].decompose(
             ["swap", "rxx", "ryy", "rzz", "rzx", "rzy", "ryx"]
