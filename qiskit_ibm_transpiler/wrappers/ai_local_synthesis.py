@@ -333,6 +333,7 @@ def get_synthesized_pauli_circuits(
             )
         except BaseException as e:
             logger.warning(e)
+            synthesized_circuits.append(None)
             continue
 
         input_circuit_dec = circuits[index].decompose(
