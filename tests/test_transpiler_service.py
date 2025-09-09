@@ -138,6 +138,7 @@ def test_transpiler_service_several_qv_circuits(
         assert isinstance(circ, QuantumCircuit)
 
 
+@pytest.mark.no_mock_token
 def test_transpiler_service_wrong_input(
     test_eagle_backend_name, test_instance, qv_circ
 ):
@@ -513,6 +514,7 @@ def test_transpiler_service_barrier_on_circuit(
     assert isinstance(transpiled_circuit, QuantumCircuit)
 
 
+@pytest.mark.no_mock_token
 def test_transpiler_service_standard_flow(test_eagle_backend_name, test_instance):
     qc = QuantumCircuit(2)
     qc.h(0)
