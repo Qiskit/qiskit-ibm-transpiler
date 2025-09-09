@@ -28,6 +28,14 @@ from qiskit_ibm_transpiler.utils import (  # noqa: E402
 )  # noqa: E402
 from tests.utils import create_random_circuit_with_several_operators  # noqa: E402
 
+RUN_E2E = "RUN_E2E"  # choose your name
+
+
+def pytest_runtest_setup(item):
+    # If the test is marked e2e but env var isn't set, skip it
+    if item.get_closest_marker("e2e") and not os.getenv(RUN_E2E):
+        pytest.skip(f"@e2e requires {RUN_E2E}=1")
+
 
 @pytest.fixture(autouse=True)
 def env_set(monkeypatch, request):
@@ -92,16 +100,21 @@ def _fake_backend():
 
 
 @pytest.fixture(autouse=True)
-def mock_token(monkeypatch):
+def mock_token(request, monkeypatch):
     """Avoid reading real credentials during tests."""
-    monkeypatch.setattr(
-        "qiskit_ibm_transpiler.wrappers.base._get_token_from_system",
-        lambda: "FAKE",
-    )
-    monkeypatch.setattr(
-        "qiskit_ibm_transpiler.wrappers.function_transpile._get_token_from_system",
-        lambda: "FAKE",
-    )
+
+    if request.node.get_closest_marker("e2e"):
+        # e2e: leave the real implementation in place
+        return
+    else:
+        monkeypatch.setattr(
+            "qiskit_ibm_transpiler.wrappers.base._get_token_from_system",
+            lambda: "FAKE",
+        )
+        monkeypatch.setattr(
+            "qiskit_ibm_transpiler.wrappers.function_transpile._get_token_from_system",
+            lambda: "FAKE",
+        )
 
 
 @pytest.fixture(scope="module")
