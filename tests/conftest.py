@@ -20,6 +20,7 @@ from qiskit import QuantumCircuit
 from qiskit.circuit.library import QuantumVolume
 from qiskit.providers.fake_provider import GenericBackendV2
 from qiskit.transpiler import CouplingMap
+
 from qiskit_ibm_transpiler.utils import (  # noqa: E402
     create_random_linear_function,
     get_qpy_from_circuit,
