@@ -353,7 +353,7 @@ class AIPauliNetworkSynthesis(AISynthesis):
         backend: Union[Backend, None] = None,
         replace_only_if_better: bool = True,
         max_threads: Union[int, None] = None,
-        local_mode: bool = False,
+        local_mode: bool = True,
         **kwargs,
     ) -> None:
         ai_synthesis_provider = (
