@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# (C) Copyright 2023 IBM. All Rights Reserved.
+# (C) Copyright 2025 IBM. All Rights Reserved.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -28,13 +28,12 @@ requirements = [
     "qiskit-qasm3-import~=0.4",
     "requests~=2.0",
     "networkx==2.8.5",
-    "qiskit_ibm_runtime~=0.40.1",
     "qiskit-serverless~=0.25.3",
 ]
 
 setup(
     name="qiskit-ibm-transpiler",
-    version="0.13.1",
+    version="0.14.0",
     description="A library to use Qiskit IBM Transpiler (https://quantum.cloud.ibm.com/docs/api/qiskit-ibm-transpiler) and the AI transpiler passes (https://quantum.cloud.ibm.com/docs/guides/ai-transpiler-passes)",
     long_description=README,
     long_description_content_type="text/markdown",

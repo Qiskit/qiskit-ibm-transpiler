@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# (C) Copyright 2024 IBM. All Rights Reserved.
+# (C) Copyright 2025 IBM. All Rights Reserved.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -136,23 +136,6 @@ def test_transpiler_service_several_qv_circuits(
     transpiled_circuit = cloud_transpiler_service.run([qv_circ] * num_circuits)
     for circ in transpiled_circuit:
         assert isinstance(circ, QuantumCircuit)
-
-
-def test_transpiler_service_wrong_input(
-    test_eagle_backend_name, test_instance, qv_circ
-):
-    cloud_transpiler_service = TranspilerService(
-        backend_name=test_eagle_backend_name,
-        ai="auto",
-        optimization_level=1,
-        instance=test_instance,
-        url=os.getenv("QISKIT_SERVERLESS_API_URL", None),
-    )
-
-    circ_dict = {"a": qv_circ}
-
-    with pytest.raises(TranspilerError):
-        cloud_transpiler_service.run(circ_dict)
 
 
 @parametrize_ai()
@@ -513,6 +496,25 @@ def test_transpiler_service_barrier_on_circuit(
     assert isinstance(transpiled_circuit, QuantumCircuit)
 
 
+@pytest.mark.e2e
+def test_transpiler_service_wrong_input(
+    test_eagle_backend_name, test_instance, qv_circ
+):
+    cloud_transpiler_service = TranspilerService(
+        backend_name=test_eagle_backend_name,
+        ai="auto",
+        optimization_level=1,
+        instance=test_instance,
+        url=os.getenv("QISKIT_SERVERLESS_API_URL", None),
+    )
+
+    circ_dict = {"a": qv_circ}
+
+    with pytest.raises(TranspilerError):
+        cloud_transpiler_service.run(circ_dict)
+
+
+@pytest.mark.e2e
 def test_transpiler_service_standard_flow(test_eagle_backend_name, test_instance):
     qc = QuantumCircuit(2)
     qc.h(0)

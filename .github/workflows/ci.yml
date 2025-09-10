@@ -1,6 +1,6 @@
 # This code is a Qiskit project.
 #
-# (C) Copyright IBM 2024.
+# (C) Copyright IBM 2025.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE file in the root directory
@@ -60,5 +60,6 @@ jobs:
           QISKIT_IBM_CHANNEL: "ibm_quantum_platform"
           QISKIT_IBM_RUNTIME_API_URL: "https://test.cloud.ibm.com"
           QISKIT_SERVERLESS_API_URL: "https://qiskit-serverless-dev.quantum.ibm.com"
+          RUN_E2E: ${{ secrets.QISKIT_IBM_TOKEN != '' && '1' || '' }}
         run: |
           python -m pytest --reruns 3 .

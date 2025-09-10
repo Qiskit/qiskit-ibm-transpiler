@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# (C) Copyright 2024 IBM. All Rights Reserved.
+# (C) Copyright 2025 IBM. All Rights Reserved.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -11,21 +11,30 @@
 # that they have been altered from the originals.
 
 """Fixtures used on the tests"""
-
+import json
 import logging
 import os
 
 import pytest
 from qiskit import QuantumCircuit
 from qiskit.circuit.library import QuantumVolume
+from qiskit.providers.fake_provider import GenericBackendV2
+from qiskit.transpiler import CouplingMap
 
-from qiskit_ibm_transpiler.utils import (
+from qiskit_ibm_transpiler.utils import (  # noqa: E402
     create_random_linear_function,
-    get_qiskit_runtime_service,
     get_qpy_from_circuit,
     random_clifford_from_linear_function,
-)
-from tests.utils import create_random_circuit_with_several_operators
+)  # noqa: E402
+from tests.utils import create_random_circuit_with_several_operators  # noqa: E402
+
+RUN_E2E = "RUN_E2E"  # choose your name
+
+
+def pytest_runtest_setup(item):
+    # If the test is marked e2e but env var isn't set, skip it
+    if item.get_closest_marker("e2e") and not os.getenv(RUN_E2E):
+        pytest.skip(f"@e2e requires {RUN_E2E}=1")
 
 
 @pytest.fixture(autouse=True)
@@ -73,11 +82,45 @@ def test_instance():
     return os.getenv("QISKIT_IBM_INSTANCE")
 
 
-@pytest.fixture(scope="module")
-def test_eagle_backend(test_eagle_backend_name):
-    backend = get_qiskit_runtime_service().backend(test_eagle_backend_name)
+@pytest.fixture(scope="session")
+def _fake_backend():
+    """Backend used to mock runtime service calls."""
 
-    return backend
+    with open("tests/test_files/eagle_cmap.txt", "r", encoding="utf-8") as f:
+        eagle_cmap = json.load(f)
+
+    eagle_cmap.extend([pair[::-1] for pair in eagle_cmap])
+
+    return GenericBackendV2(
+        num_qubits=127,
+        coupling_map=CouplingMap(eagle_cmap),
+        seed=42,
+        noise_info=False,
+    )
+
+
+@pytest.fixture(autouse=True)
+def mock_token(request, monkeypatch):
+    """Avoid reading real credentials during tests."""
+
+    if request.node.get_closest_marker("e2e"):
+        # e2e: leave the real implementation in place
+        return
+    else:
+        monkeypatch.setattr(
+            "qiskit_ibm_transpiler.wrappers.base._get_token_from_system",
+            lambda: "FAKE",
+        )
+        monkeypatch.setattr(
+            "qiskit_ibm_transpiler.wrappers.function_transpile._get_token_from_system",
+            lambda: "FAKE",
+        )
+
+
+@pytest.fixture(scope="module")
+def test_eagle_backend(_fake_backend, test_eagle_backend_name):
+    _fake_backend._backend_name = test_eagle_backend_name  # type: ignore[attr-defined]
+    return _fake_backend
 
 
 @pytest.fixture(scope="module")
