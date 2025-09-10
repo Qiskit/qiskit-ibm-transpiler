@@ -28,7 +28,6 @@ requirements = [
     "qiskit-qasm3-import~=0.4",
     "requests~=2.0",
     "networkx==2.8.5",
-    "qiskit_ibm_runtime~=0.40.1",
     "qiskit-serverless~=0.25.3",
 ]
 
