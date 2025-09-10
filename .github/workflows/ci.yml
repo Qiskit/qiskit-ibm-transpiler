@@ -60,5 +60,6 @@ jobs:
           QISKIT_IBM_CHANNEL: "ibm_quantum_platform"
           QISKIT_IBM_RUNTIME_API_URL: "https://test.cloud.ibm.com"
           QISKIT_SERVERLESS_API_URL: "https://qiskit-serverless-dev.quantum.ibm.com"
+          RUN_E2E: ${{ secrets.QISKIT_IBM_TOKEN != '' && '1' || '' }}
         run: |
           python -m pytest --reruns 3 .
