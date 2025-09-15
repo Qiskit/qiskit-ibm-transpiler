@@ -462,6 +462,7 @@ def get_synthesized_permutation_circuits(
             )
         except BaseException as e:
             logger.warning(e)
+            synthesized_circuits.append(None)
             continue
 
         synthesized_permutation = AIPermutationInference().synthesize(
