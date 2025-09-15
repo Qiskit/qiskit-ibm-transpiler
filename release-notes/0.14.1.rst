@@ -1,0 +1,20 @@
+0.14.1 (2025-09-15)
+===================
+
+New features
+------------
+
+- docs: Improve documentation structure and add comprehensive tutorial (`198 <https://github.com/Qiskit/qiskit-ibm-transpiler/pull/198>`__)
+- Enable local_mode by default for AIPauliNetworkSynthesis and solving a error for non-synthesized circuits (`199 <https://github.com/Qiskit/qiskit-ibm-transpiler/pull/199>`__)
+
+
+Bug fixes
+---------
+
+- Keep the original representation when the service/local version does not provide a better circuit (`195 <https://github.com/Qiskit/qiskit-ibm-transpiler/pull/195>`__)
+
+
+Other notes
+-----------
+
+- Remove dependency on qiskit runtime for local testing (`200 <https://github.com/Qiskit/qiskit-ibm-transpiler/pull/200>`__)
