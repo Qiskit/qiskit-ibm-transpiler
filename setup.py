@@ -33,7 +33,7 @@ requirements = [
 
 setup(
     name="qiskit-ibm-transpiler",
-    version="0.14.0",
+    version="0.14.1",
     description="A library to use Qiskit IBM Transpiler (https://quantum.cloud.ibm.com/docs/api/qiskit-ibm-transpiler) and the AI transpiler passes (https://quantum.cloud.ibm.com/docs/guides/ai-transpiler-passes)",
     long_description=README,
     long_description_content_type="text/markdown",
