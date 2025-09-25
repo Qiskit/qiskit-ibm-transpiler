@@ -1,0 +1,7 @@
+0.14.2 (2025-09-25)
+===================
+
+Upgrade notes
+-------------
+
+- Update Qiskit Serverless and Qiskit IBM Runtime (`203 <https://github.com/Qiskit/qiskit-ibm-transpiler/pull/203>`__)
