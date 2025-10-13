@@ -32,6 +32,7 @@ import logging
 import os
 import struct
 from enum import Enum
+from typing import Any, Dict, List, Mapping, Sequence, Tuple, Union
 
 import numpy as np
 from qiskit import QuantumCircuit, qasm2, qasm3, qpy
@@ -41,6 +42,8 @@ from qiskit.qpy import common
 from qiskit.quantum_info import Clifford
 from qiskit.synthesis.linear.linear_matrix_utils import random_invertible_binary_matrix
 from qiskit.transpiler.basepasses import TransformationPass
+
+import networkx as nx
 
 logger = logging.getLogger(__name__)
 
@@ -198,6 +201,39 @@ def embed_clifford(cliff, nq):
     new_cliff.destab_phase[:oq] = cliff.destab_phase[:]
 
     return new_cliff
+
+
+def compute_topology_hash(source: Any) -> str:
+    """Generate a Weisfeiler-Lehman hash for a model topology.
+
+    Parameters
+    ----------
+    source:
+        Either an object exposing an ``env_config`` attribute (such as
+        :class:`qiskit_gym.rl.synthesis.RLSynthesis`) or the ``env`` configuration
+        dictionary itself. The configuration is expected to include a ``gateset``
+        entry as produced by :meth:`qiskit_gym.rl.synthesis.RLSynthesis.to_json`.
+    """
+
+    env_config: Mapping[str, Any]
+    if hasattr(source, "env_config"):
+        env_config = getattr(source, "env_config")
+    else:
+        env_config = source
+
+    graph = nx.Graph()
+    gateset: Sequence[Sequence[Any]] = env_config.get("gateset", [])  # type: ignore[assignment]
+
+    for gate_def in gateset:
+        if len(gate_def) != 2:
+            continue
+        _, qubits = gate_def
+        if len(qubits) < 2:
+            continue
+        q1, q2 = map(int, qubits[:2])
+        graph.add_edge(q1, q2)
+
+    return nx.weisfeiler_lehman_graph_hash(graph)
 
 
 def check_synthesized_clifford(
