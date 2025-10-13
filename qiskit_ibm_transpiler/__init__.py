@@ -14,6 +14,7 @@ import logging
 
 from .ai import AIRouting
 from .ai_passmanager import generate_ai_pass_manager
+from .model_repository import RLSynthesisRepository
 from .transpiler_service import TranspilerService
 from .utils import create_random_linear_function, get_metrics
 from .version import __version__
