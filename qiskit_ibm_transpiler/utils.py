@@ -32,7 +32,7 @@ import logging
 import os
 import struct
 from enum import Enum
-from typing import Any, Dict, List, Mapping, Sequence, Tuple, Union
+from typing import Any, Dict, Iterable, List, Mapping, Sequence, Tuple, Union, Set
 
 import numpy as np
 from qiskit import QuantumCircuit, qasm2, qasm3, qpy
@@ -203,6 +203,26 @@ def embed_clifford(cliff, nq):
     return new_cliff
 
 
+def extract_coupling_edges(env_config: Mapping[str, Any]) -> List[Tuple[int, int]]:
+    """Extract two-qubit coupling edges from an environment configuration."""
+
+    gateset: Sequence[Sequence[Any]] = env_config.get("gateset", [])  # type: ignore[assignment]
+    edges: Set[Tuple[int, int]] = set()
+
+    for gate_def in gateset:
+        if len(gate_def) != 2:
+            continue
+        _, qubits = gate_def
+        if len(qubits) < 2:
+            continue
+        q1, q2 = map(int, qubits[:2])
+        if q1 == q2:
+            continue
+        edge = tuple(sorted((q1, q2)))
+        edges.add(edge)
+    return sorted(edges)
+
+
 def compute_topology_hash(source: Any) -> str:
     """Generate a Weisfeiler-Lehman hash for a model topology.
 
@@ -222,16 +242,8 @@ def compute_topology_hash(source: Any) -> str:
         env_config = source
 
     graph = nx.Graph()
-    gateset: Sequence[Sequence[Any]] = env_config.get("gateset", [])  # type: ignore[assignment]
-
-    for gate_def in gateset:
-        if len(gate_def) != 2:
-            continue
-        _, qubits = gate_def
-        if len(qubits) < 2:
-            continue
-        q1, q2 = map(int, qubits[:2])
-        graph.add_edge(q1, q2)
+    for edge in extract_coupling_edges(env_config):
+        graph.add_edge(*edge)
 
     return nx.weisfeiler_lehman_graph_hash(graph)
 
