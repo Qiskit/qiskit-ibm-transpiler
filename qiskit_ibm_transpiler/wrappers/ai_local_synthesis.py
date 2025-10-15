@@ -12,6 +12,7 @@
 
 import importlib
 import logging
+from typing import List, Optional, Union
 
 import networkx as nx
 import numpy as np
@@ -21,6 +22,8 @@ from qiskit.circuit.library import LinearFunction
 from qiskit.providers.backend import BackendV2 as Backend
 from qiskit.quantum_info import Clifford
 from qiskit.transpiler import CouplingMap
+
+from ..model_repository import RLSynthesisRepository
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -164,7 +167,10 @@ def get_mapping_perm(
     if circuit_in_coupling_map_hash not in coupling_maps_by_hashes:
         raise LookupError("ERROR. No model available for the requested subgraph")
 
-    model_coupling_map = coupling_maps_by_hashes[circuit_in_coupling_map_hash]
+    if isinstance(coupling_maps_by_hashes, RLSynthesisRepository):
+        model_coupling_map = coupling_maps_by_hashes.get(circuit_in_coupling_map_hash).coupling_map
+    else:
+        model_coupling_map = coupling_maps_by_hashes[circuit_in_coupling_map_hash]
 
     # circuit_in_coupling_map could appears several times on the model's topology. We get the first
     # we find due to the `next` function. device_model_mapping contains a nodes correspondency between
@@ -449,38 +455,89 @@ class AILocalLinearFunctionSynthesis:
         return synthesized_circuits
 
 
-def get_synthesized_permutation_circuits(
-    coupling_map: nx.Graph, permutations_list: list[list[int]], qargs: list[list[int]]
-) -> list[QuantumCircuit]:
-    synthesized_circuits = []
-
-    for permutation, circuit_qargs in zip(permutations_list, qargs):
-        try:
-            subgraph_perm, cmap_hash = get_mapping_perm(
-                coupling_map, circuit_qargs, PERMUTATION_COUPLING_MAPS_BY_HASHES_DICT
-            )
-        except BaseException as e:
-            logger.warning(e)
-            synthesized_circuits.append(None)
-            continue
-
-        synthesized_permutation = AIPermutationInference().synthesize(
-            perm_circ=permutation, coupling_map_hash=cmap_hash
-        )
-
-        # Permute the circuit back
-        synthesized_circuit = QuantumCircuit(
-            synthesized_permutation.num_qubits
-        ).compose(synthesized_permutation, qubits=subgraph_perm)
-
-        # synthesized_circuit could be None or have a value, we return it in both cases
-        synthesized_circuits.append(synthesized_circuit)
-
-    return synthesized_circuits
-
-
 class AILocalPermutationSynthesis:
-    """A helper class that covers some basic funcionality from the Permutation AI Local Synthesis"""
+    """Local-mode permutation synthesis backed by cached RL models."""
+
+    def __init__(self, model_repo: RLSynthesisRepository) -> None:
+        """Store the repository used to resolve models per coupling-map hash."""
+
+        self.model_repo = model_repo
+
+    def embed_perm(self, perm_circ: List[int], num_qubits: int) -> List[int]:
+        """Embed a smaller permutation array into a larger register."""
+
+        if num_qubits < len(perm_circ):
+            raise ValueError(
+                f"Trying to embed a permutation with {len(perm_circ)} qubits in a {num_qubits} qubits permutation."
+            )
+        new_perm_circ = list(range(num_qubits))
+        new_perm_circ[: len(perm_circ)] = perm_circ
+        return new_perm_circ
+
+    def get_synthesized_permutation_circuits(
+        self,
+        coupling_map: nx.Graph,
+        permutations_list: List[List[int]],
+        qargs: List[List[int]],
+    ) -> List[Optional[QuantumCircuit]]:
+        """Return synthesized circuits for each permutation block."""
+
+        synthesized_circuits: List[Optional[QuantumCircuit]] = []
+
+        for permutation, circuit_qargs in zip(permutations_list, qargs):
+            try:
+                subgraph_perm, cmap_hash = get_mapping_perm(
+                    coupling_map, circuit_qargs, self.model_repo
+                )
+            except BaseException as exc:
+                logger.warning(exc)
+                synthesized_circuits.append(None)
+                continue
+
+            try:
+                record = self.model_repo.get(cmap_hash)
+            except KeyError:
+                logger.warning("Permutation model for hash %s is not registered", cmap_hash)
+                synthesized_circuits.append(None)
+                continue
+
+            model = record.model
+            circ_n_qubits = len(permutation)
+            model_n_qubits = int(model.env_config.get("num_qubits", circ_n_qubits))
+
+            if model_n_qubits < circ_n_qubits:
+                logger.warning(
+                    "Model trained for %s qubits cannot synthesize a %s-qubit permutation",
+                    model_n_qubits,
+                    circ_n_qubits,
+                )
+                synthesized_circuits.append(None)
+                continue
+
+            perm_input: List[int] = list(permutation)
+            if model_n_qubits > circ_n_qubits:
+                perm_input = self.embed_perm(perm_input, model_n_qubits)
+
+            logger.debug("Synthesizing permutation using model hash %s", cmap_hash)
+
+            try:
+                synthesized_permutation = model.synth(input=perm_input, num_searches=10)
+            except Exception as err:
+                logger.warning("Permutation synthesis failed for hash %s: %s", cmap_hash, err)
+                synthesized_circuits.append(None)
+                continue
+
+            if synthesized_permutation is None:
+                synthesized_circuits.append(None)
+                continue
+
+            synthesized_circuit = QuantumCircuit(
+                synthesized_permutation.num_qubits
+            ).compose(synthesized_permutation, qubits=subgraph_perm)
+
+            synthesized_circuits.append(synthesized_circuit)
+
+        return synthesized_circuits
 
     def transpile(
         self,
@@ -517,7 +574,7 @@ class AILocalPermutationSynthesis:
 
         logger.info("Running Permutations AI synthesis on local mode")
 
-        synthesized_circuits = get_synthesized_permutation_circuits(
+        synthesized_circuits = self.get_synthesized_permutation_circuits(
             coupling_map_graph, circuits, qargs
         )
 

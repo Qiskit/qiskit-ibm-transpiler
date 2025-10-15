@@ -39,6 +39,7 @@ from qiskit_ibm_transpiler.wrappers.ai_local_synthesis import (
     AILocalPauliNetworkSynthesis,
     AILocalPermutationSynthesis,
 )
+from qiskit_ibm_transpiler.model_bootstrap import ensure_models_loaded
 
 logger = logging.getLogger(__name__)
 
@@ -310,9 +311,11 @@ class AIPermutationSynthesis(AISynthesis):
         local_mode: bool = True,
         **kwargs,
     ) -> None:
-        ai_synthesis_provider = (
-            AILocalPermutationSynthesis() if local_mode else AIPermutationAPI(**kwargs)
-        )
+        if local_mode:
+            model_repository = ensure_models_loaded("permutation")
+            ai_synthesis_provider = AILocalPermutationSynthesis(model_repository)
+        else:
+            ai_synthesis_provider = AIPermutationAPI(**kwargs)
 
         super().__init__(
             synth_service=ai_synthesis_provider,

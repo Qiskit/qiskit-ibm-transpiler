@@ -17,7 +17,7 @@ from qiskit_gym.rl.synthesis import RLSynthesis
 
 from .hf_models_client import HFInterface
 from .model_repository import RLSynthesisRepository
-from .utils import compute_topology_hash
+from .utils import compute_topology_hash, extract_coupling_edges
 
 logger = logging.getLogger(__name__)
 
