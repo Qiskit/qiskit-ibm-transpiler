@@ -24,6 +24,7 @@ from qiskit.quantum_info import Clifford
 from qiskit.transpiler import CouplingMap
 
 from ..model_repository import RLSynthesisRepository
+from ..utils import embed_clifford
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -278,7 +279,83 @@ def get_synthesized_clifford_circuits(
 
 
 class AILocalCliffordSynthesis:
-    """A helper class that covers some basic funcionality from the Linear Function AI Local Synthesis"""
+    """Local-mode Clifford synthesis backed by cached RL models."""
+
+    def __init__(self, model_repo: RLSynthesisRepository) -> None:
+        self.model_repo = model_repo
+
+    def _prepare_input_clifford(
+        self,
+        circuit: Union[QuantumCircuit, Clifford],
+        subgraph_perm: List[int],
+        target_qubits: int,
+    ) -> Optional[Clifford]:
+        clifford = circuit if isinstance(circuit, Clifford) else Clifford(circuit)
+        clifford = perm_cliff(clifford, subgraph_perm)
+
+        if clifford.num_qubits > target_qubits:
+            logger.warning(
+                "Model expects %s qubits but circuit uses %s; skipping",
+                target_qubits,
+                clifford.num_qubits,
+            )
+            return None
+
+        if clifford.num_qubits < target_qubits:
+            clifford = embed_clifford(clifford, target_qubits)
+
+        return clifford
+
+    def _synthesize_clifford_circuits(
+        self,
+        coupling_map: nx.Graph,
+        circuits: List[Union[QuantumCircuit, Clifford]],
+        qargs: List[List[int]],
+    ) -> List[Optional[QuantumCircuit]]:
+        synthesized_circuits: List[Optional[QuantumCircuit]] = []
+
+        for circuit, circuit_qargs in zip(circuits, qargs):
+            try:
+                subgraph_perm, cmap_hash = get_mapping_perm(
+                    coupling_map, circuit_qargs, self.model_repo
+                )
+            except BaseException as exc:
+                logger.warning(exc)
+                synthesized_circuits.append(None)
+                continue
+
+            try:
+                record = self.model_repo.get(cmap_hash)
+            except KeyError:
+                logger.warning("Clifford model for hash %s is not registered", cmap_hash)
+                synthesized_circuits.append(None)
+                continue
+
+            model = record.model
+            model_n_qubits = int(model.env_config.get("num_qubits", len(circuit_qargs)))
+
+            clifford = self._prepare_input_clifford(circuit, subgraph_perm, model_n_qubits)
+            if clifford is None:
+                synthesized_circuits.append(None)
+                continue
+
+            try:
+                synthesized = model.synth(input=clifford, num_searches=10)
+            except Exception as err:
+                logger.warning("Clifford synthesis failed for hash %s: %s", cmap_hash, err)
+                synthesized_circuits.append(None)
+                continue
+
+            if synthesized is None:
+                synthesized_circuits.append(None)
+                continue
+
+            output_circuit = QuantumCircuit(synthesized.num_qubits).compose(
+                synthesized, qubits=subgraph_perm
+            )
+            synthesized_circuits.append(output_circuit)
+
+        return synthesized_circuits
 
     def transpile(
         self,
@@ -306,22 +383,16 @@ class AILocalCliffordSynthesis:
         # is made as a pass on the Qiskit Pass Manager which is used in the transpilation process.
 
         validate_coupling_map_source(coupling_map, backend)
-
         formatted_coupling_map = get_formatted_coupling_map(coupling_map)
-
         validate_circuits_and_qargs_lengths(circuits, qargs)
-
-        clifford_dict = [Clifford(circuit).to_dict() for circuit in circuits]
 
         coupling_map_graph = get_coupling_map_graph(backend, formatted_coupling_map)
 
         logger.info("Running Clifford AI synthesis on local mode")
 
-        synthesized_circuits = get_synthesized_clifford_circuits(
-            coupling_map_graph, clifford_dict, qargs
+        return self._synthesize_clifford_circuits(
+            coupling_map_graph, circuits, qargs
         )
-
-        return synthesized_circuits
 
 
 def get_synthesized_pauli_circuits(
@@ -409,7 +480,93 @@ class AILocalPauliNetworkSynthesis:
 
 
 class AILocalLinearFunctionSynthesis:
-    """A helper class that covers some basic funcionality from the Linear Function AI Local Synthesis"""
+    """Local-mode linear-function synthesis backed by cached RL models."""
+
+    def __init__(self, model_repo: RLSynthesisRepository) -> None:
+        self.model_repo = model_repo
+
+    def _prepare_input_circuit(
+        self,
+        circuit: Union[QuantumCircuit, LinearFunction],
+        subgraph_perm: List[int],
+        target_qubits: int,
+    ) -> Optional[QuantumCircuit]:
+        """Convert the collected circuit into the representation expected by the model."""
+
+        if isinstance(circuit, LinearFunction):
+            circuit_qc = QuantumCircuit(circuit.num_qubits)
+            circuit_qc.append(circuit, range(circuit.num_qubits))
+        else:
+            circuit_qc = circuit
+
+        clifford = Clifford(circuit_qc)
+        clifford = perm_cliff(clifford, subgraph_perm)
+
+        if clifford.num_qubits > target_qubits:
+            logger.warning(
+                "Model expects %s qubits but circuit uses %s; skipping",
+                target_qubits,
+                clifford.num_qubits,
+            )
+            return None
+
+        if clifford.num_qubits < target_qubits:
+            clifford = embed_clifford(clifford, target_qubits)
+
+        return clifford.to_circuit()
+
+    def _synthesize_linear_function_circuits(
+        self,
+        coupling_map: nx.Graph,
+        circuits: List[Union[QuantumCircuit, LinearFunction]],
+        qargs: List[List[int]],
+    ) -> List[Optional[QuantumCircuit]]:
+        """Return synthesized circuits for each linear-function block."""
+
+        synthesized_circuits: List[Optional[QuantumCircuit]] = []
+
+        for circuit, circuit_qargs in zip(circuits, qargs):
+            try:
+                subgraph_perm, cmap_hash = get_mapping_perm(
+                    coupling_map, circuit_qargs, self.model_repo
+                )
+            except BaseException as exc:
+                logger.warning(exc)
+                synthesized_circuits.append(None)
+                continue
+
+            try:
+                record = self.model_repo.get(cmap_hash)
+            except KeyError:
+                logger.warning("Linear function model for hash %s is not registered", cmap_hash)
+                synthesized_circuits.append(None)
+                continue
+
+            model = record.model
+            model_n_qubits = int(model.env_config.get("num_qubits", len(circuit_qargs)))
+
+            input_circuit = self._prepare_input_circuit(circuit, subgraph_perm, model_n_qubits)
+            if input_circuit is None:
+                synthesized_circuits.append(None)
+                continue
+
+            try:
+                synthesized = model.synth(input=input_circuit, num_searches=10)
+            except Exception as err:
+                logger.warning("Linear function synthesis failed for hash %s: %s", cmap_hash, err)
+                synthesized_circuits.append(None)
+                continue
+
+            if synthesized is None:
+                synthesized_circuits.append(None)
+                continue
+
+            output_circuit = QuantumCircuit(synthesized.num_qubits).compose(
+                synthesized, qubits=subgraph_perm
+            )
+            synthesized_circuits.append(output_circuit)
+
+        return synthesized_circuits
 
     def transpile(
         self,
@@ -437,22 +594,16 @@ class AILocalLinearFunctionSynthesis:
         # is made as a pass on the Qiskit Pass Manager which is used in the transpilation process.
 
         validate_coupling_map_source(coupling_map, backend)
-
         formatted_coupling_map = get_formatted_coupling_map(coupling_map)
-
         validate_circuits_and_qargs_lengths(circuits, qargs)
-
-        clifford_dict = [Clifford(circuit).to_dict() for circuit in circuits]
 
         coupling_map_graph = get_coupling_map_graph(backend, formatted_coupling_map)
 
         logger.info("Running Linear Functions AI synthesis on local mode")
 
-        synthesized_circuits = get_synthesized_linear_function_circuits(
-            coupling_map_graph, clifford_dict, qargs
+        return self._synthesize_linear_function_circuits(
+            coupling_map_graph, circuits, qargs
         )
-
-        return synthesized_circuits
 
 
 class AILocalPermutationSynthesis:

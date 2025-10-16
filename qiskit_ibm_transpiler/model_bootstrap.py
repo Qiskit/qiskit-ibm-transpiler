@@ -62,15 +62,27 @@ def _load_static_sources() -> Dict[str, Dict[str, Optional[str]]]:
 _STATIC_SOURCES = _load_static_sources()
 
 
+def _normalize_type_name(model_type: str) -> str:
+    cleaned = [c if c.isalnum() else "_" for c in model_type.upper()]
+    return "".join(cleaned)
+
+
+def _build_type_config(model_type: str) -> ModelTypeConfig:
+    defaults = _STATIC_SOURCES.get(model_type, {})
+    env_prefix = f"QISKIT_TRANSPILER_{_normalize_type_name(model_type)}"
+    return ModelTypeConfig(
+        repo_env=f"{env_prefix}_REPO_ID",
+        revision_env=f"{env_prefix}_REVISION",
+        subdir_env=f"{env_prefix}_SUBDIR",
+        default_repo_id=defaults.get("repo_id"),
+        default_revision=defaults.get("revision", "main"),
+        default_subdir=defaults.get("subdir"),
+    )
+
+
 TYPE_CONFIGS: Dict[str, ModelTypeConfig] = {
-    "permutation": ModelTypeConfig(
-        repo_env="QISKIT_TRANSPILER_PERMUTATION_REPO_ID",
-        revision_env="QISKIT_TRANSPILER_PERMUTATION_REVISION",
-        subdir_env="QISKIT_TRANSPILER_PERMUTATION_SUBDIR",
-        default_repo_id=_STATIC_SOURCES.get("permutation", {}).get("repo_id"),
-        default_revision=_STATIC_SOURCES.get("permutation", {}).get("revision", "main"),
-        default_subdir=_STATIC_SOURCES.get("permutation", {}).get("subdir"),
-    ),
+    model_type: _build_type_config(model_type)
+    for model_type in _STATIC_SOURCES.keys()
 }
 
 
@@ -111,7 +123,8 @@ def ensure_models_loaded(
 
     config = TYPE_CONFIGS.get(model_type)
     if config is None:
-        raise ValueError(f"Unknown model type '{model_type}'.")
+        TYPE_CONFIGS[model_type] = _build_type_config(model_type)
+        config = TYPE_CONFIGS[model_type]
 
     repo = get_model_repository(model_type)
 
