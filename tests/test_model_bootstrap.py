@@ -67,3 +67,61 @@ def test_ensure_models_loaded_registers_permutation_models(tmp_path, monkeypatch
 
     assert model_bootstrap.ensure_models_loaded("permutation") is repo
     assert calls["count"] == 1
+
+
+def test_ensure_models_loaded_registers_linear_models(tmp_path, monkeypatch):
+    monkeypatch.setenv("QISKIT_TRANSPILER_LINEAR_FUNCTION_REPO_ID", "ibm/linear")
+    monkeypatch.setenv("QISKIT_TRANSPILER_LINEAR_FUNCTION_REVISION", "main")
+
+    model_bootstrap.reset_model_repository()
+
+    config_dir = tmp_path / "linear"
+    config_dir.mkdir()
+    config_path = config_dir / "model.json"
+    config_path.write_text(
+        json.dumps(
+            {
+                "env": {
+                    "num_qubits": 2,
+                    "gateset": [["CX", [0, 1]], ["CX", [1, 0]]],
+                }
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    calls = {"count": 0}
+
+    class _DummyHF:
+        def __init__(self, *_, **__):
+            pass
+
+        def download_models(self, repo_id, revision):
+            calls["count"] += 1
+            assert repo_id == "ibm/linear"
+            assert revision == "main"
+            return str(tmp_path)
+
+    dummy_model = MagicMock(name="rl_model")
+    dummy_model.env_config = {"num_qubits": 2}
+
+    monkeypatch.setattr(model_bootstrap, "HFInterface", _DummyHF)
+
+    monkeypatch.setitem(
+        model_bootstrap.TYPE_CONFIGS,
+        "linear_function",
+        model_bootstrap.ModelTypeConfig(
+            repo_env="QISKIT_TRANSPILER_LINEAR_FUNCTION_REPO_ID",
+            revision_env="QISKIT_TRANSPILER_LINEAR_FUNCTION_REVISION",
+            subdir_env="QISKIT_TRANSPILER_LINEAR_FUNCTION_SUBDIR",
+            hash_fn=lambda _: "lf-hash",
+            loader=lambda config_path, model_path=None: dummy_model,
+        ),
+    )
+
+    repo = model_bootstrap.ensure_models_loaded("linear_function")
+
+    record = repo.get("lf-hash")
+    assert record.model is dummy_model
+    assert record.coupling_map == [(0, 1)]
+    assert calls["count"] == 1
