@@ -1,0 +1,7 @@
+0.14.4 (2025-10-29)
+===================
+
+Bug fixes
+---------
+
+- Revert: Restrict ibm-runtime till serverless fix the problem (`207 <https://github.com/Qiskit/qiskit-ibm-transpiler/pull/207>`__)
