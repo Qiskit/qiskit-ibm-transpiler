@@ -32,8 +32,9 @@ import logging
 import os
 import struct
 from enum import Enum
-from typing import Any, Dict, Iterable, List, Mapping, Sequence, Tuple, Union, Set
+from typing import Any, Dict, Iterable, List, Mapping, Sequence, Set, Tuple, Union
 
+import networkx as nx
 import numpy as np
 from qiskit import QuantumCircuit, qasm2, qasm3, qpy
 from qiskit.circuit import QuantumCircuit, library
@@ -42,8 +43,6 @@ from qiskit.qpy import common
 from qiskit.quantum_info import Clifford
 from qiskit.synthesis.linear.linear_matrix_utils import random_invertible_binary_matrix
 from qiskit.transpiler.basepasses import TransformationPass
-
-import networkx as nx
 
 logger = logging.getLogger(__name__)
 

@@ -51,9 +51,13 @@ def _load_static_sources() -> Dict[str, Dict[str, Optional[str]]]:
         )
         return json.loads(content)
     except FileNotFoundError:
-        logger.debug("model_sources.json not found; falling back to env-only configuration")
+        logger.debug(
+            "model_sources.json not found; falling back to env-only configuration"
+        )
     except ModuleNotFoundError:
-        logger.debug("Data package not available; falling back to env-only configuration")
+        logger.debug(
+            "Data package not available; falling back to env-only configuration"
+        )
     except Exception as exc:  # pragma: no cover - unexpected
         logger.warning("Failed to load static model sources: %s", exc)
     return {}
@@ -81,8 +85,7 @@ def _build_type_config(model_type: str) -> ModelTypeConfig:
 
 
 TYPE_CONFIGS: Dict[str, ModelTypeConfig] = {
-    model_type: _build_type_config(model_type)
-    for model_type in _STATIC_SOURCES.keys()
+    model_type: _build_type_config(model_type) for model_type in _STATIC_SOURCES.keys()
 }
 
 
@@ -198,9 +201,7 @@ def _register_models(
         try:
             topology_hash = config.hash_fn(env_config)
         except Exception as exc:  # pragma: no cover - defensive
-            logger.debug(
-                "Failed to compute topology hash for %s: %s", config_path, exc
-            )
+            logger.debug("Failed to compute topology hash for %s: %s", config_path, exc)
             continue
 
         if topology_hash in repo:

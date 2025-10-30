@@ -28,6 +28,7 @@ from qiskit.transpiler import CouplingMap
 from qiskit.transpiler.basepasses import TransformationPass
 from qiskit.transpiler.exceptions import TranspilerError
 
+from qiskit_ibm_transpiler.model_bootstrap import ensure_models_loaded
 from qiskit_ibm_transpiler.wrappers import (
     AICliffordAPI,
     AILinearFunctionAPI,
@@ -40,7 +41,6 @@ from qiskit_ibm_transpiler.wrappers.ai_local_synthesis import (
     AILocalPauliNetworkSynthesis,
     AILocalPermutationSynthesis,
 )
-from qiskit_ibm_transpiler.model_bootstrap import ensure_models_loaded
 
 logger = logging.getLogger(__name__)
 

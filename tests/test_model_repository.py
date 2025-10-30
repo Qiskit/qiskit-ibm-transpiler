@@ -5,7 +5,6 @@
 from unittest.mock import MagicMock
 
 import pytest
-
 from qiskit_gym.rl import RLSynthesis
 
 from qiskit_ibm_transpiler.model_repository import RLSynthesisRepository
@@ -43,9 +42,7 @@ def test_register_from_config_uses_rlsynthesis_classmethod(monkeypatch):
         classmethod(_fake_from_config),
     )
 
-    returned = repo.register_from_config(
-        "hash", "config.json", model_path="model.pt"
-    )
+    returned = repo.register_from_config("hash", "config.json", model_path="model.pt")
 
     assert returned is model
     record = repo.get("hash")

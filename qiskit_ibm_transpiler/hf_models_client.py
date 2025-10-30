@@ -12,28 +12,28 @@
 
 import logging
 import os
-
-from packaging.version import Version
-from packaging.specifiers import SpecifierSet, InvalidSpecifier
 from pathlib import Path
 
 from huggingface_hub import HfApi
+from packaging.specifiers import InvalidSpecifier, SpecifierSet
+from packaging.version import InvalidVersion, Version
+
 
 def _is_version(t):
     """Return ``True`` when ``t`` can be parsed into a :class:`packaging.version.Version`."""
     try:
         Version(t)
         return True
-    except:
+    except InvalidVersion:
         return False
-    
+
+
 class HFInterface:
     """Lightweight wrapper around :mod:`huggingface_hub` for model retrieval."""
-    
+
     hf_api = None
-    
-    
-    def __init__(self, endpoint: str= None, token: str=None):
+
+    def __init__(self, endpoint: str = None, token: str = None):
         """Build a reusable :class:`huggingface_hub.HfApi` client.
 
         Parameters
@@ -47,7 +47,7 @@ class HFInterface:
             when not provided; if neither is set, the client accesses only
             public repositories.
         """
-        if HFInterface.hf_api == None:
+        if HFInterface.hf_api is None:
             hf_kwargs = {
                 "endpoint": endpoint or os.getenv("QISKIT_TRANSPILER_HF_ENDPOINT"),
                 "token": token or os.getenv("QISKIT_TRANSPILER_HF_TOKEN"),
@@ -67,13 +67,9 @@ class HFInterface:
         if not candidates:
             raise RuntimeError(f"Revision {revision} not found!")
         return str(max(candidates))
-    
+
     def download_models(self, repo_id: str, revision: str) -> Path:
         """Download a model snapshot for ``repo_id`` at ``revision`` to a local cache."""
         revision = self._get_rev_(repo_id=repo_id, revision=revision)
         logging.info(f"Downloading models in {repo_id} for revision {revision}")
         return self.hf_api.snapshot_download(repo_id=repo_id, revision=revision)
-        
-
-
-    

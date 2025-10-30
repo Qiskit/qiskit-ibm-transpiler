@@ -24,7 +24,9 @@ def _mock_hf_api(monkeypatch):
     """Return a mock and route :class:`~huggingface_hub.HfApi` to it."""
 
     mock_api = MagicMock()
-    monkeypatch.setattr("qiskit_ibm_transpiler.hf_models_client.HfApi", lambda **_: mock_api)
+    monkeypatch.setattr(
+        "qiskit_ibm_transpiler.hf_models_client.HfApi", lambda **_: mock_api
+    )
     return mock_api
 
 
