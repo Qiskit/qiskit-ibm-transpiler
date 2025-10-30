@@ -59,10 +59,7 @@ setup(
     keywords=["qiskit", "ai", "transpiler", "routing"],
     install_requires=requirements,
     extras_require={
-        "ai-local-mode": [
-            "qiskit_ibm_ai_local_transpiler~=0.4",
-            "qiskit_gym~=0.1"
-        ],
+        "ai-local-mode": ["qiskit_ibm_ai_local_transpiler~=0.4", "qiskit_gym~=0.1"],
     },
     project_urls={
         "Bug Tracker": "https://github.com/Qiskit/qiskit-ibm-transpiler/issues",
