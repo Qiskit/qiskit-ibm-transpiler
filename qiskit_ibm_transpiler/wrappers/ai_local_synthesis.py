@@ -169,7 +169,9 @@ def get_mapping_perm(
         raise LookupError("ERROR. No model available for the requested subgraph")
 
     if isinstance(coupling_maps_by_hashes, RLSynthesisRepository):
-        model_coupling_map = coupling_maps_by_hashes.get(circuit_in_coupling_map_hash).coupling_map
+        model_coupling_map = coupling_maps_by_hashes.get(
+            circuit_in_coupling_map_hash
+        ).coupling_map
     else:
         model_coupling_map = coupling_maps_by_hashes[circuit_in_coupling_map_hash]
 
@@ -327,14 +329,18 @@ class AILocalCliffordSynthesis:
             try:
                 record = self.model_repo.get(cmap_hash)
             except KeyError:
-                logger.warning("Clifford model for hash %s is not registered", cmap_hash)
+                logger.warning(
+                    "Clifford model for hash %s is not registered", cmap_hash
+                )
                 synthesized_circuits.append(None)
                 continue
 
             model = record.model
             model_n_qubits = int(model.env_config.get("num_qubits", len(circuit_qargs)))
 
-            clifford = self._prepare_input_clifford(circuit, subgraph_perm, model_n_qubits)
+            clifford = self._prepare_input_clifford(
+                circuit, subgraph_perm, model_n_qubits
+            )
             if clifford is None:
                 synthesized_circuits.append(None)
                 continue
@@ -342,7 +348,9 @@ class AILocalCliffordSynthesis:
             try:
                 synthesized = model.synth(input=clifford, num_searches=10)
             except Exception as err:
-                logger.warning("Clifford synthesis failed for hash %s: %s", cmap_hash, err)
+                logger.warning(
+                    "Clifford synthesis failed for hash %s: %s", cmap_hash, err
+                )
                 synthesized_circuits.append(None)
                 continue
 
@@ -390,9 +398,7 @@ class AILocalCliffordSynthesis:
 
         logger.info("Running Clifford AI synthesis on local mode")
 
-        return self._synthesize_clifford_circuits(
-            coupling_map_graph, circuits, qargs
-        )
+        return self._synthesize_clifford_circuits(coupling_map_graph, circuits, qargs)
 
 
 def get_synthesized_pauli_circuits(
@@ -538,14 +544,18 @@ class AILocalLinearFunctionSynthesis:
             try:
                 record = self.model_repo.get(cmap_hash)
             except KeyError:
-                logger.warning("Linear function model for hash %s is not registered", cmap_hash)
+                logger.warning(
+                    "Linear function model for hash %s is not registered", cmap_hash
+                )
                 synthesized_circuits.append(None)
                 continue
 
             model = record.model
             model_n_qubits = int(model.env_config.get("num_qubits", len(circuit_qargs)))
 
-            input_circuit = self._prepare_input_circuit(circuit, subgraph_perm, model_n_qubits)
+            input_circuit = self._prepare_input_circuit(
+                circuit, subgraph_perm, model_n_qubits
+            )
             if input_circuit is None:
                 synthesized_circuits.append(None)
                 continue
@@ -553,7 +563,9 @@ class AILocalLinearFunctionSynthesis:
             try:
                 synthesized = model.synth(input=input_circuit, num_searches=10)
             except Exception as err:
-                logger.warning("Linear function synthesis failed for hash %s: %s", cmap_hash, err)
+                logger.warning(
+                    "Linear function synthesis failed for hash %s: %s", cmap_hash, err
+                )
                 synthesized_circuits.append(None)
                 continue
 
@@ -648,7 +660,9 @@ class AILocalPermutationSynthesis:
             try:
                 record = self.model_repo.get(cmap_hash)
             except KeyError:
-                logger.warning("Permutation model for hash %s is not registered", cmap_hash)
+                logger.warning(
+                    "Permutation model for hash %s is not registered", cmap_hash
+                )
                 synthesized_circuits.append(None)
                 continue
 
@@ -674,7 +688,9 @@ class AILocalPermutationSynthesis:
             try:
                 synthesized_permutation = model.synth(input=perm_input, num_searches=10)
             except Exception as err:
-                logger.warning("Permutation synthesis failed for hash %s: %s", cmap_hash, err)
+                logger.warning(
+                    "Permutation synthesis failed for hash %s: %s", cmap_hash, err
+                )
                 synthesized_circuits.append(None)
                 continue
 

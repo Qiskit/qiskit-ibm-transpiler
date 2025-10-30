@@ -1,16 +1,16 @@
 {
   "permutation": {
-    "repo_id": "ibm/permutation-ai-models",
+    "repo_id": "victor79/permutations",
     "revision": "main",
     "subdir": null
   },
   "linear_function": {
-    "repo_id": "ibm/linear-function-ai-models",
+    "repo_id": "victor79/linear_functions",
     "revision": "main",
     "subdir": null
   },
   "clifford": {
-    "repo_id": "ibm/clifford-ai-models",
+    "repo_id": "victor79/cliffords",
     "revision": "main",
     "subdir": null
   }

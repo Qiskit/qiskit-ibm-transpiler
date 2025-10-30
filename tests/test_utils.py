@@ -28,4 +28,3 @@ def test_compute_topology_hash_matches_networkx():
     assert compute_topology_hash(env_config) == nx.weisfeiler_lehman_graph_hash(
         expected_graph
     )
- 

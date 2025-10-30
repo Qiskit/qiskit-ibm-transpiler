@@ -25,7 +25,10 @@ class RLSynthesisRepository:
     _store: Dict[str, RLSynthesisRecord] = field(default_factory=dict)
 
     def register(
-        self, topology_hash: str, model: RLSynthesis, coupling_map: List[Tuple[int, int]]
+        self,
+        topology_hash: str,
+        model: RLSynthesis,
+        coupling_map: List[Tuple[int, int]],
     ) -> None:
         """Insert or replace the model entry for ``topology_hash``."""
 
@@ -41,14 +44,16 @@ class RLSynthesisRepository:
     ) -> RLSynthesis:
         """Load and register a model using :meth:`RLSynthesis.from_config_json`."""
 
-        model = RLSynthesis.from_config_json(config_path=config_path, model_path=model_path)
+        model = RLSynthesis.from_config_json(
+            config_path=config_path, model_path=model_path
+        )
         coupling_map = extract_coupling_edges(model.env_config)
         self.register(topology_hash, model, coupling_map)
         return model
 
     def get(self, topology_hash: str) -> RLSynthesisRecord:
         """Return the stored entry for ``topology_hash``."""
-        
+
         return self._store[topology_hash]
 
     def __contains__(self, topology_hash: str) -> bool:  # pragma: no cover - delegation
