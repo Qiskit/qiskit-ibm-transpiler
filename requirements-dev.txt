@@ -16,3 +16,4 @@ qiskit-sphinx-theme==1.16.1
 sphinxcontrib-katex==0.9.9
 networkx==2.8.5
 qiskit_ibm_ai_local_transpiler~=0.4
+qiskit_gym~=0.1
