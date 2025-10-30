@@ -1,16 +1,16 @@
 {
   "permutation": {
-    "repo_id": "victor79/permutations",
+    "repo_id": "qiskit/permutations",
     "revision": "main",
     "subdir": null
   },
   "linear_function": {
-    "repo_id": "victor79/linear_functions",
+    "repo_id": "qiskit/linear_functions",
     "revision": "main",
     "subdir": null
   },
   "clifford": {
-    "repo_id": "victor79/cliffords",
+    "repo_id": "qiskit/cliffords",
     "revision": "main",
     "subdir": null
   }
