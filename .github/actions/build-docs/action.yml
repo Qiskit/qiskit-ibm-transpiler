@@ -17,7 +17,7 @@ runs:
   steps:
     - name: Build documentation
       shell: bash
-      run: ./scripts/docs
+      run: uv run ./scripts/docs
     - name: Store built documentation artifact
       uses: actions/upload-artifact@v4
       with:
