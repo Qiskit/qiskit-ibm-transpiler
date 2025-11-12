@@ -47,6 +47,7 @@ dev = [
     "ruff==0.8.0",
 ]
 docs = [
+    "packaging>=25.0",
     "qiskit-sphinx-theme==1.16.1",
     "sphinx==7.1.2 ; python_version < '3.9'",
     "sphinx==7.2.6 ; python_version >= '3.9'",
