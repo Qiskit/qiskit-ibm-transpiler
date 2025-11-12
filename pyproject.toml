@@ -1,6 +1,86 @@
+[project]
+name = "qiskit-ibm-transpiler"
+version = "0.14.4"
+description = "A library to use Qiskit IBM Transpiler (https://quantum.cloud.ibm.com/docs/api/qiskit-ibm-transpiler) and the AI transpiler passes (https://quantum.cloud.ibm.com/docs/guides/ai-transpiler-passes)"
+readme = "README.md"
+requires-python = ">=3.9"
+license = { text = "Apache-2.0" }
+authors = [{ name = "Qiskit Development Team" }]
+keywords = ["qiskit", "ai", "transpiler", "routing"]
+classifiers = [
+    "Environment :: Console",
+    "License :: OSI Approved :: Apache Software License",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
+    "Operating System :: Microsoft :: Windows",
+    "Operating System :: MacOS",
+    "Operating System :: POSIX :: Linux",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Topic :: Scientific/Engineering",
+]
+dependencies = [
+    "qiskit>=1.4.2",
+    "backoff~=2.0",
+    "qiskit-qasm3-import~=0.4",
+    "requests~=2.0",
+    "networkx==2.8.5",
+    "qiskit-serverless~=0.27.0",
+]
+
+[project.optional-dependencies]
+ai-local-mode = ["qiskit_ibm_ai_local_transpiler~=0.4"]
+
+[project.urls]
+"Bug Tracker" = "https://github.com/Qiskit/qiskit-ibm-transpiler/issues"
+"Documentation" = "https://github.com/Qiskit/qiskit-ibm-transpiler"
+"Source Code" = "https://github.com/Qiskit/qiskit-ibm-transpiler"
+
+[dependency-groups]
+dev = [
+    "black[jupyter]==24.1.1",
+    "pytest==8.0.0",
+    "pytest-mock==3.14.1",
+    "pytest-rerunfailures~=15.1",
+    "pytest-timeout~=2.3.1",
+    "ruff==0.8.0",
+]
+docs = [
+    "qiskit-sphinx-theme==1.16.1",
+    "sphinx==7.1.2 ; python_version < '3.9'",
+    "sphinx==7.2.6 ; python_version >= '3.9'",
+    "sphinxcontrib-katex>=0.9.11",
+]
+
 [build-system]
-requires = ["setuptools"]
+requires = ["setuptools", "build"]
 build-backend = "setuptools.build_meta"
+
+[tool.uv]
+index-url = "https://pypi.org/simple"
+
+[tool.ruff]
+line-length = 88
+target-version = "py311"
+fix = true
+
+[tool.ruff.lint]
+select = ["E", "I"]
+ignore = ["E501"]
+
+[tool.ruff.lint.per-file-ignores]
+"__init__.py" = ["F401"]
+
+[tool.pytest.ini_options]
+log_cli = true
+log_cli_format = "%(asctime)s  %(levelname)s %(message)s (%(filename)s:%(lineno)s)"
+log_cli_date_format = "%Y-%m-%d %H:%M:%S"
+
+markers = [
+    "disable_monkeypatch: Disable monkeypatch of env vars for some tests",
+    "e2e: End-to-end test. Runs only if RUN_E2E=1 and skips default mocks.",
+]
 
 [tool.towncrier]
 single_file = false
@@ -9,27 +89,27 @@ directory = "release-notes/unreleased"
 title_format = "{version} ({project_date})"
 issue_format = "`{issue} <https://github.com/Qiskit/qiskit-ibm-transpiler/pull/{issue}>`__"
 
-    [[tool.towncrier.type]]
-    directory = "upgrade"
-    name = "Upgrade notes"
-    showcontent = true
+[[tool.towncrier.type]]
+directory = "upgrade"
+name = "Upgrade notes"
+showcontent = true
 
-    [[tool.towncrier.type]]
-    directory = "deprecation"
-    name = "Deprecation notes"
-    showcontent = true
+[[tool.towncrier.type]]
+directory = "deprecation"
+name = "Deprecation notes"
+showcontent = true
 
-    [[tool.towncrier.type]]
-    directory = "feat"
-    name = "New features"
-    showcontent = true
+[[tool.towncrier.type]]
+directory = "feat"
+name = "New features"
+showcontent = true
 
-    [[tool.towncrier.type]]
-    directory = "bug"
-    name = "Bug fixes"
-    showcontent = true
+[[tool.towncrier.type]]
+directory = "bug"
+name = "Bug fixes"
+showcontent = true
 
-    [[tool.towncrier.type]]
-    directory = "other"
-    name = "Other notes"
-    showcontent = true
+[[tool.towncrier.type]]
+directory = "other"
+name = "Other notes"
+showcontent = true
