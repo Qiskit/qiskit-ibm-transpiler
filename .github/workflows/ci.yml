@@ -59,7 +59,7 @@ jobs:
           python-version: ${{ matrix.python-version }}
 
       - name: Sync dependencies
-        run: uv sync --group dev
+        run: uv sync --group dev --extra ai-local-mode
 
       - name: Run tests
         env:
