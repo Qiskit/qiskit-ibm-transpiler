@@ -133,23 +133,21 @@ When adding a new module, you'll also need to add a new file to `docs/apidocs`. 
 
 **Build**
 
-To build the documentation, ensure your virtual environment is set up:
+To build the documentation locally, first ensure docs dependencies are installed:
 
 ```sh
-python3 -m venv .venv
-source .venv/bin/activate
-pip install -r requirements-dev.txt
+uv sync --group docs
 ```
 
-Then, build the docs:
+Then build the docs:
 
 ```sh
-scripts/docs
+uv run scripts/docs
 ```
 
 You can then view the documentation by opening up `docs/_build/index.html`. Note that this is just a preview, the final documentation content is pulled into [Qiskit/documentation](https://github.com/qiskit/documentation) and re-rendered into <https://quantum.cloud.ibm.com/docs>.
 
-If you run into Sphinx issues, try running `scripts/docs-clean` to reset the cache state.
+If you run into Sphinx issues, try running `uv run scripts/docs-clean` to reset the cache state.
 
 ## Release strategy and process
 
