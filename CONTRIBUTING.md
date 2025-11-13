@@ -2,16 +2,23 @@
 
 ## Installing the package for local development
 
-To install and test the package using a local editable version, proceed as usual with
+This project uses **uv** for environment and dependency management.
+
+### Install the package in editable mode (default)
+
+Editable mode is **enabled by default** in uv, so changes to the source code
+are immediately reflected in the environment.
+
+To install the package with all development dependencies:
 
 ```sh
-pip install -e .
+uv sync --group dev
 ```
 
-If you need to install it with the extra dependency "ai-local-mode", run
+### Install with optional `ai-local-mode` dependencies
 
 ```sh
-pip install -e ".[ai-local-mode]"
+uv sync --group dev --extra ai-local-mode
 ```
 
 ## Release Notes
