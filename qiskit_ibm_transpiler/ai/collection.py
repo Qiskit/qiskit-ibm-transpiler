@@ -103,23 +103,11 @@ class Flatten(TransformationPass):
 
         # Batch process: collect all substitutions
         substitutions = []
-        unique_circuits = {}  # Map circuit_id -> (circuit, dag)
 
         for node in candidate_nodes:
             circuit = self._extract_circuit_from_node(node)
             if circuit is not None:
-                circuit_id = id(circuit)
-
-                # Cache unique circuits
-                if circuit_id not in unique_circuits:
-                    if circuit_id not in self._circuit_dag_cache:
-                        self._circuit_dag_cache[circuit_id] = circuit_to_dag(circuit)
-                    unique_circuits[circuit_id] = (
-                        circuit,
-                        self._circuit_dag_cache[circuit_id],
-                    )
-
-                substitutions.append((node, unique_circuits[circuit_id][1]))
+                substitutions.append((node, circuit_to_dag(circuit)))
 
         # Apply all substitutions
         for node, substitute_dag in substitutions:
