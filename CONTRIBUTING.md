@@ -2,16 +2,34 @@
 
 ## Installing the package for local development
 
-To install and test the package using a local editable version, proceed as usual with
+This project uses **uv** for environment and dependency management.
+
+### Install the package in editable mode (default)
+
+Editable mode is **enabled by default** in uv, so changes to the source code
+are immediately reflected in the environment.
+
+To install the package with all development dependencies:
 
 ```sh
-pip install -e .
+uv sync --group dev
 ```
 
-If you need to install it with the extra dependency "ai-local-mode", run
+### Install with optional `ai-local-mode` dependencies
 
 ```sh
-pip install -e ".[ai-local-mode]"
+uv sync --group dev --extra ai-local-mode
+```
+
+### Python version
+
+This project currently supports Python **3.9–3.11**, matching the versions tested in CI.
+When running `uv sync`, uv will automatically create a virtual environment using the Python version available on your system, matching within this supported range.
+
+For consistency with the CI pipeline, we recommend developing with **Python 3.11**, or explicitly selecting one of the versions from `.github/workflows/ci.yaml`:
+
+```sh
+uv sync --group dev --python=3.11
 ```
 
 ## Release Notes
@@ -126,23 +144,21 @@ When adding a new module, you'll also need to add a new file to `docs/apidocs`. 
 
 **Build**
 
-To build the documentation, ensure your virtual environment is set up:
+To build the documentation locally, first ensure docs dependencies are installed:
 
 ```sh
-python3 -m venv .venv
-source .venv/bin/activate
-pip install -r requirements-dev.txt
+uv sync --group docs
 ```
 
-Then, build the docs:
+Then build the docs:
 
 ```sh
-scripts/docs
+uv run scripts/docs
 ```
 
 You can then view the documentation by opening up `docs/_build/index.html`. Note that this is just a preview, the final documentation content is pulled into [Qiskit/documentation](https://github.com/qiskit/documentation) and re-rendered into <https://quantum.cloud.ibm.com/docs>.
 
-If you run into Sphinx issues, try running `scripts/docs-clean` to reset the cache state.
+If you run into Sphinx issues, try running `uv run scripts/docs-clean` to reset the cache state.
 
 ## Release strategy and process
 
@@ -186,7 +202,7 @@ After the release, you need to cherry-pick the release notes prep from `stable/*
 ### Cheatsheet for release process
 
 * Create branch ``prepare-release-x.x.x`` (ie: ``prepare-release-0.9.1``)
-* Update [docs/conf.py](docs/conf.py) and [setup.py](setup.py) with new x.x.x version
+* Update [docs/conf.py](docs/conf.py) and [pyproject.toml](pyproject.toml) with new x.x.x version
 * Review that changes in this release are included here [release-notes/unreleased](release-notes/unreleased). If we find something is missing, we still can add it manually at this point (to know how to create it, refer to ``Adding a new release note`` section)
 * Run ``towncrier build --version=x.x.x --yes`` so release notes from [release-notes/unreleased](release-notes/unreleased) are flatten to [release-notes/x.x.x.rst](release-notes/x.x.x.rst)
 * Create PR called ``Preparing release qiskit-ibm-transpiler x.x.x`` from ``prepare-release-x.x.x`` to ``main|stable/x.x``
