@@ -14,12 +14,15 @@
 
 import pytest
 from qiskit import QuantumCircuit
+from qiskit.circuit.library import QuantumVolume
+from qiskit.dagcircuit.exceptions import DAGCircuitError
 from qiskit.transpiler import PassManager
 
 from qiskit_ibm_transpiler.ai.collection import (
     CollectPauliNetworks,
     CollectPermutations,
 )
+from qiskit_ibm_transpiler.ai_passmanager import generate_ai_pass_manager
 from tests.parametrize_functions import (
     parametrize_basic_circuit_collector_pass_and_ai_synthesis_pass,
     parametrize_complex_circuit_collector_pass_and_ai_synthesis_pass,
@@ -282,3 +285,18 @@ def test_ai_synthesis_pass_with_coupling_map(
 
     assert isinstance(ai_optimized_circuit, QuantumCircuit)
     assert all(word in caplog.text for word in ["Running", "synthesis"])
+
+
+def test_ai_pass_manager_quantum_volume_example(test_eagle_backend):
+    """QuantumVolume test for DAGCircuitError: 'bit mapping invalid:."""
+
+    pass_manager = generate_ai_pass_manager(
+        optimization_level=2,
+        backend=test_eagle_backend,
+        ai_optimization_level=2,
+        ai_layout_mode="optimize",
+    )
+
+    qv_circuit = QuantumVolume(60, seed=42)
+
+    pass_manager.run(qv_circuit)
