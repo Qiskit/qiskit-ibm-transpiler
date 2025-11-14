@@ -495,6 +495,7 @@ def test_transpiler_service_barrier_on_circuit(
 
     assert isinstance(transpiled_circuit, QuantumCircuit)
 
+
 @pytest.mark.skip("Disabling until function team fix staging issues.")
 @pytest.mark.e2e
 def test_transpiler_service_wrong_input(
