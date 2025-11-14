@@ -495,7 +495,7 @@ def test_transpiler_service_barrier_on_circuit(
 
     assert isinstance(transpiled_circuit, QuantumCircuit)
 
-
+@pytest.mark.skip("Disabling until function team fix staging issues.")
 @pytest.mark.e2e
 def test_transpiler_service_wrong_input(
     test_eagle_backend_name, test_instance, qv_circ
@@ -514,6 +514,7 @@ def test_transpiler_service_wrong_input(
         cloud_transpiler_service.run(circ_dict)
 
 
+@pytest.mark.skip("Disabling until function team fix staging issues.")
 @pytest.mark.e2e
 def test_transpiler_service_standard_flow(test_eagle_backend_name, test_instance):
     qc = QuantumCircuit(2)
