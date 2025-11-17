@@ -28,9 +28,7 @@ jobs:
         uses: astral-sh/setup-uv@v3
 
       - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.11"
+        run: uv python install 3.11
 
       - name: Sync dependencies (dev)
         run: uv sync --group dev
@@ -50,11 +48,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install uv
+      - name: Install uv and set the Python version
         uses: astral-sh/setup-uv@v3
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
 
@@ -78,9 +73,7 @@ jobs:
       - name: Install uv
         uses: astral-sh/setup-uv@v3
       - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.11"
+        run: uv python install 3.11
       - name: Sync docs dependencies
         run: uv sync --group docs
       - name: Build documentation
