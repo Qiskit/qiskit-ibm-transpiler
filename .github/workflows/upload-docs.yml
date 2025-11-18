@@ -38,7 +38,7 @@ jobs:
           path: ~/.cache/uv
           key: ${{ runner.os }}-uv-docs-${{ hashFiles('uv.lock') }}
 
-      - name: Sync docs dependencies
+      - name: Sync dependencies (docs)
         run: uv sync --group docs
 
       - name: Build documentation
