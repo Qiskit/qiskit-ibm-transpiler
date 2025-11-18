@@ -1,0 +1,24 @@
+0.14.5 (2025-11-18)
+===================
+
+Upgrade notes
+-------------
+
+- Migrated project environment management from `pip` (`requirements-dev.txt`) and `setup.py` to the `uv` tool. In addition, the files `ruff.toml` and `pytest.ini` files have been merged on the `pyproject.toml` file.
+
+  **What changed**
+  - Introduced `uv` for dependency resolution and virtual environment management.
+  - Replaced `requirements-dev.txt` with dependency groups defined in `pyproject.toml`.
+  - Updated the development workflow (`.github/actions` and `.github/workflows`) and contribution guidelines to use `uv sync` and `uv run`.
+  - Added documentation on using extras (e.g., `--extra ai-local-mode`), group selections (e.g., `uv sync --group dev|docs`) and Python version selection.
+
+  **Impact to users**
+  - No functional changes to the library itself.
+  - Contributors now manage environments using `uv` instead of `pip`. (`210 <https://github.com/Qiskit/qiskit-ibm-transpiler/pull/210>`__)
+
+
+Bug fixes
+---------
+
+- Fix error 'DAGCircuitError: 'bit mapping invalid:' error (`213 <https://github.com/Qiskit/qiskit-ibm-transpiler/pull/213>`__)
+- Fix docs upload & PyPI build workflows and cache the uv environment (`217 <https://github.com/Qiskit/qiskit-ibm-transpiler/pull/217>`__)
