@@ -24,13 +24,15 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install uv
-        uses: astral-sh/setup-uv@v3
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
+      - uses: astral-sh/setup-uv@v3
         with:
           python-version: "3.11"
+
+      - name: Cache uv
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/uv
+          key: ${{ runner.os }}-uv-${{ hashFiles('uv.lock') }}
 
       - name: Sync dependencies (dev)
         run: uv sync --group dev
@@ -50,15 +52,17 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install uv
-        uses: astral-sh/setup-uv@v3
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
+      - uses: astral-sh/setup-uv@v3
         with:
           python-version: ${{ matrix.python-version }}
 
-      - name: Sync dependencies
+      - name: Cache uv
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/uv
+          key: ${{ runner.os }}-uv-${{ matrix.python-version }}-${{ hashFiles('uv.lock') }}
+
+      - name: Sync dependencies (dev + ai-local-mode)
         run: uv sync --group dev --extra ai-local-mode
 
       - name: Run tests
@@ -75,13 +79,19 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Install uv
-        uses: astral-sh/setup-uv@v3
-      - name: Set up Python
-        uses: actions/setup-python@v5
+
+      - uses: astral-sh/setup-uv@v3
         with:
           python-version: "3.11"
-      - name: Sync docs dependencies
+
+      - name: Cache uv
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/uv
+          key: ${{ runner.os }}-uv-docs-${{ hashFiles('uv.lock') }}
+
+      - name: Sync dependencies (docs)
         run: uv sync --group docs
+
       - name: Build documentation
         uses: ./.github/actions/build-docs
