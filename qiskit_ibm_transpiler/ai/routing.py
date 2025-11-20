@@ -205,11 +205,19 @@ class AIRouting(TransformationPass):
             TranspilerError: if the coupling map or the layout are not
             compatible with the DAG, or if the coupling_map=None
         """
-        if len(dag.qregs) != 1 or dag.qregs.get("q", None) is None:
-            raise TranspilerError("AIRouting runs on physical circuits only")
+        qc = None
+        if _non_physical_circuit_check(dag):
+            # Some valid circuits fail this tests, i.e quantum_volume created circuits
+            # embedding them in an empty circuit is a workaround
+            qc = dag_to_circuit(dag)
+            qc = QuantumCircuit(qc.num_qubits).compose(qc)
+            dag = circuit_to_dag(qc)
+            if _non_physical_circuit_check(dag):
+                raise TranspilerError("AIRouting runs on physical circuits only")
 
         # Pass dag to circuit for sending to AIRouting
-        qc = dag_to_circuit(dag)
+        if not qc:
+            qc = dag_to_circuit(dag)
 
         # Remove measurements before sending to AIRouting
         # TODO: Fix this for mid-circuit measurements
@@ -272,6 +280,13 @@ class AIRouting(TransformationPass):
         self.property_set["final_layout"] = final_layout_qiskit
 
         return new_dag
+
+
+def _non_physical_circuit_check(dag):
+    """Check if the circuit is non-physical (i.e contains virtual qubits)"""
+    if len(dag.qregs) != 1 or dag.qregs.get("q", None) is None:
+        return True
+    return False
 
 
 def add_measurements(circ, qubits):
