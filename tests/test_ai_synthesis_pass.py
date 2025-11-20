@@ -14,8 +14,7 @@
 
 import pytest
 from qiskit import QuantumCircuit
-from qiskit.circuit.library import QuantumVolume
-from qiskit.dagcircuit.exceptions import DAGCircuitError
+from qiskit.circuit.library import QuantumVolume, quantum_volume
 from qiskit.transpiler import PassManager
 
 from qiskit_ibm_transpiler.ai.collection import (
@@ -297,6 +296,6 @@ def test_ai_pass_manager_quantum_volume_example(test_eagle_backend):
         ai_layout_mode="optimize",
     )
 
-    qv_circuit = QuantumVolume(60, seed=42)
+    qv_circuit = quantum_volume(60, seed=42)
 
     pass_manager.run(qv_circuit)
