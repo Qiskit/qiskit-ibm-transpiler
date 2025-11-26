@@ -3,7 +3,7 @@ name = "qiskit-ibm-transpiler"
 version = "0.14.5"
 description = "A library to use Qiskit IBM Transpiler (https://quantum.cloud.ibm.com/docs/api/qiskit-ibm-transpiler) and the AI transpiler passes (https://quantum.cloud.ibm.com/docs/guides/ai-transpiler-passes)"
 readme = "README.md"
-requires-python = ">=3.9, <3.12"
+requires-python = ">=3.10, <3.12"
 license = { text = "Apache-2.0" }
 authors = [{ name = "Qiskit Development Team" }]
 keywords = ["qiskit", "ai", "transpiler", "routing"]
@@ -15,7 +15,7 @@ classifiers = [
     "Operating System :: Microsoft :: Windows",
     "Operating System :: MacOS",
     "Operating System :: POSIX :: Linux",
-    "Programming Language :: Python :: 3.9",
+
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Topic :: Scientific/Engineering",
@@ -49,8 +49,7 @@ dev = [
 docs = [
     "packaging>=25.0",
     "qiskit-sphinx-theme==1.16.1",
-    "sphinx==7.1.2 ; python_version < '3.9'",
-    "sphinx==7.2.6 ; python_version >= '3.9'",
+    "sphinx==7.2.6",
     "sphinxcontrib-katex>=0.9.11",
 ]
 

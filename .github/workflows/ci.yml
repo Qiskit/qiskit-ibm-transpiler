@@ -25,8 +25,9 @@ jobs:
       - uses: actions/checkout@v4
 
       - uses: astral-sh/setup-uv@v3
-        with:
-          python-version: "3.11"
+
+      - name: Install Python
+        run: uv python install 3.11
 
       - name: Cache uv
         uses: actions/cache@v4
@@ -47,14 +48,15 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: [3.11, 3.9]
+        python-version: [3.11, 3.10]
 
     steps:
       - uses: actions/checkout@v4
 
       - uses: astral-sh/setup-uv@v3
-        with:
-          python-version: ${{ matrix.python-version }}
+
+      - name: Install Python
+        run: uv python install ${{ matrix.python-version }}
 
       - name: Cache uv
         uses: actions/cache@v4
@@ -81,8 +83,9 @@ jobs:
       - uses: actions/checkout@v4
 
       - uses: astral-sh/setup-uv@v3
-        with:
-          python-version: "3.11"
+
+      - name: Install Python
+        run: uv python install 3.11
 
       - name: Cache uv
         uses: actions/cache@v4
