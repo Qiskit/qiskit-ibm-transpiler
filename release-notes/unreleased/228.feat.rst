@@ -1,0 +1,2 @@
+Added support for Python 3.12 and 3.13. The library now supports Python versions
+**3.10 through 3.13**.
