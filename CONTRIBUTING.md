@@ -23,7 +23,7 @@ uv sync --group dev --extra ai-local-mode
 
 ### Python version
 
-This project currently supports Python **3.9–3.11**, matching the versions tested in CI.
+This project currently supports Python **3.10–3.11**, matching the versions tested in CI.
 When running `uv sync`, uv will automatically create a virtual environment using the Python version available on your system, matching within this supported range.
 
 For consistency with the CI pipeline, we recommend developing with **Python 3.11**, or explicitly selecting one of the versions from `.github/workflows/ci.yaml`:
