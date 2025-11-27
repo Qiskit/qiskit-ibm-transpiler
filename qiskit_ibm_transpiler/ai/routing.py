@@ -18,7 +18,6 @@
 import importlib
 import logging
 import os
-from typing import List, Literal, Union
 
 import numpy as np
 from qiskit import ClassicalRegister, QuantumCircuit
@@ -36,9 +35,9 @@ logger.setLevel(logging.INFO)
 
 
 def build_final_optimization_preferences(
-    selected_optimization_preferences: Union[
-        OptimizationOptions, list[OptimizationOptions]
-    ] = None,
+    selected_optimization_preferences: (
+        OptimizationOptions | list[OptimizationOptions]
+    ) = None,
     backend_name: str = None,
 ):
     all_optimization_preferences = [
@@ -112,13 +111,13 @@ class AIRouting(TransformationPass):
 
     def __init__(
         self,
-        coupling_map: Union[List[List[int]], CouplingMap, None] = None,
-        backend: Union[Backend, None] = None,
+        coupling_map: list[list[int]] | CouplingMap | None = None,
+        backend: Backend | None = None,
         optimization_level: int = 2,
         layout_mode: str = "OPTIMIZE",
-        optimization_preferences: Union[
-            OptimizationOptions, List[OptimizationOptions], None
-        ] = None,
+        optimization_preferences: (
+            OptimizationOptions | list[OptimizationOptions] | None
+        ) = None,
         local_mode: bool = True,
         **kwargs,
     ):

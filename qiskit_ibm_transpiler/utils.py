@@ -32,7 +32,6 @@ import logging
 import os
 import struct
 from enum import Enum
-from typing import Dict, List, Tuple, Union
 
 import numpy as np
 from qiskit import QuantumCircuit, qasm2, qasm3, qpy
@@ -66,7 +65,7 @@ def _get_qpy_version(qiskit_version: str):
     return min(common.QPY_VERSION, service_qpy_version)
 
 
-def get_metrics(qc: QuantumCircuit) -> Dict[str, int]:
+def get_metrics(qc: QuantumCircuit) -> dict[str, int]:
     """Returns a dict with metrics from a QuantumCircuit"""
     qcd = qc.decompose(reps=3)
     return {
@@ -109,7 +108,7 @@ def to_qasm3_iterative_decomposition(circuit: QuantumCircuit, n_iter: int = 10):
     return qasm3_str.replace("\n", " ")
 
 
-def input_to_qasm(input_circ: Union[QuantumCircuit, str]) -> str:
+def input_to_qasm(input_circ: QuantumCircuit | str) -> str:
     if isinstance(input_circ, QuantumCircuit):
         try:
             qasm = qasm2.dumps(input_circ).replace("\n", " ")
@@ -149,8 +148,8 @@ class QasmType(str, Enum):
 
 
 def get_qasm_from_circuit(
-    circuit: Union[QuantumCircuit, None], qasm_format: QasmType = QasmType.QASM2
-) -> Union[str, None]:
+    circuit: QuantumCircuit | None, qasm_format: QasmType = QasmType.QASM2
+) -> str | None:
     """Get the QASM from a circuit and remove unneeded line breaks"""
     if circuit is None:
         return None
@@ -239,15 +238,15 @@ def check_transpiling(circ, cmap):
 
 def check_topology_synthesized_circuit(
     circuit: QuantumCircuit,
-    coupling_map: List[List[int]],
+    coupling_map: list[list[int]],
 ):
     """Check whether a synthesized circuit follows a coupling map and respects topology"""
     return check_transpiling(circuit, coupling_map)
 
 
 def get_qpy_from_circuit(
-    input_circ: Union[QuantumCircuit, List[QuantumCircuit]],
-    qiskit_version: Union[str, None] = None,
+    input_circ: QuantumCircuit | list[QuantumCircuit],
+    qiskit_version: str | None = None,
 ) -> str:
     if isinstance(input_circ, QuantumCircuit) or isinstance(input_circ, list):
         output_b = io.BytesIO()
@@ -268,14 +267,14 @@ def get_circuit_from_qpy(qpy_string: str) -> QuantumCircuit:
     return qpy.load(io.BytesIO(base64.b64decode(qpy_string.encode("utf-8"))))[0]
 
 
-def get_circuits_from_qpy(qpy_string: str) -> List[QuantumCircuit]:
+def get_circuits_from_qpy(qpy_string: str) -> list[QuantumCircuit]:
     return qpy.load(io.BytesIO(base64.b64decode(qpy_string.encode("utf-8"))))
 
 
 def serialize_circuit_to_qpy_or_qasm(
     input_circuit: QuantumCircuit,
-    qiskit_version: Union[str, None] = None,
-) -> Tuple[Union[str, None], Union[str, None]]:
+    qiskit_version: str | None = None,
+) -> tuple[str | None, str | None]:
     qpy_result = None
     qasm_result = None
     try:
@@ -287,8 +286,8 @@ def serialize_circuit_to_qpy_or_qasm(
 
 
 def serialize_circuits_to_qpy_or_qasm(
-    input_circuits: List[QuantumCircuit], qiskit_version: Union[str, None] = None
-) -> Tuple[Union[str, None], Union[List[str], None]]:
+    input_circuits: list[QuantumCircuit], qiskit_version: str | None = None
+) -> tuple[str | None, list[str] | None]:
     qpy_result = None
     qasm_result = None
     try:
@@ -302,8 +301,8 @@ def serialize_circuits_to_qpy_or_qasm(
 
 
 def deserialize_circuit_from_qpy_or_qasm(
-    qpy_input: Union[str, None], qasm_input: Union[str, None]
-) -> Union[QuantumCircuit, None]:
+    qpy_input: str | None, qasm_input: str | None
+) -> QuantumCircuit | None:
     if qpy_input:
         return get_circuit_from_qpy(qpy_input)
     elif qasm_input:

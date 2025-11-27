@@ -14,7 +14,7 @@
 
 from collections import defaultdict
 from functools import partial
-from typing import Callable, List, Union
+from typing import Callable
 
 from qiskit import QuantumCircuit
 from qiskit.circuit import Instruction
@@ -193,8 +193,8 @@ class GreedyBlockCollector(BlockCollector):
             self._next_nodes_cache[node] = next_nodes
 
     def collect_matching_block(
-        self, filter_fn: Callable, max_block_width: Union[int, None] = None
-    ) -> List[Union[DAGOpNode, DAGDepNode]]:
+        self, filter_fn: Callable, max_block_width: int | None = None
+    ) -> list[DAGOpNode | DAGDepNode]:
         """Iteratively collects the largest block of input nodes (that is, nodes with
         ``_in_degree`` equal to 0) that match a given filtering function.
         Examples of this include collecting blocks of swap gates,

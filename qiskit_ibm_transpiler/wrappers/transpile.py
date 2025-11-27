@@ -11,7 +11,7 @@
 # that they have been altered from the originals.
 
 import logging
-from typing import Dict, List, Literal, Union
+from typing import Literal
 
 import numpy as np
 from qiskit import QuantumCircuit, QuantumRegister

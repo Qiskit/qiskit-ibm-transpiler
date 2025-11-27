@@ -15,7 +15,6 @@ import logging
 import os
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from multiprocessing import cpu_count
-from typing import Dict, List, Union
 
 from qiskit.circuit.exceptions import CircuitError
 from qiskit.circuit.library import PermutationGate
@@ -51,20 +50,20 @@ class AISynthesis(TransformationPass):
 
     def __init__(
         self,
-        synth_service: Union[
-            AICliffordAPI,
-            AILinearFunctionAPI,
-            AIPermutationAPI,
-            AIPauliNetworkAPI,
-            AILocalCliffordSynthesis,
-            AILocalLinearFunctionSynthesis,
-            AILocalPermutationSynthesis,
-            AILocalPauliNetworkSynthesis,
-        ],
-        coupling_map: Union[List[List[int]], CouplingMap, None] = None,
-        backend: Union[Backend, None] = None,
+        synth_service: (
+            AICliffordAPI
+            | AILinearFunctionAPI
+            | AIPermutationAPI
+            | AIPauliNetworkAPI
+            | AILocalCliffordSynthesis
+            | AILocalLinearFunctionSynthesis
+            | AILocalPermutationSynthesis
+            | AILocalPauliNetworkSynthesis
+        ),
+        coupling_map: list[list[int]] | CouplingMap | None = None,
+        backend: Backend | None = None,
         replace_only_if_better: bool = True,
-        max_threads: Union[int, None] = None,
+        max_threads: int | None = None,
         local_mode: bool = True,
         **kwargs,
     ) -> None:
@@ -181,7 +180,7 @@ class AISynthesis(TransformationPass):
 
 
 class AICliffordSynthesis(AISynthesis):
-    """AICliffordSynthesis(coupling_map: list[list[int]] | None = None, backend: Backend | None = None, replace_only_if_better: bool = True, max_threads: Union[int, None] = None)
+    """AICliffordSynthesis(coupling_map: list[list[int]] | None = None, backend: Backend | None = None, replace_only_if_better: bool = True, max_threads: int | None = None)
 
     Synthesis for `Clifford` circuits (blocks of `H`, `S` and `CX` gates). Currently up to 9 qubit blocks.
 
@@ -197,10 +196,10 @@ class AICliffordSynthesis(AISynthesis):
 
     def __init__(
         self,
-        coupling_map: Union[List[List[int]], CouplingMap, None] = None,
-        backend: Union[Backend, None] = None,
+        coupling_map: list[list[int]] | CouplingMap | None = None,
+        backend: Backend | None = None,
         replace_only_if_better: bool = True,
-        max_threads: Union[int, None] = None,
+        max_threads: int | None = None,
         local_mode: bool = True,
         **kwargs,
     ) -> None:
@@ -235,7 +234,7 @@ class AICliffordSynthesis(AISynthesis):
 
 
 class AILinearFunctionSynthesis(AISynthesis):
-    """AILinearFunctionSynthesis(coupling_map: list[list[int]] | None = None, backend: Backend | None = None, replace_only_if_better: bool = True, max_threads: Union[int, None] = None)
+    """AILinearFunctionSynthesis(coupling_map: list[list[int]] | None = None, backend: Backend | None = None, replace_only_if_better: bool = True, max_threads: int | None = None)
 
     Synthesis for `Linear Function` circuits (blocks of `CX` and `SWAP` gates). Currently up to 9 qubit blocks.
 
@@ -251,10 +250,10 @@ class AILinearFunctionSynthesis(AISynthesis):
 
     def __init__(
         self,
-        coupling_map: Union[List[List[int]], CouplingMap, None] = None,
-        backend: Union[Backend, None] = None,
+        coupling_map: list[list[int]] | CouplingMap | None = None,
+        backend: Backend | None = None,
         replace_only_if_better: bool = True,
-        max_threads: Union[int, None] = None,
+        max_threads: int | None = None,
         local_mode: bool = True,
         **kwargs,
     ) -> None:
@@ -288,7 +287,7 @@ class AILinearFunctionSynthesis(AISynthesis):
 
 
 class AIPermutationSynthesis(AISynthesis):
-    """AIPermutationSynthesis(coupling_map: list[list[int]] | None = None, backend: Backend | None = None, replace_only_if_better: bool = True, max_threads: Union[int, None] = None)
+    """AIPermutationSynthesis(coupling_map: list[list[int]] | None = None, backend: Backend | None = None, replace_only_if_better: bool = True, max_threads: int | None = None)
 
     Synthesis for `Permutation` circuits (blocks of `SWAP` gates). Currently available for 65, 33, and 27 qubit blocks.
 
@@ -304,10 +303,10 @@ class AIPermutationSynthesis(AISynthesis):
 
     def __init__(
         self,
-        coupling_map: Union[List[List[int]], CouplingMap, None] = None,
-        backend: Union[Backend, None] = None,
+        coupling_map: list[list[int]] | CouplingMap | None = None,
+        backend: Backend | None = None,
         replace_only_if_better: bool = True,
-        max_threads: Union[int, None] = None,
+        max_threads: int | None = None,
         local_mode: bool = True,
         **kwargs,
     ) -> None:
@@ -342,7 +341,7 @@ class AIPermutationSynthesis(AISynthesis):
 
 
 class AIPauliNetworkSynthesis(AISynthesis):
-    """AIPauliNetworkSynthesis(coupling_map: list[list[int]] | None = None, backend: Backend | None = None, replace_only_if_better: bool = True, max_threads: Union[int, None] = None)
+    """AIPauliNetworkSynthesis(coupling_map: list[list[int]] | None = None, backend: Backend | None = None, replace_only_if_better: bool = True, max_threads: int | None = None)
 
     Synthesis for `Pauli Networks` circuits (blocks of `H`, `S`, `SX`, `CX`, `RX`, `RY` and `RZ` gates). Currently up to 6 qubit blocks.
 
@@ -358,10 +357,10 @@ class AIPauliNetworkSynthesis(AISynthesis):
 
     def __init__(
         self,
-        coupling_map: Union[List[List[int]], CouplingMap, None] = None,
-        backend: Union[Backend, None] = None,
+        coupling_map: list[list[int]] | CouplingMap | None = None,
+        backend: Backend | None = None,
         replace_only_if_better: bool = True,
-        max_threads: Union[int, None] = None,
+        max_threads: int | None = None,
         local_mode: bool = True,
         **kwargs,
     ) -> None:
