@@ -37,7 +37,9 @@ class AIRoutingAPI(QiskitTranspilerService):
         optimization_level: int = 1,
         check_result: bool = False,
         layout_mode: str = "OPTIMIZE",
-        optimization_preferences: OptimizationOptions | list[OptimizationOptions] | None = None,
+        optimization_preferences: (
+            OptimizationOptions | list[OptimizationOptions] | None
+        ) = None,
     ):
         qpy, qasm = serialize_circuit_to_qpy_or_qasm(circuit, self.get_qiskit_version())
         body_params = {

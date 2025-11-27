@@ -45,13 +45,13 @@ class AICliffordAPI(QiskitTranspilerService):
         and respects it on the synthesized circuit.
 
         Args:
-            circuits (List[Union[QuantumCircuit, Clifford]]): A list of quantum circuits to be synthesized.
-            qargs (List[List[int]]): A list of lists of qubit indices for each circuit. Each list of qubits indices represent where the cliffors circuit is.
-            coupling_map (Union[List[List[int]], None]): A coupling map representing the connectivity of the quantum computer.
-            backend_name (Union[str, None]): The name of the backend to use for the synthesis.
+            circuits (list[QuantumCircuit | Clifford]): A list of quantum circuits to be synthesized.
+            qargs (list[list[int]]): A list of lists of qubit indices for each circuit. Each list of qubits indices represent where the cliffors circuit is.
+            coupling_map (list[list[int]] | None): A coupling map representing the connectivity of the quantum computer.
+            backend_name (str | None): The name of the backend to use for the synthesis.
 
         Returns:
-            List[Union[QuantumCircuit, None]]: A list of synthesized quantum circuits. If the synthesis fails for any circuit, the corresponding element in the list will be None.
+            list[QuantumCircuit | None]: A list of synthesized quantum circuits. If the synthesis fails for any circuit, the corresponding element in the list will be None.
         """
 
         # Although this function is called `transpile`, it does a synthesis. It has this name because the synthesis
@@ -106,13 +106,13 @@ class AILinearFunctionAPI(QiskitTranspilerService):
         and respects it on the synthesized circuit.
 
         Args:
-            circuits (List[Union[QuantumCircuit, LinearFunction]]): A list of quantum circuits to be synthesized.
-            qargs (List[List[int]]): A list of lists of qubit indices for each circuit. Each list of qubits indices represent where the linear function circuit is.
-            coupling_map (Union[List[List[int]], None]): A coupling map representing the connectivity of the quantum computer.
-            backend_name (Union[str, None]): The name of the backend to use for the synthesis.
+            circuits (list[QuantumCircuit | LinearFunction]): A list of quantum circuits to be synthesized.
+            qargs (list[list[int]]): A list of lists of qubit indices for each circuit. Each list of qubits indices represent where the linear function circuit is.
+            coupling_map (list[list[int]] | None): A coupling map representing the connectivity of the quantum computer.
+            backend_name (str | None): The name of the backend to use for the synthesis.
 
         Returns:
-            List[Union[QuantumCircuit, None]]: A list of synthesized quantum circuits. If the synthesis fails for any circuit, the corresponding element in the list will be None.
+            list[QuantumCircuit | None]: A list of synthesized quantum circuits. If the synthesis fails for any circuit, the corresponding element in the list will be None.
         """
 
         # Although this function is called `transpile`, it does a synthesis. It has this name because the synthesis
@@ -167,13 +167,13 @@ class AIPermutationAPI(QiskitTranspilerService):
         and respects it on the synthesized circuit.
 
         Args:
-            patterns: List[List[int]]: A list of permutation arrays to be synthesized.
-            qargs (List[List[int]]): A list of lists of qubit indices for each permutation array. Each list of qubits indices represent where the permutation array is.
-            coupling_map (Union[List[List[int]], None]): A coupling map representing the connectivity of the quantum computer.
-            backend_name (Union[str, None]): The name of the backend to use for the synthesis.
+            patterns: list[list[int]]: A list of permutation arrays to be synthesized.
+            qargs (list[list[int]]): A list of lists of qubit indices for each permutation array. Each list of qubits indices represent where the permutation array is.
+            coupling_map (list[list[int]] | None): A coupling map representing the connectivity of the quantum computer.
+            backend_name (str | None): The name of the backend to use for the synthesis.
 
         Returns:
-            List[Union[QuantumCircuit, None]]: A list of synthesized quantum circuits. If the synthesis fails for any circuit, the corresponding element in the list will be None.
+            list[QuantumCircuit | None]: A list of synthesized quantum circuits. If the synthesis fails for any circuit, the corresponding element in the list will be None.
         """
 
         # Although this function is called `transpile`, it does a synthesis. It has this name because the synthesis

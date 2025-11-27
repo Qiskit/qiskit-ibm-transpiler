@@ -35,7 +35,9 @@ logger.setLevel(logging.INFO)
 
 
 def build_final_optimization_preferences(
-    selected_optimization_preferences: OptimizationOptions | list[OptimizationOptions] = None,
+    selected_optimization_preferences: (
+        OptimizationOptions | list[OptimizationOptions]
+    ) = None,
     backend_name: str = None,
 ):
     all_optimization_preferences = [
@@ -113,7 +115,9 @@ class AIRouting(TransformationPass):
         backend: Backend | None = None,
         optimization_level: int = 2,
         layout_mode: str = "OPTIMIZE",
-        optimization_preferences: OptimizationOptions | list[OptimizationOptions] | None = None,
+        optimization_preferences: (
+            OptimizationOptions | list[OptimizationOptions] | None
+        ) = None,
         local_mode: bool = True,
         **kwargs,
     ):

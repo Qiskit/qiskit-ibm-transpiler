@@ -64,7 +64,9 @@ class TranspilerService:
         backend_name: str | None = None,
         qiskit_transpile_options: dict = None,
         ai_layout_mode: str = None,
-        optimization_preferences: OptimizationOptions | list[OptimizationOptions] | None = None,
+        optimization_preferences: (
+            OptimizationOptions | list[OptimizationOptions] | None
+        ) = None,
         use_fractional_gates: bool = False,
         **kwargs,
     ) -> None:

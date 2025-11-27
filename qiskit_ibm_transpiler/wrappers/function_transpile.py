@@ -71,7 +71,9 @@ class QiskitTranspilerFunction:
         optimization_level: int,
         backend: str | None = None,
         coupling_map: list[list[int]] | None = None,
-        optimization_preferences: OptimizationOptions | list[OptimizationOptions] | None = None,
+        optimization_preferences: (
+            OptimizationOptions | list[OptimizationOptions] | None
+        ) = None,
         ai: Literal["true", "false", "auto"] = "true",
         qiskit_transpile_options: dict = None,
         ai_layout_mode: str = None,
