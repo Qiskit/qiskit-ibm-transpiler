@@ -10,8 +10,6 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-from typing import List, Literal, Union
-
 from qiskit import QuantumCircuit
 from qiskit.transpiler import CouplingMap
 
@@ -39,9 +37,7 @@ class AIRoutingAPI(QiskitTranspilerService):
         optimization_level: int = 1,
         check_result: bool = False,
         layout_mode: str = "OPTIMIZE",
-        optimization_preferences: Union[
-            OptimizationOptions, List[OptimizationOptions], None
-        ] = None,
+        optimization_preferences: OptimizationOptions | list[OptimizationOptions] | None = None,
     ):
         qpy, qasm = serialize_circuit_to_qpy_or_qasm(circuit, self.get_qiskit_version())
         body_params = {

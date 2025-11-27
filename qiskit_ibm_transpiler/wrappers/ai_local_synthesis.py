@@ -12,7 +12,6 @@
 
 import importlib
 import logging
-from typing import List, Union
 
 import networkx as nx
 import numpy as np
@@ -144,7 +143,7 @@ def get_coupling_map_graph(
 
 
 def get_mapping_perm(
-    coupling_map: nx.Graph, circuit_qargs: List[int], coupling_maps_by_hashes: dict
+    coupling_map: nx.Graph, circuit_qargs: list[int], coupling_maps_by_hashes: dict
 ) -> list[int]:
     # Identify the subgraph of the device coupling map where the circuit is.
     circuit_in_coupling_map = coupling_map.subgraph(circuit_qargs)
@@ -205,7 +204,7 @@ def perm_cliff(cliff, perm):
 
 
 def get_synthesized_linear_function_circuits(
-    coupling_map: nx.Graph, clifford_dicts: List[dict], qargs: List[List[int]]
+    coupling_map: nx.Graph, clifford_dicts: list[dict], qargs: list[list[int]]
 ) -> list[QuantumCircuit]:
     synthesized_circuits = []
 
@@ -239,7 +238,7 @@ def get_synthesized_linear_function_circuits(
 
 
 def get_synthesized_clifford_circuits(
-    coupling_map: nx.Graph, clifford_dicts: List[dict], qargs: List[List[int]]
+    coupling_map: nx.Graph, clifford_dicts: list[dict], qargs: list[list[int]]
 ) -> list[QuantumCircuit]:
     synthesized_circuits = []
 
@@ -277,13 +276,13 @@ class AILocalCliffordSynthesis:
 
     def transpile(
         self,
-        circuits: List[Union[QuantumCircuit, Clifford]],
-        qargs: List[List[int]],
-        coupling_map: Union[List[List[int]], CouplingMap, None] = None,
+        circuits: list[QuantumCircuit | Clifford],
+        qargs: list[list[int]],
+        coupling_map: list[list[int]] | CouplingMap | None = None,
         # backend_name is not used here but is maintained until we deprecate it to not break the code
         backend_name=None,
-        backend: Union[Backend, None] = None,
-    ) -> List[Union[QuantumCircuit, None]]:
+        backend: Backend | None = None,
+    ) -> list[QuantumCircuit | None]:
         """Synthetize one or more quantum circuits into an optimized equivalent. It differs from a standard synthesis process in that it takes into account where the linear functions are (qargs)
         and respects it on the synthesized circuit.
 
@@ -320,7 +319,7 @@ class AILocalCliffordSynthesis:
 
 
 def get_synthesized_pauli_circuits(
-    coupling_map: nx.Graph, circuits: List[QuantumCircuit], qargs: List[List[int]]
+    coupling_map: nx.Graph, circuits: list[QuantumCircuit], qargs: list[list[int]]
 ) -> list[QuantumCircuit]:
     synthesized_circuits = []
 
@@ -363,13 +362,13 @@ class AILocalPauliNetworkSynthesis:
 
     def transpile(
         self,
-        circuits: List[QuantumCircuit],
-        qargs: List[List[int]],
-        coupling_map: Union[List[List[int]], CouplingMap, None] = None,
+        circuits: list[QuantumCircuit],
+        qargs: list[list[int]],
+        coupling_map: list[list[int]] | CouplingMap | None = None,
         # backend_name is not used here but is maintained until we deprecate it to not break the code
         backend_name=None,
-        backend: Union[Backend, None] = None,
-    ) -> List[Union[QuantumCircuit, None]]:
+        backend: Backend | None = None,
+    ) -> list[QuantumCircuit | None]:
         """Synthetize one or more quantum circuits into an optimized equivalent. It differs from a standard synthesis process in that it takes into account where the pauli network are (qargs)
         and respects it on the synthesized circuit.
 
@@ -408,13 +407,13 @@ class AILocalLinearFunctionSynthesis:
 
     def transpile(
         self,
-        circuits: List[Union[QuantumCircuit, LinearFunction]],
-        qargs: List[List[int]],
-        coupling_map: Union[List[List[int]], CouplingMap, None] = None,
+        circuits: list[QuantumCircuit | LinearFunction],
+        qargs: list[list[int]],
+        coupling_map: list[list[int]] | CouplingMap | None = None,
         # backend_name is not used here but is maintained until we deprecate it to not break the code
         backend_name=None,
-        backend: Union[Backend, None] = None,
-    ) -> List[Union[QuantumCircuit, None]]:
+        backend: Backend | None = None,
+    ) -> list[QuantumCircuit | None]:
         """Synthetize one or more quantum circuits into an optimized equivalent. It differs from a standard synthesis process in that it takes into account where the linear functions are (qargs)
         and respects it on the synthesized circuit.
 
@@ -451,7 +450,7 @@ class AILocalLinearFunctionSynthesis:
 
 
 def get_synthesized_permutation_circuits(
-    coupling_map: nx.Graph, permutations_list: List[List[int]], qargs: List[List[int]]
+    coupling_map: nx.Graph, permutations_list: list[list[int]], qargs: list[list[int]]
 ) -> list[QuantumCircuit]:
     synthesized_circuits = []
 
@@ -485,13 +484,13 @@ class AILocalPermutationSynthesis:
 
     def transpile(
         self,
-        circuits: List[List[int]],
-        qargs: List[List[int]],
-        coupling_map: Union[List[List[int]], CouplingMap, None] = None,
+        circuits: list[list[int]],
+        qargs: list[list[int]],
+        coupling_map: list[list[int]] | CouplingMap | None = None,
         # backend_name is not used here but is maintained until we deprecate it to not break the code
         backend_name=None,
-        backend: Union[Backend, None] = None,
-    ) -> List[Union[QuantumCircuit, None]]:
+        backend: Backend | None = None,
+    ) -> list[QuantumCircuit | None]:
         """Synthetize one or more quantum circuits into an optimized equivalent. It differs from a standard synthesis process in that it takes into account where the Permutations are (qargs)
         and respects it on the synthesized circuit.
 

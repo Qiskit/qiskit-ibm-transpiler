@@ -27,7 +27,7 @@ Classes
 """
 
 import logging
-from typing import Dict, List, Literal, Union
+from typing import Literal
 
 from qiskit import QuantumCircuit
 
@@ -60,13 +60,11 @@ class TranspilerService:
         self,
         optimization_level: int,
         ai: Literal["true", "false", "auto"] = "true",
-        coupling_map: Union[List[List[int]], None] = None,
-        backend_name: Union[str, None] = None,
-        qiskit_transpile_options: Dict = None,
+        coupling_map: list[list[int]] | None = None,
+        backend_name: str | None = None,
+        qiskit_transpile_options: dict = None,
         ai_layout_mode: str = None,
-        optimization_preferences: Union[
-            OptimizationOptions, List[OptimizationOptions], None
-        ] = None,
+        optimization_preferences: OptimizationOptions | list[OptimizationOptions] | None = None,
         use_fractional_gates: bool = False,
         **kwargs,
     ) -> None:
@@ -98,7 +96,7 @@ class TranspilerService:
 
     def run(
         self,
-        circuits: Union[List[QuantumCircuit], QuantumCircuit],
+        circuits: list[QuantumCircuit] | QuantumCircuit,
     ):
         """Transpile the circuit(s) by calling the service /transpile endpoint.
 

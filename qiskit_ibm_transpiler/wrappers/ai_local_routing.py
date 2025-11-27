@@ -11,7 +11,6 @@
 # that they have been altered from the originals.
 
 import importlib
-from typing import List, Literal, Union
 
 from qiskit import QuantumCircuit
 from qiskit.transpiler import CouplingMap
@@ -45,10 +44,10 @@ class AILocalRouting:
         self,
         circuit: QuantumCircuit,
         coupling_map: CouplingMap,
-        optimization_level: Union[dict, int] = 1,
+        optimization_level: dict | int = 1,
         check_result: bool = False,
         layout_mode: str = "optimize",
-        optimization_preferences: List[OptimizationOptions] = None,
+        optimization_preferences: list[OptimizationOptions] = None,
     ):
         coupling_map_edges = list(coupling_map.get_edges())
         coupling_map_dists_array = coupling_map.distance_matrix.astype(int).tolist()

@@ -15,7 +15,6 @@ import json
 import logging
 import os
 from pathlib import Path
-from typing import Dict, List, Union
 from urllib.parse import urljoin
 
 import backoff
@@ -146,7 +145,7 @@ class QiskitTranspilerService:
 
         return _request_status(self, endpoint, task_id)
 
-    def request_and_wait(self, endpoint: str, body: Dict, params: Dict):
+    def request_and_wait(self, endpoint: str, body: dict, params: dict):
         try:
             return self._request_and_wait(endpoint, body, params)
         except requests.exceptions.HTTPError as exc:
@@ -157,13 +156,13 @@ class QiskitTranspilerService:
         except Exception as exc:
             _raise_transpiler_error_and_log(f"Error: {exc}")
 
-    def _request_and_wait(self, endpoint: str, body: Dict, params: Dict):
+    def _request_and_wait(self, endpoint: str, body: dict, params: dict):
         @backoff.on_exception(
             backoff.expo,
             requests.exceptions.RequestException,
             max_tries=3,
         )
-        def _request_transp(endpoint: str, body: Dict, params: Dict):
+        def _request_transp(endpoint: str, body: dict, params: dict):
             resp = requests.post(
                 f"{self.url}/{endpoint}",
                 headers=self.headers,
@@ -198,8 +197,8 @@ class QiskitTranspilerService:
             return result
 
     def _handle_response(
-        self, transpile_response: List[dict]
-    ) -> List[Union[QuantumCircuit, None]]:
+        self, transpile_response: list[dict]
+    ) -> list[QuantumCircuit | None]:
         """Handle the transpile response from the server."""
         synthesized_circuits = []
         for response_element in transpile_response:

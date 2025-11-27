@@ -15,7 +15,6 @@ import logging
 import os
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from multiprocessing import cpu_count
-from typing import Dict, List, Union
 
 from qiskit.circuit.exceptions import CircuitError
 from qiskit.circuit.library import PermutationGate
@@ -51,20 +50,20 @@ class AISynthesis(TransformationPass):
 
     def __init__(
         self,
-        synth_service: Union[
-            AICliffordAPI,
-            AILinearFunctionAPI,
-            AIPermutationAPI,
-            AIPauliNetworkAPI,
-            AILocalCliffordSynthesis,
-            AILocalLinearFunctionSynthesis,
-            AILocalPermutationSynthesis,
-            AILocalPauliNetworkSynthesis,
-        ],
-        coupling_map: Union[List[List[int]], CouplingMap, None] = None,
-        backend: Union[Backend, None] = None,
+        synth_service: (
+            AICliffordAPI
+            | AILinearFunctionAPI
+            | AIPermutationAPI
+            | AIPauliNetworkAPI
+            | AILocalCliffordSynthesis
+            | AILocalLinearFunctionSynthesis
+            | AILocalPermutationSynthesis
+            | AILocalPauliNetworkSynthesis
+        ),
+        coupling_map: list[list[int]] | CouplingMap | None = None,
+        backend: Backend | None = None,
         replace_only_if_better: bool = True,
-        max_threads: Union[int, None] = None,
+        max_threads: int | None = None,
         local_mode: bool = True,
         **kwargs,
     ) -> None:
@@ -251,10 +250,10 @@ class AILinearFunctionSynthesis(AISynthesis):
 
     def __init__(
         self,
-        coupling_map: Union[List[List[int]], CouplingMap, None] = None,
-        backend: Union[Backend, None] = None,
+        coupling_map: list[list[int]] | CouplingMap | None = None,
+        backend: Backend | None = None,
         replace_only_if_better: bool = True,
-        max_threads: Union[int, None] = None,
+        max_threads: int | None = None,
         local_mode: bool = True,
         **kwargs,
     ) -> None:
@@ -304,10 +303,10 @@ class AIPermutationSynthesis(AISynthesis):
 
     def __init__(
         self,
-        coupling_map: Union[List[List[int]], CouplingMap, None] = None,
-        backend: Union[Backend, None] = None,
+        coupling_map: list[list[int]] | CouplingMap | None = None,
+        backend: Backend | None = None,
         replace_only_if_better: bool = True,
-        max_threads: Union[int, None] = None,
+        max_threads: int | None = None,
         local_mode: bool = True,
         **kwargs,
     ) -> None:
@@ -358,10 +357,10 @@ class AIPauliNetworkSynthesis(AISynthesis):
 
     def __init__(
         self,
-        coupling_map: Union[List[List[int]], CouplingMap, None] = None,
-        backend: Union[Backend, None] = None,
+        coupling_map: list[list[int]] | CouplingMap | None = None,
+        backend: Backend | None = None,
         replace_only_if_better: bool = True,
-        max_threads: Union[int, None] = None,
+        max_threads: int | None = None,
         local_mode: bool = True,
         **kwargs,
     ) -> None:

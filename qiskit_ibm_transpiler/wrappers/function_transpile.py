@@ -13,7 +13,7 @@
 
 import logging
 import re
-from typing import Dict, List, Literal, Union
+from typing import Literal
 
 from qiskit import QuantumCircuit
 from qiskit.transpiler.exceptions import TranspilerError
@@ -67,15 +67,13 @@ class QiskitTranspilerFunction:
 
     def transpile(
         self,
-        circuits: Union[List[QuantumCircuit], QuantumCircuit],
+        circuits: list[QuantumCircuit] | QuantumCircuit,
         optimization_level: int,
-        backend: Union[str, None] = None,
-        coupling_map: Union[List[List[int]], None] = None,
-        optimization_preferences: Union[
-            OptimizationOptions, List[OptimizationOptions], None
-        ] = None,
+        backend: str | None = None,
+        coupling_map: list[list[int]] | None = None,
+        optimization_preferences: OptimizationOptions | list[OptimizationOptions] | None = None,
         ai: Literal["true", "false", "auto"] = "true",
-        qiskit_transpile_options: Dict = None,
+        qiskit_transpile_options: dict = None,
         ai_layout_mode: str = None,
         use_fractional_gates: bool = False,
         **kwargs,
