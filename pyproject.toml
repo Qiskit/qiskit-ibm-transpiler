@@ -3,7 +3,7 @@ name = "qiskit-ibm-transpiler"
 version = "0.14.5"
 description = "A library to use Qiskit IBM Transpiler (https://quantum.cloud.ibm.com/docs/api/qiskit-ibm-transpiler) and the AI transpiler passes (https://quantum.cloud.ibm.com/docs/guides/ai-transpiler-passes)"
 readme = "README.md"
-requires-python = ">=3.10, <3.12"
+requires-python = ">=3.10, <3.14"
 license = { text = "Apache-2.0" }
 authors = [{ name = "Qiskit Development Team" }]
 keywords = ["qiskit", "ai", "transpiler", "routing"]
@@ -18,6 +18,8 @@ classifiers = [
 
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
     "Topic :: Scientific/Engineering",
 ]
 dependencies = [
@@ -30,7 +32,7 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-ai-local-mode = ["qiskit_ibm_ai_local_transpiler~=0.4"]
+ai-local-mode = ["qiskit_ibm_ai_local_transpiler~=0.5"]
 
 [project.urls]
 "Bug Tracker" = "https://github.com/Qiskit/qiskit-ibm-transpiler/issues"
