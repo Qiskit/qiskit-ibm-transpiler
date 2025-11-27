@@ -2062,7 +2062,7 @@ qpy-compat = [
 
 [[package]]
 name = "qiskit-ibm-ai-local-transpiler"
-version = "0.4.2"
+version = "0.5.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "jsonschema" },
@@ -2145,7 +2145,7 @@ requires-dist = [
     { name = "backoff", specifier = "~=2.0" },
     { name = "networkx", specifier = "==2.8.5" },
     { name = "qiskit", specifier = ">=1.4.2,<3.0.0" },
-    { name = "qiskit-ibm-ai-local-transpiler", marker = "extra == 'ai-local-mode'", specifier = "~=0.4" },
+    { name = "qiskit-ibm-ai-local-transpiler", marker = "extra == 'ai-local-mode'", specifier = "~=0.5" },
     { name = "qiskit-qasm3-import", specifier = "~=0.4" },
     { name = "qiskit-serverless", specifier = "~=0.27.0" },
     { name = "requests", specifier = "~=2.0" },
