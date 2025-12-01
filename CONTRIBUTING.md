@@ -15,9 +15,10 @@ To install the package with all development dependencies:
 uv sync --group dev
 ```
 
-### Install with optional `ai-local-mode` dependencies
+**Note**: The `ai-local-mode` dependencies are now included by default. The `--extra ai-local-mode` flag is maintained for backward compatibility but is no longer necessary:
 
 ```sh
+# This still works but is now equivalent to the command above
 uv sync --group dev --extra ai-local-mode
 ```
 

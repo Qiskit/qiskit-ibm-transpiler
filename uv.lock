@@ -2118,14 +2118,10 @@ dependencies = [
     { name = "backoff" },
     { name = "networkx" },
     { name = "qiskit" },
+    { name = "qiskit-ibm-ai-local-transpiler" },
     { name = "qiskit-qasm3-import" },
     { name = "qiskit-serverless" },
     { name = "requests" },
-]
-
-[package.optional-dependencies]
-ai-local-mode = [
-    { name = "qiskit-ibm-ai-local-transpiler" },
 ]
 
 [package.dev-dependencies]
@@ -2149,7 +2145,7 @@ requires-dist = [
     { name = "backoff", specifier = "~=2.0" },
     { name = "networkx", specifier = "==2.8.5" },
     { name = "qiskit", specifier = ">=1.4.2,<3.0.0" },
-    { name = "qiskit-ibm-ai-local-transpiler", marker = "extra == 'ai-local-mode'", specifier = "~=0.5.5" },
+    { name = "qiskit-ibm-ai-local-transpiler", specifier = "~=0.5" },
     { name = "qiskit-qasm3-import", specifier = "~=0.4" },
     { name = "qiskit-serverless", specifier = "~=0.27.0" },
     { name = "requests", specifier = "~=2.0" },
