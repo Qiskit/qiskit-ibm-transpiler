@@ -554,7 +554,7 @@ name = "exceptiongroup"
 version = "1.3.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "typing-extensions", marker = "python_full_version < '3.13'" },
+    { name = "typing-extensions", marker = "python_full_version < '3.11'" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/0b/9f/a65090624ecf468cdca03533906e7c69ed7588582240cfe7cc9e770b50eb/exceptiongroup-1.3.0.tar.gz", hash = "sha256:b241f5885f560bc56a59ee63ca4c6a8bfa46ae4ad651af316d4e81817bb9fd88", size = 29749, upload-time = "2025-05-10T17:42:51.123Z" }
 wheels = [
@@ -2062,7 +2062,7 @@ qpy-compat = [
 
 [[package]]
 name = "qiskit-ibm-ai-local-transpiler"
-version = "0.5.0"
+version = "0.5.3"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "jsonschema" },
@@ -2071,21 +2071,22 @@ dependencies = [
     { name = "qiskit-ibm-runtime" },
 ]
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/a7/c6/e81ca0afa805cc45f46fbe03fed837b017b1dd6304b9b461ba228ce073f0/qiskit_ibm_ai_local_transpiler-0.5.0-cp310-cp310-macosx_11_0_arm64.whl", hash = "sha256:a4e2a0f69dd9cbc024fe97eda379aba961459a453af32f732dccc098b3afe346", size = 1969, upload-time = "2025-11-27T10:54:20.863Z" },
-    { url = "https://files.pythonhosted.org/packages/2f/97/e97ae7ef2a0dd48383f14e7cdfc6ebc1922a87bd7ace08024d1c1e87da1b/qiskit_ibm_ai_local_transpiler-0.5.0-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:668448df269c7f887da02160e82b4154b8306718694de468bcb3f28367782f11", size = 97612249, upload-time = "2025-11-27T10:58:12.013Z" },
-    { url = "https://files.pythonhosted.org/packages/9e/91/0cbc52c202d2021bc124b6fd6db9dae6e4a74bfd5bcf740a3dd19972f1a5/qiskit_ibm_ai_local_transpiler-0.5.0-cp310-cp310-win_amd64.whl", hash = "sha256:b276c3b33f7ea4986ddad018b3e9fab8cc7e369e449e51e17c4106d9e08f7d2e", size = 1959, upload-time = "2025-11-27T10:59:46.919Z" },
-    { url = "https://files.pythonhosted.org/packages/5d/3f/d61e841c0cf6ae42907728b3a57204f33707701e2add95d7d9ec24631a96/qiskit_ibm_ai_local_transpiler-0.5.0-cp311-cp311-macosx_10_12_x86_64.whl", hash = "sha256:e78c56d6aad102f69d495ffe0d4b460985beb6ffdabe6f51db35926a78fcfed7", size = 1970, upload-time = "2025-11-27T11:08:22.8Z" },
-    { url = "https://files.pythonhosted.org/packages/94/6c/28c4f9d404f87503f98a928bfd1a9ad8a5b67f84a33b77598da76ab04b4b/qiskit_ibm_ai_local_transpiler-0.5.0-cp311-cp311-macosx_11_0_arm64.whl", hash = "sha256:9766f3f90229e12be26583d25f97e2c9047138ef1005886b7a8606cdae90750b", size = 1968, upload-time = "2025-11-27T10:54:48.02Z" },
-    { url = "https://files.pythonhosted.org/packages/96/69/41ea3943fafdc7375d8e0329df4f83b6cab8160420b1b64cea2436329ed0/qiskit_ibm_ai_local_transpiler-0.5.0-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:6368e2b4507794283eeb4c7720829f137f0f33e7d76cd5db0aa92c29947184fa", size = 97611490, upload-time = "2025-11-27T10:58:16.657Z" },
-    { url = "https://files.pythonhosted.org/packages/f3/df/080313238bdc759ab86e2d5e46d86c3f662632223ef0f6605fbe16d1d268/qiskit_ibm_ai_local_transpiler-0.5.0-cp311-cp311-win_amd64.whl", hash = "sha256:cc31d97269adbeaaf5d6e9201ec3a36e21a8e3176a4a96a311b467bcfd8eff12", size = 1960, upload-time = "2025-11-27T10:59:45.289Z" },
-    { url = "https://files.pythonhosted.org/packages/a2/d2/a3dcb81c2f825dca408162714df9c5a6beda0ae6079853c0baa94e70f1e6/qiskit_ibm_ai_local_transpiler-0.5.0-cp312-cp312-macosx_10_12_x86_64.whl", hash = "sha256:b6fbe639091370fd929e8bf8022dbd2ef572a3f82c072cfbc88a22dec69a0db7", size = 1970, upload-time = "2025-11-27T11:09:31.24Z" },
-    { url = "https://files.pythonhosted.org/packages/ba/56/3e9f43341ae52a80c1f1ad750ffbb56831f94be59fbe08738f6112dfd348/qiskit_ibm_ai_local_transpiler-0.5.0-cp312-cp312-macosx_11_0_arm64.whl", hash = "sha256:00e5d0cd88e7ad41b9868516bba3f173cfcfaed54800b4fc29895bbba2db3536", size = 1968, upload-time = "2025-11-27T11:02:54.496Z" },
-    { url = "https://files.pythonhosted.org/packages/82/48/51aeacd768dfcf128fe5003b9114d093ead9eef46a9c9171c92638ca44cd/qiskit_ibm_ai_local_transpiler-0.5.0-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:54a08621b900fe28a43ec0db1bae54a241be4f600ea4391275fe37bb61511b63", size = 97609910, upload-time = "2025-11-27T10:58:23.677Z" },
-    { url = "https://files.pythonhosted.org/packages/3d/16/10bda6a05377858dd9a5231d5106799b7c6eccd8069564327a461f2beb61/qiskit_ibm_ai_local_transpiler-0.5.0-cp312-cp312-win_amd64.whl", hash = "sha256:fc4605567b81d4e2c52e4e9f737a2c177e8bfb96be67e75254938742649f354e", size = 1959, upload-time = "2025-11-27T10:58:28.606Z" },
-    { url = "https://files.pythonhosted.org/packages/10/15/c1efb25bba14ad42d701c903dc9bad866b0b84f2949fb53b6faef48a1fcf/qiskit_ibm_ai_local_transpiler-0.5.0-cp313-cp313-macosx_10_12_x86_64.whl", hash = "sha256:949ac6f1e8a4014bf2f5ecc415d4bacd630e0f0340ab32c79c348e51cf0eff92", size = 1970, upload-time = "2025-11-27T10:56:59.866Z" },
-    { url = "https://files.pythonhosted.org/packages/3b/12/fe0a785344ba6d716822f6d2ad33e6507d4a11366fd42c312c487619b4e2/qiskit_ibm_ai_local_transpiler-0.5.0-cp313-cp313-macosx_11_0_arm64.whl", hash = "sha256:bf949ce5bdb1044659f7f20001c774e2bd57ac068486eba840dd4315fef16fb5", size = 1968, upload-time = "2025-11-27T11:03:16.068Z" },
-    { url = "https://files.pythonhosted.org/packages/dc/f3/05ac8850f9cec6be173de49b182e781e18c4cf95e9c78526a29117051636/qiskit_ibm_ai_local_transpiler-0.5.0-cp313-cp313-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:25a603bd50747b84fd334712972ff6eb0935897c3dc25fdfd1e9e5d824110ac8", size = 97610386, upload-time = "2025-11-27T10:58:42.261Z" },
-    { url = "https://files.pythonhosted.org/packages/30/71/0f417510506c0c0ca6504be7b594634daaec566929a5d94f825e0a7c5e0c/qiskit_ibm_ai_local_transpiler-0.5.0-cp313-cp313-win_amd64.whl", hash = "sha256:b005f4914296af3fe6b8acd0662d35e268707c5393db0e4540ac655cb9c5304e", size = 1959, upload-time = "2025-11-27T10:59:08.17Z" },
+    { url = "https://files.pythonhosted.org/packages/af/f1/5ee112a659e1605a0a5b4fbefc36c743b66e4e1c7123df5c14b40bdd12a2/qiskit_ibm_ai_local_transpiler-0.5.3-cp310-cp310-macosx_10_12_x86_64.whl", hash = "sha256:503c4c811102c5ddae4c989decea098d843d947f4b3eca695e7d6b8c1eef5355", size = 97495149, upload-time = "2025-12-01T08:40:13.268Z" },
+    { url = "https://files.pythonhosted.org/packages/01/d4/aa161911c98a4c85a01d849c3f01ffd3e323f65f0f6b97f517f37bc16c85/qiskit_ibm_ai_local_transpiler-0.5.3-cp310-cp310-macosx_11_0_arm64.whl", hash = "sha256:d5da2d64d3eeaf772369901bc519ec8424359745f2797fb47364be1af16a7c58", size = 98155403, upload-time = "2025-12-01T08:30:40.386Z" },
+    { url = "https://files.pythonhosted.org/packages/30/11/cebff47a66fe4a444a1c61d6daff2e4389b8c05252702816c64f1aed9299/qiskit_ibm_ai_local_transpiler-0.5.3-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:6fba963e745526ef5514eb24bf1acb2d039436121b205f0e496a728341f08194", size = 97612250, upload-time = "2025-12-01T08:33:02.515Z" },
+    { url = "https://files.pythonhosted.org/packages/d8/eb/9ead688b65ca826aeee7d710b42cbf2670ee1d5ac4e7d31f703f9b461e56/qiskit_ibm_ai_local_transpiler-0.5.3-cp310-cp310-win_amd64.whl", hash = "sha256:b310b6faeaaadf0def2aaaef9967e8e033e01f46f73031a144ae4fcd5ce05101", size = 97419186, upload-time = "2025-12-01T08:36:06.002Z" },
+    { url = "https://files.pythonhosted.org/packages/bc/4f/2d130720a410a7da488f428107b3b51b88fe82f673e8c5229b21a24f335a/qiskit_ibm_ai_local_transpiler-0.5.3-cp311-cp311-macosx_10_12_x86_64.whl", hash = "sha256:93a0913889178ffbd70eba0080268882446ad968375a53f771976df1cf527d20", size = 97495309, upload-time = "2025-12-01T08:34:58.883Z" },
+    { url = "https://files.pythonhosted.org/packages/9c/9b/aa3b907ef9d780eaef36b3dc8a219756494bb1cc581933c68d812ac9d948/qiskit_ibm_ai_local_transpiler-0.5.3-cp311-cp311-macosx_11_0_arm64.whl", hash = "sha256:93794d16310452676b9c08b76755bcd0afd5639ff1cbafeb60a34a85375e8ea2", size = 98155268, upload-time = "2025-12-01T08:29:52.078Z" },
+    { url = "https://files.pythonhosted.org/packages/61/5e/cd86f3038f20e02a118a55de0786c2ce30383bd1f7e49ab50c9a151cdf32/qiskit_ibm_ai_local_transpiler-0.5.3-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:09727702fb994612ed41be4acf42266f0083044bfa552a963488e745989cde07", size = 97611489, upload-time = "2025-12-01T08:33:10.681Z" },
+    { url = "https://files.pythonhosted.org/packages/95/11/7e5fa0e08cfffeae35c52b72fda7dcff5f482f18015d6b8a7d900edb57b4/qiskit_ibm_ai_local_transpiler-0.5.3-cp311-cp311-win_amd64.whl", hash = "sha256:4d471020fbd70a317c417b868b03bb6d371a6c7be73f0db3569665713c0b8f52", size = 97418882, upload-time = "2025-12-01T08:34:19.397Z" },
+    { url = "https://files.pythonhosted.org/packages/a8/06/9fa2fa59a7b7c48e04a5deecbcf72ead57a5d13f3863e9badfd967752fa8/qiskit_ibm_ai_local_transpiler-0.5.3-cp312-cp312-macosx_10_12_x86_64.whl", hash = "sha256:68cdd8c24ac351054a288bba6dd3e0ef1c78546ed9fa5b1743a0bc06ae392b70", size = 97496634, upload-time = "2025-12-01T08:37:12.78Z" },
+    { url = "https://files.pythonhosted.org/packages/90/bf/b89adf28f9b45e86d18f3c3a716b48656d1d92dc6f41bdc9f4891e712775/qiskit_ibm_ai_local_transpiler-0.5.3-cp312-cp312-macosx_11_0_arm64.whl", hash = "sha256:50c8b8c1bee2eb48d1165f4121e6138ab5c78174143d647fdfd994f90467dc64", size = 98156400, upload-time = "2025-12-01T08:29:50.498Z" },
+    { url = "https://files.pythonhosted.org/packages/da/92/d9f328c61f81790069e44bcf94cf029c3bdc815057d13fbd24e60b47898c/qiskit_ibm_ai_local_transpiler-0.5.3-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:e127160fd4b2230889732e2987f4249807e5f1b839477f574a46672dd5c87e15", size = 97609909, upload-time = "2025-12-01T08:32:41.509Z" },
+    { url = "https://files.pythonhosted.org/packages/c4/ba/7f2e4dc06fba3451b19634a090d9b1c9469e92ae2cb6f4c0b24886a987ab/qiskit_ibm_ai_local_transpiler-0.5.3-cp312-cp312-win_amd64.whl", hash = "sha256:816477af271633ff4bd1c413de4e8c747ac7a9335400ff1fa12f830b5f4d7613", size = 97416760, upload-time = "2025-12-01T08:34:52.601Z" },
+    { url = "https://files.pythonhosted.org/packages/83/f7/5c39e1f4cbe98c512db23192328a2be25c95f80cf11f58168db4c5437480/qiskit_ibm_ai_local_transpiler-0.5.3-cp313-cp313-macosx_10_12_x86_64.whl", hash = "sha256:f759fdbdbdc9ce096f47475b3825c6adeef1e19a53105f614f5255e7dbd2aa1f", size = 97497352, upload-time = "2025-12-01T08:33:51.557Z" },
+    { url = "https://files.pythonhosted.org/packages/01/8b/772403138c4ae0ded9ae8b2e5513a9c9b8c1d68f0e18589f6c275649bb3e/qiskit_ibm_ai_local_transpiler-0.5.3-cp313-cp313-macosx_11_0_arm64.whl", hash = "sha256:444f9f106ce58a29612f5fe2f3692843074286df2763530ecedddf62cfb1d456", size = 98156657, upload-time = "2025-12-01T08:33:21.912Z" },
+    { url = "https://files.pythonhosted.org/packages/5d/9a/56b8615338e9d399ad8d436f75710f171d75afc51a992aa39dd1082bdcaf/qiskit_ibm_ai_local_transpiler-0.5.3-cp313-cp313-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:dd70bfdd76499fc1340c222a6118b9d8c3e88dccf748d1609eb86d7948091855", size = 97610385, upload-time = "2025-12-01T08:33:04.982Z" },
+    { url = "https://files.pythonhosted.org/packages/7e/c8/daf63ceaf75cadbf2246806c1f3341ca901ccb7abef4ef6829341e956f1f/qiskit_ibm_ai_local_transpiler-0.5.3-cp313-cp313-win_amd64.whl", hash = "sha256:538acba22693ac7133e9514b6a1407bdaae477ca0734fa0bbe290d0b04166fcd", size = 97417003, upload-time = "2025-12-01T08:34:47.863Z" },
 ]
 
 [[package]]
@@ -2148,7 +2149,7 @@ requires-dist = [
     { name = "backoff", specifier = "~=2.0" },
     { name = "networkx", specifier = "==2.8.5" },
     { name = "qiskit", specifier = ">=1.4.2,<3.0.0" },
-    { name = "qiskit-ibm-ai-local-transpiler", marker = "extra == 'ai-local-mode'", specifier = "~=0.5" },
+    { name = "qiskit-ibm-ai-local-transpiler", marker = "extra == 'ai-local-mode'", specifier = "~=0.5.3" },
     { name = "qiskit-qasm3-import", specifier = "~=0.4" },
     { name = "qiskit-serverless", specifier = "~=0.27.0" },
     { name = "requests", specifier = "~=2.0" },
