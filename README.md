@@ -17,15 +17,14 @@ Leverage IBM Quantum's cutting-edge [Qiskit Transpiler Service](https://quantum.
 
 ## 📦 Installation
 
-### Basic Installation
+Install the package with pip:
 ```bash
 pip install qiskit-ibm-transpiler
 ```
 
-### With Local AI Mode Support
-
-For running AI-powered transpiler passes locally:
+**Note**: AI local mode dependencies (`qiskit-ibm-ai-local-transpiler`) are now included by default. The `[ai-local-mode]` extra is maintained for backward compatibility but is no longer required:
 ```bash
+# This still works but is now equivalent to the basic installation
 pip install qiskit-ibm-transpiler[ai-local-mode]
 ```
 

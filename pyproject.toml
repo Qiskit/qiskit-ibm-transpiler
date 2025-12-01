@@ -29,10 +29,11 @@ dependencies = [
     "requests~=2.0",
     "networkx==2.8.5",
     "qiskit-serverless~=0.27.0",
+    "qiskit_ibm_ai_local_transpiler~=0.5",
 ]
 
 [project.optional-dependencies]
-ai-local-mode = ["qiskit_ibm_ai_local_transpiler~=0.5"]
+ai-local-mode = []
 
 [project.urls]
 "Bug Tracker" = "https://github.com/Qiskit/qiskit-ibm-transpiler/issues"
