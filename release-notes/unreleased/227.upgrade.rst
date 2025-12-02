@@ -1,1 +1,0 @@
-Dropped support for Python 3.9, which has reached end-of-life. The minimum supported Python version is now **3.10**. Users running Python 3.9 must upgrade to Python 3.10 or 3.11 to use this version of ``qiskit-ibm-transpiler`` and later.
