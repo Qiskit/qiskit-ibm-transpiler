@@ -45,10 +45,23 @@ def _get_token_from_system():
             )
         with open(qiskit_file, "r") as _sc:
             creds = json.loads(_sc.read())
-        token = creds.get("default-ibm-quantum", {}).get("token")
+
+        # Try known default account names in order of preference
+        for account_name in ["default-ibm-quantum-platform", "default-ibm-quantum"]:
+            token = creds.get(account_name, {}).get("token")
+            if token:
+                break
+
+        # If no default account found, try any account with a token
+        if not token:
+            for account_name, account_data in creds.items():
+                if isinstance(account_data, dict) and account_data.get("token"):
+                    token = account_data.get("token")
+                    break
+
         if token is None:
             raise Exception(
-                f"default-ibm-quantum not found in {qiskit_file}. Please set env var QISKIT_IBM_TOKEN to access the service, or save your IBM Quantum API token using QiskitRuntimeService. "
+                f"No valid account with token found in {qiskit_file}. Please set env var QISKIT_IBM_TOKEN to access the service, or save your IBM Quantum API token using QiskitRuntimeService. "
                 "More info about saving your token using QiskitRuntimeService https://quantum.cloud.ibm.com/docs/api/qiskit-ibm-runtime/qiskit_ibm_runtime.QiskitRuntimeService#save_account"
             )
     return token

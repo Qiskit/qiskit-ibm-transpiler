@@ -32,7 +32,7 @@ pip install qiskit-ibm-transpiler[ai-local-mode]
 
 The package automatically authenticates using your [IBM Quantum Platform credentials](https://quantum.cloud.ibm.com/docs/en/guides/cloud-setup) aligned with how [Qiskit Runtime manages it](https://github.com/Qiskit/qiskit-ibm-runtime/tree/0.40.1?tab=readme-ov-file#qiskit-runtime-service-on-ibm-cloud):
 - Environment variable: `QISKIT_IBM_TOKEN`
-- Configuration file: `~/.qiskit/qiskit-ibm.json` (section: `default-ibm-quantum`)
+- Configuration file: `~/.qiskit/qiskit-ibm.json` (sections: `default-ibm-quantum-platform`, `default-ibm-quantum`, or any saved account)
 
 ## 🚀 Getting Started
 
