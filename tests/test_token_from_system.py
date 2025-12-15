@@ -45,12 +45,14 @@ class TestGetTokenFromSystem:
         """Test that token is retrieved from QISKIT_IBM_TOKEN env var."""
         expected_token = "env_token_12345"
         monkeypatch.setenv("QISKIT_IBM_TOKEN", expected_token)
-        
+
         token = _get_token_from_system()
-        
+
         assert token == expected_token
 
-    def test_token_from_default_ibm_quantum_platform(self, temp_qiskit_dir, clear_env_token):
+    def test_token_from_default_ibm_quantum_platform(
+        self, temp_qiskit_dir, clear_env_token
+    ):
         """Test that default-ibm-quantum-platform account is preferred."""
         expected_token = "platform_token_12345"
         creds = {
@@ -59,12 +61,14 @@ class TestGetTokenFromSystem:
         }
         creds_file = temp_qiskit_dir / "qiskit-ibm.json"
         creds_file.write_text(json.dumps(creds))
-        
+
         token = _get_token_from_system()
-        
+
         assert token == expected_token
 
-    def test_token_fallback_to_default_ibm_quantum(self, temp_qiskit_dir, clear_env_token):
+    def test_token_fallback_to_default_ibm_quantum(
+        self, temp_qiskit_dir, clear_env_token
+    ):
         """Test fallback to default-ibm-quantum when platform key is missing."""
         expected_token = "legacy_token_12345"
         creds = {
@@ -72,9 +76,9 @@ class TestGetTokenFromSystem:
         }
         creds_file = temp_qiskit_dir / "qiskit-ibm.json"
         creds_file.write_text(json.dumps(creds))
-        
+
         token = _get_token_from_system()
-        
+
         assert token == expected_token
 
     def test_token_fallback_to_any_account(self, temp_qiskit_dir, clear_env_token):
@@ -85,54 +89,60 @@ class TestGetTokenFromSystem:
         }
         creds_file = temp_qiskit_dir / "qiskit-ibm.json"
         creds_file.write_text(json.dumps(creds))
-        
+
         token = _get_token_from_system()
-        
+
         assert token == expected_token
 
-    def test_no_credentials_file_raises_exception(self, temp_qiskit_dir, clear_env_token):
+    def test_no_credentials_file_raises_exception(
+        self, temp_qiskit_dir, clear_env_token
+    ):
         """Test that an exception is raised when credentials file doesn't exist."""
         # Don't create the file
-        
+
         with pytest.raises(Exception) as exc_info:
             _get_token_from_system()
-        
+
         assert "does not exist" in str(exc_info.value)
 
-    def test_no_token_in_any_account_raises_exception(self, temp_qiskit_dir, clear_env_token):
+    def test_no_token_in_any_account_raises_exception(
+        self, temp_qiskit_dir, clear_env_token
+    ):
         """Test that an exception is raised when no account has a token."""
         creds = {
             "some-account": {"url": "https://example.com"},  # No token
         }
         creds_file = temp_qiskit_dir / "qiskit-ibm.json"
         creds_file.write_text(json.dumps(creds))
-        
+
         with pytest.raises(Exception) as exc_info:
             _get_token_from_system()
-        
+
         assert "No valid account with token found" in str(exc_info.value)
 
-    def test_empty_credentials_file_raises_exception(self, temp_qiskit_dir, clear_env_token):
+    def test_empty_credentials_file_raises_exception(
+        self, temp_qiskit_dir, clear_env_token
+    ):
         """Test that an exception is raised when credentials file is empty."""
         creds = {}
         creds_file = temp_qiskit_dir / "qiskit-ibm.json"
         creds_file.write_text(json.dumps(creds))
-        
+
         with pytest.raises(Exception) as exc_info:
             _get_token_from_system()
-        
+
         assert "No valid account with token found" in str(exc_info.value)
 
     def test_env_token_takes_priority_over_file(self, temp_qiskit_dir, monkeypatch):
         """Test that env var token takes priority over file."""
         env_token = "env_priority_token"
         file_token = "file_token"
-        
+
         monkeypatch.setenv("QISKIT_IBM_TOKEN", env_token)
         creds = {"default-ibm-quantum-platform": {"token": file_token}}
         creds_file = temp_qiskit_dir / "qiskit-ibm.json"
         creds_file.write_text(json.dumps(creds))
-        
+
         token = _get_token_from_system()
-        
+
         assert token == env_token
