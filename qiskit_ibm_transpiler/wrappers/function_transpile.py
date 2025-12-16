@@ -41,12 +41,13 @@ class QiskitTranspilerFunction:
         channel: str = None,
         timeout: int = 300,
         instance: str = None,
+        account_name: str = None,
     ):
         """Connects the serverless client and initialized the function"""
         if url is None:
             url = self.SERVERLESS_URL
         if token is None:
-            token = _get_token_from_system()
+            token = _get_token_from_system(account_name=account_name)
         if channel is None:
             channel = self.DEFAULT_CHANNEL
         self.instance = instance

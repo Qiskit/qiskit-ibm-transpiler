@@ -81,18 +81,50 @@ class TestGetTokenFromSystem:
 
         assert token == expected_token
 
-    def test_token_fallback_to_any_account(self, temp_qiskit_dir, clear_env_token):
-        """Test fallback to any account with a token when defaults are missing."""
+    def test_token_from_specified_account_name(self, temp_qiskit_dir, clear_env_token):
+        """Test that token is retrieved from a specified account_name."""
         expected_token = "custom_account_token_12345"
         creds = {
             "my-custom-account": {"token": expected_token},
+            "default-ibm-quantum-platform": {"token": "default_token"},
         }
         creds_file = temp_qiskit_dir / "qiskit-ibm.json"
         creds_file.write_text(json.dumps(creds))
 
-        token = _get_token_from_system()
+        token = _get_token_from_system(account_name="my-custom-account")
 
         assert token == expected_token
+
+    def test_token_fallback_to_default_when_account_name_not_found(
+        self, temp_qiskit_dir, clear_env_token
+    ):
+        """Test fallback to default accounts when specified account_name is not found."""
+        expected_token = "default_platform_token"
+        creds = {
+            "default-ibm-quantum-platform": {"token": expected_token},
+        }
+        creds_file = temp_qiskit_dir / "qiskit-ibm.json"
+        creds_file.write_text(json.dumps(creds))
+
+        token = _get_token_from_system(account_name="non-existent-account")
+
+        assert token == expected_token
+
+    def test_no_token_with_account_name_raises_exception(
+        self, temp_qiskit_dir, clear_env_token
+    ):
+        """Test that an exception is raised when neither account_name nor defaults have a token."""
+        creds = {
+            "some-account": {"url": "https://example.com"},  # No token
+        }
+        creds_file = temp_qiskit_dir / "qiskit-ibm.json"
+        creds_file.write_text(json.dumps(creds))
+
+        with pytest.raises(Exception) as exc_info:
+            _get_token_from_system(account_name="my-custom-account")
+
+        assert "my-custom-account" in str(exc_info.value)
+        assert "No valid account with token found" in str(exc_info.value)
 
     def test_no_credentials_file_raises_exception(
         self, temp_qiskit_dir, clear_env_token
