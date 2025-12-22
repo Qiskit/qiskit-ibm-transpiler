@@ -1,0 +1,1 @@
+Enhanced system token retrieval to support different account names. The token retrieval now tries ``default-ibm-quantum-platform`` before ``default-ibm-quantum``, improving compatibility with ``qiskit-ibm-runtime``.
