@@ -32,7 +32,19 @@ pip install qiskit-ibm-transpiler[ai-local-mode]
 
 The package automatically authenticates using your [IBM Quantum Platform credentials](https://quantum.cloud.ibm.com/docs/en/guides/cloud-setup) aligned with how [Qiskit Runtime manages it](https://github.com/Qiskit/qiskit-ibm-runtime/tree/0.40.1?tab=readme-ov-file#qiskit-runtime-service-on-ibm-cloud):
 - Environment variable: `QISKIT_IBM_TOKEN`
-- Configuration file: `~/.qiskit/qiskit-ibm.json` (section: `default-ibm-quantum`)
+- Configuration file: `~/.qiskit/qiskit-ibm.json` (searches in order: `default-ibm-quantum-platform`, `default-ibm-quantum`)
+
+You can also specify a particular saved account by name using the `account_name` parameter:
+
+```python
+from qiskit_ibm_transpiler.transpiler_service import TranspilerService
+
+# Use a specific saved account
+service = TranspilerService(
+    backend_name="ibm_torino",
+    account_name="my-custom-account"  # Uses this account, falls back to defaults if not found
+)
+```
 
 ## 🚀 Getting Started
 

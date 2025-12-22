@@ -109,11 +109,11 @@ def mock_token(request, monkeypatch):
     else:
         monkeypatch.setattr(
             "qiskit_ibm_transpiler.wrappers.base._get_token_from_system",
-            lambda: "FAKE",
+            lambda account_name=None: "FAKE",
         )
         monkeypatch.setattr(
             "qiskit_ibm_transpiler.wrappers.function_transpile._get_token_from_system",
-            lambda: "FAKE",
+            lambda account_name=None: "FAKE",
         )
 
 

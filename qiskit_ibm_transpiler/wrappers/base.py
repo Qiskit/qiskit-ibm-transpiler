@@ -33,7 +33,7 @@ class BackendTaskError(Exception):
         self.msg = msg
 
 
-def _get_token_from_system():
+def _get_token_from_system(account_name: str = None):
     token = os.environ.get("QISKIT_IBM_TOKEN")
 
     if not token:
@@ -45,12 +45,30 @@ def _get_token_from_system():
             )
         with open(qiskit_file, "r") as _sc:
             creds = json.loads(_sc.read())
-        token = creds.get("default-ibm-quantum", {}).get("token")
+
+        # Build the list of account names to try
+        accounts_to_try = []
+        if account_name:
+            accounts_to_try.append(account_name)
+        accounts_to_try.extend(["default-ibm-quantum-platform", "default-ibm-quantum"])
+
+        # Try account names in order of preference
+        for name in accounts_to_try:
+            token = creds.get(name, {}).get("token")
+            if token:
+                break
+
         if token is None:
-            raise Exception(
-                f"default-ibm-quantum not found in {qiskit_file}. Please set env var QISKIT_IBM_TOKEN to access the service, or save your IBM Quantum API token using QiskitRuntimeService. "
-                "More info about saving your token using QiskitRuntimeService https://quantum.cloud.ibm.com/docs/api/qiskit-ibm-runtime/qiskit_ibm_runtime.QiskitRuntimeService#save_account"
-            )
+            if account_name:
+                raise Exception(
+                    f"No valid account with token found for '{account_name}' or default accounts in {qiskit_file}. Please set env var QISKIT_IBM_TOKEN to access the service, or save your IBM Quantum API token using QiskitRuntimeService. "
+                    "More info about saving your token using QiskitRuntimeService https://quantum.cloud.ibm.com/docs/api/qiskit-ibm-runtime/qiskit_ibm_runtime.QiskitRuntimeService#save_account"
+                )
+            else:
+                raise Exception(
+                    f"No valid account with token found in {qiskit_file}. Please set env var QISKIT_IBM_TOKEN to access the service, or save your IBM Quantum API token using QiskitRuntimeService. "
+                    "More info about saving your token using QiskitRuntimeService https://quantum.cloud.ibm.com/docs/api/qiskit-ibm-runtime/qiskit_ibm_runtime.QiskitRuntimeService#save_account"
+                )
     return token
 
 
