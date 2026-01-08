@@ -33,43 +33,65 @@ class BackendTaskError(Exception):
         self.msg = msg
 
 
-def _get_token_from_system(account_name: str = None):
-    token = os.environ.get("QISKIT_IBM_TOKEN")
+def _get_credentials_from_system(account_name: str = None):
+    """Get both token and instance from system.
 
-    if not token:
-        qiskit_file = Path.home() / ".qiskit" / "qiskit-ibm.json"
-        if not qiskit_file.exists():
+    This function retrieves authentication credentials from the system, checking
+    environment variables first and then falling back to the credentials file.
+
+    Args:
+        account_name: Optional name of a specific account to use.
+
+    Returns:
+        dict: A dictionary containing 'token' and 'instance' keys.
+    """
+    token = os.environ.get("QISKIT_IBM_TOKEN")
+    instance = os.environ.get("QISKIT_IBM_INSTANCE")
+
+    # If we have token from env var, return what we have
+    if token:
+        return {"token": token, "instance": instance}
+
+    # Otherwise, try to read from credentials file
+    qiskit_file = Path.home() / ".qiskit" / "qiskit-ibm.json"
+    if not qiskit_file.exists():
+        raise Exception(
+            f"Credentials file {qiskit_file} does not exist. Please set env var QISKIT_IBM_TOKEN to access the service, or save your IBM Quantum API token using QiskitRuntimeService. "
+            "More info about saving your token using QiskitRuntimeService https://quantum.cloud.ibm.com/docs/api/qiskit-ibm-runtime/qiskit_ibm_runtime.QiskitRuntimeService#save_account"
+        )
+    with open(qiskit_file, "r") as _sc:
+        creds = json.loads(_sc.read())
+
+    # Build the list of account names to try
+    accounts_to_try = []
+    if account_name:
+        accounts_to_try.append(account_name)
+    accounts_to_try.extend(["default-ibm-quantum-platform", "default-ibm-quantum"])
+
+    # Try account names in order of preference
+    account_data = None
+    for name in accounts_to_try:
+        account_creds = creds.get(name, {})
+        if account_creds.get("token"):
+            account_data = account_creds
+            break
+
+    if account_data is None:
+        if account_name:
             raise Exception(
-                f"Credentials file {qiskit_file} does not exist. Please set env var QISKIT_IBM_TOKEN to access the service, or save your IBM Quantum API token using QiskitRuntimeService. "
+                f"No valid account with token found for '{account_name}' or default accounts in {qiskit_file}. Please set env var QISKIT_IBM_TOKEN to access the service, or save your IBM Quantum API token using QiskitRuntimeService. "
                 "More info about saving your token using QiskitRuntimeService https://quantum.cloud.ibm.com/docs/api/qiskit-ibm-runtime/qiskit_ibm_runtime.QiskitRuntimeService#save_account"
             )
-        with open(qiskit_file, "r") as _sc:
-            creds = json.loads(_sc.read())
+        else:
+            raise Exception(
+                f"No valid account with token found in {qiskit_file}. Please set env var QISKIT_IBM_TOKEN to access the service, or save your IBM Quantum API token using QiskitRuntimeService. "
+                "More info about saving your token using QiskitRuntimeService https://quantum.cloud.ibm.com/docs/api/qiskit-ibm-runtime/qiskit_ibm_runtime.QiskitRuntimeService#save_account"
+            )
 
-        # Build the list of account names to try
-        accounts_to_try = []
-        if account_name:
-            accounts_to_try.append(account_name)
-        accounts_to_try.extend(["default-ibm-quantum-platform", "default-ibm-quantum"])
-
-        # Try account names in order of preference
-        for name in accounts_to_try:
-            token = creds.get(name, {}).get("token")
-            if token:
-                break
-
-        if token is None:
-            if account_name:
-                raise Exception(
-                    f"No valid account with token found for '{account_name}' or default accounts in {qiskit_file}. Please set env var QISKIT_IBM_TOKEN to access the service, or save your IBM Quantum API token using QiskitRuntimeService. "
-                    "More info about saving your token using QiskitRuntimeService https://quantum.cloud.ibm.com/docs/api/qiskit-ibm-runtime/qiskit_ibm_runtime.QiskitRuntimeService#save_account"
-                )
-            else:
-                raise Exception(
-                    f"No valid account with token found in {qiskit_file}. Please set env var QISKIT_IBM_TOKEN to access the service, or save your IBM Quantum API token using QiskitRuntimeService. "
-                    "More info about saving your token using QiskitRuntimeService https://quantum.cloud.ibm.com/docs/api/qiskit-ibm-runtime/qiskit_ibm_runtime.QiskitRuntimeService#save_account"
-                )
-    return token
+    return {
+        "token": account_data.get("token"),
+        "instance": account_data.get("instance"),
+    }
 
 
 def _status_interval_generator(fast_interval, slow_interval, switch_time):
@@ -101,7 +123,7 @@ class QiskitTranspilerService:
         self.base_url = base_url
         self.url = os.environ.get(url_env_var, url_with_path).rstrip("/")
 
-        token = token if token else _get_token_from_system()
+        token = token if token else _get_credentials_from_system()["token"]
 
         self.timeout = timeout
 
