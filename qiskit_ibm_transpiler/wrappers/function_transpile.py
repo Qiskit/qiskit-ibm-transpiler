@@ -21,7 +21,7 @@ from qiskit_serverless import ServerlessClient
 
 from qiskit_ibm_transpiler.types import OptimizationOptions
 
-from .base import _get_token_from_system
+from .base import _get_credentials_from_system
 
 # TODO: add actual logging if required, else remove this
 logger = logging.getLogger(__name__)
@@ -46,8 +46,13 @@ class QiskitTranspilerFunction:
         """Connects the serverless client and initialized the function"""
         if url is None:
             url = self.SERVERLESS_URL
-        if token is None:
-            token = _get_token_from_system(account_name=account_name)
+        # If token or instance is not provided, try to get both from system credentials
+        if token is None or instance is None:
+            credentials = _get_credentials_from_system(account_name=account_name)
+            if token is None:
+                token = credentials["token"]
+            if instance is None:
+                instance = credentials["instance"]
         if channel is None:
             channel = self.DEFAULT_CHANNEL
         self.instance = instance
