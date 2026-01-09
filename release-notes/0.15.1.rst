@@ -1,0 +1,8 @@
+0.15.1 (2026-01-08)
+===================
+
+New features
+------------
+
+- ``TranspilerService`` now automatically reads the ``instance`` (CRN) from the saved account credentials, similar to other IBM Quantum services like ``qiskit-ibm-runtime``, ``qiskit-ibm-catalog``, and ``qiskit-serverless``. The instance is retrieved from the saved credentials file (``~/.qiskit/qiskit-ibm.json``) or from the ``QISKIT_IBM_INSTANCE`` environment variable, eliminating the need to explicitly provide the ``instance`` parameter when initializing the service. (`233 <https://github.com/Qiskit/qiskit-ibm-transpiler/pull/233>`__)
+- Enhanced system token retrieval to support different account names. The token retrieval now tries ``default-ibm-quantum-platform`` before ``default-ibm-quantum``, improving compatibility with ``qiskit-ibm-runtime``. (`235 <https://github.com/Qiskit/qiskit-ibm-transpiler/pull/235>`__)
