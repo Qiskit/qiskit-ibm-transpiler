@@ -28,7 +28,7 @@ dependencies = [
     "qiskit-qasm3-import~=0.4",
     "requests~=2.0",
     "networkx==2.8.5",
-    "qiskit-serverless~=0.27.0",
+    "qiskit-serverless~=0.28.0",
     "qiskit_ibm_ai_local_transpiler~=0.5",
 ]
 
