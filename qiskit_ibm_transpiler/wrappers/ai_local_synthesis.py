@@ -288,10 +288,10 @@ class AILocalCliffordSynthesis:
 
     def _prepare_input_clifford(
         self,
-        circuit: Union[QuantumCircuit, Clifford],
-        subgraph_perm: List[int],
+        circuit: QuantumCircuit | Clifford,
+        subgraph_perm: list[int],
         target_qubits: int,
-    ) -> Optional[Clifford]:
+    ) -> Clifford | None:
         clifford = circuit if isinstance(circuit, Clifford) else Clifford(circuit)
         clifford = perm_cliff(clifford, subgraph_perm)
 
@@ -311,10 +311,10 @@ class AILocalCliffordSynthesis:
     def _synthesize_clifford_circuits(
         self,
         coupling_map: nx.Graph,
-        circuits: List[Union[QuantumCircuit, Clifford]],
-        qargs: List[List[int]],
-    ) -> List[Optional[QuantumCircuit]]:
-        synthesized_circuits: List[Optional[QuantumCircuit]] = []
+        circuits: list[QuantumCircuit | Clifford],
+        qargs: list[list[int]],
+    ) -> list[QuantumCircuit | None]:
+        synthesized_circuits: list[QuantumCircuit | None] = []
 
         for circuit, circuit_qargs in zip(circuits, qargs):
             try:
@@ -493,10 +493,10 @@ class AILocalLinearFunctionSynthesis:
 
     def _prepare_input_circuit(
         self,
-        circuit: Union[QuantumCircuit, LinearFunction],
-        subgraph_perm: List[int],
+        circuit: QuantumCircuit | LinearFunction,
+        subgraph_perm: list[int],
         target_qubits: int,
-    ) -> Optional[QuantumCircuit]:
+    ) -> QuantumCircuit | None:
         """Convert the collected circuit into the representation expected by the model."""
 
         if isinstance(circuit, LinearFunction):
@@ -524,12 +524,12 @@ class AILocalLinearFunctionSynthesis:
     def _synthesize_linear_function_circuits(
         self,
         coupling_map: nx.Graph,
-        circuits: List[Union[QuantumCircuit, LinearFunction]],
-        qargs: List[List[int]],
-    ) -> List[Optional[QuantumCircuit]]:
+        circuits: list[QuantumCircuit | LinearFunction],
+        qargs: list[list[int]],
+    ) -> list[QuantumCircuit | None]:
         """Return synthesized circuits for each linear-function block."""
 
-        synthesized_circuits: List[Optional[QuantumCircuit]] = []
+        synthesized_circuits: list[QuantumCircuit | None] = []
 
         for circuit, circuit_qargs in zip(circuits, qargs):
             try:
@@ -626,7 +626,7 @@ class AILocalPermutationSynthesis:
 
         self.model_repo = model_repo
 
-    def embed_perm(self, perm_circ: List[int], num_qubits: int) -> List[int]:
+    def embed_perm(self, perm_circ: list[int], num_qubits: int) -> list[int]:
         """Embed a smaller permutation array into a larger register."""
 
         if num_qubits < len(perm_circ):
@@ -640,12 +640,12 @@ class AILocalPermutationSynthesis:
     def get_synthesized_permutation_circuits(
         self,
         coupling_map: nx.Graph,
-        permutations_list: List[List[int]],
-        qargs: List[List[int]],
-    ) -> List[Optional[QuantumCircuit]]:
+        permutations_list: list[list[int]],
+        qargs: list[list[int]],
+    ) -> list[QuantumCircuit | None]:
         """Return synthesized circuits for each permutation block."""
 
-        synthesized_circuits: List[Optional[QuantumCircuit]] = []
+        synthesized_circuits: list[QuantumCircuit | None] = []
 
         for permutation, circuit_qargs in zip(permutations_list, qargs):
             try:
@@ -679,7 +679,7 @@ class AILocalPermutationSynthesis:
                 synthesized_circuits.append(None)
                 continue
 
-            perm_input: List[int] = list(permutation)
+            perm_input: list[int] = list(permutation)
             if model_n_qubits > circ_n_qubits:
                 perm_input = self.embed_perm(perm_input, model_n_qubits)
 
