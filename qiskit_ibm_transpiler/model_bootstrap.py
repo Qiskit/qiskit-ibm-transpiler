@@ -165,11 +165,24 @@ def ensure_models_loaded(
             else config.default_subdir
         )
 
-        snapshot_path = Path(
-            HFInterface().download_models(
-                repo_id=resolved_repo_id, revision=resolved_revision
+        try:
+            snapshot_path = Path(
+                HFInterface().download_models(
+                    repo_id=resolved_repo_id, revision=resolved_revision
+                )
             )
-        )
+        except Exception as exc:
+            logger.error(
+                "Failed to download %s models from %s@%s. "
+                "Check network connection and verify repository exists. "
+                "To use a different repository, set %s. Error: %s",
+                model_type,
+                resolved_repo_id,
+                resolved_revision,
+                config.repo_env,
+                exc
+            )
+            return repo
 
         _register_models(model_type, snapshot_path, resolved_subdir, config)
         _BOOTSTRAPPED_TYPES.add(model_type)
@@ -185,9 +198,24 @@ def _register_models(
     repo = get_model_repository(model_type)
     root = snapshot_path / subdir if subdir else snapshot_path
     if not root.exists():
-        logger.warning(
-            "Model directory '%s' not found in snapshot %s", subdir, snapshot_path
-        )
+        env_prefix = f"QISKIT_TRANSPILER_{_normalize_type_name(model_type)}"
+        if subdir:
+            logger.error(
+                "Model subdirectory '%s' not found in downloaded snapshot at %s. "
+                "Check that %s_SUBDIR is correct. Available directories: %s",
+                subdir,
+                snapshot_path,
+                env_prefix,
+                [d.name for d in snapshot_path.iterdir() if d.is_dir()]
+            )
+        else:
+            logger.error(
+                "No models found in snapshot at %s. "
+                "The repository may be empty or invalid. "
+                "Verify %s_REPO_ID points to a valid model repository.",
+                snapshot_path,
+                env_prefix
+            )
         return
 
     for config_path in _iter_config_paths(root, config.config_glob):
@@ -217,10 +245,28 @@ def _register_models(
         try:
             model = config.loader(config_path, model_path)
         except Exception as exc:  # pragma: no cover - dependent on external files
-            logger.warning("Failed to load model from %s: %s", config_path, exc)
+            logger.warning(
+                "Failed to load %s model from %s: %s. "
+                "The model file may be corrupted or incompatible. "
+                "Try clearing the cache: rm -rf ~/.cache/huggingface/hub/models--*ai-transpiler*",
+                model_type,
+                config_path,
+                exc
+            )
             continue
 
         repo.register(topology_hash, model, coupling_map)
+
+    # Warn if no models were registered
+    if len(repo) == 0:
+        env_prefix = f"QISKIT_TRANSPILER_{_normalize_type_name(model_type)}"
+        logger.warning(
+            "No %s models were successfully registered. "
+            "Synthesis for this model type will fail. "
+            "Verify that %s_REPO_ID contains valid model files.",
+            model_type,
+            env_prefix
+        )
 
 
 def _iter_config_paths(root: Path, pattern: str) -> Iterable[Path]:

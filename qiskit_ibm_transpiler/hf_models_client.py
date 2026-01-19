@@ -33,7 +33,7 @@ class HFInterface:
 
     hf_api = None
 
-    def __init__(self, endpoint: str = None, token: str = None):
+    def __init__(self, endpoint: str | None = None, token: str | None = None):
         """Build a reusable :class:`huggingface_hub.HfApi` client.
 
         Parameters
