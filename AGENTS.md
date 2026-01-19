@@ -25,11 +25,11 @@ uv run scripts/docs
 
 ## Code Style
 
-- **Formatter**: Black with line length 88
+- **Formatter**: Ruff for Python files (line length 88), Black for notebooks (`black[jupyter]`)
 - **Linter**: Ruff with rules `E` (errors) and `I` (imports)
 - **Target Python**: 3.11
 - **Docstrings**: reStructuredText format for Sphinx
-- **Imports**: Use absolute imports, sorted by isort rules
+- **Imports**: Use absolute imports, sorted by Ruff's `I` rule
 
 ## Testing
 
