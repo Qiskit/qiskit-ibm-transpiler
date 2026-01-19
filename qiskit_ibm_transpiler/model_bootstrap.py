@@ -180,7 +180,7 @@ def ensure_models_loaded(
                 resolved_repo_id,
                 resolved_revision,
                 config.repo_env,
-                exc
+                exc,
             )
             return repo
 
@@ -206,7 +206,7 @@ def _register_models(
                 subdir,
                 snapshot_path,
                 env_prefix,
-                [d.name for d in snapshot_path.iterdir() if d.is_dir()]
+                [d.name for d in snapshot_path.iterdir() if d.is_dir()],
             )
         else:
             logger.error(
@@ -214,7 +214,7 @@ def _register_models(
                 "The repository may be empty or invalid. "
                 "Verify %s_REPO_ID points to a valid model repository.",
                 snapshot_path,
-                env_prefix
+                env_prefix,
             )
         return
 
@@ -251,7 +251,7 @@ def _register_models(
                 "Try clearing the cache: rm -rf ~/.cache/huggingface/hub/models--*ai-transpiler*",
                 model_type,
                 config_path,
-                exc
+                exc,
             )
             continue
 
@@ -265,7 +265,7 @@ def _register_models(
             "Synthesis for this model type will fail. "
             "Verify that %s_REPO_ID contains valid model files.",
             model_type,
-            env_prefix
+            env_prefix,
         )
 
 

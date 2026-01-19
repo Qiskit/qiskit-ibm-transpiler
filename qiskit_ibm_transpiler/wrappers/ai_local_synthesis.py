@@ -162,6 +162,7 @@ def perm_cliff(cliff, perm):
     cliff.destab = cliff.destab[perm, :]
     return cliff
 
+
 class AILocalCliffordSynthesis:
     """Local-mode Clifford synthesis backed by cached RL models."""
 
