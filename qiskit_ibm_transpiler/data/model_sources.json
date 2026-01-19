@@ -1,16 +1,16 @@
 {
   "permutation": {
-    "repo_id": "Qiskit/ai-transpiler_permutations/",
+    "repo_id": "qiskit/ai-transpiler_permutations",
     "revision": "main",
     "subdir": null
   },
   "linear_function": {
-    "repo_id": "Qiskit/ai-transpiler_linear-functions",
+    "repo_id": "qiskit/ai-transpiler_linear-functions",
     "revision": "main",
     "subdir": null
   },
   "clifford": {
-    "repo_id": "Qiskit/ai-transpiler_cliffords",
+    "repo_id": "qiskit/ai-transpiler_cliffords",
     "revision": "main",
     "subdir": null
   }
