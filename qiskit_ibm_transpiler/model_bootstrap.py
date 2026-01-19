@@ -13,6 +13,8 @@ from pathlib import Path
 from threading import RLock
 from typing import Callable, Dict, Iterable, Mapping, Optional, Set
 
+import yaml
+
 from qiskit_gym.rl.synthesis import RLSynthesis
 
 from .hf_models_client import HFInterface
@@ -46,18 +48,20 @@ class ModelTypeConfig:
 
 def _load_static_sources() -> Dict[str, Dict[str, Optional[str]]]:
     try:
-        content = resources.read_text(
-            "qiskit_ibm_transpiler.data", "model_sources.json", encoding="utf-8"
-        )
-        return json.loads(content)
+        data_files = resources.files("qiskit_ibm_transpiler") / "data"
+        yaml_file = data_files / "model_sources.yaml"
+        content = yaml_file.read_text(encoding="utf-8")
+        return yaml.safe_load(content) or {}
     except FileNotFoundError:
         logger.debug(
-            "model_sources.json not found; falling back to env-only configuration"
+            "model_sources.yaml not found; falling back to env-only configuration"
         )
     except ModuleNotFoundError:
         logger.debug(
             "Data package not available; falling back to env-only configuration"
         )
+    except yaml.YAMLError as exc:
+        logger.warning("Failed to parse YAML model sources: %s", exc)
     except Exception as exc:  # pragma: no cover - unexpected
         logger.warning("Failed to load static model sources: %s", exc)
     return {}

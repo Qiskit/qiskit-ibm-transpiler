@@ -183,3 +183,6 @@ plugin_src/service_credentials.json
 
 # Generated release notes file
 docs/release-notes.rst
+
+# Huggingface cache
+models/

@@ -12,7 +12,6 @@
 
 import importlib
 import logging
-from typing import List, Optional, Union
 
 import networkx as nx
 import numpy as np
@@ -36,58 +35,10 @@ qiskit_ibm_ai_local_transpiler = (
     else None
 )
 
-AICliffordInference = getattr(
-    qiskit_ibm_ai_local_transpiler,
-    "AICliffordInference",
-    "AICliffordInference not found",
-)
-AILinearFunctionInference = getattr(
-    qiskit_ibm_ai_local_transpiler,
-    "AILinearFunctionInference",
-    "AILinearFunctionInference not found",
-)
-AIPermutationInference = getattr(
-    qiskit_ibm_ai_local_transpiler,
-    "AIPermutationInference",
-    "AIPermutationInference not found",
-)
-
-qiskit_ibm_ai_local_transpiler_linear_function = getattr(
-    qiskit_ibm_ai_local_transpiler,
-    "linear_function",
-    "linear_function module on qiskit_ibm_ai_local_transpiler not found",
-)
-qiskit_ibm_ai_local_transpiler_permutation = getattr(
-    qiskit_ibm_ai_local_transpiler,
-    "permutation",
-    "permutation module on qiskit_ibm_ai_local_transpiler not found",
-)
-qiskit_ibm_ai_local_transpiler_clifford = getattr(
-    qiskit_ibm_ai_local_transpiler,
-    "clifford",
-    "clifford module on qiskit_ibm_ai_local_transpiler not found",
-)
-
 qiskit_ibm_ai_local_transpiler_pauli = getattr(
     qiskit_ibm_ai_local_transpiler,
     "pauli",
     "pauli module on qiskit_ibm_ai_local_transpiler not found",
-)
-
-LINEAR_FUNCTION_COUPLING_MAPS_BY_HASHES_DICT = getattr(
-    qiskit_ibm_ai_local_transpiler_linear_function,
-    "LINEAR_FUNCTION_COUPLING_MAPS_BY_HASHES_DICT",
-    "LINEAR_FUNCTION_COUPLING_MAPS_BY_HASHES_DICT not found",
-)
-PERMUTATION_COUPLING_MAPS_BY_HASHES_DICT = getattr(
-    qiskit_ibm_ai_local_transpiler_permutation,
-    "PERMUTATION_COUPLING_MAPS_BY_HASHES_DICT",
-    "PERMUTATION_COUPLING_MAPS_BY_HASHES_DICT not found",
-)
-CLIFFORD_COUPLING_MAPS_BY_HASHES_DICT = getattr(
-    qiskit_ibm_ai_local_transpiler_clifford,
-    "CLIFFORD_COUPLING_MAPS_BY_HASHES_DICT",
-    "CLIFFORD_COUPLING_MAPS_BY_HASHES_DICT not found",
 )
 
 if qiskit_ibm_ai_local_transpiler:
@@ -210,75 +161,6 @@ def perm_cliff(cliff, perm):
     cliff.stab = cliff.stab[perm, :]
     cliff.destab = cliff.destab[perm, :]
     return cliff
-
-
-def get_synthesized_linear_function_circuits(
-    coupling_map: nx.Graph, clifford_dicts: list[dict], qargs: list[list[int]]
-) -> list[QuantumCircuit]:
-    synthesized_circuits = []
-
-    for index, circuit_qargs in enumerate(qargs):
-        try:
-            subgraph_perm, cmap_hash = get_mapping_perm(
-                coupling_map,
-                circuit_qargs,
-                LINEAR_FUNCTION_COUPLING_MAPS_BY_HASHES_DICT,
-            )
-        except BaseException as e:
-            logger.warning(e)
-            continue
-
-        # Generate the Clifford from the dictionary to send it to the model and permute it
-        clifford = perm_cliff(Clifford.from_dict(clifford_dicts[index]), subgraph_perm)
-
-        synthesized_linear_function = AILinearFunctionInference().synthesize(
-            cliff=clifford, coupling_map_hash=cmap_hash
-        )
-
-        # Permute the circuit back
-        synthesized_circuit = QuantumCircuit(
-            synthesized_linear_function.num_qubits
-        ).compose(synthesized_linear_function, qubits=subgraph_perm)
-
-        # synthesized_circuit could be None or have a value, we return it in both cases
-        synthesized_circuits.append(synthesized_circuit)
-
-    return synthesized_circuits
-
-
-def get_synthesized_clifford_circuits(
-    coupling_map: nx.Graph, clifford_dicts: list[dict], qargs: list[list[int]]
-) -> list[QuantumCircuit]:
-    synthesized_circuits = []
-
-    for index, circuit_qargs in enumerate(qargs):
-        try:
-            subgraph_perm, cmap_hash = get_mapping_perm(
-                coupling_map,
-                circuit_qargs,
-                CLIFFORD_COUPLING_MAPS_BY_HASHES_DICT,
-            )
-        except BaseException as e:
-            logger.warning(e)
-            continue
-
-        # Generate the Clifford from the dictionary to send it to the model and permute it
-        clifford = perm_cliff(Clifford.from_dict(clifford_dicts[index]), subgraph_perm)
-
-        synthesized_linear_function = AICliffordInference().synthesize(
-            cliff=clifford, coupling_map_hash=cmap_hash
-        )
-
-        # Permute the circuit back
-        synthesized_circuit = QuantumCircuit(
-            synthesized_linear_function.num_qubits
-        ).compose(synthesized_linear_function, qubits=subgraph_perm)
-
-        # synthesized_circuit could be None or have a value, we return it in both cases
-        synthesized_circuits.append(synthesized_circuit)
-
-    return synthesized_circuits
-
 
 class AILocalCliffordSynthesis:
     """Local-mode Clifford synthesis backed by cached RL models."""

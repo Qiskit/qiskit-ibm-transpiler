@@ -52,7 +52,6 @@ class HFInterface:
                 "endpoint": endpoint or os.getenv("QISKIT_TRANSPILER_HF_ENDPOINT"),
                 "token": token or os.getenv("QISKIT_TRANSPILER_HF_TOKEN"),
             }
-            print(hf_kwargs)
             HFInterface.hf_api = HfApi(**hf_kwargs)
 
     def _get_rev_(self, repo_id: str, revision: str):
