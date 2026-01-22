@@ -209,7 +209,7 @@ class AILocalCliffordSynthesis:
                 subgraph_perm, cmap_hash = get_mapping_perm(
                     coupling_map, circuit_qargs, self.model_repo
                 )
-            except BaseException as exc:
+            except Exception as exc:
                 logger.warning(exc)
                 synthesized_circuits.append(None)
                 continue
@@ -301,7 +301,7 @@ def get_synthesized_pauli_circuits(
                 circuit_qargs,
                 PAULI_COUPLING_MAPS_BY_HASHES_DICT,
             )
-        except BaseException as e:
+        except Exception as e:
             logger.warning(e)
             synthesized_circuits.append(None)
             continue
@@ -427,7 +427,7 @@ class AILocalLinearFunctionSynthesis:
                 subgraph_perm, cmap_hash = get_mapping_perm(
                     coupling_map, circuit_qargs, self.model_repo
                 )
-            except BaseException as exc:
+            except Exception as exc:
                 logger.warning(exc)
                 synthesized_circuits.append(None)
                 continue
@@ -546,7 +546,7 @@ class AILocalPermutationSynthesis:
                 subgraph_perm, cmap_hash = get_mapping_perm(
                     coupling_map, circuit_qargs, self.model_repo
                 )
-            except BaseException as exc:
+            except Exception as exc:
                 logger.warning(exc)
                 synthesized_circuits.append(None)
                 continue
