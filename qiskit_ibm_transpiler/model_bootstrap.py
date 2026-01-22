@@ -172,16 +172,15 @@ def ensure_models_loaded(
                 )
             )
         except Exception as exc:
-            logger.error(
-                "Failed to download %s models from %s@%s. "
-                "Check network connection and verify repository exists. "
-                "To use a different repository, set %s. Error: %s",
-                model_type,
-                resolved_repo_id,
-                resolved_revision,
-                config.repo_env,
-                exc,
+            msg = (
+                f"Failed to download {model_type} models from "
+                f"{resolved_repo_id}@{resolved_revision}. "
+                f"Local AI synthesis will not be available for this model type. "
+                f"Check network connection and verify repository exists. "
+                f"To use a different repository, set {config.repo_env}. "
+                f"Error: {exc}"
             )
+            logger.error(msg)
             return repo
 
         _register_models(model_type, snapshot_path, resolved_subdir, config)
@@ -200,22 +199,21 @@ def _register_models(
     if not root.exists():
         env_prefix = f"QISKIT_TRANSPILER_{_normalize_type_name(model_type)}"
         if subdir:
-            logger.error(
-                "Model subdirectory '%s' not found in downloaded snapshot at %s. "
-                "Check that %s_SUBDIR is correct. Available directories: %s",
-                subdir,
-                snapshot_path,
-                env_prefix,
-                [d.name for d in snapshot_path.iterdir() if d.is_dir()],
+            available_dirs = [d.name for d in snapshot_path.iterdir() if d.is_dir()]
+            msg = (
+                f"Model subdirectory '{subdir}' not found in downloaded snapshot at "
+                f"{snapshot_path}. Local AI synthesis will not be available for "
+                f"{model_type}. Check that {env_prefix}_SUBDIR is correct. "
+                f"Available directories: {available_dirs}"
             )
         else:
-            logger.error(
-                "No models found in snapshot at %s. "
-                "The repository may be empty or invalid. "
-                "Verify %s_REPO_ID points to a valid model repository.",
-                snapshot_path,
-                env_prefix,
+            msg = (
+                f"No models found in snapshot at {snapshot_path}. "
+                f"Local AI synthesis will not be available for {model_type}. "
+                f"The repository may be empty or invalid. "
+                f"Verify {env_prefix}_REPO_ID points to a valid model repository."
             )
+        logger.error(msg)
         return
 
     for config_path in _iter_config_paths(root, config.config_glob):
@@ -260,13 +258,12 @@ def _register_models(
     # Warn if no models were registered
     if len(repo) == 0:
         env_prefix = f"QISKIT_TRANSPILER_{_normalize_type_name(model_type)}"
-        logger.warning(
-            "No %s models were successfully registered. "
-            "Synthesis for this model type will fail. "
-            "Verify that %s_REPO_ID contains valid model files.",
-            model_type,
-            env_prefix,
+        msg = (
+            f"No {model_type} models were successfully registered. "
+            f"Local AI synthesis will not be available for this model type. "
+            f"Verify that {env_prefix}_REPO_ID contains valid model files."
         )
+        logger.warning(msg)
 
 
 def _iter_config_paths(root: Path, pattern: str) -> Iterable[Path]:
