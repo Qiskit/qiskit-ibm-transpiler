@@ -14,7 +14,6 @@ from threading import RLock
 from typing import Callable, Dict, Iterable, Mapping, Optional, Set
 
 import yaml
-
 from qiskit_gym.rl.synthesis import RLSynthesis
 
 from .hf_models_client import HFInterface
