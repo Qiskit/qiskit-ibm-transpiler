@@ -12,7 +12,6 @@
 
 import logging
 import os
-from pathlib import Path
 
 from huggingface_hub import HfApi
 from packaging.specifiers import InvalidSpecifier, SpecifierSet
@@ -63,7 +62,7 @@ class HFInterface:
             raise RuntimeError(f"Revision {revision} not found!")
         return str(max(candidates))
 
-    def download_models(self, repo_id: str, revision: str) -> Path:
+    def download_models(self, repo_id: str, revision: str) -> str:
         """Download a model snapshot for ``repo_id`` at ``revision`` to a local cache."""
         revision = self._get_rev_(repo_id=repo_id, revision=revision)
         logging.info(f"Downloading models in {repo_id} for revision {revision}")
