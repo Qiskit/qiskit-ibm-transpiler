@@ -164,6 +164,14 @@ def ensure_models_loaded(
             else config.default_subdir
         )
 
+        logger.info(
+            "Downloading %s models from %s@%s. "
+            "This may take a few minutes on first run...",
+            model_type,
+            resolved_repo_id,
+            resolved_revision,
+        )
+
         try:
             snapshot_path = Path(
                 HFInterface().download_models(
