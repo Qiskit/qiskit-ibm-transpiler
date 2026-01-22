@@ -31,10 +31,8 @@ def _is_version(t):
 class HFInterface:
     """Lightweight wrapper around :mod:`huggingface_hub` for model retrieval."""
 
-    hf_api = None
-
     def __init__(self, endpoint: str | None = None, token: str | None = None):
-        """Build a reusable :class:`huggingface_hub.HfApi` client.
+        """Build a :class:`huggingface_hub.HfApi` client.
 
         Parameters
         ----------
@@ -47,12 +45,10 @@ class HFInterface:
             when not provided; if neither is set, the client accesses only
             public repositories.
         """
-        if HFInterface.hf_api is None:
-            hf_kwargs = {
-                "endpoint": endpoint or os.getenv("QISKIT_TRANSPILER_HF_ENDPOINT"),
-                "token": token or os.getenv("QISKIT_TRANSPILER_HF_TOKEN"),
-            }
-            HFInterface.hf_api = HfApi(**hf_kwargs)
+        self.hf_api = HfApi(
+            endpoint=endpoint or os.getenv("QISKIT_TRANSPILER_HF_ENDPOINT"),
+            token=token or os.getenv("QISKIT_TRANSPILER_HF_TOKEN"),
+        )
 
     def _get_rev_(self, repo_id: str, revision: str):
         """Resolve revision specifiers (e.g. ``">=1.2"``) to the latest matching tag."""
