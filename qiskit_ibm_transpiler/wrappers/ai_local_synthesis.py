@@ -26,6 +26,8 @@ from ..model_repository import RLSynthesisRepository
 from ..utils import embed_clifford
 
 logger = logging.getLogger(__name__)
+
+DEFAULT_NUM_SEARCHES = 10
 logger.setLevel(logging.INFO)
 
 ai_local_package = "qiskit_ibm_ai_local_transpiler"
@@ -166,8 +168,11 @@ def perm_cliff(cliff, perm):
 class AILocalCliffordSynthesis:
     """Local-mode Clifford synthesis backed by cached RL models."""
 
-    def __init__(self, model_repo: RLSynthesisRepository) -> None:
+    def __init__(
+        self, model_repo: RLSynthesisRepository, num_searches: int = DEFAULT_NUM_SEARCHES
+    ) -> None:
         self.model_repo = model_repo
+        self.num_searches = num_searches
 
     def _prepare_input_clifford(
         self,
@@ -229,7 +234,7 @@ class AILocalCliffordSynthesis:
                 continue
 
             try:
-                synthesized = model.synth(input=clifford, num_searches=10)
+                synthesized = model.synth(input=clifford, num_searches=self.num_searches)
             except Exception as err:
                 logger.warning(
                     "Clifford synthesis failed for hash %s: %s", cmap_hash, err
@@ -371,8 +376,11 @@ class AILocalPauliNetworkSynthesis:
 class AILocalLinearFunctionSynthesis:
     """Local-mode linear-function synthesis backed by cached RL models."""
 
-    def __init__(self, model_repo: RLSynthesisRepository) -> None:
+    def __init__(
+        self, model_repo: RLSynthesisRepository, num_searches: int = DEFAULT_NUM_SEARCHES
+    ) -> None:
         self.model_repo = model_repo
+        self.num_searches = num_searches
 
     def _prepare_input_circuit(
         self,
@@ -444,7 +452,7 @@ class AILocalLinearFunctionSynthesis:
                 continue
 
             try:
-                synthesized = model.synth(input=input_circuit, num_searches=10)
+                synthesized = model.synth(input=input_circuit, num_searches=self.num_searches)
             except Exception as err:
                 logger.warning(
                     "Linear function synthesis failed for hash %s: %s", cmap_hash, err
@@ -504,10 +512,13 @@ class AILocalLinearFunctionSynthesis:
 class AILocalPermutationSynthesis:
     """Local-mode permutation synthesis backed by cached RL models."""
 
-    def __init__(self, model_repo: RLSynthesisRepository) -> None:
+    def __init__(
+        self, model_repo: RLSynthesisRepository, num_searches: int = DEFAULT_NUM_SEARCHES
+    ) -> None:
         """Store the repository used to resolve models per coupling-map hash."""
 
         self.model_repo = model_repo
+        self.num_searches = num_searches
 
     def embed_perm(self, perm_circ: list[int], num_qubits: int) -> list[int]:
         """Embed a smaller permutation array into a larger register."""
@@ -569,7 +580,7 @@ class AILocalPermutationSynthesis:
             logger.debug("Synthesizing permutation using model hash %s", cmap_hash)
 
             try:
-                synthesized_permutation = model.synth(input=perm_input, num_searches=10)
+                synthesized_permutation = model.synth(input=perm_input, num_searches=self.num_searches)
             except Exception as err:
                 logger.warning(
                     "Permutation synthesis failed for hash %s: %s", cmap_hash, err
