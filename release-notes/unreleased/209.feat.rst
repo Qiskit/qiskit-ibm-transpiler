@@ -1,5 +1,0 @@
-Added local AI synthesis support using `qiskit-gym` reinforcement learning models. This enables
-local execution of AI-powered Clifford, Linear Function, and Permutation synthesis passes
-using the new open source framework `qiskit-gym`. Models are automatically downloaded from HuggingFace
-and cached locally. Configuration is available via environment variables
-(``QISKIT_TRANSPILER_<MODEL_TYPE>_REPO_ID``, ``_REVISION``, ``_SUBDIR``).
