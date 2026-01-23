@@ -2,22 +2,12 @@
 
 """Unit tests for the Hugging Face integration helpers."""
 
-from pathlib import Path
 from types import SimpleNamespace
 from unittest.mock import MagicMock
 
 import pytest
 
 from qiskit_ibm_transpiler.hf_models_client import HFInterface, _is_version
-
-
-@pytest.fixture(autouse=True)
-def reset_hf_interface():
-    """Ensure tests start with a clean singleton."""
-
-    HFInterface.hf_api = None
-    yield
-    HFInterface.hf_api = None
 
 
 def _mock_hf_api(monkeypatch):
@@ -81,7 +71,7 @@ def test_get_rev_raises_when_no_candidate(monkeypatch):
 
 def test_download_models_uses_resolved_revision(monkeypatch):
     mock_api = _mock_hf_api(monkeypatch)
-    mock_api.snapshot_download.return_value = Path("/tmp/models")
+    mock_api.snapshot_download.return_value = "/tmp/models"
     mock_api.list_repo_refs.return_value = SimpleNamespace(
         tags=[SimpleNamespace(name="1.3.5")]
     )
@@ -90,7 +80,7 @@ def test_download_models_uses_resolved_revision(monkeypatch):
 
     path = interface.download_models(repo_id="ibm/test", revision=">=1.0")
 
-    assert path == Path("/tmp/models")
+    assert path == "/tmp/models"
     mock_api.snapshot_download.assert_called_once_with(
         repo_id="ibm/test", revision="1.3.5"
     )
