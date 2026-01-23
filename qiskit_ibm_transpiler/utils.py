@@ -32,7 +32,9 @@ import logging
 import os
 import struct
 from enum import Enum
+from typing import Any, Dict, Iterable, List, Mapping, Sequence, Set, Tuple, Union
 
+import networkx as nx
 import numpy as np
 from qiskit import QuantumCircuit, qasm2, qasm3, qpy
 from qiskit.circuit import QuantumCircuit, library
@@ -198,6 +200,51 @@ def embed_clifford(cliff, nq):
     new_cliff.destab_phase[:oq] = cliff.destab_phase[:]
 
     return new_cliff
+
+
+def extract_coupling_edges(env_config: Mapping[str, Any]) -> List[Tuple[int, int]]:
+    """Extract two-qubit coupling edges from an environment configuration."""
+
+    gateset: Sequence[Sequence[Any]] = env_config.get("gateset", [])  # type: ignore[assignment]
+    edges: Set[Tuple[int, int]] = set()
+
+    for gate_def in gateset:
+        if len(gate_def) != 2:
+            continue
+        _, qubits = gate_def
+        if len(qubits) < 2:
+            continue
+        q1, q2 = map(int, qubits[:2])
+        if q1 == q2:
+            continue
+        edge = tuple(sorted((q1, q2)))
+        edges.add(edge)
+    return sorted(edges)
+
+
+def compute_topology_hash(source: Any) -> str:
+    """Generate a Weisfeiler-Lehman hash for a model topology.
+
+    Parameters
+    ----------
+    source:
+        Either an object exposing an ``env_config`` attribute (such as
+        :class:`qiskit_gym.rl.synthesis.RLSynthesis`) or the ``env`` configuration
+        dictionary itself. The configuration is expected to include a ``gateset``
+        entry as produced by :meth:`qiskit_gym.rl.synthesis.RLSynthesis.to_json`.
+    """
+
+    env_config: Mapping[str, Any]
+    if hasattr(source, "env_config"):
+        env_config = getattr(source, "env_config")
+    else:
+        env_config = source
+
+    graph = nx.Graph()
+    for edge in extract_coupling_edges(env_config):
+        graph.add_edge(*edge)
+
+    return nx.weisfeiler_lehman_graph_hash(graph)
 
 
 def check_synthesized_clifford(

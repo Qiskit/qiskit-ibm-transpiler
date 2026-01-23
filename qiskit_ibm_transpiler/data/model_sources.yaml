@@ -1,0 +1,17 @@
+# Model sources configuration for Qiskit IBM Transpiler
+# Each model type defines a HuggingFace repository and revision for AI-based transpilation
+
+# Permutation synthesis model
+permutation:
+  repo_id: qiskit/ai-transpiler_permutations
+  revision: main
+
+# Linear function synthesis model
+linear_function:
+  repo_id: qiskit/ai-transpiler_linear-functions
+  revision: main
+
+# Clifford synthesis model
+clifford:
+  repo_id: qiskit/ai-transpiler_cliffords
+  revision: main

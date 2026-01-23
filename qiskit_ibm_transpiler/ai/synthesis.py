@@ -27,6 +27,7 @@ from qiskit.transpiler import CouplingMap
 from qiskit.transpiler.basepasses import TransformationPass
 from qiskit.transpiler.exceptions import TranspilerError
 
+from qiskit_ibm_transpiler.model_bootstrap import ensure_models_loaded
 from qiskit_ibm_transpiler.wrappers import (
     AICliffordAPI,
     AILinearFunctionAPI,
@@ -203,9 +204,11 @@ class AICliffordSynthesis(AISynthesis):
         local_mode: bool = True,
         **kwargs,
     ) -> None:
-        ai_synthesis_provider = (
-            AILocalCliffordSynthesis() if local_mode else AICliffordAPI(**kwargs)
-        )
+        if local_mode:
+            model_repository = ensure_models_loaded("clifford")
+            ai_synthesis_provider = AILocalCliffordSynthesis(model_repository)
+        else:
+            ai_synthesis_provider = AICliffordAPI(**kwargs)
 
         super().__init__(
             synth_service=ai_synthesis_provider,
@@ -257,11 +260,11 @@ class AILinearFunctionSynthesis(AISynthesis):
         local_mode: bool = True,
         **kwargs,
     ) -> None:
-        ai_synthesis_provider = (
-            AILocalLinearFunctionSynthesis()
-            if local_mode
-            else AILinearFunctionAPI(**kwargs)
-        )
+        if local_mode:
+            model_repository = ensure_models_loaded("linear_function")
+            ai_synthesis_provider = AILocalLinearFunctionSynthesis(model_repository)
+        else:
+            ai_synthesis_provider = AILinearFunctionAPI(**kwargs)
 
         super().__init__(
             synth_service=ai_synthesis_provider,
@@ -310,9 +313,11 @@ class AIPermutationSynthesis(AISynthesis):
         local_mode: bool = True,
         **kwargs,
     ) -> None:
-        ai_synthesis_provider = (
-            AILocalPermutationSynthesis() if local_mode else AIPermutationAPI(**kwargs)
-        )
+        if local_mode:
+            model_repository = ensure_models_loaded("permutation")
+            ai_synthesis_provider = AILocalPermutationSynthesis(model_repository)
+        else:
+            ai_synthesis_provider = AIPermutationAPI(**kwargs)
 
         super().__init__(
             synth_service=ai_synthesis_provider,

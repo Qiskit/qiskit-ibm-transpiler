@@ -234,6 +234,62 @@ import logging
 logging.getLogger("qiskit_ibm_transpiler").setLevel(logging.INFO)
 ```
 
+### Environment Variables
+
+Configure model sources and HuggingFace integration using environment variables:
+
+#### HuggingFace Configuration
+
+| Variable | Description | Default |
+|----------|-------------|---------|
+| `QISKIT_TRANSPILER_HF_TOKEN` | HuggingFace authentication token for private repositories | None |
+| `QISKIT_TRANSPILER_HF_ENDPOINT` | Custom HuggingFace API endpoint | `https://huggingface.co` |
+
+#### Model Repository Configuration
+
+Override default model repositories for each synthesis type:
+
+**Clifford Synthesis Models:**
+- `QISKIT_TRANSPILER_CLIFFORD_REPO_ID` - HuggingFace repository ID (default: `qiskit/ai-transpiler_cliffords`)
+- `QISKIT_TRANSPILER_CLIFFORD_REVISION` - Git revision/tag (default: `main`)
+- `QISKIT_TRANSPILER_CLIFFORD_SUBDIR` - Subdirectory within repository (default: None)
+
+**Linear Function Synthesis Models:**
+- `QISKIT_TRANSPILER_LINEAR_FUNCTION_REPO_ID` - HuggingFace repository ID (default: `qiskit/ai-transpiler_linear-functions`)
+- `QISKIT_TRANSPILER_LINEAR_FUNCTION_REVISION` - Git revision/tag (default: `main`)
+- `QISKIT_TRANSPILER_LINEAR_FUNCTION_SUBDIR` - Subdirectory within repository (default: None)
+
+**Permutation Synthesis Models:**
+- `QISKIT_TRANSPILER_PERMUTATION_REPO_ID` - HuggingFace repository ID (default: `qiskit/ai-transpiler_permutations`)
+- `QISKIT_TRANSPILER_PERMUTATION_REVISION` - Git revision/tag (default: `main`)
+- `QISKIT_TRANSPILER_PERMUTATION_SUBDIR` - Subdirectory within repository (default: None)
+
+#### Example Usage
+
+```bash
+# Use a custom model repository
+export QISKIT_TRANSPILER_CLIFFORD_REPO_ID="my-org/custom-clifford-models"
+export QISKIT_TRANSPILER_CLIFFORD_REVISION="v2.0.0"
+
+# Use a private repository with authentication
+export QISKIT_TRANSPILER_HF_TOKEN="hf_xxxxxxxxxxxxx"
+
+# Use a specific subdirectory within the repository
+export QISKIT_TRANSPILER_LINEAR_FUNCTION_SUBDIR="models/optimized"
+```
+
+#### Model Cache Location
+
+Models are automatically cached by HuggingFace Hub in `~/.cache/huggingface/hub/`. To clear the cache:
+
+```bash
+# Clear all HuggingFace models
+rm -rf ~/.cache/huggingface/hub/
+
+# Clear only AI transpiler models
+rm -rf ~/.cache/huggingface/hub/models--*ai-transpiler*
+```
+
 ## 📚 Resources & Support
 
 - 📖 [Official Documentation](https://quantum.cloud.ibm.com/docs/guides/qiskit-transpiler-service)

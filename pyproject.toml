@@ -30,6 +30,8 @@ dependencies = [
     "networkx==2.8.5",
     "qiskit-serverless~=0.28.0",
     "qiskit_ibm_ai_local_transpiler~=0.5",
+    "qiskit-gym~=0.3.0",
+    "PyYAML~=6.0"
 ]
 
 [project.optional-dependencies]
@@ -59,6 +61,12 @@ docs = [
 [build-system]
 requires = ["setuptools", "build"]
 build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+packages = { find = { where = ["."], include = ["qiskit_ibm_transpiler*"], exclude = ["models*"] } }
+
+[tool.setuptools.package-data]
+qiskit_ibm_transpiler = ["data/*.yaml"]
 
 [tool.uv]
 index-url = "https://pypi.org/simple"
