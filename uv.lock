@@ -2398,7 +2398,7 @@ qpy-compat = [
 
 [[package]]
 name = "qiskit-gym"
-version = "0.3.0"
+version = "0.4.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "gymnasium" },
@@ -2406,21 +2406,21 @@ dependencies = [
     { name = "twisterl" },
 ]
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/96/b9/6b4183e39cc010fee2aefc5cf1a8a339b3bd8d3ca1d7a5e815604f3f5f03/qiskit_gym-0.3.0-cp310-cp310-macosx_10_12_x86_64.whl", hash = "sha256:4e648b885909105841acc739235461b2aaf27f2b7b92174309643a0df6dd973e", size = 487223, upload-time = "2026-01-12T11:02:07.759Z" },
-    { url = "https://files.pythonhosted.org/packages/c4/49/9d70b91cb5e2c146eb8dc468b27b294be386e26d27818a5b32f66b5a0280/qiskit_gym-0.3.0-cp310-cp310-macosx_11_0_arm64.whl", hash = "sha256:6006f862e533853811d148d8511b714f4d7247c383025e2fc9572dd956a3930a", size = 465443, upload-time = "2026-01-12T11:01:38.943Z" },
-    { url = "https://files.pythonhosted.org/packages/cf/3e/9faf25299bcbe81e2d7f3115c54132baa450f42d12b49e6fd328dbac7aae/qiskit_gym-0.3.0-cp310-cp310-manylinux_2_34_x86_64.whl", hash = "sha256:4cbe088c366b9a523002cfafc0f35b8ddb6f67d5324499b99423e3b565e8dcd2", size = 512178, upload-time = "2026-01-12T11:00:54.496Z" },
-    { url = "https://files.pythonhosted.org/packages/35/0d/86e38ae69511669344f172e9c818c5c6357791c7e39c54c9bfa7d62d7d05/qiskit_gym-0.3.0-cp310-cp310-win_amd64.whl", hash = "sha256:ccaeca3c4e5543914c824cb278a32ebad796981ab44d2396c2c8f55d3c954516", size = 373752, upload-time = "2026-01-12T11:04:01.711Z" },
-    { url = "https://files.pythonhosted.org/packages/97/68/47a1fc6637fdac5adfbeaf569ea502c0aa1b05ddf7bf6ce2a6eb329e74cf/qiskit_gym-0.3.0-cp311-cp311-macosx_10_12_x86_64.whl", hash = "sha256:b819a8ba43df0cfacea5357e0d23e3ca42a0d4fd8ae44796a1214d4cd9de5898", size = 486985, upload-time = "2026-01-12T11:01:36.358Z" },
-    { url = "https://files.pythonhosted.org/packages/f1/85/61c03b8ebfd211a19d22d66b7fe8667f654e367fae27b652da0a46b0238b/qiskit_gym-0.3.0-cp311-cp311-macosx_11_0_arm64.whl", hash = "sha256:82b969b092373aab6234de5eded96c03f567f420083ec2f0b33cdc74b83f2ef8", size = 466499, upload-time = "2026-01-12T11:00:59.215Z" },
-    { url = "https://files.pythonhosted.org/packages/2e/2b/4755b209a78d3bebb13b63b86dd92d814c1aac1e2791143e4e450d55625e/qiskit_gym-0.3.0-cp311-cp311-manylinux_2_34_x86_64.whl", hash = "sha256:6293c25b25df448ab4993cb38b28a15614456eaba943e1f611ed3649dbd0ee5e", size = 512483, upload-time = "2026-01-12T11:00:53.082Z" },
-    { url = "https://files.pythonhosted.org/packages/50/78/f4ed2ba54987f078eb42158cf09afb109a9b6c6c59a39d987ceabba5f974/qiskit_gym-0.3.0-cp311-cp311-win_amd64.whl", hash = "sha256:0644a656ebe1f941c815339f84f05a4e9b9bc50cb2a6efacbf81ecb92569ce64", size = 374627, upload-time = "2026-01-12T11:01:47.676Z" },
-    { url = "https://files.pythonhosted.org/packages/c1/af/cfc634646e2d72837c5ad717d5b047bcd1a4efbf037b75787a98d75cec4b/qiskit_gym-0.3.0-cp312-cp312-macosx_10_12_x86_64.whl", hash = "sha256:5f53b9ca40cbc7287698e1663b1815ae8cefe590df5b702c116c4675a5cf041a", size = 493512, upload-time = "2026-01-12T11:03:07.187Z" },
-    { url = "https://files.pythonhosted.org/packages/2b/51/4125a4c52da9bc8ee1516d928e9282fa79b292e5e4be539b64a2ec054114/qiskit_gym-0.3.0-cp312-cp312-macosx_11_0_arm64.whl", hash = "sha256:e29716b8262ae3853c8a4c1892e49f985d0cbd2094d640af5cce3bbe9e4c4296", size = 473265, upload-time = "2026-01-12T11:02:19.798Z" },
-    { url = "https://files.pythonhosted.org/packages/e8/e3/c9a473f07b46cda0535a48f49d9302ac8813146649c476a505b0a30fea89/qiskit_gym-0.3.0-cp312-cp312-manylinux_2_34_x86_64.whl", hash = "sha256:3dcfae8fc83bfc97d921c3428d579f13378342f11e067ffda64f9520b69b0f7b", size = 517714, upload-time = "2026-01-12T11:01:03.621Z" },
-    { url = "https://files.pythonhosted.org/packages/86/3f/d7f0739e6b926a9c2816bf4c13dbe7aa0928b0648c64f6af699265f87260/qiskit_gym-0.3.0-cp312-cp312-win_amd64.whl", hash = "sha256:d05121ef170c767cd3e775cb633505587fec653a55450e8122a678a8193f62ce", size = 376224, upload-time = "2026-01-12T11:02:36.24Z" },
-    { url = "https://files.pythonhosted.org/packages/ab/66/c91d5cbde70e8c533a306d34e0a3ab3cf01790ff02389ddc73f4d76ab2a4/qiskit_gym-0.3.0-cp313-cp313-macosx_11_0_arm64.whl", hash = "sha256:5566b31f7603dc37d96a54931892556170e0fa5261a7b45b5061d4280576fa50", size = 473598, upload-time = "2026-01-12T11:01:15.552Z" },
-    { url = "https://files.pythonhosted.org/packages/93/e3/a0587e8a912220333066d53428ae7edbc7cda8de296bd4d6a25b3ac37f32/qiskit_gym-0.3.0-cp313-cp313-manylinux_2_34_x86_64.whl", hash = "sha256:75ee7f88f9c2b08e17734e2d29c867702291334568de67785e08f259ebaf3af1", size = 517481, upload-time = "2026-01-12T11:00:52.92Z" },
-    { url = "https://files.pythonhosted.org/packages/f6/b7/cbf25ad6110bcae699dc6af93e6dd3c17c8757a8c0e6f557bcf7961a0ccc/qiskit_gym-0.3.0-cp313-cp313-win_amd64.whl", hash = "sha256:ee2b8bc4d95692a251d85e601ebb8297b003d6a42e28510a1653f8eec317d523", size = 375158, upload-time = "2026-01-12T11:01:49.864Z" },
+    { url = "https://files.pythonhosted.org/packages/d6/7c/e2736d30d2dc51934b6cb2a3e0d75c37d5a1d2cbc7d56ac29d122af995df/qiskit_gym-0.4.0-cp310-cp310-macosx_10_12_x86_64.whl", hash = "sha256:1e109f5cefba6c0c032f6063743eb917f66a361deb803130f6eda35aa70d04ee", size = 1088815, upload-time = "2026-02-13T14:11:49.465Z" },
+    { url = "https://files.pythonhosted.org/packages/f0/c2/b0867fcf94c5dc34dd3146d57e6f82a06adf89b64fca25b9dccc2a73d37c/qiskit_gym-0.4.0-cp310-cp310-macosx_11_0_arm64.whl", hash = "sha256:92a853d5cd02bbf5ee42557d3308889fa9b43a771feaedfdd0539c9d4aefa856", size = 1020565, upload-time = "2026-02-13T14:10:05.528Z" },
+    { url = "https://files.pythonhosted.org/packages/83/4b/eb1821331aea5d1078c90f8b596568a1f21b4d67ae638c08b3ff0d2f727a/qiskit_gym-0.4.0-cp310-cp310-manylinux_2_34_x86_64.whl", hash = "sha256:dfe546fe6ebf3de8677af6d804f37da99006feb5738f591637f6fa8e34b2767c", size = 1151667, upload-time = "2026-02-13T14:09:40.863Z" },
+    { url = "https://files.pythonhosted.org/packages/14/90/96d281ae0f10b7093f80cf43e922e7e025925688244851f458ec8ce9c20d/qiskit_gym-0.4.0-cp310-cp310-win_amd64.whl", hash = "sha256:544f93d2d4abb2cad9ff1984a733f71df137627473c9ccf39eb3164033dd9350", size = 987791, upload-time = "2026-02-13T14:10:58.073Z" },
+    { url = "https://files.pythonhosted.org/packages/10/35/451066f765f3a957b4fdd75979750a64d9efbc8c21657c7d6d2e08da2010/qiskit_gym-0.4.0-cp311-cp311-macosx_10_12_x86_64.whl", hash = "sha256:947037caff33761fdb0c0badce4b04d196414f49c02fde645d4650e8eb4f6da4", size = 1088805, upload-time = "2026-02-13T14:11:59.499Z" },
+    { url = "https://files.pythonhosted.org/packages/18/0f/d9e661b221ff2f8b0b21a06e34275eef62d8140959b0740785c1bba55608/qiskit_gym-0.4.0-cp311-cp311-macosx_11_0_arm64.whl", hash = "sha256:06509dc4b40c6c53d551d253cd4a5adcb4ed1e6debe7c9889dda2ea33e2969be", size = 1020331, upload-time = "2026-02-13T14:09:58.63Z" },
+    { url = "https://files.pythonhosted.org/packages/f9/57/4f890d9da15422bac583f3538296f8513dd81146f1e740ee3d62f73cfaf1/qiskit_gym-0.4.0-cp311-cp311-manylinux_2_34_x86_64.whl", hash = "sha256:e1f7c82ed9cc48ae3d5ed32976644e5dca1334f6f21c5ab033e20dc61814b728", size = 1151617, upload-time = "2026-02-13T14:09:44.133Z" },
+    { url = "https://files.pythonhosted.org/packages/b8/c3/173d8566e5d7b91fa46ae37bdeef6efd70159fe661d86969008719d15caf/qiskit_gym-0.4.0-cp311-cp311-win_amd64.whl", hash = "sha256:4de7811ea4c5ea4e7780b878954a96bf9d9665ed654bb703fc3639e19bd54734", size = 987749, upload-time = "2026-02-13T14:10:45.116Z" },
+    { url = "https://files.pythonhosted.org/packages/a7/0d/d406f63c84a4b9a8437c84dc17a50ac0ed85075df87d55973450c1843b57/qiskit_gym-0.4.0-cp312-cp312-macosx_10_12_x86_64.whl", hash = "sha256:51f6644b8b345a6217fbde2cec260fcbf1947ecb49710a40c0b978e46b1047be", size = 1092162, upload-time = "2026-02-13T14:11:47.381Z" },
+    { url = "https://files.pythonhosted.org/packages/bb/ba/cc1cee074650a99e7eb9c7648f905abaf691bc2c92dedfc9427d6dfb5352/qiskit_gym-0.4.0-cp312-cp312-macosx_11_0_arm64.whl", hash = "sha256:ac4c1ffa3cdfc712cc9c5f608de02e1d492987bb8040bcfc63b8262c5cd795c3", size = 1020869, upload-time = "2026-02-13T14:09:58.1Z" },
+    { url = "https://files.pythonhosted.org/packages/3c/d1/ce7a2bf942e336cbafceb3e17adf757ad5af5003a3cdd77fa9b92767e15c/qiskit_gym-0.4.0-cp312-cp312-manylinux_2_34_x86_64.whl", hash = "sha256:0eef7eea83eafe034fb3c0623b443fa8740591a03f712119adf5fbc2d2dfb23e", size = 1153015, upload-time = "2026-02-13T14:09:40.086Z" },
+    { url = "https://files.pythonhosted.org/packages/68/fb/1b4c4242f16416edbbfb4731fbff16d897a35e8ab76477bcf498855f4519/qiskit_gym-0.4.0-cp312-cp312-win_amd64.whl", hash = "sha256:e8f5f3f141d4fa361a9e49126cff68b8fd5c11c5c1466d8fd60242d1f642d53d", size = 986855, upload-time = "2026-02-13T14:11:05.516Z" },
+    { url = "https://files.pythonhosted.org/packages/cd/57/28bb956720ef008c28aecd641506f095e882e148c090caa3794ee33d18c3/qiskit_gym-0.4.0-cp313-cp313-macosx_11_0_arm64.whl", hash = "sha256:3eb2a9417aa68c6228a69698608c98f4560b698b0e7b08a94e1b41a5d5e8289d", size = 1020004, upload-time = "2026-02-13T14:10:12.527Z" },
+    { url = "https://files.pythonhosted.org/packages/b2/4a/f1509fd0de90ef2b985426b2033688e6b81b535f54e650559393823fc795/qiskit_gym-0.4.0-cp313-cp313-manylinux_2_34_x86_64.whl", hash = "sha256:52563838d77703f52f5d84e9b7af874b8336f5be2f7e33b10b32e53f78653b37", size = 1152771, upload-time = "2026-02-13T14:09:38.743Z" },
+    { url = "https://files.pythonhosted.org/packages/06/ea/ca2a7cc1bf6411c7b1910316688ad215b370c2f0a67d8713b0b25d0b0efe/qiskit_gym-0.4.0-cp313-cp313-win_amd64.whl", hash = "sha256:941785febae3df69ce78a0d2338a3abaca9ac7498ac8825c888fb824611d86d3", size = 986668, upload-time = "2026-02-13T14:10:52.791Z" },
 ]
 
 [[package]]
@@ -2511,7 +2511,7 @@ requires-dist = [
     { name = "networkx", specifier = "==2.8.5" },
     { name = "pyyaml", specifier = "~=6.0" },
     { name = "qiskit", specifier = ">=1.4.2,<3.0.0" },
-    { name = "qiskit-gym", specifier = "~=0.3.0" },
+    { name = "qiskit-gym", specifier = "~=0.4.0" },
     { name = "qiskit-ibm-ai-local-transpiler", specifier = "~=0.5" },
     { name = "qiskit-qasm3-import", specifier = "~=0.4" },
     { name = "qiskit-serverless", specifier = "~=0.29.0" },
