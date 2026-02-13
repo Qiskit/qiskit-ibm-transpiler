@@ -10,8 +10,8 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-from abc import ABC, abstractmethod
 import logging
+from abc import ABC, abstractmethod
 from typing import Any
 
 import networkx as nx
@@ -228,13 +228,9 @@ class AILocalSynthesisBase(ABC):
                 continue
 
             model = record.model
-            model_n_qubits = int(
-                model.env_config.get("num_qubits", len(circuit_qargs))
-            )
+            model_n_qubits = int(model.env_config.get("num_qubits", len(circuit_qargs)))
 
-            prepared_input = self._prepare_input(
-                circuit, subgraph_perm, model_n_qubits
-            )
+            prepared_input = self._prepare_input(circuit, subgraph_perm, model_n_qubits)
             if prepared_input is None:
                 synthesized_circuits.append(None)
                 continue
