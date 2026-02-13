@@ -369,11 +369,11 @@ class AIPauliNetworkSynthesis(AISynthesis):
         local_mode: bool = True,
         **kwargs,
     ) -> None:
-        ai_synthesis_provider = (
-            AILocalPauliNetworkSynthesis()
-            if local_mode
-            else AIPauliNetworkAPI(**kwargs)
-        )
+        if local_mode:
+            model_repository = ensure_models_loaded("pauli")
+            ai_synthesis_provider = AILocalPauliNetworkSynthesis(model_repository)
+        else:
+            ai_synthesis_provider = AIPauliNetworkAPI(**kwargs)
 
         super().__init__(
             synth_service=ai_synthesis_provider,

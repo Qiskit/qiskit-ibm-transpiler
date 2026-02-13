@@ -30,22 +30,6 @@ logger = logging.getLogger(__name__)
 DEFAULT_NUM_SEARCHES = 10
 logger.setLevel(logging.INFO)
 
-ai_local_package = "qiskit_ibm_ai_local_transpiler"
-qiskit_ibm_ai_local_transpiler = (
-    importlib.import_module(ai_local_package)
-    if importlib.util.find_spec(ai_local_package)
-    else None
-)
-
-qiskit_ibm_ai_local_transpiler_pauli = getattr(
-    qiskit_ibm_ai_local_transpiler,
-    "pauli",
-    "pauli module on qiskit_ibm_ai_local_transpiler not found",
-)
-
-if qiskit_ibm_ai_local_transpiler:
-    from qiskit_ibm_ai_local_transpiler import AIPauliInference
-    from qiskit_ibm_ai_local_transpiler.pauli import PAULI_COUPLING_MAPS_BY_HASHES_DICT
 
 
 def validate_coupling_map_source(coupling_map, backend):
@@ -293,47 +277,113 @@ class AILocalCliffordSynthesis:
         return self._synthesize_clifford_circuits(coupling_map_graph, circuits, qargs)
 
 
-def get_synthesized_pauli_circuits(
-    coupling_map: nx.Graph, circuits: list[QuantumCircuit], qargs: list[list[int]]
-) -> list[QuantumCircuit]:
-    synthesized_circuits = []
+class AILocalPauliNetworkSynthesis:
+    """Local-mode Pauli network synthesis backed by cached RL models from qiskit-gym."""
 
-    for index, circuit_qargs in enumerate(qargs):
-        try:
-            subgraph_perm, cmap_hash = get_mapping_perm(
-                coupling_map,
-                circuit_qargs,
-                PAULI_COUPLING_MAPS_BY_HASHES_DICT,
-            )
-        except Exception as e:
-            logger.warning(e)
-            synthesized_circuits.append(None)
-            continue
+    def __init__(
+        self,
+        model_repo: RLSynthesisRepository,
+        num_searches: int = DEFAULT_NUM_SEARCHES,
+    ) -> None:
+        self.model_repo = model_repo
+        self.num_searches = num_searches
 
-        input_circuit_dec = circuits[index].decompose(
+    def _prepare_input_circuit(
+        self,
+        circuit: QuantumCircuit,
+        subgraph_perm: list[int],
+        target_qubits: int,
+    ) -> QuantumCircuit | None:
+        """Prepare input circuit for synthesis with permutation and embedding."""
+        # Decompose certain gates that may not be directly supported
+        input_circuit = circuit.decompose(
             ["swap", "rxx", "ryy", "rzz", "rzx", "rzy", "ryx"]
         )
-        input_circuit_perm = QuantumCircuit(input_circuit_dec.num_qubits).compose(
-            input_circuit_dec, qubits=np.argsort(subgraph_perm)
+
+        # Apply permutation to circuit
+        input_circuit_perm = QuantumCircuit(input_circuit.num_qubits).compose(
+            input_circuit, qubits=np.argsort(subgraph_perm)
         )
 
-        synthesized_pauli = AIPauliInference().synthesize(
-            input_qc=input_circuit_perm, coupling_map_hash=cmap_hash
-        )
+        if input_circuit_perm.num_qubits > target_qubits:
+            logger.warning(
+                "Model expects %s qubits but circuit uses %s; skipping",
+                target_qubits,
+                input_circuit_perm.num_qubits,
+            )
+            return None
 
-        # Permute the circuit back
-        synthesized_circuit = QuantumCircuit(synthesized_pauli.num_qubits).compose(
-            synthesized_pauli, qubits=subgraph_perm
-        )
+        # Embed into larger qubit space if needed
+        if input_circuit_perm.num_qubits < target_qubits:
+            embedded = QuantumCircuit(target_qubits)
+            embedded.compose(
+                input_circuit_perm,
+                qubits=range(input_circuit_perm.num_qubits),
+                inplace=True,
+            )
+            return embedded
 
-        # synthesized_circuit could be None or have a value, we return it in both cases
-        synthesized_circuits.append(synthesized_circuit)
+        return input_circuit_perm
 
-    return synthesized_circuits
+    def _synthesize_pauli_circuits(
+        self,
+        coupling_map: nx.Graph,
+        circuits: list[QuantumCircuit],
+        qargs: list[list[int]],
+    ) -> list[QuantumCircuit | None]:
+        """Synthesize Pauli network circuits using qiskit-gym models."""
+        synthesized_circuits: list[QuantumCircuit | None] = []
 
+        for circuit, circuit_qargs in zip(circuits, qargs):
+            try:
+                subgraph_perm, cmap_hash = get_mapping_perm(
+                    coupling_map, circuit_qargs, self.model_repo
+                )
+            except Exception as exc:
+                logger.warning(exc)
+                synthesized_circuits.append(None)
+                continue
 
-class AILocalPauliNetworkSynthesis:
-    """A helper class that covers some basic funcionality from the Pauli Netowrks AI Local Synthesis"""
+            try:
+                record = self.model_repo.get(cmap_hash)
+            except KeyError:
+                logger.warning(
+                    "Pauli network model for hash %s is not registered", cmap_hash
+                )
+                synthesized_circuits.append(None)
+                continue
+
+            model = record.model
+            model_n_qubits = int(model.env_config.get("num_qubits", len(circuit_qargs)))
+
+            input_circuit = self._prepare_input_circuit(
+                circuit, subgraph_perm, model_n_qubits
+            )
+            if input_circuit is None:
+                synthesized_circuits.append(None)
+                continue
+
+            try:
+                synthesized = model.synth(
+                    input=input_circuit, num_searches=self.num_searches
+                )
+            except Exception as err:
+                logger.warning(
+                    "Pauli network synthesis failed for hash %s: %s", cmap_hash, err
+                )
+                synthesized_circuits.append(None)
+                continue
+
+            if synthesized is None:
+                synthesized_circuits.append(None)
+                continue
+
+            output_circuit = QuantumCircuit(synthesized.num_qubits).compose(
+                synthesized, qubits=subgraph_perm
+            )
+            synthesized_circuits.append(output_circuit)
+
+        return synthesized_circuits
 
     def transpile(
         self,
@@ -344,37 +394,30 @@ class AILocalPauliNetworkSynthesis:
         backend_name=None,
         backend: Backend | None = None,
     ) -> list[QuantumCircuit | None]:
-        """Synthetize one or more quantum circuits into an optimized equivalent. It differs from a standard synthesis process in that it takes into account where the pauli network are (qargs)
-        and respects it on the synthesized circuit.
+        """Synthesize one or more quantum circuits into an optimized equivalent.
+
+        It differs from a standard synthesis process in that it takes into account
+        where the pauli networks are (qargs) and respects it on the synthesized circuit.
 
         Args:
             circuits (list[QuantumCircuit]): A list of quantum circuits to be synthesized.
-            qargs (list[list[int]]): A list of lists of qubit indices for each circuit. Each list of qubits indices represent where the linear function circuit is.
-            coupling_map (list[list[int]] | None): A coupling map representing the connectivity of the quantum computer.
+            qargs (list[list[int]]): A list of lists of qubit indices for each circuit.
+            coupling_map (list[list[int]] | None): A coupling map representing the connectivity.
             backend_name (str | None): The name of the backend to use for the synthesis.
+            backend (Backend | None): The backend to use for the synthesis.
 
         Returns:
-            list[QuantumCircuit | None]: A list of synthesized quantum circuits. If the synthesis fails for any circuit, the corresponding element in the list will be None.
+            list[QuantumCircuit | None]: A list of synthesized quantum circuits.
         """
-
-        # Although this function is called `transpile`, it does a synthesis. It has this name because the synthesis
-        # is made as a pass on the Qiskit Pass Manager which is used in the transpilation process.
-
         validate_coupling_map_source(coupling_map, backend)
-
         formatted_coupling_map = get_formatted_coupling_map(coupling_map)
-
         validate_circuits_and_qargs_lengths(circuits, qargs)
 
         coupling_map_graph = get_coupling_map_graph(backend, formatted_coupling_map)
 
         logger.info("Running Pauli Network AI synthesis on local mode")
 
-        synthesized_circuits = get_synthesized_pauli_circuits(
-            coupling_map_graph, circuits, qargs
-        )
-
-        return synthesized_circuits
+        return self._synthesize_pauli_circuits(coupling_map_graph, circuits, qargs)
 
 
 class AILocalLinearFunctionSynthesis:

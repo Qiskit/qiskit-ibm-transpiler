@@ -15,3 +15,8 @@ linear_function:
 clifford:
   repo_id: qiskit/ai-transpiler_cliffords
   revision: main
+
+# Pauli network synthesis model
+pauli:
+  repo_id: qiskit/ai-transpiler_paulis
+  revision: main
