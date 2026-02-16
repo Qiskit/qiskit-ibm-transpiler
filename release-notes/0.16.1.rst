@@ -1,1 +1,8 @@
+0.16.1 (2026-02-16)
+===================
+
+Upgrade notes
+-------------
+
 - Upgrade 'qiskit-serverless' dependency from 0.28.0 to 0.29.0. (`243 <https://github.com/Qiskit/qiskit-ibm-transpiler/pull/243>`__)
+
