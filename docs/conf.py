@@ -14,7 +14,7 @@ sys.path.insert(0, Path(__file__).parent.resolve())
 project = "Qiskit IBM Transpiler"
 copyright = "2025, IBM Quantum"
 author = "IBM Quantum"
-release = "0.16.0"
+release = "0.16.1"
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
