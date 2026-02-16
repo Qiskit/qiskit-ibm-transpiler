@@ -1,0 +1,1 @@
+Pauli network synthesis now uses ``qiskit-gym`` models, consistent with Clifford, linear function, and permutation synthesis.

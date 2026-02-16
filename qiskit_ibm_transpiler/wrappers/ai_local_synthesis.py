@@ -10,8 +10,9 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-import importlib
 import logging
+from abc import ABC, abstractmethod
+from typing import Any
 
 import networkx as nx
 import numpy as np
@@ -29,23 +30,6 @@ logger = logging.getLogger(__name__)
 
 DEFAULT_NUM_SEARCHES = 10
 logger.setLevel(logging.INFO)
-
-ai_local_package = "qiskit_ibm_ai_local_transpiler"
-qiskit_ibm_ai_local_transpiler = (
-    importlib.import_module(ai_local_package)
-    if importlib.util.find_spec(ai_local_package)
-    else None
-)
-
-qiskit_ibm_ai_local_transpiler_pauli = getattr(
-    qiskit_ibm_ai_local_transpiler,
-    "pauli",
-    "pauli module on qiskit_ibm_ai_local_transpiler not found",
-)
-
-if qiskit_ibm_ai_local_transpiler:
-    from qiskit_ibm_ai_local_transpiler import AIPauliInference
-    from qiskit_ibm_ai_local_transpiler.pauli import PAULI_COUPLING_MAPS_BY_HASHES_DICT
 
 
 def validate_coupling_map_source(coupling_map, backend):
@@ -165,8 +149,10 @@ def perm_cliff(cliff, perm):
     return cliff
 
 
-class AILocalCliffordSynthesis:
-    """Local-mode Clifford synthesis backed by cached RL models."""
+class AILocalSynthesisBase(ABC):
+    """Abstract base class for local-mode AI synthesis backed by cached RL models."""
+
+    synthesis_type: str = "base"
 
     def __init__(
         self,
@@ -176,7 +162,146 @@ class AILocalCliffordSynthesis:
         self.model_repo = model_repo
         self.num_searches = num_searches
 
-    def _prepare_input_clifford(
+    @abstractmethod
+    def _prepare_input(
+        self,
+        circuit: Any,
+        subgraph_perm: list[int],
+        target_qubits: int,
+    ) -> Any | None:
+        """Prepare input for synthesis with permutation and embedding.
+
+        Args:
+            circuit: The input circuit or object to prepare.
+            subgraph_perm: The permutation to apply.
+            target_qubits: The target number of qubits for the model.
+
+        Returns:
+            The prepared input or None if preparation fails.
+        """
+        pass
+
+    def _get_input_n_qubits(self, circuit: Any) -> int:
+        """Get the number of qubits from the input.
+
+        Override this method for types that don't have num_qubits attribute.
+        """
+        return circuit.num_qubits
+
+    def _synthesize_circuits(
+        self,
+        coupling_map: nx.Graph,
+        circuits: list[Any],
+        qargs: list[list[int]],
+    ) -> list[QuantumCircuit | None]:
+        """Synthesize circuits using qiskit-gym models.
+
+        Args:
+            coupling_map: The coupling map graph.
+            circuits: List of circuits or objects to synthesize.
+            qargs: List of qubit indices for each circuit.
+
+        Returns:
+            List of synthesized QuantumCircuits or None for failed syntheses.
+        """
+        synthesized_circuits: list[QuantumCircuit | None] = []
+
+        for circuit, circuit_qargs in zip(circuits, qargs):
+            try:
+                subgraph_perm, cmap_hash = get_mapping_perm(
+                    coupling_map, circuit_qargs, self.model_repo
+                )
+            except Exception as exc:
+                logger.warning(exc)
+                synthesized_circuits.append(None)
+                continue
+
+            try:
+                record = self.model_repo.get(cmap_hash)
+            except KeyError:
+                logger.warning(
+                    "%s model for hash %s is not registered",
+                    self.synthesis_type,
+                    cmap_hash,
+                )
+                synthesized_circuits.append(None)
+                continue
+
+            model = record.model
+            model_n_qubits = int(model.env_config.get("num_qubits", len(circuit_qargs)))
+
+            prepared_input = self._prepare_input(circuit, subgraph_perm, model_n_qubits)
+            if prepared_input is None:
+                synthesized_circuits.append(None)
+                continue
+
+            try:
+                synthesized = model.synth(
+                    input=prepared_input, num_searches=self.num_searches
+                )
+            except Exception as err:
+                logger.warning(
+                    "%s synthesis failed for hash %s: %s",
+                    self.synthesis_type,
+                    cmap_hash,
+                    err,
+                )
+                synthesized_circuits.append(None)
+                continue
+
+            if synthesized is None:
+                synthesized_circuits.append(None)
+                continue
+
+            output_circuit = QuantumCircuit(synthesized.num_qubits).compose(
+                synthesized, qubits=subgraph_perm
+            )
+            synthesized_circuits.append(output_circuit)
+
+        return synthesized_circuits
+
+    def transpile(
+        self,
+        circuits: list[Any],
+        qargs: list[list[int]],
+        coupling_map: list[list[int]] | CouplingMap | None = None,
+        backend_name: str | None = None,
+        backend: Backend | None = None,
+    ) -> list[QuantumCircuit | None]:
+        """Synthesize one or more circuits into optimized equivalents.
+
+        It differs from a standard synthesis process in that it takes into account
+        where the circuits are (qargs) and respects it on the synthesized circuit.
+
+        Args:
+            circuits: A list of circuits to be synthesized.
+            qargs: A list of lists of qubit indices for each circuit.
+            coupling_map: A coupling map representing the connectivity.
+            backend_name: The name of the backend (deprecated, not used).
+            backend: The backend to use for the synthesis.
+
+        Returns:
+            List of synthesized QuantumCircuits or None for failed syntheses.
+        """
+        _ = backend_name  # Suppress unused warning, kept for API compatibility
+
+        validate_coupling_map_source(coupling_map, backend)
+        formatted_coupling_map = get_formatted_coupling_map(coupling_map)
+        validate_circuits_and_qargs_lengths(circuits, qargs)
+
+        coupling_map_graph = get_coupling_map_graph(backend, formatted_coupling_map)
+
+        logger.info("Running %s AI synthesis on local mode", self.synthesis_type)
+
+        return self._synthesize_circuits(coupling_map_graph, circuits, qargs)
+
+
+class AILocalCliffordSynthesis(AILocalSynthesisBase):
+    """Local-mode Clifford synthesis backed by cached RL models."""
+
+    synthesis_type = "Clifford"
+
+    def _prepare_input(
         self,
         circuit: QuantumCircuit | Clifford,
         subgraph_perm: list[int],
@@ -198,204 +323,60 @@ class AILocalCliffordSynthesis:
 
         return clifford
 
-    def _synthesize_clifford_circuits(
+
+class AILocalPauliNetworkSynthesis(AILocalSynthesisBase):
+    """Local-mode Pauli network synthesis backed by cached RL models from qiskit-gym."""
+
+    synthesis_type = "Pauli network"
+
+    def _prepare_input(
         self,
-        coupling_map: nx.Graph,
-        circuits: list[QuantumCircuit | Clifford],
-        qargs: list[list[int]],
-    ) -> list[QuantumCircuit | None]:
-        synthesized_circuits: list[QuantumCircuit | None] = []
-
-        for circuit, circuit_qargs in zip(circuits, qargs):
-            try:
-                subgraph_perm, cmap_hash = get_mapping_perm(
-                    coupling_map, circuit_qargs, self.model_repo
-                )
-            except Exception as exc:
-                logger.warning(exc)
-                synthesized_circuits.append(None)
-                continue
-
-            try:
-                record = self.model_repo.get(cmap_hash)
-            except KeyError:
-                logger.warning(
-                    "Clifford model for hash %s is not registered", cmap_hash
-                )
-                synthesized_circuits.append(None)
-                continue
-
-            model = record.model
-            model_n_qubits = int(model.env_config.get("num_qubits", len(circuit_qargs)))
-
-            clifford = self._prepare_input_clifford(
-                circuit, subgraph_perm, model_n_qubits
-            )
-            if clifford is None:
-                synthesized_circuits.append(None)
-                continue
-
-            try:
-                synthesized = model.synth(
-                    input=clifford, num_searches=self.num_searches
-                )
-            except Exception as err:
-                logger.warning(
-                    "Clifford synthesis failed for hash %s: %s", cmap_hash, err
-                )
-                synthesized_circuits.append(None)
-                continue
-
-            if synthesized is None:
-                synthesized_circuits.append(None)
-                continue
-
-            output_circuit = QuantumCircuit(synthesized.num_qubits).compose(
-                synthesized, qubits=subgraph_perm
-            )
-            synthesized_circuits.append(output_circuit)
-
-        return synthesized_circuits
-
-    def transpile(
-        self,
-        circuits: list[QuantumCircuit | Clifford],
-        qargs: list[list[int]],
-        coupling_map: list[list[int]] | CouplingMap | None = None,
-        # backend_name is not used here but is maintained until we deprecate it to not break the code
-        backend_name=None,
-        backend: Backend | None = None,
-    ) -> list[QuantumCircuit | None]:
-        """Synthetize one or more quantum circuits into an optimized equivalent. It differs from a standard synthesis process in that it takes into account where the linear functions are (qargs)
-        and respects it on the synthesized circuit.
-
-        Args:
-            circuits (list[QuantumCircuit | Clifford]): A list of quantum circuits to be synthesized.
-            qargs (list[list[int]]): A list of lists of qubit indices for each circuit. Each list of qubits indices represent where the linear function circuit is.
-            coupling_map (list[list[int]] | None): A coupling map representing the connectivity of the quantum computer.
-            backend_name (str | None): The name of the backend to use for the synthesis.
-
-        Returns:
-            list[QuantumCircuit | None]: A list of synthesized quantum circuits. If the synthesis fails for any circuit, the corresponding element in the list will be None.
-        """
-
-        # Although this function is called `transpile`, it does a synthesis. It has this name because the synthesis
-        # is made as a pass on the Qiskit Pass Manager which is used in the transpilation process.
-
-        validate_coupling_map_source(coupling_map, backend)
-        formatted_coupling_map = get_formatted_coupling_map(coupling_map)
-        validate_circuits_and_qargs_lengths(circuits, qargs)
-
-        coupling_map_graph = get_coupling_map_graph(backend, formatted_coupling_map)
-
-        logger.info("Running Clifford AI synthesis on local mode")
-
-        return self._synthesize_clifford_circuits(coupling_map_graph, circuits, qargs)
-
-
-def get_synthesized_pauli_circuits(
-    coupling_map: nx.Graph, circuits: list[QuantumCircuit], qargs: list[list[int]]
-) -> list[QuantumCircuit]:
-    synthesized_circuits = []
-
-    for index, circuit_qargs in enumerate(qargs):
-        try:
-            subgraph_perm, cmap_hash = get_mapping_perm(
-                coupling_map,
-                circuit_qargs,
-                PAULI_COUPLING_MAPS_BY_HASHES_DICT,
-            )
-        except Exception as e:
-            logger.warning(e)
-            synthesized_circuits.append(None)
-            continue
-
-        input_circuit_dec = circuits[index].decompose(
+        circuit: QuantumCircuit,
+        subgraph_perm: list[int],
+        target_qubits: int,
+    ) -> QuantumCircuit | None:
+        # Decompose certain gates that may not be directly supported
+        input_circuit = circuit.decompose(
             ["swap", "rxx", "ryy", "rzz", "rzx", "rzy", "ryx"]
         )
-        input_circuit_perm = QuantumCircuit(input_circuit_dec.num_qubits).compose(
-            input_circuit_dec, qubits=np.argsort(subgraph_perm)
+
+        # Apply permutation to circuit
+        input_circuit_perm = QuantumCircuit(input_circuit.num_qubits).compose(
+            input_circuit, qubits=np.argsort(subgraph_perm)
         )
 
-        synthesized_pauli = AIPauliInference().synthesize(
-            input_qc=input_circuit_perm, coupling_map_hash=cmap_hash
-        )
+        if input_circuit_perm.num_qubits > target_qubits:
+            logger.warning(
+                "Model expects %s qubits but circuit uses %s; skipping",
+                target_qubits,
+                input_circuit_perm.num_qubits,
+            )
+            return None
 
-        # Permute the circuit back
-        synthesized_circuit = QuantumCircuit(synthesized_pauli.num_qubits).compose(
-            synthesized_pauli, qubits=subgraph_perm
-        )
+        # Embed into larger qubit space if needed
+        if input_circuit_perm.num_qubits < target_qubits:
+            embedded = QuantumCircuit(target_qubits)
+            embedded.compose(
+                input_circuit_perm,
+                qubits=range(input_circuit_perm.num_qubits),
+                inplace=True,
+            )
+            return embedded
 
-        # synthesized_circuit could be None or have a value, we return it in both cases
-        synthesized_circuits.append(synthesized_circuit)
-
-    return synthesized_circuits
-
-
-class AILocalPauliNetworkSynthesis:
-    """A helper class that covers some basic funcionality from the Pauli Netowrks AI Local Synthesis"""
-
-    def transpile(
-        self,
-        circuits: list[QuantumCircuit],
-        qargs: list[list[int]],
-        coupling_map: list[list[int]] | CouplingMap | None = None,
-        # backend_name is not used here but is maintained until we deprecate it to not break the code
-        backend_name=None,
-        backend: Backend | None = None,
-    ) -> list[QuantumCircuit | None]:
-        """Synthetize one or more quantum circuits into an optimized equivalent. It differs from a standard synthesis process in that it takes into account where the pauli network are (qargs)
-        and respects it on the synthesized circuit.
-
-        Args:
-            circuits (list[QuantumCircuit]): A list of quantum circuits to be synthesized.
-            qargs (list[list[int]]): A list of lists of qubit indices for each circuit. Each list of qubits indices represent where the linear function circuit is.
-            coupling_map (list[list[int]] | None): A coupling map representing the connectivity of the quantum computer.
-            backend_name (str | None): The name of the backend to use for the synthesis.
-
-        Returns:
-            list[QuantumCircuit | None]: A list of synthesized quantum circuits. If the synthesis fails for any circuit, the corresponding element in the list will be None.
-        """
-
-        # Although this function is called `transpile`, it does a synthesis. It has this name because the synthesis
-        # is made as a pass on the Qiskit Pass Manager which is used in the transpilation process.
-
-        validate_coupling_map_source(coupling_map, backend)
-
-        formatted_coupling_map = get_formatted_coupling_map(coupling_map)
-
-        validate_circuits_and_qargs_lengths(circuits, qargs)
-
-        coupling_map_graph = get_coupling_map_graph(backend, formatted_coupling_map)
-
-        logger.info("Running Pauli Network AI synthesis on local mode")
-
-        synthesized_circuits = get_synthesized_pauli_circuits(
-            coupling_map_graph, circuits, qargs
-        )
-
-        return synthesized_circuits
+        return input_circuit_perm
 
 
-class AILocalLinearFunctionSynthesis:
+class AILocalLinearFunctionSynthesis(AILocalSynthesisBase):
     """Local-mode linear-function synthesis backed by cached RL models."""
 
-    def __init__(
-        self,
-        model_repo: RLSynthesisRepository,
-        num_searches: int = DEFAULT_NUM_SEARCHES,
-    ) -> None:
-        self.model_repo = model_repo
-        self.num_searches = num_searches
+    synthesis_type = "Linear function"
 
-    def _prepare_input_circuit(
+    def _prepare_input(
         self,
         circuit: QuantumCircuit | LinearFunction,
         subgraph_perm: list[int],
         target_qubits: int,
     ) -> QuantumCircuit | None:
-        """Convert the collected circuit into the representation expected by the model."""
-
         if isinstance(circuit, LinearFunction):
             circuit_qc = QuantumCircuit(circuit.num_qubits)
             circuit_qc.append(circuit, range(circuit.num_qubits))
@@ -418,237 +399,46 @@ class AILocalLinearFunctionSynthesis:
 
         return clifford.to_circuit()
 
-    def _synthesize_linear_function_circuits(
-        self,
-        coupling_map: nx.Graph,
-        circuits: list[QuantumCircuit | LinearFunction],
-        qargs: list[list[int]],
-    ) -> list[QuantumCircuit | None]:
-        """Return synthesized circuits for each linear-function block."""
 
-        synthesized_circuits: list[QuantumCircuit | None] = []
-
-        for circuit, circuit_qargs in zip(circuits, qargs):
-            try:
-                subgraph_perm, cmap_hash = get_mapping_perm(
-                    coupling_map, circuit_qargs, self.model_repo
-                )
-            except Exception as exc:
-                logger.warning(exc)
-                synthesized_circuits.append(None)
-                continue
-
-            try:
-                record = self.model_repo.get(cmap_hash)
-            except KeyError:
-                logger.warning(
-                    "Linear function model for hash %s is not registered", cmap_hash
-                )
-                synthesized_circuits.append(None)
-                continue
-
-            model = record.model
-            model_n_qubits = int(model.env_config.get("num_qubits", len(circuit_qargs)))
-
-            input_circuit = self._prepare_input_circuit(
-                circuit, subgraph_perm, model_n_qubits
-            )
-            if input_circuit is None:
-                synthesized_circuits.append(None)
-                continue
-
-            try:
-                synthesized = model.synth(
-                    input=input_circuit, num_searches=self.num_searches
-                )
-            except Exception as err:
-                logger.warning(
-                    "Linear function synthesis failed for hash %s: %s", cmap_hash, err
-                )
-                synthesized_circuits.append(None)
-                continue
-
-            if synthesized is None:
-                synthesized_circuits.append(None)
-                continue
-
-            output_circuit = QuantumCircuit(synthesized.num_qubits).compose(
-                synthesized, qubits=subgraph_perm
-            )
-            synthesized_circuits.append(output_circuit)
-
-        return synthesized_circuits
-
-    def transpile(
-        self,
-        circuits: list[QuantumCircuit | LinearFunction],
-        qargs: list[list[int]],
-        coupling_map: list[list[int]] | CouplingMap | None = None,
-        # backend_name is not used here but is maintained until we deprecate it to not break the code
-        backend_name=None,
-        backend: Backend | None = None,
-    ) -> list[QuantumCircuit | None]:
-        """Synthetize one or more quantum circuits into an optimized equivalent. It differs from a standard synthesis process in that it takes into account where the linear functions are (qargs)
-        and respects it on the synthesized circuit.
-
-        Args:
-            circuits (list[QuantumCircuit | LinearFunction]): A list of quantum circuits to be synthesized.
-            qargs (list[list[int]]): A list of lists of qubit indices for each circuit. Each list of qubits indices represent where the linear function circuit is.
-            coupling_map (list[list[int]] | None): A coupling map representing the connectivity of the quantum computer.
-            backend_name (str | None): The name of the backend to use for the synthesis.
-
-        Returns:
-            list[QuantumCircuit | None]: A list of synthesized quantum circuits. If the synthesis fails for any circuit, the corresponding element in the list will be None.
-        """
-
-        # Although this function is called `transpile`, it does a synthesis. It has this name because the synthesis
-        # is made as a pass on the Qiskit Pass Manager which is used in the transpilation process.
-
-        validate_coupling_map_source(coupling_map, backend)
-        formatted_coupling_map = get_formatted_coupling_map(coupling_map)
-        validate_circuits_and_qargs_lengths(circuits, qargs)
-
-        coupling_map_graph = get_coupling_map_graph(backend, formatted_coupling_map)
-
-        logger.info("Running Linear Functions AI synthesis on local mode")
-
-        return self._synthesize_linear_function_circuits(
-            coupling_map_graph, circuits, qargs
-        )
-
-
-class AILocalPermutationSynthesis:
+class AILocalPermutationSynthesis(AILocalSynthesisBase):
     """Local-mode permutation synthesis backed by cached RL models."""
 
-    def __init__(
-        self,
-        model_repo: RLSynthesisRepository,
-        num_searches: int = DEFAULT_NUM_SEARCHES,
-    ) -> None:
-        """Store the repository used to resolve models per coupling-map hash."""
+    synthesis_type = "Permutation"
 
-        self.model_repo = model_repo
-        self.num_searches = num_searches
+    def _get_input_n_qubits(self, circuit: list[int]) -> int:
+        """Get the number of qubits from a permutation list."""
+        return len(circuit)
 
-    def embed_perm(self, perm_circ: list[int], num_qubits: int) -> list[int]:
+    def _embed_perm(self, perm_circ: list[int], num_qubits: int) -> list[int]:
         """Embed a smaller permutation array into a larger register."""
-
         if num_qubits < len(perm_circ):
             raise ValueError(
-                f"Trying to embed a permutation with {len(perm_circ)} qubits in a {num_qubits} qubits permutation."
+                f"Trying to embed a permutation with {len(perm_circ)} qubits "
+                f"in a {num_qubits} qubits permutation."
             )
         new_perm_circ = list(range(num_qubits))
         new_perm_circ[: len(perm_circ)] = perm_circ
         return new_perm_circ
 
-    def get_synthesized_permutation_circuits(
+    def _prepare_input(
         self,
-        coupling_map: nx.Graph,
-        permutations_list: list[list[int]],
-        qargs: list[list[int]],
-    ) -> list[QuantumCircuit | None]:
-        """Return synthesized circuits for each permutation block."""
+        circuit: list[int],
+        subgraph_perm: list[int],
+        target_qubits: int,
+    ) -> list[int] | None:
+        _ = subgraph_perm  # Not used for permutations, applied at output stage
+        circ_n_qubits = len(circuit)
 
-        synthesized_circuits: list[QuantumCircuit | None] = []
+        if target_qubits < circ_n_qubits:
+            logger.warning(
+                "Model trained for %s qubits cannot synthesize a %s-qubit permutation",
+                target_qubits,
+                circ_n_qubits,
+            )
+            return None
 
-        for permutation, circuit_qargs in zip(permutations_list, qargs):
-            try:
-                subgraph_perm, cmap_hash = get_mapping_perm(
-                    coupling_map, circuit_qargs, self.model_repo
-                )
-            except Exception as exc:
-                logger.warning(exc)
-                synthesized_circuits.append(None)
-                continue
+        perm_input: list[int] = list(circuit)
+        if target_qubits > circ_n_qubits:
+            perm_input = self._embed_perm(perm_input, target_qubits)
 
-            try:
-                record = self.model_repo.get(cmap_hash)
-            except KeyError:
-                logger.warning(
-                    "Permutation model for hash %s is not registered", cmap_hash
-                )
-                synthesized_circuits.append(None)
-                continue
-
-            model = record.model
-            circ_n_qubits = len(permutation)
-            model_n_qubits = int(model.env_config.get("num_qubits", circ_n_qubits))
-
-            if model_n_qubits < circ_n_qubits:
-                logger.warning(
-                    "Model trained for %s qubits cannot synthesize a %s-qubit permutation",
-                    model_n_qubits,
-                    circ_n_qubits,
-                )
-                synthesized_circuits.append(None)
-                continue
-
-            perm_input: list[int] = list(permutation)
-            if model_n_qubits > circ_n_qubits:
-                perm_input = self.embed_perm(perm_input, model_n_qubits)
-
-            logger.debug("Synthesizing permutation using model hash %s", cmap_hash)
-
-            try:
-                synthesized_permutation = model.synth(
-                    input=perm_input, num_searches=self.num_searches
-                )
-            except Exception as err:
-                logger.warning(
-                    "Permutation synthesis failed for hash %s: %s", cmap_hash, err
-                )
-                synthesized_circuits.append(None)
-                continue
-
-            if synthesized_permutation is None:
-                synthesized_circuits.append(None)
-                continue
-
-            synthesized_circuit = QuantumCircuit(
-                synthesized_permutation.num_qubits
-            ).compose(synthesized_permutation, qubits=subgraph_perm)
-
-            synthesized_circuits.append(synthesized_circuit)
-
-        return synthesized_circuits
-
-    def transpile(
-        self,
-        circuits: list[list[int]],
-        qargs: list[list[int]],
-        coupling_map: list[list[int]] | CouplingMap | None = None,
-        # backend_name is not used here but is maintained until we deprecate it to not break the code
-        backend_name=None,
-        backend: Backend | None = None,
-    ) -> list[QuantumCircuit | None]:
-        """Synthetize one or more quantum circuits into an optimized equivalent. It differs from a standard synthesis process in that it takes into account where the Permutations are (qargs)
-        and respects it on the synthesized circuit.
-
-        Args:
-            circuits (list[list[int]]): A list of quantum circuits to be synthesized.
-            qargs (list[list[int]]): A list of lists of qubit indices for each circuit. Each list of qubits indices represent where the Permutation circuit is.
-            coupling_map (list[list[int]] | None): A coupling map representing the connectivity of the quantum computer.
-            backend_name (str | None): The name of the backend to use for the synthesis.
-
-        Returns:
-            list[QuantumCircuit | None]: A list of synthesized quantum circuits. If the synthesis fails for any circuit, the corresponding element in the list will be None.
-        """
-
-        # Although this function is called `transpile`, it does a synthesis. It has this name because the synthesis
-        # is made as a pass on the Qiskit Pass Manager which is used in the transpilation process.
-
-        validate_coupling_map_source(coupling_map, backend)
-
-        formatted_coupling_map = get_formatted_coupling_map(coupling_map)
-
-        validate_circuits_and_qargs_lengths(circuits, qargs)
-
-        coupling_map_graph = get_coupling_map_graph(backend, formatted_coupling_map)
-
-        logger.info("Running Permutations AI synthesis on local mode")
-
-        synthesized_circuits = self.get_synthesized_permutation_circuits(
-            coupling_map_graph, circuits, qargs
-        )
-
-        return synthesized_circuits
+        return perm_input
