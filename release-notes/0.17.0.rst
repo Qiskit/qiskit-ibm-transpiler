@@ -1,0 +1,7 @@
+0.17.0 (2026-02-16)
+===================
+
+New features
+------------
+
+- Pauli network synthesis now uses ``qiskit-gym`` models, consistent with Clifford, linear function, and permutation synthesis. (`244 <https://github.com/Qiskit/qiskit-ibm-transpiler/pull/244>`__)
