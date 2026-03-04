@@ -4,6 +4,8 @@
 
 
 """Routing helper module"""
+from pathlib import Path
+
 from qiskit_ibm_transpiler import qiskit_ibm_transpiler_rs
 
 from qiskit import QuantumCircuit
@@ -11,6 +13,9 @@ from qiskit.transpiler import CouplingMap
 from ..utils.rust_qc_utils import MakeBlocks, qc_to_rust, rust_to_qc
 
 from ..utils.layouts import LayoutIterTypes, get_layout_iter
+
+# TODO: remove this DEFAULT MODEL once we have a way to download the model from HF
+DEFAULT_MODEL_PATH = str(Path(__file__).parent / "models" / "routing_model.safetensors")
 
 
 LAYOUT_ITER_TYPE = {
@@ -20,9 +25,17 @@ LAYOUT_ITER_TYPE = {
 
 
 class RoutingInference:
-    def __init__(self):
+    _routing = None
+    _model_path = None
+
+    def __init__(self, model_path=None):
         self.make_blocks = MakeBlocks()
-        self.routing = qiskit_ibm_transpiler_rs.CircuitRouting()
+        if model_path is None:
+            model_path = DEFAULT_MODEL_PATH
+        if RoutingInference._routing is None or RoutingInference._model_path != model_path:
+            RoutingInference._routing = qiskit_ibm_transpiler_rs.CircuitRouting(model_path)
+            RoutingInference._model_path = model_path
+        self.routing = RoutingInference._routing
 
     def route(
         self,

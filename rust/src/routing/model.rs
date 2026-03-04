@@ -1,7 +1,5 @@
-use super::model_data::{BIAS0, BIAS1, EMBEDDINGS, LAYER1};
+use super::model_data::ModelData;
 use nalgebra::SVector;
-
-pub struct Model;
 
 use rand::Rng;
 
@@ -15,25 +13,25 @@ fn noise(v: f32) -> f32 {
     v - (-(r.ln())).ln()
 }
 
-pub fn forward(s: &Vec<f32>) -> SVector<f32, 16> {
-    let mut acts = BIAS0.clone();
+pub fn forward(model: &ModelData, s: &Vec<f32>) -> SVector<f32, 16> {
+    let mut acts = model.bias0.clone();
 
     for (i, &v) in s.iter().enumerate() {
         if v > 0.0 {
-            acts += EMBEDDINGS[i];
+            acts += model.embeddings[i];
         } else if v < 0.0 {
-            acts -= EMBEDDINGS[i];
+            acts -= model.embeddings[i];
         }
     }
 
-    let acts = LAYER1 * acts.map(relu) + BIAS1;
+    let acts = model.layer1 * acts.map(relu) + model.bias1;
     acts
 }
 
-pub fn predict(s: &Vec<f32>) -> usize {
-    forward(s).imax() as usize
+pub fn predict(model: &ModelData, s: &Vec<f32>) -> usize {
+    forward(model, s).imax() as usize
 }
 
-pub fn predict_sample(s: &Vec<f32>) -> usize {
-    forward(s).map(noise).imax() as usize
+pub fn predict_sample(model: &ModelData, s: &Vec<f32>) -> usize {
+    forward(model, s).map(noise).imax() as usize
 }

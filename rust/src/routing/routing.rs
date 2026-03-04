@@ -3,6 +3,7 @@ use super::dag::Layout;
 use super::env::Env;
 use super::metrics::{metrics_from_circuit, MetricType};
 use super::model::predict;
+use super::model_data::ModelData;
 use super::ops::{optype_to_usize, OpType, Operation, OP_TYPES};
 use pyo3::exceptions::PyRuntimeError;
 use pyo3::prelude::*;
@@ -21,11 +22,14 @@ pub struct CircuitRouting {
 #[pymethods]
 impl CircuitRouting {
     #[new]
-    pub fn new() -> Self {
-        CircuitRouting {
-            routing: Routing::new(false),
-            transpiling: Routing::new(true),
-        }
+    pub fn new(model_path: String) -> PyResult<Self> {
+        let model = ModelData::load(&model_path)
+            .map_err(|e| PyRuntimeError::new_err(e))?;
+        Ok(CircuitRouting {
+            routing: Routing::new(false, model),
+            transpiling: Routing::new(true, ModelData::load(&model_path)
+                .map_err(|e| PyRuntimeError::new_err(e))?),
+        })
     }
 
     #[staticmethod]
@@ -158,12 +162,14 @@ pub fn argsort(data: &Vec<usize>) -> Vec<usize> {
 
 pub struct Routing {
     pub virtual_swap: bool,
+    pub model: ModelData,
 }
 
 impl Routing {
-    pub fn new(virtual_swap: bool) -> Self {
+    pub fn new(virtual_swap: bool, model: ModelData) -> Self {
         Routing {
-            virtual_swap: virtual_swap,
+            virtual_swap,
+            model,
         }
     }
 
@@ -184,7 +190,7 @@ impl Routing {
 
         // Choose gates step by step until solved
         while !env.routed() && i < MAX_STEPS {
-            let action = predict(&env.obs(&coupling_map, &dists));
+            let action = predict(&self.model, &env.obs(&coupling_map, &dists));
             env.swap(action, &coupling_map);
             env.execute_operations(&dists);
 
