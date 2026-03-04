@@ -20,3 +20,8 @@ clifford:
 pauli:
   repo_id: qiskit/ai-transpiler_paulis
   revision: main
+
+# Routing model
+routing:
+  repo_id: qiskit/ai-transpiler_routing
+  revision: main
