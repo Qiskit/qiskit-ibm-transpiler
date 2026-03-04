@@ -11,13 +11,8 @@
 # that they have been altered from the originals.
 
 """Routing and Layout selection with AI"""
-# import torch
 
-# torch.set_num_threads(1)
-
-import importlib
 import logging
-import os
 
 import numpy as np
 from qiskit import ClassicalRegister, QuantumCircuit
@@ -121,13 +116,6 @@ class AIRouting(TransformationPass):
         local_mode: bool = True,
         **kwargs,
     ):
-        ai_local_package = "qiskit_ibm_ai_local_transpiler"
-        if local_mode:
-            if importlib.util.find_spec(ai_local_package) is None:
-                raise ImportError(
-                    f"For using the local mode you need to install the package '{ai_local_package}'. Read the installation guide for more information"
-                )
-
         if backend and coupling_map:
             raise ValueError(
                 f"ERROR. Both backend and coupling_map were specified as options. Please just use one of them."

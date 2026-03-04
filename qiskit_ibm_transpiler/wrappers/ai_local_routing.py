@@ -10,23 +10,11 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-import importlib
-
 from qiskit import QuantumCircuit
 from qiskit.transpiler import CouplingMap
 
 from qiskit_ibm_transpiler.types import OptimizationOptions
-from qiskit_ibm_transpiler.utils import get_circuit_from_qasm, input_to_qasm
-
-ai_local_package = "qiskit_ibm_ai_local_transpiler"
-qiskit_ibm_ai_local_transpiler = (
-    importlib.import_module(ai_local_package)
-    if importlib.util.find_spec(ai_local_package)
-    else None
-)
-AIRoutingInference = getattr(
-    qiskit_ibm_ai_local_transpiler, "AIRoutingInference", "AIRoutingInference not found"
-)
+from qiskit_ibm_transpiler.local_routing.routing import RoutingInference
 
 
 OP_LEVELS = {
@@ -61,7 +49,7 @@ class AILocalRouting:
             op_params.update(optimization_level)
 
         # Perform routing
-        routed_qc, init_layout, final_layout = AIRoutingInference().route(
+        routed_qc, init_layout, final_layout = RoutingInference().route(
             circuit=circuit,
             coupling_map_edges=coupling_map_edges,
             coupling_map_n_qubits=coupling_map_n_qubits,
