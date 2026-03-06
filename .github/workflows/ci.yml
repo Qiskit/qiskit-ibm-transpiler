@@ -64,8 +64,8 @@ jobs:
           path: ~/.cache/uv
           key: ${{ runner.os }}-uv-${{ matrix.python-version }}-${{ hashFiles('uv.lock') }}
 
-      - name: Sync dependencies (dev + ai-local-mode)
-        run: uv sync --group dev --extra ai-local-mode
+      - name: Sync dependencies (dev)
+        run: uv sync --group dev
 
       - name: Run tests
         env:
