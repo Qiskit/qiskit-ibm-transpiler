@@ -33,7 +33,9 @@ OPS_DICT = {op: i for i, op in enumerate(OPS)}
 def qc_to_rust(qc_blocks):
     ops = []
     cargs_dict = dict()
-    has_conditional_gates = any(getattr(gi.operation, "condition", None) is not None for gi in qc_blocks)
+    has_conditional_gates = any(
+        getattr(gi.operation, "condition", None) is not None for gi in qc_blocks
+    )
 
     for op_id, gi in enumerate(qc_blocks):
         if gi.operation.name == "barrier":
@@ -47,7 +49,10 @@ def qc_to_rust(qc_blocks):
             continue
         if len(gi.qubits) == 2:
             qubit_inputs = tuple(qi._index for qi in gi.qubits)
-            if getattr(gi.operation, "condition", None) is None and gi.operation.name in OPS_DICT:
+            if (
+                getattr(gi.operation, "condition", None) is None
+                and gi.operation.name in OPS_DICT
+            ):
                 gate_type = OPS_DICT[gi.operation.name]
             else:
                 # if gate is not in dict or is conditioned we choose a generic gate with id
@@ -63,7 +68,8 @@ def qc_to_rust(qc_blocks):
             cargs_dict[op_id] = gi.clbits
 
         add_mrw = has_conditional_gates and (
-            (getattr(gi.operation, "condition", None) is not None) or (len(gi.clbits) > 0)
+            (getattr(gi.operation, "condition", None) is not None)
+            or (len(gi.clbits) > 0)
         )
 
         if add_mrw:

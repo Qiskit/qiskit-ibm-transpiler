@@ -61,7 +61,6 @@ class AITranspilerConfig:
         )
 
 
-
 ML_CONFIG_SCHEMA = {
     "type": "object",
     "properties": {

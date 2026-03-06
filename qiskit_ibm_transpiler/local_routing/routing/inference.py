@@ -4,6 +4,7 @@
 
 
 """Routing helper module"""
+
 import logging
 import os
 from pathlib import Path
@@ -86,8 +87,13 @@ class RoutingInference:
             return
         if model_path is None:
             model_path = _download_routing_model()
-        if RoutingInference._routing is None or RoutingInference._model_path != model_path:
-            RoutingInference._routing = qiskit_ibm_transpiler_rs.CircuitRouting(model_path)
+        if (
+            RoutingInference._routing is None
+            or RoutingInference._model_path != model_path
+        ):
+            RoutingInference._routing = qiskit_ibm_transpiler_rs.CircuitRouting(
+                model_path
+            )
             RoutingInference._model_path = model_path
         self.routing = RoutingInference._routing
 
@@ -110,7 +116,7 @@ class RoutingInference:
         # Route in rust
         if layout_mode == "keep":
             # Here we dont modify the initial layout
-            (rust_qc, (init_layout, _, locations)) = self.routing.route(
+            rust_qc, (init_layout, _, locations) = self.routing.route(
                 qc_blocks_rust,
                 runs=op_params["full_its"],
                 coupling_map=coupling_map_edges,
@@ -127,7 +133,7 @@ class RoutingInference:
             )
             layouts = [ly for _, ly in zip(range(n_shots), layout_iter(circuit))]
 
-            (rust_qc, (init_layout, _, locations)) = self.routing.transpile(
+            rust_qc, (init_layout, _, locations) = self.routing.transpile(
                 qc_blocks_rust,
                 runs=op_params["full_its"],  # number parallel inner loop runs
                 inner_its=op_params["its"],  # number of layout improvement iterations
