@@ -1,13 +1,14 @@
-use nalgebra::{SMatrix, SVector};
+use super::config::{HORIZON, NUM_ACTIVE_SWAPS};
+use nalgebra::{DMatrix, DVector};
 use safetensors::SafeTensors;
 use std::fs;
 
 #[derive(Clone)]
 pub struct ModelData {
-    pub bias0: SVector<f32, 256>,
-    pub bias1: SVector<f32, 16>,
-    pub embeddings: [SVector<f32, 256>; 128],
-    pub layer1: SMatrix<f32, 16, 256>,
+    pub bias0: DVector<f32>,
+    pub bias1: DVector<f32>,
+    pub embeddings: Vec<DVector<f32>>,
+    pub layer1: DMatrix<f32>,
 }
 
 fn bytes_to_f32_vec(bytes: &[u8]) -> Result<Vec<f32>, String> {
@@ -25,14 +26,33 @@ fn bytes_to_f32_vec(bytes: &[u8]) -> Result<Vec<f32>, String> {
 
 impl ModelData {
     pub fn load(path: &str) -> Result<Self, String> {
-        let data = fs::read(path).map_err(|e| format!("Failed to read model file '{}': {}", path, e))?;
+        let data =
+            fs::read(path).map_err(|e| format!("Failed to read model file '{}': {}", path, e))?;
         let tensors = SafeTensors::deserialize(&data)
             .map_err(|e| format!("Failed to parse safetensors: {}", e))?;
 
-        let bias0 = Self::load_vector::<256>(&tensors, "bias0")?;
-        let bias1 = Self::load_vector::<16>(&tensors, "bias1")?;
-        let layer1 = Self::load_matrix::<16, 256>(&tensors, "layer1")?;
-        let embeddings = Self::load_embeddings(&tensors)?;
+        // Load bias0 and infer hidden_dim from it
+        let bias0 = Self::load_vector(&tensors, "bias0")?;
+        let hidden_dim = bias0.len();
+
+        // Load bias1 and infer output_dim
+        let bias1 = Self::load_vector(&tensors, "bias1")?;
+        let output_dim = bias1.len();
+
+        // Validate output_dim matches action space
+        if output_dim != NUM_ACTIVE_SWAPS {
+            return Err(format!(
+                "Model output_dim ({}) != NUM_ACTIVE_SWAPS ({})",
+                output_dim, NUM_ACTIVE_SWAPS
+            ));
+        }
+
+        // Load layer1 and validate shape
+        let layer1 = Self::load_matrix(&tensors, "layer1", output_dim, hidden_dim)?;
+
+        // Load embeddings and validate
+        let expected_num_embeddings = NUM_ACTIVE_SWAPS * HORIZON;
+        let embeddings = Self::load_embeddings(&tensors, expected_num_embeddings, hidden_dim)?;
 
         Ok(ModelData {
             bias0,
@@ -42,69 +62,66 @@ impl ModelData {
         })
     }
 
-    fn load_vector<const N: usize>(
-        tensors: &SafeTensors,
-        name: &str,
-    ) -> Result<SVector<f32, N>, String> {
+    fn load_vector(tensors: &SafeTensors, name: &str) -> Result<DVector<f32>, String> {
         let view = tensors
             .tensor(name)
             .map_err(|e| format!("Tensor '{}' not found: {}", name, e))?;
         let floats = bytes_to_f32_vec(view.data())?;
-        if floats.len() != N {
-            return Err(format!(
-                "Tensor '{}' has {} elements, expected {}",
-                name,
-                floats.len(),
-                N
-            ));
-        }
-        Ok(SVector::<f32, N>::from_column_slice(&floats))
+        Ok(DVector::from_column_slice(&floats))
     }
 
-    fn load_matrix<const R: usize, const C: usize>(
+    fn load_matrix(
         tensors: &SafeTensors,
         name: &str,
-    ) -> Result<SMatrix<f32, R, C>, String> {
+        rows: usize,
+        cols: usize,
+    ) -> Result<DMatrix<f32>, String> {
         let view = tensors
             .tensor(name)
             .map_err(|e| format!("Tensor '{}' not found: {}", name, e))?;
         let floats = bytes_to_f32_vec(view.data())?;
-        if floats.len() != R * C {
+        if floats.len() != rows * cols {
             return Err(format!(
                 "Tensor '{}' has {} elements, expected {}",
                 name,
                 floats.len(),
-                R * C
+                rows * cols
             ));
         }
         // safetensors stores in row-major (C order), nalgebra expects column-major
-        // We need to transpose: read as (R, C) row-major, store as column-major
-        let mut mat = SMatrix::<f32, R, C>::zeros();
-        for r in 0..R {
-            for c in 0..C {
-                mat[(r, c)] = floats[r * C + c];
+        let mut mat = DMatrix::zeros(rows, cols);
+        for r in 0..rows {
+            for c in 0..cols {
+                mat[(r, c)] = floats[r * cols + c];
             }
         }
         Ok(mat)
     }
 
-    fn load_embeddings(tensors: &SafeTensors) -> Result<[SVector<f32, 256>; 128], String> {
+    fn load_embeddings(
+        tensors: &SafeTensors,
+        num_embeddings: usize,
+        hidden_dim: usize,
+    ) -> Result<Vec<DVector<f32>>, String> {
         let view = tensors
             .tensor("embeddings")
             .map_err(|e| format!("Tensor 'embeddings' not found: {}", e))?;
         let floats = bytes_to_f32_vec(view.data())?;
-        if floats.len() != 128 * 256 {
+        if floats.len() != num_embeddings * hidden_dim {
             return Err(format!(
-                "Tensor 'embeddings' has {} elements, expected {}",
+                "Tensor 'embeddings' has {} elements, expected {} ({}×{})",
                 floats.len(),
-                128 * 256
+                num_embeddings * hidden_dim,
+                num_embeddings,
+                hidden_dim
             ));
         }
-        let mut embeddings: [SVector<f32, 256>; 128] =
-            [SVector::<f32, 256>::zeros(); 128];
-        for i in 0..128 {
-            let start = i * 256;
-            embeddings[i] = SVector::<f32, 256>::from_column_slice(&floats[start..start + 256]);
+        let mut embeddings = Vec::with_capacity(num_embeddings);
+        for i in 0..num_embeddings {
+            let start = i * hidden_dim;
+            embeddings.push(DVector::from_column_slice(
+                &floats[start..start + hidden_dim],
+            ));
         }
         Ok(embeddings)
     }

@@ -1,24 +1,20 @@
 use super::model_data::ModelData;
-use nalgebra::SVector;
+use nalgebra::DVector;
 
-fn relu(v: f32) -> f32 {
-    v.max(0.0)
-}
-
-pub fn forward(model: &ModelData, s: &[f32]) -> SVector<f32, 16> {
+pub fn forward(model: &ModelData, s: &[f32]) -> DVector<f32> {
     let mut acts = model.bias0.clone();
 
     for (i, &v) in s.iter().enumerate() {
         if v > 0.0 {
-            acts += model.embeddings[i];
+            acts += &model.embeddings[i];
         } else if v < 0.0 {
-            acts -= model.embeddings[i];
+            acts -= &model.embeddings[i];
         }
     }
 
-    model.layer1 * acts.map(relu) + model.bias1
+    &model.layer1 * &acts.map(|v| v.max(0.0)) + &model.bias1
 }
 
 pub fn predict(model: &ModelData, s: &[f32]) -> usize {
-    forward(model, s).imax() as usize
+    forward(model, s).imax()
 }
