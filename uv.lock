@@ -2483,7 +2483,7 @@ requires-dist = [
     { name = "qiskit", specifier = ">=1.4.2,<3.0.0" },
     { name = "qiskit-gym", specifier = "~=0.4.0" },
     { name = "qiskit-qasm3-import", specifier = "~=0.4" },
-    { name = "qiskit-serverless", specifier = "~=0.29.0" },
+    { name = "qiskit-serverless", specifier = "~=0.30.0" },
     { name = "requests", specifier = "~=2.0" },
 ]
 
@@ -2518,7 +2518,7 @@ wheels = [
 
 [[package]]
 name = "qiskit-serverless"
-version = "0.29.0"
+version = "0.30.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "aiohttp" },
@@ -2541,9 +2541,9 @@ dependencies = [
     { name = "tqdm" },
     { name = "zipp" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/bc/15/dac263e19343c09826d8631b69a8165d09ab9ce5fafa440a8d668d2cd259/qiskit_serverless-0.29.0.tar.gz", hash = "sha256:b4fb767a4f18a1c08dce17c2883ec060d1a08d47b226f5d6f7c395751927debd", size = 37778, upload-time = "2026-02-10T18:16:29.53Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/38/5d/747b875afc82ee80df16f0084a9b145727917b52fc29f4375f09beaf7811/qiskit_serverless-0.30.0.tar.gz", hash = "sha256:d4e0a4fa14f596916a4adc86df8d5e9a9a0c75aae919eb81c3d9fbacb2e4f66e", size = 39614, upload-time = "2026-03-04T17:09:05.42Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/31/83/33bb5bb35111048da952e7484c68c8348d0fd8b2e726d7908a1101c9a603/qiskit_serverless-0.29.0-py3-none-any.whl", hash = "sha256:cdf4e476298774558ae204b6013557f2592038960150ffece0cbdf80230775b4", size = 51904, upload-time = "2026-02-10T18:16:28.591Z" },
+    { url = "https://files.pythonhosted.org/packages/0b/fb/2606a7e7b29af2658c909936e1178c07cff69abd8e854a31fb66c2687b5e/qiskit_serverless-0.30.0-py3-none-any.whl", hash = "sha256:91055c94b950aeee5c44e823162a19b6c5ba547cb60f8a56c35fdef1a4063179", size = 54865, upload-time = "2026-03-04T17:09:04.118Z" },
 ]
 
 [[package]]
