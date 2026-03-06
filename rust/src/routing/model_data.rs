@@ -10,12 +10,17 @@ pub struct ModelData {
     pub layer1: SMatrix<f32, 16, 256>,
 }
 
-fn bytes_to_f32_vec(bytes: &[u8]) -> Vec<f32> {
-    assert!(bytes.len() % 4 == 0, "Byte length must be multiple of 4");
-    bytes
+fn bytes_to_f32_vec(bytes: &[u8]) -> Result<Vec<f32>, String> {
+    if bytes.len() % 4 != 0 {
+        return Err(format!(
+            "Byte length must be multiple of 4, got {}",
+            bytes.len()
+        ));
+    }
+    Ok(bytes
         .chunks_exact(4)
         .map(|c| f32::from_le_bytes(c.try_into().unwrap()))
-        .collect()
+        .collect())
 }
 
 impl ModelData {
@@ -44,7 +49,7 @@ impl ModelData {
         let view = tensors
             .tensor(name)
             .map_err(|e| format!("Tensor '{}' not found: {}", name, e))?;
-        let floats = bytes_to_f32_vec(view.data());
+        let floats = bytes_to_f32_vec(view.data())?;
         if floats.len() != N {
             return Err(format!(
                 "Tensor '{}' has {} elements, expected {}",
@@ -63,7 +68,7 @@ impl ModelData {
         let view = tensors
             .tensor(name)
             .map_err(|e| format!("Tensor '{}' not found: {}", name, e))?;
-        let floats = bytes_to_f32_vec(view.data());
+        let floats = bytes_to_f32_vec(view.data())?;
         if floats.len() != R * C {
             return Err(format!(
                 "Tensor '{}' has {} elements, expected {}",
@@ -87,7 +92,7 @@ impl ModelData {
         let view = tensors
             .tensor("embeddings")
             .map_err(|e| format!("Tensor 'embeddings' not found: {}", e))?;
-        let floats = bytes_to_f32_vec(view.data());
+        let floats = bytes_to_f32_vec(view.data())?;
         if floats.len() != 128 * 256 {
             return Err(format!(
                 "Tensor 'embeddings' has {} elements, expected {}",

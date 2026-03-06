@@ -11,6 +11,7 @@
 # that they have been altered from the originals.
 
 """Fixtures used on the tests"""
+
 import json
 import logging
 import os

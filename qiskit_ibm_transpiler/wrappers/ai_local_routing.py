@@ -17,10 +17,10 @@ from qiskit_ibm_transpiler.types import OptimizationOptions
 from qiskit_ibm_transpiler.local_routing.routing import RoutingInference
 
 OP_LEVELS = {
-    1: {"full_its": 8, "its": 2, "reps": 2, "runs": 1, "max_time": 30},
-    2: {"full_its": 16, "its": 16, "reps": 8, "runs": 1, "max_time": 30},
-    3: {"full_its": 32, "its": 16, "reps": 8, "runs": 1, "max_time": 300},
-    100: {"full_its": 32, "its": 32, "reps": 32, "runs": 1, "max_time": 3000},
+    1: {"full_its": 8, "its": 2, "reps": 2, "runs": 1, "max_time": 300},
+    2: {"full_its": 16, "its": 16, "reps": 8, "runs": 1, "max_time": 300},
+    3: {"full_its": 32, "its": 16, "reps": 8, "runs": 1, "max_time": 3600},
+    100: {"full_its": 32, "its": 32, "reps": 32, "runs": 1, "max_time": 10800},
 }
 
 

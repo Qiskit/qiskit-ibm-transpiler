@@ -1,12 +1,13 @@
 # -*- coding: utf-8 -*-
 
-# (C) Copyright 2022 IBM. All Rights Reserved.
+# (C) Copyright 2022, 2026 IBM. All Rights Reserved.
 
 
 """Routing helper module"""
 
 import logging
 import os
+import threading
 from pathlib import Path
 
 from qiskit_ibm_transpiler import qiskit_ibm_transpiler_rs
@@ -79,23 +80,25 @@ def _download_routing_model():
 class RoutingInference:
     _routing = None
     _model_path = None
+    _lock = threading.Lock()
 
     def __init__(self, model_path=None):
         self.make_blocks = MakeBlocks()
-        if model_path is None and RoutingInference._routing is not None:
+        with RoutingInference._lock:
+            if model_path is None and RoutingInference._routing is not None:
+                self.routing = RoutingInference._routing
+                return
+            if model_path is None:
+                model_path = _download_routing_model()
+            if (
+                RoutingInference._routing is None
+                or RoutingInference._model_path != model_path
+            ):
+                RoutingInference._routing = qiskit_ibm_transpiler_rs.CircuitRouting(
+                    model_path
+                )
+                RoutingInference._model_path = model_path
             self.routing = RoutingInference._routing
-            return
-        if model_path is None:
-            model_path = _download_routing_model()
-        if (
-            RoutingInference._routing is None
-            or RoutingInference._model_path != model_path
-        ):
-            RoutingInference._routing = qiskit_ibm_transpiler_rs.CircuitRouting(
-                model_path
-            )
-            RoutingInference._model_path = model_path
-        self.routing = RoutingInference._routing
 
     def route(
         self,
@@ -121,9 +124,10 @@ class RoutingInference:
                 runs=op_params["full_its"],
                 coupling_map=coupling_map_edges,
                 dists=coupling_map_dist_array,
-                err_map=dict(),
+                err_map={},
                 metrics_names=optimization_preferences,
                 num_qubits=coupling_map_n_qubits,
+                max_seconds=op_params["max_time"],
             )
         else:
             # Here we improve a provided layout or optimize the layout from scratch
@@ -142,7 +146,7 @@ class RoutingInference:
                 layout=layouts,
                 coupling_map=coupling_map_edges,
                 dists=coupling_map_dist_array,
-                err_map=dict(),
+                err_map={},
                 metrics_names=optimization_preferences,
                 num_qubits=coupling_map_n_qubits,
                 max_seconds=op_params["max_time"],

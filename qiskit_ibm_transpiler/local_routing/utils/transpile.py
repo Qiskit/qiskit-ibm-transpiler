@@ -5,9 +5,6 @@
 
 """Transpile utils"""
 
-from qiskit import QuantumCircuit
-from networkx.algorithms import isomorphism
-
 
 def check_transpiling(circ, cmap):
     """Checks if a given circuit follows a specific coupling map"""
@@ -22,18 +19,3 @@ def check_transpiling(circ, cmap):
             ):
                 return False
     return True
-
-
-def check_topology_synthesized_circuit(
-    circuit: QuantumCircuit,
-    coupling_map: list[list[int]],
-):
-    """Check whether a synthesized circuit follows a coupling map and respects topology"""
-    return check_transpiling(circuit, coupling_map)
-
-
-def find_symmetries(G):
-    return sorted(
-        [d[i] for i in range(G.number_of_nodes())]
-        for d in isomorphism.GraphMatcher(G, G).subgraph_isomorphisms_iter()
-    )

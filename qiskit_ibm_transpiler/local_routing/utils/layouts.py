@@ -9,7 +9,7 @@ class LayoutIterTypes(str, Enum):
     Random = "random"
     Sabre = "sabre"
     Improve = "improve"
-    Auto = "auto"
+
 
 
 def keep_layout_gen(qc):

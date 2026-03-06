@@ -132,7 +132,7 @@ impl Env {
                 }
             }
             Err(_e) => {
-                eprintln!("Warning: topological sort failed, circuit may be ill-formed");
+
             }
         }
         out

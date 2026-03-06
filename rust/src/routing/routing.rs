@@ -71,7 +71,14 @@ impl CircuitRouting {
             )
         });
         match route_result {
-            Err(_e) => Err(PyRuntimeError::new_err("Panic error")),
+            Err(e) => {
+                let msg = e
+                    .downcast_ref::<String>()
+                    .map(|s| s.as_str())
+                    .or_else(|| e.downcast_ref::<&str>().copied())
+                    .unwrap_or("unknown panic");
+                Err(PyRuntimeError::new_err(format!("Routing panicked: {msg}")))
+            }
             Ok(res) => Ok((
                 rust_to_py(res.0),
                 (res.1.initial_layout, res.1.qubits, res.1.locations),
@@ -88,27 +95,38 @@ impl CircuitRouting {
         err_map: HashMap<(usize, usize), f64>,
         metrics_names: Vec<String>,
         num_qubits: usize,
-    ) -> (
+        max_seconds: usize,
+    ) -> PyResult<(
         Vec<(usize, (usize, usize))>,
         (Vec<usize>, Vec<usize>, Vec<usize>),
-    ) {
-        let route_result = self.routing._route_loop(
-            &py_to_rust(circuit),
-            runs,
-            &coupling_map,
-            &dists,
-            &err_map,
-            &metrics_names,
-            num_qubits,
-        );
-        (
-            rust_to_py(route_result.0),
-            (
-                route_result.1.initial_layout,
-                route_result.1.qubits,
-                route_result.1.locations,
-            ),
-        )
+    )> {
+        let deadline = Some(Instant::now() + Duration::new(max_seconds as u64, 0));
+        let route_result = panic::catch_unwind(|| {
+            self.routing._route_loop(
+                &py_to_rust(circuit),
+                runs,
+                &coupling_map,
+                &dists,
+                &err_map,
+                &metrics_names,
+                num_qubits,
+                deadline,
+            )
+        });
+        match route_result {
+            Err(e) => {
+                let msg = e
+                    .downcast_ref::<String>()
+                    .map(|s| s.as_str())
+                    .or_else(|| e.downcast_ref::<&str>().copied())
+                    .unwrap_or("unknown panic");
+                Err(PyRuntimeError::new_err(format!("Routing panicked: {msg}")))
+            }
+            Ok(res) => Ok((
+                rust_to_py(res.0),
+                (res.1.initial_layout, res.1.qubits, res.1.locations),
+            )),
+        }
     }
 }
 
@@ -179,6 +197,7 @@ impl Routing {
         err_map: &HashMap<(usize, usize), f64>,
         metrics_names: &[String],
         num_qubits: usize,
+        deadline: Option<Instant>,
     ) -> (Vec<Operation>, Layout, MetricType) {
         let mut env = Env::new(circuit, coupling_map, err_map, metrics_names, num_qubits);
         env.out_dag.virtual_swap = self.virtual_swap;
@@ -187,7 +206,7 @@ impl Routing {
         env.execute_operations(&dists);
 
         // Choose gates step by step until solved
-        while !env.routed() && i < MAX_STEPS {
+        while !env.routed() && i < MAX_STEPS && deadline.map_or(true, |d| Instant::now() < d) {
             let action = predict(&self.model, &env.obs(coupling_map, dists));
             env.swap(action, coupling_map);
             env.execute_operations(&dists);
@@ -208,6 +227,7 @@ impl Routing {
         err_map: &HashMap<(usize, usize), f64>,
         metrics_names: &[String],
         num_qubits: usize,
+        deadline: Option<Instant>,
     ) -> (Vec<Operation>, Layout, MetricType) {
         let mut best_score: MetricType = vec![usize::MAX];
         let mut best_qc: Vec<Operation> = Vec::new();
@@ -228,13 +248,14 @@ impl Routing {
                         err_map,
                         metrics_names,
                         num_qubits,
+                        deadline,
                     )
                 });
                 handles.push(handle);
             }
             for handle in handles {
                 let (qc, layout, score) = handle.join().expect("Thread panicked");
-                if (qc.len() > 0) && (score < best_score) {
+                if (!qc.is_empty()) && (score < best_score) {
                     (best_qc, best_layout, best_score) = (qc, layout, score);
                 }
             }
@@ -270,6 +291,7 @@ impl Routing {
 
         let time_limit = Duration::new(max_seconds as u64, 0);
         let start_time = Instant::now();
+        let deadline = Some(start_time + time_limit);
 
         for l in 0..shots {
             let shot_layout: &Vec<usize> = &layout[l];
@@ -296,6 +318,7 @@ impl Routing {
                         &err_map,
                         &metrics_names,
                         num_qubits,
+                        deadline,
                     );
                     if j % 2 == 1 {
                         qc.reverse();

@@ -1,7 +1,11 @@
 # Passes to collect gates into 2q blocks for routing
+import logging
+
 from qiskit.circuit.instruction import Instruction
 from qiskit.dagcircuit.collect_blocks import BlockCollapser
 from qiskit.transpiler.basepasses import TransformationPass
+
+logger = logging.getLogger(__name__)
 
 
 class BlockGate(Instruction):
@@ -30,7 +34,7 @@ OPS_DICT = {op: i for i, op in enumerate(OPS)}
 
 def qc_to_rust(qc_blocks):
     ops = []
-    cargs_dict = dict()
+    cargs_dict = {}
     has_conditional_gates = any(
         getattr(gi.operation, "condition", None) is not None for gi in qc_blocks
     )
@@ -66,6 +70,14 @@ def qc_to_rust(qc_blocks):
             qubit_inputs = (idx, idx)
             gate_type = 10 * (op_id + 1)
         else:
+            logger.warning(
+                "Skipping %d-qubit gate '%s' (op_id=%d) during routing. "
+                "Only 1- and 2-qubit gates are supported. "
+                "Decompose the circuit before routing.",
+                len(gi.qubits),
+                gi.operation.name,
+                op_id,
+            )
             continue
 
         if len(gi.clbits) > 0:
@@ -119,9 +131,10 @@ def rust_to_qc(qc, ops, op_list, cargs_dict):
             continue
 
         elif op_type < 10:
-            assert op_type < len(
-                OPS
-            ), f"Found unsuported gate that is not on a block, with id={op_type}"
+            if op_type >= len(OPS):
+                raise ValueError(
+                    f"Found unsupported gate that is not on a block, with id={op_type}"
+                )
             if OPS[op_type] == "cx":
                 qc.cx(*qargs)
             elif OPS[op_type] == "swap":

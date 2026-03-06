@@ -16,8 +16,7 @@ pub fn forward(model: &ModelData, s: &[f32]) -> SVector<f32, 16> {
         }
     }
 
-    let acts = model.layer1 * acts.map(relu) + model.bias1;
-    acts
+    model.layer1 * acts.map(relu) + model.bias1
 }
 
 pub fn predict(model: &ModelData, s: &[f32]) -> usize {

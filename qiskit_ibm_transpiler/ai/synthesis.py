@@ -69,12 +69,12 @@ class AISynthesis(TransformationPass):
     ) -> None:
         if backend and coupling_map:
             raise ValueError(
-                f"ERROR. Both backend and coupling_map were specified as options. Please just use one of them."
+                "ERROR. Both backend and coupling_map were specified as options. Please just use one of them."
             )
 
         if not backend and not coupling_map:
             raise ValueError(
-                f"ERROR. One of these options must be set: backend or coupling_map."
+                "ERROR. One of these options must be set: backend or coupling_map."
             )
 
         if coupling_map:
@@ -84,7 +84,7 @@ class AISynthesis(TransformationPass):
                 self.coupling_map = CouplingMap(coupling_map)
             else:
                 raise ValueError(
-                    f"ERROR. coupling_map should either be a list of int tuples or a Qiskit CouplingMap object."
+                    "ERROR. coupling_map should either be a list of int tuples or a Qiskit CouplingMap object."
                 )
 
         if backend:

@@ -84,7 +84,7 @@ impl TwoQubitDAG {
             let pred_op = &self.dag[pred];
             let (pq1, pq2) = pred_op.qubits;
             if (q == pq1) || (q == pq2) {
-                if pred_front == None {
+                if pred_front.is_none() {
                     pred_front = Some(pred);
                 } else {
                     let pred_front_op = &self.dag[pred_front.unwrap()];
@@ -232,7 +232,6 @@ impl TwoQubitDAG {
                 self.front.insert(a, idx); // using 'a' as qubit since both are equal
             }
             Front::Error => {
-                eprintln!("Warning: DAG Front Error for op {:?}, adding without edges", op);
                 let idx = self.add_node(op);
                 self.front.insert(a, idx);
                 self.front.insert(b, idx);
@@ -345,14 +344,11 @@ impl TwoQubitDAG {
                     (Some(&value_a), Some(&value_b)) if value_a == value_b => {
                         Front::UniqueFront(value_a)
                     }
-                    (Some(&value_a), Some(&value_b)) if value_a != value_b => {
+                    (Some(&value_a), Some(&value_b)) => {
                         Front::DifferentFronts((value_a, value_b))
                     }
                     (Some(&value_a), None) => Front::FirstFront(value_a),
                     (None, Some(&value_b)) => Front::SecondFront(value_b),
-                    _ => {
-                        Front::Error
-                    }
                 }
             }
         }
