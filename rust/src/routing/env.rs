@@ -18,10 +18,10 @@ pub struct Env {
 
 impl Env {
     pub fn new(
-        input_circuit: &Vec<Operation>,
-        coupling_map: &Vec<(usize, usize)>,
+        input_circuit: &[Operation],
+        coupling_map: &[(usize, usize)],
         err_map: &HashMap<(usize, usize), f64>,
-        metrics_names: &Vec<String>,
+        metrics_names: &[String],
         num_qubits: usize,
     ) -> Self {
         let mut env = Env {
@@ -41,11 +41,9 @@ impl Env {
         env
     }
 
-    pub fn execute_operations(&mut self, dists: &Vec<Vec<DistType>>) -> usize {
+    pub fn execute_operations(&mut self, dists: &[Vec<DistType>]) -> usize {
         let mut num_targets_solved = 0usize;
         let mut roots: VecDeque<NodeIndex> = self.in_dag.topgens.zero_indegree.clone();
-        //-//println!("ROOTS");
-        //-//println!("{:?}", roots);
 
         while let Some(node) = roots.pop_front() {
             let op = self.in_dag.dag.node_weight(node).unwrap().clone();
@@ -53,14 +51,8 @@ impl Env {
             let l1 = self.locations[q1];
             let l2 = self.locations[q2];
 
-            //let nnode = Operation {id: op.id, op_type: op.op_type.clone(), qubits: (l1, l2)};
-            //println!("  [Executing ops] Solving node: {:?}", nnode);
-
             if dists[l1][l2] <= 1 {
-                // if has_edge(l1, l2) {
                 num_targets_solved += 1;
-                // Append to circuit
-                //println!("  [Executing ops] Appending: {:?}", nnode);
 
                 let new_op = Operation {
                     id: self.out_dag.len(),
@@ -88,14 +80,12 @@ impl Env {
             }
         }
 
-        //num_targets_solved;
-        //println!("  [Executing ops] Solved {num_targets_solved} nodes");
         num_targets_solved
     }
 
-    pub fn swap(&mut self, action: usize, coupling_map: &Vec<(usize, usize)>) {
+    pub fn swap(&mut self, action: usize, coupling_map: &[(usize, usize)]) {
         if action >= self.active_swaps.len() {
-            return ();
+            return;
         }
         let action = self.active_swaps[action];
         let (l1, l2) = coupling_map[action];
@@ -105,10 +95,6 @@ impl Env {
             qubits: (l1, l2),
         };
 
-        // Add swap to circuit
-        //if self.out_dag.get_unique_front(&op) == Front::NoFront {
-        //    return ();
-        //};
         self.out_dag.push(&op);
         self.cm.apply(&op);
 
@@ -124,11 +110,11 @@ impl Env {
 
     pub fn obs(
         &mut self,
-        coupling_map: &Vec<(usize, usize)>,
-        dists: &Vec<Vec<DistType>>,
+        coupling_map: &[(usize, usize)],
+        dists: &[Vec<DistType>],
     ) -> Vec<f32> {
         self.in_dag.update_gens();
-        let (obs, active_swaps) = self.in_dag.get_obs(&self.locations, &coupling_map, &dists);
+        let (obs, active_swaps) = self.in_dag.get_obs(&self.locations, coupling_map, dists);
         self.active_swaps = active_swaps;
         obs
     }

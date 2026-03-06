@@ -1,8 +1,5 @@
-use std::vec;
-
 use super::config::*;
 
-//use indexmap::IndexMap;
 use super::graph::TopologicalGenerations;
 use super::ops::{match_ops, op_cost, MatchingOps, OpType, Operation};
 use petgraph::{
@@ -50,7 +47,7 @@ impl TwoQubitDAG {
     pub fn new(
         auto: bool,
         virtual_swap: bool,
-        coupling_map: &Vec<(usize, usize)>,
+        coupling_map: &[(usize, usize)],
         num_qubits: usize,
         update_topgens: bool,
     ) -> Self {
@@ -61,12 +58,12 @@ impl TwoQubitDAG {
             layout: (0..num_qubits).collect(),
             total_gates: 0,
             score: 0,
-            auto: auto,
-            virtual_swap: virtual_swap,
+            auto,
+            virtual_swap,
             gens: Vec::new(),
             loc_to_act: Vec::new(),
             topgens: TopologicalGenerations::new(&StableDiGraph::new()),
-            update_topgens: update_topgens,
+            update_topgens,
         };
 
         for _i in 0..num_qubits {
@@ -83,7 +80,6 @@ impl TwoQubitDAG {
 
     pub fn get_previous_front(&self, idx: &NodeIndex, q: usize) -> Option<NodeIndex> {
         let mut pred_front: Option<NodeIndex> = None;
-        //println!("Getting previous front for {q} and node {:?}", idx);
         for pred in self.dag.neighbors_directed(*idx, Incoming) {
             let pred_op = &self.dag[pred];
             let (pq1, pq2) = pred_op.qubits;
@@ -104,7 +100,6 @@ impl TwoQubitDAG {
     pub fn remove(&mut self, idx: &NodeIndex) {
         let op = &self.dag[*idx];
         let (q1, q2) = op.qubits;
-        //println!("removing.. fronts: {:?}", self.front);
 
         for q in [q1, q2] {
             if let Some(prev_front) = self.get_previous_front(idx, q) {
@@ -115,15 +110,11 @@ impl TwoQubitDAG {
         }
 
         self.remove_node(*idx);
-        //println!("removed! fronts: {:?}", self.front);
     }
 
     /// Add a node
     pub fn push(&mut self, op: &Operation) {
         let (a, b) = op.qubits;
-        //println!("Current dag: {:?}", self.dag);
-        //println!("Current front: {:?}", self.front);
-        //println!("Adding {:?}...", op);
 
         // Insert node and get idx
         let op = Operation {
@@ -145,46 +136,26 @@ impl TwoQubitDAG {
             }
             Front::UniqueFront(f) => {
                 let front_op = &self.dag[f].clone();
-                //println!("op {:?}", op);
-                //println!("fop {:?}", front_op);
 
                 match match_ops(&op, &front_op) {
                     MatchingOps::RemoveFOp if self.auto => {
-                        //println!("<RemoveFOp>");
                         self.remove(&f);
-                        //println!("Removed FOp!");
-                        //println!("Dag: {:?}", self.dag);
-                        //println!("</RemoveFOp>");
                     }
                     MatchingOps::SwapPassthrough if self.auto => {
-                        //println!("<SwapPassthrough>");
                         self.remove(&f);
-                        //println!("Removed FOp!");
                         self.push(&op);
-                        //println!("Pushed SWAP!");
                         self.push(&Operation {
                             id: front_op.id,
                             op_type: front_op.op_type,
                             qubits: (front_op.qubits.1, front_op.qubits.0),
                         });
-                        //println!("Pushed FOp!");
-                        //println!("Dag: {:?}", self.dag);
-                        //println!("</SwapPassthrough>");
                     }
-                    MatchingOps::FOpAbsorbs if self.auto => {
-                        //println!("<FOpAbsorbs>");
-                        //println!("FOp absorbed Op, doing nothing!");
-                        //println!("</FOpAbsorbs>");
-                    }
+                    MatchingOps::FOpAbsorbs if self.auto => {}
                     MatchingOps::RemoveFOpAndApply(new_ops) if self.auto => {
-                        //println!("<RemoveFOpAndApply>");
                         self.remove(&f);
-                        //println!("Removed FOp!");
-                        for (_iop, new_op) in new_ops.iter().enumerate() {
+                        for new_op in new_ops.iter() {
                             self.push(new_op);
-                            //println!("Pushed an Op");
                         }
-                        //println!("</RemoveFOpAndApply>");
                     }
                     _ => {
                         // MatchingOps::JustAddOp
@@ -217,7 +188,6 @@ impl TwoQubitDAG {
                         // virtual swap
                         let (q1, q2) = op.qubits;
                         (self.layout[q1], self.layout[q2]) = (self.layout[q2], self.layout[q1]);
-                        //println!("Doing virtual swap between {q1} and {q2}");
                     }
                     OpType::MRW => {
                         let idx = self.add_node(op);
@@ -250,16 +220,8 @@ impl TwoQubitDAG {
                 let idx = self.add_node(op);
 
                 // Add edges to all the current front unless they are a barrier, where we take the predecessor
-                for (&q_i, idx_i) in self.front.iter() {
-                    let mut idx_front = Some((*idx_i).clone());
-
-                    // Loop until it is not a barrier or no front is found
-                    //while idx_front.is_some()
-                    //    && (self.dag.node_weight(idx_front.unwrap()).unwrap().op_type
-                    //        == OpType::BARRIER)
-                    //{
-                    //    idx_front = self.get_previous_front(&idx_front.unwrap(), q_i);
-                    //}
+                for (_q_i, idx_i) in self.front.iter() {
+                    let idx_front = Some(*idx_i);
 
                     if idx_front.is_some() && !self.dag.contains_edge(idx_front.unwrap(), idx) {
                         self.dag.add_edge(idx_front.unwrap(), idx, ());
@@ -276,10 +238,6 @@ impl TwoQubitDAG {
                 self.front.insert(b, idx);
             }
         };
-
-        //println!("!Added {:?}!", op3);
-        //println!("Final dag: {:?}", self.dag);
-        //println!("Final front: {:?}", self.front);
     }
 
     pub fn create_topgens(&mut self) {
@@ -294,7 +252,7 @@ impl TwoQubitDAG {
         self.gens = gens;
     }
 
-    pub fn get_active_swaps(&self, locations: &Vec<usize>) -> Vec<usize> {
+    pub fn get_active_swaps(&self, locations: &[usize]) -> Vec<usize> {
         let mut active_swaps: Vec<usize> = Vec::with_capacity(NUM_ACTIVE_SWAPS);
 
         for gen in self.gens.iter() {
@@ -327,14 +285,12 @@ impl TwoQubitDAG {
     /// Get the obs for the model based on current dag
     pub fn get_obs(
         &self,
-        locations: &Vec<usize>,
-        coupling_map: &Vec<(usize, usize)>,
-        dists: &Vec<Vec<DistType>>,
+        locations: &[usize],
+        coupling_map: &[(usize, usize)],
+        dists: &[Vec<DistType>],
     ) -> (Vec<f32>, Vec<usize>) {
         let mut out: Vec<f32> = vec![0.0; NUM_ACTIVE_SWAPS * HORIZON];
-        //-//println!("{:?}", self.dag);
 
-        ////println!("{:?}", gens);
         let active_swaps = self.get_active_swaps(locations);
 
         for (d, gen) in self.gens.iter().enumerate() {
@@ -379,7 +335,6 @@ impl TwoQubitDAG {
 
     pub fn get_unique_front(&self, op: &Operation) -> Front {
         let (a, b) = op.qubits;
-        //return Front::DifferentFronts;
 
         match op.op_type {
             OpType::BARRIER => Front::BarrierFront,
@@ -396,7 +351,6 @@ impl TwoQubitDAG {
                     (Some(&value_a), None) => Front::FirstFront(value_a),
                     (None, Some(&value_b)) => Front::SecondFront(value_b),
                     _ => {
-                        //println!("ERROR");
                         Front::Error
                     }
                 }

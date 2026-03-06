@@ -137,23 +137,22 @@ fn rust_to_py(circuit: Vec<Operation>) -> Vec<(usize, (usize, usize))> {
         .collect()
 }
 
-fn apply_layout(circuit: &mut Vec<Operation>, layout: &Vec<usize>) {
+fn apply_layout(circuit: &mut [Operation], layout: &[usize]) {
     for op in circuit.iter_mut() {
         op.qubits = (layout[op.qubits.0], layout[op.qubits.1])
     }
 }
 
-fn compose_layout(base_layout: &Vec<usize>, new_layout: &Vec<usize>) -> Vec<usize> {
+fn compose_layout(base_layout: &[usize], new_layout: &[usize]) -> Vec<usize> {
     base_layout.iter().map(|q| new_layout[*q]).collect()
 }
 
 fn invert_layout(layout: &mut Layout) {
     (layout.initial_layout, layout.locations) =
-        //(argsort(&layout.locations), argsort(&layout.initial_layout))
         (layout.locations.clone(), argsort(&layout.initial_layout))
 }
 
-pub fn argsort(data: &Vec<usize>) -> Vec<usize> {
+pub fn argsort(data: &[usize]) -> Vec<usize> {
     let mut indices = (0..data.len()).collect::<Vec<_>>();
     indices.sort_by_key(|&i| &data[i]);
     indices
@@ -174,11 +173,11 @@ impl Routing {
 
     fn _route(
         &self,
-        circuit: &Vec<Operation>,
-        coupling_map: &Vec<(usize, usize)>,
-        dists: &Vec<Vec<i32>>,
+        circuit: &[Operation],
+        coupling_map: &[(usize, usize)],
+        dists: &[Vec<i32>],
         err_map: &HashMap<(usize, usize), f64>,
-        metrics_names: &Vec<String>,
+        metrics_names: &[String],
         num_qubits: usize,
     ) -> (Vec<Operation>, Layout, MetricType) {
         let mut env = Env::new(circuit, coupling_map, err_map, metrics_names, num_qubits);
@@ -189,13 +188,12 @@ impl Routing {
 
         // Choose gates step by step until solved
         while !env.routed() && i < MAX_STEPS {
-            let action = predict(&self.model, &env.obs(&coupling_map, &dists));
-            env.swap(action, &coupling_map);
+            let action = predict(&self.model, &env.obs(coupling_map, dists));
+            env.swap(action, coupling_map);
             env.execute_operations(&dists);
 
             i += 1;
         }
-        //(env.get_circuit(), env.get_layout(), env.get_score())
         let qc = env.get_circuit();
         let ms = metrics_from_circuit(&qc, num_qubits, metrics_names, err_map);
         (qc, env.get_layout(), ms)
@@ -203,12 +201,12 @@ impl Routing {
 
     fn _route_loop(
         &self,
-        circuit: &Vec<Operation>,
+        circuit: &[Operation],
         runs: usize,
-        coupling_map: &Vec<(usize, usize)>,
-        dists: &Vec<Vec<i32>>,
+        coupling_map: &[(usize, usize)],
+        dists: &[Vec<i32>],
         err_map: &HashMap<(usize, usize), f64>,
-        metrics_names: &Vec<String>,
+        metrics_names: &[String],
         num_qubits: usize,
     ) -> (Vec<Operation>, Layout, MetricType) {
         let mut best_score: MetricType = vec![usize::MAX];
@@ -222,14 +220,13 @@ impl Routing {
         thread::scope(|s| {
             let mut handles = Vec::with_capacity(runs);
             for _ in 0..runs {
-                // let value_ref = Arc::clone(&value_ref);
                 let handle = s.spawn(|| {
                     self._route(
                         circuit,
-                        &coupling_map,
-                        &dists,
-                        &err_map,
-                        &metrics_names,
+                        coupling_map,
+                        dists,
+                        err_map,
+                        metrics_names,
                         num_qubits,
                     )
                 });
@@ -238,7 +235,6 @@ impl Routing {
             for handle in handles {
                 let (qc, layout, score) = handle.join().expect("Thread panicked");
                 if (qc.len() > 0) && (score < best_score) {
-                    //println!("    -[{i}] -> Circuit with score {score} found.");
                     (best_qc, best_layout, best_score) = (qc, layout, score);
                 }
             }
@@ -250,7 +246,7 @@ impl Routing {
     // Route bidir v1
     pub fn route(
         &self,
-        circuit: &Vec<Operation>,
+        circuit: &[Operation],
         runs: usize,
         inner_its: usize,
         its: usize,
@@ -278,10 +274,10 @@ impl Routing {
         for l in 0..shots {
             let shot_layout: &Vec<usize> = &layout[l];
             let mut best_layout_ci: Vec<usize> = (0..num_qubits).collect();
-            let mut best_ci = circuit.clone();
+            let mut best_ci = circuit.to_vec();
 
-            apply_layout(&mut best_ci, &shot_layout);
-            best_layout_ci = compose_layout(&best_layout_ci, &shot_layout);
+            apply_layout(&mut best_ci, shot_layout);
+            best_layout_ci = compose_layout(&best_layout_ci, shot_layout);
 
             for _k in 0..its {
                 let mut circuit_i = best_ci.clone();
@@ -306,13 +302,7 @@ impl Routing {
                         circuit_i.reverse();
                         invert_layout(&mut layout);
                     }
-                    //println!("Score: {:?} vs Best Score {:?}", score, best_score);
                     if score < best_score {
-                        //println!(
-                        //    "-[{l}/{_k}/{j}]({}s) -> Circuit with metrics: {:?}  found.",
-                        //    start_time.elapsed().as_secs(),
-                        //    score
-                        //);
                         (best_qc, best_layout, best_score) = (qc.clone(), layout.clone(), score);
                         if j == 0 {
                             best_layout.initial_layout = argsort(&best_layout.initial_layout);

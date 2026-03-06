@@ -118,17 +118,17 @@ class AIRouting(TransformationPass):
     ):
         if backend and coupling_map:
             raise ValueError(
-                f"ERROR. Both backend and coupling_map were specified as options. Please just use one of them."
+                "ERROR. Both backend and coupling_map were specified as options. Please just use one of them."
             )
 
         if not backend and not coupling_map:
             raise ValueError(
-                f"ERROR. One of these options must be set: backend or coupling_map."
+                "ERROR. One of these options must be set: backend or coupling_map."
             )
 
         if optimization_level <= 0 or optimization_level > 3:
             raise ValueError(
-                f"ERROR. The optimization_level should be a value between 1 and 3."
+                "ERROR. The optimization_level should be a value between 1 and 3."
             )
 
         super().__init__()

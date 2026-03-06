@@ -15,7 +15,7 @@ from abc import ABC, abstractmethod
 from typing import Any
 
 import networkx as nx
-import numpy as np
+import numpy as npgit status
 from networkx.exception import NetworkXError
 from qiskit import QuantumCircuit
 from qiskit.circuit.library import LinearFunction

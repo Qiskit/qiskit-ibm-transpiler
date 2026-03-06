@@ -33,9 +33,6 @@ dependencies = [
     "PyYAML~=6.0"
 ]
 
-[project.optional-dependencies]
-ai-local-mode = []
-
 [project.urls]
 "Bug Tracker" = "https://github.com/Qiskit/qiskit-ibm-transpiler/issues"
 "Documentation" = "https://github.com/Qiskit/qiskit-ibm-transpiler"

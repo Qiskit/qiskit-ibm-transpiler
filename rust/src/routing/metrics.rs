@@ -18,7 +18,7 @@ pub struct CircuitMetrics {
 impl CircuitMetrics {
     pub fn new(
         num_qubits: usize,
-        metrics_names: &Vec<String>,
+        metrics_names: &[String],
         err_map: &HashMap<(usize, usize), f64>,
     ) -> Self {
         CircuitMetrics {
@@ -30,7 +30,7 @@ impl CircuitMetrics {
             last_cxs: vec![-1; num_qubits],
             fid: 1.0,
             err_map: err_map.clone(),
-            metrics_names: metrics_names.clone(),
+            metrics_names: metrics_names.to_vec(),
         }
     }
 
@@ -108,9 +108,9 @@ impl CircuitMetrics {
 }
 
 pub fn metrics_from_circuit(
-    circuit: &Vec<Operation>,
+    circuit: &[Operation],
     num_qubits: usize,
-    metrics_names: &Vec<String>,
+    metrics_names: &[String],
     err_map: &HashMap<(usize, usize), f64>,
 ) -> MetricType {
     let mut cm = CircuitMetrics::new(num_qubits, metrics_names, err_map);
