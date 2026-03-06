@@ -6,13 +6,11 @@
 """Routing helper module"""
 import logging
 import os
-from importlib import resources
 from pathlib import Path
-
-import yaml
 
 from qiskit_ibm_transpiler import qiskit_ibm_transpiler_rs
 from qiskit_ibm_transpiler.hf_models_client import HFInterface
+from qiskit_ibm_transpiler.model_bootstrap import _STATIC_SOURCES
 
 from qiskit import QuantumCircuit
 from qiskit.transpiler import CouplingMap
@@ -31,32 +29,20 @@ _REPO_ENV = "QISKIT_TRANSPILER_ROUTING_REPO_ID"
 _REVISION_ENV = "QISKIT_TRANSPILER_ROUTING_REVISION"
 
 
-def _load_routing_defaults():
-    """Read routing defaults from model_sources.yaml."""
-    try:
-        data_files = resources.files("qiskit_ibm_transpiler") / "data"
-        content = (data_files / "model_sources.yaml").read_text(encoding="utf-8")
-        sources = yaml.safe_load(content) or {}
-        return sources.get("routing", {})
-    except Exception as exc:
-        logger.debug("Could not read model_sources.yaml: %s", exc)
-        return {}
-
-
 def _find_safetensors(snapshot_path):
     """Return the first .safetensors file found in *snapshot_path*."""
-    candidates = sorted(Path(snapshot_path).rglob("*.safetensors"))
-    if not candidates:
+    match = next(Path(snapshot_path).rglob("*.safetensors"), None)
+    if match is None:
         raise FileNotFoundError(
             f"No .safetensors file found in HF snapshot at {snapshot_path}. "
             f"Verify that {_REPO_ENV} points to a valid routing model repository."
         )
-    return candidates[0]
+    return match
 
 
 def _download_routing_model():
     """Download the routing model from HuggingFace and return the local file path."""
-    defaults = _load_routing_defaults()
+    defaults = _STATIC_SOURCES.get("routing", {})
 
     repo_id = os.getenv(_REPO_ENV) or defaults.get("repo_id")
     if not repo_id:
@@ -95,6 +81,9 @@ class RoutingInference:
 
     def __init__(self, model_path=None):
         self.make_blocks = MakeBlocks()
+        if model_path is None and RoutingInference._routing is not None:
+            self.routing = RoutingInference._routing
+            return
         if model_path is None:
             model_path = _download_routing_model()
         if RoutingInference._routing is None or RoutingInference._model_path != model_path:
