@@ -120,7 +120,7 @@ fn py_to_rust(circuit: Vec<(usize, (usize, usize))>) -> Vec<Operation> {
         .map(|(op_id, (gate_id, qubits))| Operation {
             id: op_id,
             op_type: {
-                if *gate_id <= 9 {
+                if *gate_id < OP_TYPES.len() {
                     OP_TYPES[*gate_id]
                 } else {
                     OpType::B(3, *gate_id)

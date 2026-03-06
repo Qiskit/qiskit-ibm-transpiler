@@ -69,13 +69,14 @@ impl TopologicalGenerations {
 
             for &node in &this_generation {
                 for neighbor in graph.neighbors_directed(node, petgraph::Direction::Outgoing) {
-                    let entry = self.indegree_map.entry(neighbor).or_insert(0);
-                    indegree_changes.push((neighbor, *entry)); // Track the original indegree
-                    *entry -= 1;
+                    if let Some(indegree) = self.indegree_map.get_mut(&neighbor) {
+                        indegree_changes.push((neighbor, *indegree)); // Track the original indegree
+                        *indegree -= 1;
 
-                    if *entry == 0 {
-                        self.indegree_map.remove(&neighbor);
-                        next_generation.push_back(neighbor);
+                        if *indegree == 0 {
+                            self.indegree_map.remove(&neighbor);
+                            next_generation.push_back(neighbor);
+                        }
                     }
                 }
             }

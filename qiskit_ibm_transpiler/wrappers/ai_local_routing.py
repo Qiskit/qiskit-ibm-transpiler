@@ -40,12 +40,12 @@ class AILocalRouting:
         coupling_map_dists_array = coupling_map.distance_matrix.astype(int).tolist()
         coupling_map_n_qubits = len(coupling_map_dists_array)
 
-        op_params = OP_LEVELS[optimization_level]
-
-        if type(optimization_level) is dict:
+        if isinstance(optimization_level, dict):
             # Users can provide their own values by providing a dict
             op_params = OP_LEVELS[3].copy()
             op_params.update(optimization_level)
+        else:
+            op_params = OP_LEVELS[optimization_level]
 
         # Perform routing
         routed_qc, init_layout, final_layout = RoutingInference().route(
