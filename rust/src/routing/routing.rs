@@ -26,9 +26,8 @@ impl CircuitRouting {
         let model = ModelData::load(&model_path)
             .map_err(|e| PyRuntimeError::new_err(e))?;
         Ok(CircuitRouting {
-            routing: Routing::new(false, model),
-            transpiling: Routing::new(true, ModelData::load(&model_path)
-                .map_err(|e| PyRuntimeError::new_err(e))?),
+            routing: Routing::new(false, model.clone()),
+            transpiling: Routing::new(true, model),
         })
     }
 

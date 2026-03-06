@@ -24,8 +24,6 @@ class MakeBlocks(TransformationPass):
         return dag
 
 
-to_blocks = MakeBlocks()
-
 OPS = ["cx", "swap", "cz"]
 OPS_DICT = {op: i for i, op in enumerate(OPS)}
 
@@ -37,18 +35,23 @@ def qc_to_rust(qc_blocks):
         getattr(gi.operation, "condition", None) is not None for gi in qc_blocks
     )
 
+    def qubit_index(q):
+        return qc_blocks.find_bit(q).index
+
     for op_id, gi in enumerate(qc_blocks):
         if gi.operation.name == "barrier":
             # Apply two layers of barrier in both directions
             for q in gi.qubits:
+                idx = qubit_index(q)
                 ops.append(
-                    (6, (q._index, q._index))
+                    (6, (idx, idx))
                 )  # Gate type '6' is Barrier for the Rust routing
             for q in reversed(gi.qubits):
-                ops.append((6, (q._index, q._index)))
+                idx = qubit_index(q)
+                ops.append((6, (idx, idx)))
             continue
         if len(gi.qubits) == 2:
-            qubit_inputs = tuple(qi._index for qi in gi.qubits)
+            qubit_inputs = tuple(qubit_index(qi) for qi in gi.qubits)
             if (
                 getattr(gi.operation, "condition", None) is None
                 and gi.operation.name in OPS_DICT
@@ -59,7 +62,8 @@ def qc_to_rust(qc_blocks):
                 gate_type = 10 * (op_id + 1)
         elif len(gi.qubits) == 1:
             # This should only happen in some edge cases and in dynamic operations
-            qubit_inputs = (gi.qubits[0]._index, gi.qubits[0]._index)
+            idx = qubit_index(gi.qubits[0])
+            qubit_inputs = (idx, idx)
             gate_type = 10 * (op_id + 1)
         else:
             continue

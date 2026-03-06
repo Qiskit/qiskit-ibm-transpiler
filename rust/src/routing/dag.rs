@@ -270,7 +270,10 @@ impl TwoQubitDAG {
                 self.front.insert(a, idx); // using 'a' as qubit since both are equal
             }
             Front::Error => {
-                println!("DAG Front Error!");
+                eprintln!("Warning: DAG Front Error for op {:?}, adding without edges", op);
+                let idx = self.add_node(op);
+                self.front.insert(a, idx);
+                self.front.insert(b, idx);
             }
         };
 

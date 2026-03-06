@@ -91,7 +91,10 @@ impl CircuitMetrics {
             "n_cnots" => self.n_cnots,
             "layers" => self.layers.len(),
             "n_gates" => self.n_gates,
-            _ => panic!("This should be impossible"),
+            unknown => {
+                eprintln!("Warning: unknown metric name '{}', returning 0", unknown);
+                0
+            }
         }
     }
 

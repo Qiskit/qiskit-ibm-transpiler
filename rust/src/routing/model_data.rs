@@ -2,6 +2,7 @@ use nalgebra::{SMatrix, SVector};
 use safetensors::SafeTensors;
 use std::fs;
 
+#[derive(Clone)]
 pub struct ModelData {
     pub bias0: SVector<f32, 256>,
     pub bias1: SVector<f32, 16>,

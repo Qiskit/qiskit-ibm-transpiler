@@ -146,7 +146,7 @@ impl Env {
                 }
             }
             Err(_e) => {
-                panic!("The circuit is ill formed! This should not be reached.");
+                eprintln!("Warning: topological sort failed, circuit may be ill-formed");
             }
         }
         out

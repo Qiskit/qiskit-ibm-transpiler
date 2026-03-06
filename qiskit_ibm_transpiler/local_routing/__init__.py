@@ -1,5 +1,5 @@
-from .routing import RoutingInference as AIRoutingInference
+from .routing import RoutingInference
 
 __all__ = [
-    AIRoutingInference,
+    "RoutingInference",
 ]
