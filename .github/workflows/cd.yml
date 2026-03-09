@@ -60,13 +60,6 @@ jobs:
 
       - uses: dtolnay/rust-toolchain@stable
 
-      - uses: astral-sh/setup-uv@v5
-        with:
-          enable-cache: true
-
-      - name: Install Python
-        run: uv python install 3.13
-
       - name: Build sdist
         uses: PyO3/maturin-action@v1
         with:
@@ -80,6 +73,7 @@ jobs:
 
   publish:
     name: Publish to PyPI
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/')
     needs: [build_wheels, build_sdist]
     runs-on: ubuntu-latest
     environment: release
