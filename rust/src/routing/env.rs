@@ -131,9 +131,7 @@ impl Env {
                     out.push(op);
                 }
             }
-            Err(_e) => {
-
-            }
+            Err(_) => {} // toposort cycle — return empty circuit
         }
         out
     }

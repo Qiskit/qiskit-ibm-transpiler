@@ -91,7 +91,10 @@ impl CircuitMetrics {
             "n_cnots" => self.n_cnots,
             "layers" => self.layers.len(),
             "n_gates" => self.n_gates,
-            _ => 0,
+            unknown => {
+                log::warn!("Unknown metric '{}', returning 0", unknown);
+                0
+            }
         }
     }
 

@@ -11,7 +11,6 @@ class LayoutIterTypes(str, Enum):
     Improve = "improve"
 
 
-
 def keep_layout_gen(qc):
     while True:
         yield np.arange(qc.num_qubits, dtype=int)
