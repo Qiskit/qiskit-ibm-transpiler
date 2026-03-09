@@ -11,6 +11,7 @@
 # that they have been altered from the originals.
 
 """Functions used on the tests"""
+
 from unittest.mock import MagicMock, Mock
 
 import numpy as np

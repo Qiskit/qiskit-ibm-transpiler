@@ -1,0 +1,20 @@
+[package]
+name = "qiskit-ibm-transpiler-rs"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+name = "qiskit_ibm_transpiler_rs"
+crate-type = ["cdylib"]
+
+[dependencies]
+pyo3 = { version = "0.22.3", features = ["extension-module"] }
+nalgebra = "0.32.5"
+rand = "0.8.4"
+petgraph = "0.6.5"
+safetensors = "0.4"
+log = "0.4"
+
+[profile.release]
+opt-level = 3
+lto = 'fat'

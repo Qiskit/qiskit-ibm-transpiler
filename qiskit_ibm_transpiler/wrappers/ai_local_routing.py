@@ -10,24 +10,11 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-import importlib
-
 from qiskit import QuantumCircuit
 from qiskit.transpiler import CouplingMap
 
 from qiskit_ibm_transpiler.types import OptimizationOptions
-from qiskit_ibm_transpiler.utils import get_circuit_from_qasm, input_to_qasm
-
-ai_local_package = "qiskit_ibm_ai_local_transpiler"
-qiskit_ibm_ai_local_transpiler = (
-    importlib.import_module(ai_local_package)
-    if importlib.util.find_spec(ai_local_package)
-    else None
-)
-AIRoutingInference = getattr(
-    qiskit_ibm_ai_local_transpiler, "AIRoutingInference", "AIRoutingInference not found"
-)
-
+from qiskit_ibm_transpiler.local_routing.routing import RoutingInference
 
 OP_LEVELS = {
     1: {"full_its": 8, "its": 2, "reps": 2, "runs": 1, "max_time": 30},
@@ -53,15 +40,15 @@ class AILocalRouting:
         coupling_map_dists_array = coupling_map.distance_matrix.astype(int).tolist()
         coupling_map_n_qubits = len(coupling_map_dists_array)
 
-        op_params = OP_LEVELS[optimization_level]
-
-        if type(optimization_level) is dict:
+        if isinstance(optimization_level, dict):
             # Users can provide their own values by providing a dict
             op_params = OP_LEVELS[3].copy()
             op_params.update(optimization_level)
+        else:
+            op_params = OP_LEVELS[optimization_level]
 
         # Perform routing
-        routed_qc, init_layout, final_layout = AIRoutingInference().route(
+        routed_qc, init_layout, final_layout = RoutingInference().route(
             circuit=circuit,
             coupling_map_edges=coupling_map_edges,
             coupling_map_n_qubits=coupling_map_n_qubits,

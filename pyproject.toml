@@ -28,14 +28,10 @@ dependencies = [
     "qiskit-qasm3-import~=0.4",
     "requests~=2.0",
     "networkx==2.8.5",
-    "qiskit-serverless~=0.29.0",
-    "qiskit_ibm_ai_local_transpiler~=0.5",
+    "qiskit-serverless~=0.30.0",
     "qiskit-gym~=0.4.0",
     "PyYAML~=6.0"
 ]
-
-[project.optional-dependencies]
-ai-local-mode = []
 
 [project.urls]
 "Bug Tracker" = "https://github.com/Qiskit/qiskit-ibm-transpiler/issues"
@@ -59,14 +55,15 @@ docs = [
 ]
 
 [build-system]
-requires = ["setuptools", "build"]
-build-backend = "setuptools.build_meta"
+requires = ["maturin>=1.4,<2.0"]
+build-backend = "maturin"
 
-[tool.setuptools]
-packages = { find = { where = ["."], include = ["qiskit_ibm_transpiler*"], exclude = ["models*"] } }
-
-[tool.setuptools.package-data]
-qiskit_ibm_transpiler = ["data/*.yaml"]
+[tool.maturin]
+features = ["pyo3/extension-module"]
+profile = "release"
+module-name = "qiskit_ibm_transpiler.qiskit_ibm_transpiler_rs"
+compatibility = "manylinux2014"
+python-source = "."
 
 [tool.uv]
 index-url = "https://pypi.org/simple"
