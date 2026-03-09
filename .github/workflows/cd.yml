@@ -16,37 +16,80 @@ on:
   push:
     tags:
       - '*'
+  workflow_dispatch:
 
 jobs:
-  Deploy:
+  build_wheels:
+    name: Build wheel (${{ matrix.os }}, py${{ matrix.python-version }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - ubuntu-latest
+          - macos-15-intel
+          - macos-14
+          - windows-latest
+        python-version: ['3.10', '3.11', '3.12', '3.13']
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: dtolnay/rust-toolchain@stable
+
+      - name: Build wheels
+        uses: PyO3/maturin-action@v1
+        with:
+          command: build
+          args: --release -i python${{ matrix.python-version }}
+          manylinux: auto
+
+      - name: Remove non-manylinux wheels on Linux
+        if: runner.os == 'Linux'
+        run: rm -f rust/target/wheels/*-linux_*
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: wheels-${{ matrix.os }}-py${{ matrix.python-version }}
+          path: rust/target/wheels/*.whl
+
+  build_sdist:
+    name: Build sdist
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: dtolnay/rust-toolchain@stable
+
+      - uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+
+      - name: Install Python
+        run: uv python install 3.13
+
+      - name: Build sdist
+        uses: PyO3/maturin-action@v1
+        with:
+          command: sdist
+          args: --out dist
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: sdist
+          path: dist/*.tar.gz
+
+  publish:
+    name: Publish to PyPI
+    needs: [build_wheels, build_sdist]
     runs-on: ubuntu-latest
     environment: release
     permissions:
       id-token: write
-      
     steps:
-      - uses: actions/checkout@v4
-
-      - uses: astral-sh/setup-uv@v3
-
-      - name: Install Python
-        run: uv python install 3.11
-
-      - name: Cache uv
-        uses: actions/cache@v4
+      - uses: actions/download-artifact@v4
         with:
-          path: ~/.cache/uv
-          key: ${{ runner.os }}-uv-cd-${{ hashFiles('uv.lock') }}
-
-      - name: Sync dependencies
-        run: uv sync
-
-      - name: Build package
-        run: uv build
-
-      - uses: actions/upload-artifact@v4
-        with:
-          path: ./dist/*
+          path: dist
+          merge-multiple: true
 
       - name: Deploy to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
