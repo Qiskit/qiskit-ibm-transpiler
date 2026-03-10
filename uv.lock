@@ -2446,7 +2446,7 @@ wheels = [
 
 [[package]]
 name = "qiskit-ibm-transpiler"
-version = "0.17.0"
+version = "0.18.0"
 source = { editable = "." }
 dependencies = [
     { name = "backoff" },
