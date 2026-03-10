@@ -1,0 +1,12 @@
+0.18.0 (2026-03-10)
+===================
+
+New features
+------------
+
+- Move routing inference into the project for local execution. This introduces a new Rust routing engine and a new Python ``local_routing`` package, allowing models to be downloaded from HuggingFace and run locally. The existing AI routing passes have been updated to use this new local inference path. (`247 <https://github.com/Qiskit/qiskit-ibm-transpiler/pull/247>`__)
+
+Other notes
+-----------
+
+- Upgrade release GitHub action to handle rust/pyo3. (`248 <https://github.com/Qiskit/qiskit-ibm-transpiler/pull/248>`__)
