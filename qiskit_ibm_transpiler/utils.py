@@ -41,7 +41,7 @@ from qiskit.circuit import QuantumCircuit, library
 from qiskit.circuit.library import LinearFunction
 from qiskit.qpy import common
 from qiskit.quantum_info import Clifford
-from qiskit.synthesis.linear.linear_matrix_utils import random_invertible_binary_matrix
+from qiskit.synthesis.linear import random_invertible_binary_matrix
 from qiskit.transpiler.basepasses import TransformationPass
 
 logger = logging.getLogger(__name__)
