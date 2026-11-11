@@ -143,7 +143,7 @@ optimized_circuit = ai_pm.run(circuit)
 
 #### Using the Transpiler Service (Cloud)
 
-> **Note**: The Qiskit Transpiler Service is currently being migrated. We recommend using local mode instead.
+> **Note**: The Qiskit Function `ibm/transpiler-function` that backs the Qiskit Transpiler Service is deprecated and no longer available. `TranspilerService` now raises a `ValueError`. Use local mode instead.
 
 ```python
 from qiskit.circuit.library import EfficientSU2
