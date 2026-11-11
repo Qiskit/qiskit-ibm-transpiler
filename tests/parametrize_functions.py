@@ -29,11 +29,6 @@ from qiskit_ibm_transpiler.ai.synthesis import (
 )
 
 
-def parametrize_ai():
-    # return pytest.mark.parametrize("ai", ["false", "true"], ids=["no_ai", "ai"])
-    return pytest.mark.parametrize("ai", ["false"], ids=["no_ai"])
-
-
 def parametrize_include_ai_synthesis():
     return pytest.mark.parametrize(
         "include_ai_synthesis", [False, True], ids=["ai_synthesis", "no_ai_synthesis"]
@@ -118,20 +113,6 @@ def parametrize_non_valid_layout_mode():
     )
 
 
-def parametrize_non_valid_use_fractional_gates():
-    return pytest.mark.parametrize(
-        "non_valid_use_fractional_gates",
-        [8, "8", "foo"],
-    )
-
-
-def parametrize_valid_use_fractional_gates():
-    return pytest.mark.parametrize(
-        "valid_use_fractional_gates",
-        ["no", "n", "false", "f", "0", "yes", "y", "true", "t", "1"],
-    )
-
-
 def parametrize_non_valid_optimization_preferences():
     return pytest.mark.parametrize(
         "non_valid_optimization_preferences",
@@ -143,13 +124,6 @@ def parametrize_valid_optimization_preferences():
     return pytest.mark.parametrize(
         "valid_optimization_preferences",
         [None, "noise", ["noise", "n_cnots"]],
-    )
-
-
-def parametrize_valid_optimization_preferences_without_noise():
-    return pytest.mark.parametrize(
-        "valid_optimization_preferences_without_noise",
-        [None, "n_cnots", ["n_cnots"]],
     )
 
 

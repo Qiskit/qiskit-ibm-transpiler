@@ -34,18 +34,6 @@ The package automatically authenticates using your [IBM Quantum Platform credent
 - Environment variable: `QISKIT_IBM_TOKEN`
 - Configuration file: `~/.qiskit/qiskit-ibm.json` (searches in order: `default-ibm-quantum-platform`, `default-ibm-quantum`)
 
-You can also specify a particular saved account by name using the `account_name` parameter:
-
-```python
-from qiskit_ibm_transpiler.transpiler_service import TranspilerService
-
-# Use a specific saved account
-service = TranspilerService(
-    backend_name="ibm_torino",
-    account_name="my-custom-account"  # Uses this account, falls back to defaults if not found
-)
-```
-
 ## 🚀 Getting Started
 
 ### Tutorial and Examples
@@ -143,34 +131,7 @@ optimized_circuit = ai_pm.run(circuit)
 
 #### Using the Transpiler Service (Cloud)
 
-> **Note**: The Qiskit Function `ibm/transpiler-function` that backs the Qiskit Transpiler Service is deprecated and no longer available. `TranspilerService` now raises a `ValueError`. Use local mode instead.
-
-```python
-from qiskit.circuit.library import EfficientSU2
-from qiskit_ibm_transpiler.transpiler_service import TranspilerService
-
-# Create your circuit
-circuit = EfficientSU2(101, entanglement="circular", reps=1).decompose()
-
-# Enable AI optimization for superior results
-service = TranspilerService(
-    backend_name="ibm_torino",
-    ai="auto",              # Service decides: AI passes vs standard Qiskit
-    optimization_level=3,
-)
-optimized_circuit = service.run(circuit)
-```
-
-**Service Configuration Options:**
-
-| Parameter | Values | Description |
-|-----------|--------|-------------|
-| `ai` | `"true"`, `"false"`, `"auto"` | AI transpilation mode |
-| `optimization_level` | `1`, `2`, `3` | Optimization intensity |
-| `backend_name` | Backend string | Target quantum device |
-| `coupling_map` | List of tuples | Custom connectivity |
-
-**Service Limits**: Max 1M two-qubit gates per job, 30-minute transpilation timeout, 20-minute result retrieval window.
+> **Note**: The Qiskit Function `ibm/transpiler-function` that backs the Qiskit Transpiler Service is deprecated and no longer available. `TranspilerService` now raises a `ValueError`. Transpile locally instead: use the AI transpiler passes above or `generate_ai_pass_manager` below for AI transpilation, or `generate_preset_pass_manager` from Qiskit for standard transpilation.
 
 #### Hybrid Heuristic-AI Circuit Transpilation
 
