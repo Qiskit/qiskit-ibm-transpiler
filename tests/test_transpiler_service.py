@@ -12,21 +12,15 @@
 
 """Unit-testing Transpiler Service"""
 
-import os
-
-import numpy as np
 import pytest
 from qiskit import QuantumCircuit, qasm2, qasm3
 from qiskit.circuit.library import (
-    IQP,
     ECRGate,
     EfficientSU2,
     ZZFeatureMap,
 )
-from qiskit.circuit.random import random_circuit
 from qiskit.compiler import transpile
 from qiskit.providers.fake_provider import GenericBackendV2
-from qiskit.quantum_info import SparsePauliOp, random_hermitian
 from qiskit.transpiler.exceptions import TranspilerError
 
 from qiskit_ibm_transpiler.transpiler_service import TranspilerService
@@ -43,31 +37,14 @@ from tests.parametrize_functions import (
     parametrize_non_valid_use_fractional_gates,
     parametrize_qiskit_transpile_options,
     parametrize_valid_optimization_level,
-    parametrize_valid_optimization_preferences_without_noise,
     parametrize_valid_use_fractional_gates,
 )
-from tests.utils import mock_serverless_function_result
 
 
-@parametrize_valid_optimization_level()
-@parametrize_ai()
-@parametrize_qiskit_transpile_options()
-def test_transpiler_service_random_circuit(
-    mocker, optimization_level, ai, qiskit_transpile_options, test_eagle_backend_name
-):
-    mock_serverless_function_result(mocker, [random_circuit(5, 3)])
-
-    random_circ = random_circuit(5, depth=3, seed=42)
-
-    cloud_transpiler_service = TranspilerService(
-        backend_name=test_eagle_backend_name,
-        ai=ai,
-        optimization_level=optimization_level,
-        qiskit_transpile_options=qiskit_transpile_options,
-    )
-    transpiled_circuit = cloud_transpiler_service.run(random_circ)
-
-    assert isinstance(transpiled_circuit, QuantumCircuit)
+@pytest.mark.parametrize("ai", ["true", "false", "auto"])
+def test_transpiler_service_function_deprecated(ai):
+    with pytest.raises(ValueError, match="ibm/transpiler-function.*deprecated"):
+        TranspilerService(optimization_level=1, ai=ai)
 
 
 @pytest.mark.skip("Still useful after migrating to functions?")
@@ -88,39 +65,6 @@ def test_transpiler_service_quantum_volume_circuit(
     assert isinstance(transpiled_circuit, QuantumCircuit)
 
 
-# FIXME: Code only supports coupling map list format
-# @parametrize_coupling_map_format()
-@parametrize_valid_optimization_level()
-@parametrize_ai()
-@parametrize_qiskit_transpile_options()
-@parametrize_valid_optimization_preferences_without_noise()
-def test_transpiler_service_coupling_map(
-    mocker,
-    test_eagle_coupling_map_list_format,
-    permutation_circuit_test_eagle,
-    optimization_level,
-    ai,
-    qiskit_transpile_options,
-    valid_optimization_preferences_without_noise,
-):
-    mock_serverless_function_result(mocker, permutation_circuit_test_eagle)
-
-    # For this tests the circuit is no relevant, so we reuse one we already have
-    original_circuit = permutation_circuit_test_eagle
-
-    cloud_transpiler_service = TranspilerService(
-        coupling_map=test_eagle_coupling_map_list_format,
-        ai=ai,
-        optimization_level=optimization_level,
-        qiskit_transpile_options=qiskit_transpile_options,
-        optimization_preferences=valid_optimization_preferences_without_noise,
-        timeout=600,
-    )
-    transpiled_circuit = cloud_transpiler_service.run(original_circuit)
-
-    assert isinstance(transpiled_circuit, QuantumCircuit)
-
-
 @pytest.mark.skip("Still useful after migrating to functions?")
 @pytest.mark.parametrize("num_circuits", [2, 5])
 def test_transpiler_service_several_qv_circuits(
@@ -136,31 +80,6 @@ def test_transpiler_service_several_qv_circuits(
     transpiled_circuit = cloud_transpiler_service.run([qv_circ] * num_circuits)
     for circ in transpiled_circuit:
         assert isinstance(circ, QuantumCircuit)
-
-
-@parametrize_ai()
-def test_transpiler_service_layout_reconstruction(mocker, ai):
-    n_qubits = 27
-
-    mock_serverless_function_result(mocker, [QuantumCircuit(n_qubits)])
-
-    mat = np.real(random_hermitian(n_qubits, seed=1234))
-    circuit = IQP(mat)
-    observable = SparsePauliOp("Z" * n_qubits)
-
-    cloud_transpiler_service = TranspilerService(
-        backend_name="test_eagle",
-        ai=ai,
-        optimization_level=1,
-    )
-    transpiled_circuit = cloud_transpiler_service.run(circuit)
-    # This fails if initial layout is not correct
-    try:
-        observable.apply_layout(transpiled_circuit.layout)
-    except Exception:
-        pytest.fail(
-            "This should not fail. Probably something wrong with the reconstructed layout."
-        )
 
 
 @pytest.mark.skip("Still useful after migrating to functions?")
@@ -494,38 +413,3 @@ def test_transpiler_service_barrier_on_circuit(
     transpiled_circuit = transpiler_service.run(circuit_with_barrier)
 
     assert isinstance(transpiled_circuit, QuantumCircuit)
-
-
-@pytest.mark.e2e
-def test_transpiler_service_wrong_input(
-    test_eagle_backend_name, test_instance, qv_circ
-):
-    cloud_transpiler_service = TranspilerService(
-        backend_name=test_eagle_backend_name,
-        ai="auto",
-        optimization_level=1,
-        instance=test_instance,
-        url=os.getenv("QISKIT_SERVERLESS_API_URL", None),
-    )
-
-    circ_dict = {"a": qv_circ}
-
-    with pytest.raises(TranspilerError):
-        cloud_transpiler_service.run(circ_dict)
-
-
-@pytest.mark.e2e
-def test_transpiler_service_standard_flow(test_eagle_backend_name, test_instance):
-    qc = QuantumCircuit(2)
-    qc.h(0)
-    qc.cx(0, 1)
-    cloud_transpiler_service = TranspilerService(
-        backend_name=test_eagle_backend_name,
-        ai="false",
-        optimization_level=1,
-        instance=test_instance,
-        url=os.getenv("QISKIT_SERVERLESS_API_URL", None),
-    )
-    transpiled_circuit = cloud_transpiler_service.run(qc)
-    assert isinstance(transpiled_circuit, QuantumCircuit)
-    assert qc != transpiled_circuit  # transpilation should change the circuit

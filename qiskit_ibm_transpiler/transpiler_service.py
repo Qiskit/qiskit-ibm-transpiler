@@ -71,11 +71,12 @@ class TranspilerService:
         **kwargs,
     ) -> None:
         """Initializes the instance."""
-        if ai == "true":
-            raise ValueError(
-                f"AI transpilation on the cloud is currently not available. You can use AI transpilation locally. "
-                "More info can be found here: https://quantum.cloud.ibm.com/docs/en/guides/ai-transpiler-passes#run-the-ai-transpiler-passes-locally-or-on-the-cloud"
-            )
+        # The code below this raise is unreachable until the function wrapper is removed.
+        raise ValueError(
+            "The Qiskit Function 'ibm/transpiler-function' is deprecated and no longer available, "
+            "so TranspilerService cannot transpile circuits in the cloud. You can use AI transpilation locally. "
+            "More info can be found here: https://quantum.cloud.ibm.com/docs/en/guides/ai-transpiler-passes#run-the-ai-transpiler-passes-locally-or-on-the-cloud"
+        )
 
         self.transpiler_service = QiskitTranspilerFunction(**kwargs)
         self.backend_name = backend_name
