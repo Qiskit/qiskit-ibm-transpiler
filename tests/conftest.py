@@ -24,7 +24,6 @@ from qiskit.transpiler import CouplingMap
 
 from qiskit_ibm_transpiler.utils import (  # noqa: E402
     create_random_linear_function,
-    get_qpy_from_circuit,
     random_clifford_from_linear_function,
 )  # noqa: E402
 from tests.utils import create_random_circuit_with_several_operators  # noqa: E402
@@ -69,11 +68,6 @@ def env_set(monkeypatch, request):
 
 
 @pytest.fixture(scope="module")
-def non_valid_backend_name():
-    return "ibm_torin"
-
-
-@pytest.fixture(scope="module")
 def test_eagle_backend_name():
     return "test_eagle"
 
@@ -112,10 +106,6 @@ def mock_token(request, monkeypatch):
             "qiskit_ibm_transpiler.wrappers.base._get_credentials_from_system",
             lambda account_name=None: {"token": "FAKE", "instance": "FAKE"},
         )
-        monkeypatch.setattr(
-            "qiskit_ibm_transpiler.wrappers.function_transpile._get_credentials_from_system",
-            lambda account_name=None: {"token": "FAKE", "instance": "FAKE"},
-        )
 
 
 @pytest.fixture(scope="module")
@@ -137,16 +127,6 @@ def test_eagle_coupling_map_list_format(test_eagle_backend):
 @pytest.fixture(scope="module")
 def test_eagle_num_qubits(test_eagle_backend):
     return test_eagle_backend.num_qubits
-
-
-@pytest.fixture(scope="module")
-def qpy_circuit_with_transpiling_error():
-    return "UUlTS0lUDAECAAAAAAAAAAABZXEAC2YACAAAAAMAAAAAAAAAAAAAAAIAAAABAAAAAAAAAAYAAAAAY2lyY3VpdC0xNjAAAAAAAAAAAHt9cQEAAAADAAEBcQAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAgAAAAAAAAABACRnAAAAAgAAAAABAAAAAAAAALsAAAAAAAAAAAAAAAAAAAAAZGN4X2ZkN2JlNTcxOTQ1OTRkZTY5ZDFlMTNmNmFmYmY1NmZjAAtmAAgAAAACAAAAAAAAAAAAAAACAAAAAAAAAAAAAAACAAAAAGNpcmN1aXQtMTYxAAAAAAAAAAB7fQAAAAAAAAAAAAYAAAAAAAAAAgAAAAAAAAAAAAAAAAAAAAAAAAEAAAABQ1hHYXRlcQAAAABxAAAAAQAGAAAAAAAAAAIAAAAAAAAAAAAAAAAAAAAAAAABAAAAAUNYR2F0ZXEAAAABcQAAAAAAAAD///////////////8AAAAAAAAAAAAGAAAAAAAAAAIAAAAAAAAAAAAAAAAAAAAAAAABAAAAAUNaR2F0ZXEAAAAAcQAAAAIABwAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABTZGdHYXRlcQAAAAEAJAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABkY3hfZmQ3YmU1NzE5NDU5NGRlNjlkMWUxM2Y2YWZiZjU2ZmNxAAAAAnEAAAABAAYAAAADAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAVTNHYXRlcQAAAABmAAAAAAAAAAiMHTg9AR8PQGYAAAAAAAAACH+xa3jilAtAZgAAAAAAAAAItmSFHpiI8j8ABwAAAAEAAAACAAAAAAAAAAAAAAAAAAAAAAAAAQAAAAFDUlhHYXRlcQAAAAFxAAAAAGYAAAAAAAAACI2Sd1JN3gJAAAUAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWUdhdGVxAAAAAgAAAP///////////////wAAAAAAAAAA"
-
-
-@pytest.fixture(scope="module")
-def non_valid_qpy_circuit(basic_cnot_circuit):
-    return [get_qpy_from_circuit(basic_cnot_circuit)] * 2
 
 
 @pytest.fixture(scope="module")

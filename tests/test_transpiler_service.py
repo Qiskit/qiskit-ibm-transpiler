@@ -20,239 +20,21 @@ from qiskit.circuit.library import (
     ZZFeatureMap,
 )
 from qiskit.compiler import transpile
-from qiskit.providers.fake_provider import GenericBackendV2
-from qiskit.transpiler.exceptions import TranspilerError
 
 from qiskit_ibm_transpiler.transpiler_service import TranspilerService
 from qiskit_ibm_transpiler.utils import (
     get_circuit_from_qasm,
-    get_circuit_from_qpy,
     get_qpy_from_circuit,
     input_to_qasm,
     to_qasm3_iterative_decomposition,
 )
 from qiskit_ibm_transpiler.wrappers import _get_circuit_from_result
-from tests.parametrize_functions import (
-    parametrize_ai,
-    parametrize_non_valid_use_fractional_gates,
-    parametrize_qiskit_transpile_options,
-    parametrize_valid_optimization_level,
-    parametrize_valid_use_fractional_gates,
-)
 
 
 @pytest.mark.parametrize("ai", ["true", "false", "auto"])
 def test_transpiler_service_function_deprecated(ai):
     with pytest.raises(ValueError, match="ibm/transpiler-function.*deprecated"):
         TranspilerService(optimization_level=1, ai=ai)
-
-
-@pytest.mark.skip("Still useful after migrating to functions?")
-@parametrize_valid_optimization_level()
-@parametrize_ai()
-@parametrize_qiskit_transpile_options()
-def test_transpiler_service_quantum_volume_circuit(
-    optimization_level, ai, qiskit_transpile_options, test_eagle_backend_name, qv_circ
-):
-    cloud_transpiler_service = TranspilerService(
-        backend_name=test_eagle_backend_name,
-        ai=ai,
-        optimization_level=optimization_level,
-        qiskit_transpile_options=qiskit_transpile_options,
-    )
-    transpiled_circuit = cloud_transpiler_service.run(qv_circ)
-
-    assert isinstance(transpiled_circuit, QuantumCircuit)
-
-
-@pytest.mark.skip("Still useful after migrating to functions?")
-@pytest.mark.parametrize("num_circuits", [2, 5])
-def test_transpiler_service_several_qv_circuits(
-    num_circuits, test_eagle_backend_name, qv_circ
-):
-    cloud_transpiler_service = TranspilerService(
-        backend_name=test_eagle_backend_name,
-        ai="true",
-        optimization_level=1,
-        timeout=900,
-    )
-
-    transpiled_circuit = cloud_transpiler_service.run([qv_circ] * num_circuits)
-    for circ in transpiled_circuit:
-        assert isinstance(circ, QuantumCircuit)
-
-
-@pytest.mark.skip("Still useful after migrating to functions?")
-def test_transpiler_service_non_valid_backend_name(
-    non_valid_backend_name, basic_cnot_circuit
-):
-    transpiler_service = TranspilerService(
-        backend_name=non_valid_backend_name,
-        ai="false",
-        optimization_level=3,
-    )
-
-    with pytest.raises(
-        TranspilerError,
-        match=r"User doesn\'t have access to the specified backend: \w+",
-    ):
-        transpiler_service.run(basic_cnot_circuit)
-
-
-@pytest.mark.skip(
-    "Service accepts now 1e6 gates. Takes too much time to create that circuit."
-)
-def test_transpiler_service_exceed_circuit_size(test_eagle_backend_name):
-    circuit = EfficientSU2(120, entanglement="full", reps=5).decompose()
-    transpiler_service = TranspilerService(
-        backend_name=test_eagle_backend_name,
-        ai="false",
-        optimization_level=3,
-    )
-
-    try:
-        transpiler_service.run(circuit)
-        pytest.fail("Error expected")
-    except Exception as e:
-        assert str(e) == "'Circuit has more gates than the allowed maximum of 30000.'"
-
-
-@pytest.mark.skip("Still useful after migrating to functions?")
-def test_transpiler_service_exceed_timeout(test_eagle_backend_name):
-    circuit = EfficientSU2(100, entanglement="circular", reps=50).decompose()
-    transpiler_service = TranspilerService(
-        backend_name=test_eagle_backend_name,
-        ai="false",
-        optimization_level=3,
-        timeout=1,
-    )
-
-    try:
-        transpiler_service.run(circuit)
-        pytest.fail("Error expected")
-    except Exception as e:
-        assert (
-            "timed out. Try to update the client's timeout config or review your task"
-            in str(e)
-        )
-
-
-@pytest.mark.skip("Still useful after migrating to functions?")
-def test_transpiler_service_wrong_token(test_eagle_backend_name, basic_cnot_circuit):
-    transpiler_service = TranspilerService(
-        backend_name=test_eagle_backend_name,
-        ai="false",
-        optimization_level=3,
-        token="invented_token5",
-    )
-
-    try:
-        transpiler_service.run(basic_cnot_circuit)
-        pytest.fail("Error expected")
-    except Exception as e:
-        assert str(e) == "'Invalid authentication credentials'"
-
-
-@pytest.mark.skip("Still useful after migrating to functions?")
-@pytest.mark.disable_monkeypatch
-def test_transpiler_service_wrong_url(test_eagle_backend_name, basic_cnot_circuit):
-    transpiler_service = TranspilerService(
-        backend_name=test_eagle_backend_name,
-        ai="false",
-        optimization_level=3,
-        base_url="https://ibm.com/",
-    )
-
-    with pytest.raises(
-        TranspilerError,
-        match=r"Internal error: 404 Client Error: Not Found for url: https://www.ibm.com/transpile",
-    ):
-        transpiler_service.run(basic_cnot_circuit)
-
-
-@pytest.mark.skip("Still useful after migrating to functions?")
-@pytest.mark.disable_monkeypatch
-def test_transpiler_service_unexisting_url(test_eagle_backend_name, basic_cnot_circuit):
-    transpiler_service = TranspilerService(
-        backend_name=test_eagle_backend_name,
-        ai="false",
-        optimization_level=3,
-        base_url="https://invented-domain-qiskit-ibm-transpiler-123.com/",
-    )
-
-    with pytest.raises(TranspilerError) as exception_info:
-        transpiler_service.run(basic_cnot_circuit)
-
-        assert (
-            "Error: HTTPSConnectionPool(host=\\'invented-domain-qiskit-ibm-transpiler-123.com\\', port=443)"
-            in exception_info.value
-        )
-
-
-@pytest.mark.skip("Still useful after migrating to functions?")
-def test_transpiler_service_malformed_body(test_eagle_backend_name, basic_cnot_circuit):
-    transpiler_service = TranspilerService(
-        backend_name=test_eagle_backend_name,
-        ai="false",
-        optimization_level=3,
-        qiskit_transpile_options={"failing_option": 0},
-    )
-
-    with pytest.raises(TranspilerError) as exception_info:
-        transpiler_service.run(basic_cnot_circuit)
-
-        assert (
-            "\"Error transpiling with Qiskit and qiskit_transpile_options: transpile() got an unexpected keyword argument 'failing_option'\""
-            in exception_info.value
-        )
-
-
-@pytest.mark.skip("Still useful after migrating to functions?")
-def test_transpiler_service_failing_task(
-    test_eagle_backend_name, qpy_circuit_with_transpiling_error
-):
-    transpiler_service = TranspilerService(
-        backend_name=test_eagle_backend_name,
-        ai="false",
-        optimization_level=3,
-        coupling_map=[[1, 2], [2, 1]],
-        qiskit_transpile_options={
-            "basis_gates": ["u1", "u2", "u3", "cx"],
-            "seed_transpiler": 0,
-        },
-    )
-
-    with pytest.raises(TranspilerError) as exception_info:
-        transpiler_service.run(get_circuit_from_qpy(qpy_circuit_with_transpiling_error))
-
-        assert "The background task" in exception_info.value
-        assert "FAILED" in exception_info.value
-
-
-@pytest.mark.skip("Still useful after migrating to functions?")
-def test_transpiler_service_non_valid_circuits_format(
-    test_eagle_backend_name, non_valid_qpy_circuit
-):
-    cloud_transpiler_service = TranspilerService(
-        backend_name=test_eagle_backend_name, optimization_level=1
-    )
-
-    with pytest.raises(TypeError):
-        cloud_transpiler_service.run(non_valid_qpy_circuit)
-
-
-@pytest.mark.skip("Still useful after migrating to functions?")
-def test_transpiler_service_wrong_qpy_fallback():
-    circuit = QuantumCircuit.from_qasm_file("tests/test_files/cc_n64.qasm")
-    test_backend = GenericBackendV2(circuit.num_qubits)
-
-    cloud_transpiler_service = TranspilerService(
-        coupling_map=list(test_backend.coupling_map.get_edges()), optimization_level=3
-    )
-
-    transpiled_circuit = cloud_transpiler_service.run(circuit)
-
-    assert isinstance(transpiled_circuit, QuantumCircuit)
 
 
 def compare_layouts(plugin_circ, non_ai_circ):
@@ -339,55 +121,6 @@ def test_transpiler_service_fix_ecr_qasm3():
     assert isinstance(list(circuit_from_qasm)[0].operation, ECRGate)
 
 
-@pytest.mark.skip("Still useful after migrating to functions?")
-def test_transpiler_service_fix_ecr_test_eagle():
-    num_qubits = 16
-    circuit = QuantumCircuit(num_qubits)
-    for i in range(num_qubits - 1):
-        circuit.ecr(i, i + 1)
-
-    cloud_transpiler_service = TranspilerService(
-        backend_name="test_eagle",
-        ai="false",
-        optimization_level=3,
-    )
-    transpiled_circuit = cloud_transpiler_service.run(circuit)
-    assert any(isinstance(gate.operation, ECRGate) for gate in list(transpiled_circuit))
-
-
-@pytest.mark.skip("Still useful after migrating to functions?")
-@parametrize_non_valid_use_fractional_gates()
-def test_transpiler_service_non_valid_use_fractional_gates(
-    non_valid_use_fractional_gates, test_eagle_backend_name, basic_cnot_circuit
-):
-    transpiler_service = TranspilerService(
-        backend_name=test_eagle_backend_name,
-        optimization_level=1,
-        use_fractional_gates=non_valid_use_fractional_gates,
-    )
-
-    with pytest.raises(TranspilerError) as exception_info:
-        transpiler_service.run(basic_cnot_circuit)
-
-        assert "Wrong input" in exception_info.value
-
-
-@pytest.mark.skip("Still useful after migrating to functions?")
-@parametrize_valid_use_fractional_gates()
-def test_transpiler_service_transpile_valid_use_fractional_gates_param(
-    valid_use_fractional_gates, test_eagle_backend_name, basic_cnot_circuit
-):
-    transpiler_service = TranspilerService(
-        backend_name=test_eagle_backend_name,
-        optimization_level=1,
-        use_fractional_gates=valid_use_fractional_gates,
-    )
-
-    transpiled_circuit = transpiler_service.run(basic_cnot_circuit)
-
-    assert isinstance(transpiled_circuit, QuantumCircuit)
-
-
 def test_transpiler_service_qasm3_iterative_decomposition():
     feature_map = ZZFeatureMap(feature_dimension=3, reps=1, entanglement="full")
     qasm = input_to_qasm(feature_map)
@@ -399,17 +132,3 @@ def test_transpiler_service_qasm3_iterative_decomposition_limit():
     feature_map = ZZFeatureMap(feature_dimension=3, reps=1, entanglement="full")
     with pytest.raises(qasm3.QASM3ExporterError):
         to_qasm3_iterative_decomposition(feature_map, n_iter=1)
-
-
-@pytest.mark.skip("Still useful after migrating to functions?")
-def test_transpiler_service_barrier_on_circuit(
-    test_eagle_backend_name, circuit_with_barrier
-):
-    transpiler_service = TranspilerService(
-        backend_name=test_eagle_backend_name,
-        optimization_level=1,
-    )
-
-    transpiled_circuit = transpiler_service.run(circuit_with_barrier)
-
-    assert isinstance(transpiled_circuit, QuantumCircuit)
