@@ -135,7 +135,13 @@ optimized_circuit = ai_pm.run(circuit)
 
 #### Hybrid Heuristic-AI Circuit Transpilation
 
-The qiskit-ibm-transpiler allows you to configure a hybrid pass manager that automatically combines the best of Qiskit's heuristic and AI-powered transpiler passes. This feature behaves similarly to the Qiskit `generate_pass_manager` method:
+The qiskit-ibm-transpiler allows you to configure a hybrid pass manager that automatically combines the best of Qiskit's heuristic and AI-powered transpiler passes. This feature behaves similarly to the Qiskit `generate_pass_manager` method.
+
+This example gets the `ibm_torino` coupling map from Qiskit Runtime, which is not a dependency of this package. Install it first:
+
+```bash
+pip install qiskit-ibm-runtime
+```
 
 ```python
 from qiskit_ibm_transpiler import generate_ai_pass_manager
