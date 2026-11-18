@@ -1,0 +1,24 @@
+0.19.0 (2026-11-18)
+===================
+
+Upgrade notes
+-------------
+
+- The Qiskit Function ``ibm/transpiler-function`` is deprecated and no longer available. :class:`~qiskit_ibm_transpiler.transpiler_service.TranspilerService`
+  now raises a ``ValueError`` with a deprecation message when it is created, for every value of ``ai``. Before this change, the cloud returned
+  a ``404`` error ("Qiskit Function ibm/transpiler-function doesn't exist") for ``ai="false"`` and ``ai="auto"``, and only ``ai="true"`` raised a clear error.
+  Transpile locally instead: use ``generate_ai_pass_manager`` or the AI transpiler passes for AI transpilation, or
+  ``qiskit.transpiler.generate_preset_pass_manager`` for standard transpilation.
+
+  ``qiskit-serverless`` is no longer a dependency, because only ``TranspilerService`` used it. As a result, ``qiskit-ibm-runtime`` is no longer
+  installed with this package. If your code uses one of these packages, install it explicitly. (`255 <https://github.com/Qiskit/qiskit-ibm-transpiler/pull/255>`__)
+
+
+Bug fixes
+---------
+
+- Fixed an import error when ``qiskit_ibm_transpiler`` is imported with Qiskit 2.5. The test-data helpers in
+  :mod:`qiskit_ibm_transpiler.utils` imported ``random_invertible_binary_matrix`` from the private module
+  ``qiskit.synthesis.linear.linear_matrix_utils``, which Qiskit 2.5 no longer ships; the helper is now imported from
+  the public ``qiskit.synthesis.linear`` package, which exports it in every supported Qiskit release (1.4.2 through 2.5).
+  No behavior of the AI passes changes. (`253 <https://github.com/Qiskit/qiskit-ibm-transpiler/pull/253>`__)
